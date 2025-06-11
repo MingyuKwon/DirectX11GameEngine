@@ -1,0 +1,2 @@
+﻿MSVCRT.lib(exe_main.obj) : error LNK2001: 확인할 수 없는 외부 기호 main
+D:\DirectX11GameEngine\x64\Release\DirectX11GameEngine.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.
