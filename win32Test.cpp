@@ -6,6 +6,8 @@
 #include <iostream>
 
 using namespace DirectX;
+void DrawScreen(float clearColor[4]);
+
 
 HWND g_hWnd = nullptr;
 
@@ -14,7 +16,8 @@ UINT g_width = 1280;
 UINT g_height = 720;
 UINT g_wPosX = 650;
 UINT g_wPosY = 300;
-float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.f };
+float defaultClearColor[4] = { 0.3f, 0.3f, 0.3f, 1.f };
+float resizeClearColor[4] = { 0.1f, 0.3f, 0.1f, 1.f };
 
 // Direct3D 전역 변수
 ID3D11Device* g_device = nullptr;
@@ -26,10 +29,17 @@ ID3D11DepthStencilView* g_depthStencilView = nullptr;
 
 // 윈도우 프로시저
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    if (msg == WM_DESTROY) {
+
+    switch (msg)
+    {
+    case WM_DESTROY :
         PostQuitMessage(0);
         return 0;
+    case WM_SIZE :
+        DrawScreen(resizeClearColor);
     }
+
+    
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
@@ -119,11 +129,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
             DispatchMessage(&msg);
         }
         else {
-            g_context->ClearRenderTargetView(g_renderTargetView, clearColor);
-            g_context->ClearDepthStencilView(g_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-
-            g_swapChain->Present(1, 0);
+            DrawScreen(defaultClearColor);
         }
     }
 
@@ -137,4 +143,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
     if (g_device) g_device->Release();
 
     return 0;
+}
+
+void DrawScreen(float clearColor[4])
+{
+    if (!g_context) return;
+
+    g_context->ClearRenderTargetView(g_renderTargetView, clearColor);
+    g_context->ClearDepthStencilView(g_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+    // Draw
+    g_swapChain->Present(1, 0);
 }
