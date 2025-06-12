@@ -18,6 +18,7 @@ UINT g_wPosX = 650;
 UINT g_wPosY = 300;
 float defaultClearColor[4] = { 0.3f, 0.3f, 0.3f, 1.f };
 float resizeClearColor[4] = { 0.1f, 0.3f, 0.1f, 1.f };
+float moveClearColor[4] = { 0.1f, 0.1f, 0.1f, 1.f };
 
 // Direct3D 전역 변수
 ID3D11Device* g_device = nullptr;
@@ -32,11 +33,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     switch (msg)
     {
-    case WM_DESTROY :
-        PostQuitMessage(0);
-        return 0;
-    case WM_SIZE :
-        DrawScreen(resizeClearColor);
+        case WM_DESTROY :
+            PostQuitMessage(0);
+            return 0;
+        case WM_MOVE: 
+        {
+            UINT newX = LOWORD(lParam);
+            UINT newY = HIWORD(lParam);
+
+            g_wPosX = newX;
+            g_wPosY = newY;
+
+            DrawScreen(moveClearColor);
+            break;
+        }
+        case WM_SIZE :
+        {
+            UINT clientWidth = LOWORD(lParam);
+            UINT clientHeight = HIWORD(lParam);
+
+            g_width = clientWidth;
+            g_height = clientHeight;
+
+            DrawScreen(resizeClearColor);
+        }
     }
 
     
