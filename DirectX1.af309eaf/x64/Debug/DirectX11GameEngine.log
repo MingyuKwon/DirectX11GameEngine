@@ -326,13 +326,5 @@ D:\DirectX11GameEngine\DirectX11\Include\xnamathmisc.inl(519,51): warning C4838:
   (소스 파일 'BoxDemo.cpp'을(를) 컴파일하는 중)
   
 BoxDemo.obj : error LNK2019: D3DX11CreateEffectFromMemory"private: void __cdecl BoxApp::BuildFX(void)" (?BuildFX@BoxApp@@AEAAXXZ) 함수에서 참조되는 확인할 수 없는 외부 기호
-BoxDemo.obj : error LNK2019: "public: __cdecl D3DApp::D3DApp(struct HINSTANCE__ *)" (??0D3DApp@@QEAA@PEAUHINSTANCE__@@@Z)"public: __cdecl BoxApp::BoxApp(struct HINSTANCE__ *)" (??0BoxApp@@QEAA@PEAUHINSTANCE__@@@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
-BoxDemo.obj : error LNK2019: "public: virtual __cdecl D3DApp::~D3DApp(void)" (??1D3DApp@@UEAA@XZ)"int `public: __cdecl BoxApp::BoxApp(struct HINSTANCE__ *)'::`1'::dtor$0" (?dtor$0@?0???0BoxApp@@QEAA@PEAUHINSTANCE__@@@Z@4HA) 함수에서 참조되는 확인할 수 없는 외부 기호
-BoxDemo.obj : error LNK2019: "public: float __cdecl D3DApp::AspectRatio(void)const " (?AspectRatio@D3DApp@@QEBAMXZ)"public: virtual void __cdecl BoxApp::OnResize(void)" (?OnResize@BoxApp@@UEAAXXZ) 함수에서 참조되는 확인할 수 없는 외부 기호
-BoxDemo.obj : error LNK2019: "public: int __cdecl D3DApp::Run(void)" (?Run@D3DApp@@QEAAHXZ)WinMain 함수에서 참조되는 확인할 수 없는 외부 기호
-BoxDemo.obj : error LNK2019: "public: virtual bool __cdecl D3DApp::Init(void)" (?Init@D3DApp@@UEAA_NXZ)"public: virtual bool __cdecl BoxApp::Init(void)" (?Init@BoxApp@@UEAA_NXZ) 함수에서 참조되는 확인할 수 없는 외부 기호
-BoxDemo.obj : error LNK2019: "public: virtual void __cdecl D3DApp::OnResize(void)" (?OnResize@D3DApp@@UEAAXXZ)"public: virtual void __cdecl BoxApp::OnResize(void)" (?OnResize@BoxApp@@UEAAXXZ) 함수에서 참조되는 확인할 수 없는 외부 기호
-BoxDemo.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: virtual __int64 __cdecl D3DApp::MsgProc(struct HWND__ *,unsigned int,unsigned __int64,__int64)" (?MsgProc@D3DApp@@UEAA_JPEAUHWND__@@I_K_J@Z)
-BoxDemo.obj : error LNK2001: 확인할 수 없는 외부 기호 "public: static float const MathHelper::Pi" (?Pi@MathHelper@@2MB)
-dxerr.lib(dxerrw.obj) : error LNK2019: _vsnwprintf"long __cdecl StringVPrintfWorkerW(unsigned short *,unsigned __int64,unsigned __int64 *,unsigned short const *,char *)" (?StringVPrintfWorkerW@@YAJPEAG_KPEA_KPEBGPEAD@Z) 함수에서 참조되는 확인할 수 없는 외부 기호
-D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe : fatal error LNK1120: 10개의 확인할 수 없는 외부 참조입니다.
+D:\DirectX11GameEngine\Common\Effects11d.lib : warning LNK4272: 'x86' 라이브러리 컴퓨터 종류가 'x64' 대상 컴퓨터 종류와 충돌합니다.
+D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.

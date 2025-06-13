@@ -10,6 +10,8 @@
 #include <crtdbg.h>
 #endif
  
+#include <comdef.h>  // _com_error
+#include <string>
 #include <d3dx11.h>
 #include "d3dx11Effect.h"
 #include <xnamath.h>
@@ -28,18 +30,20 @@
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
 
-#if defined(DEBUG) | defined(_DEBUG)
-	#ifndef HR
-	#define HR(x)                                              \
-	{                                                          \
-		HRESULT hr = (x);                                      \
-		if(FAILED(hr))                                         \
-		{                                                      \
-			DXTrace(__FILE__, (DWORD)__LINE__, hr, L#x, true); \
-		}                                                      \
-	}
-	#endif
-
+#ifndef HR
+#define HR(x)                                                             \
+{                                                                         \
+    HRESULT hr = (x);                                                     \
+    if (FAILED(hr))                                                       \
+    {                                                                     \
+        _com_error err(hr);                                               \
+        std::wstringstream ss;                                            \
+        ss << L"Function: " << L#x << L"\nFile: " << __FILEW__            \
+           << L"\nLine: " << __LINE__                                     \
+           << L"\nError: " << err.ErrorMessage();                         \
+        MessageBoxW(nullptr, ss.str().c_str(), L"DirectX Error", MB_OK); \
+    }                                                                     \
+}
 #else
 	#ifndef HR
 	#define HR(x) (x)

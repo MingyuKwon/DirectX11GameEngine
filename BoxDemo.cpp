@@ -260,9 +260,16 @@ void BoxApp::BuildFX()
 	// were no other errors.
 	if (FAILED(hr))
 	{
-		DXTrace(__FILE__, (DWORD)__LINE__, hr,
-			L"D3DX11CompileFromFile", true);
+		_com_error err(hr);
+		std::wstringstream ss;
+		ss << L"Shader compilation failed: FX/color.fx\n"
+			<< L"Function: D3DX11CompileFromFile\n"
+			<< L"HRESULT: " << std::hex << hr << L"\n"
+			<< L"Error: " << err.ErrorMessage();
+
+		MessageBoxW(nullptr, ss.str().c_str(), L"Shader Compile Error", MB_OK | MB_ICONERROR);
 	}
+
 	HR(D3DX11CreateEffectFromMemory(
 		compiledShader->GetBufferPointer(),
 		compiledShader->GetBufferSize(),
