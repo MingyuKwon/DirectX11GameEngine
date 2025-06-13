@@ -34,8 +34,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg)
     {
         case WM_DESTROY :
+        {
             PostQuitMessage(0);
             return 0;
+        }
+        case WM_COMMAND:
+            if (LOWORD(wParam) == 1) {  // 버튼 ID 확인
+                MessageBox(hWnd, L"버튼이 눌렸습니다!", L"알림", MB_OK);
+            }
+            break;
         case WM_MOVE: 
         {
             UINT newX = LOWORD(lParam);
@@ -56,6 +63,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             g_height = clientHeight;
 
             DrawScreen(resizeClearColor);
+            break;
         }
     }
 
@@ -123,25 +131,21 @@ bool InitDirect3D(HWND hWnd) {
 
 // 윈도우 생성 및 메시지 루프
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
-    // 1. 윈도우 클래스 등록
     WNDCLASS wc = {};
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = L"MyD3DWindow";
     RegisterClass(&wc);
 
-    // 2. 윈도우 생성
     g_hWnd = CreateWindowEx(0, wc.lpszClassName, L"D3D11 Window", WS_OVERLAPPEDWINDOW,
         g_wPosX, g_wPosY, g_width, g_height, nullptr, nullptr, hInstance, nullptr);
     ShowWindow(g_hWnd, nCmdShow);
 
-    // 3. Direct3D 초기화
     if (!InitDirect3D(g_hWnd)) {
         MessageBox(nullptr, L"Direct3D 초기화 실패", L"Error", MB_OK);
         return 1;
     }
 
-    // 4. 메시지 루프
     MSG msg = {};
     while (msg.message != WM_QUIT) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -153,7 +157,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
         }
     }
 
-    // 리소스 해제
+
     if (g_context) g_context->ClearState();
     if (g_depthStencilView) g_depthStencilView->Release();
     if (g_depthStencilBuffer) g_depthStencilBuffer->Release();
@@ -172,6 +176,5 @@ void DrawScreen(float clearColor[4])
     g_context->ClearRenderTargetView(g_renderTargetView, clearColor);
     g_context->ClearDepthStencilView(g_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    // Draw
     g_swapChain->Present(1, 0);
 }
