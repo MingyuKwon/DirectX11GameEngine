@@ -143,6 +143,9 @@
   <ItemGroup>
     <ClInclude Include="Tutorial\Resource.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Tutorial\Tutorial02.hlsli" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
