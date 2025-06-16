@@ -27,6 +27,9 @@
     <ClCompile Include="Tutorial1.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
+    <ClCompile Include="Tutorial2.cpp">
+      <Filter>소스 파일\Tutorial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
