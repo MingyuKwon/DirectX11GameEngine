@@ -24,15 +24,15 @@
     <ClCompile Include="ConsoleTest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Tutorial1.cpp">
+    <ClCompile Include="Tutorial\Tutorial1.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
-    <ClCompile Include="Tutorial2.cpp">
+    <ClCompile Include="Tutorial\Tutorial2.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Resource.h">
+    <ClInclude Include="Tutorial\Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
