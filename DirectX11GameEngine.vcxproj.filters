@@ -30,14 +30,26 @@
     <ClCompile Include="Tutorial\Tutorial2.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
+    <ClCompile Include="Tutorial\Tutorial4.cpp">
+      <Filter>소스 파일\Tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="Tutorial\Tutorial05.cpp">
+      <Filter>소스 파일\Tutorial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Tutorial\Resource.h">
+    <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Tutorial\Tutorial02.hlsli">
+    <None Include="Tutorial\DefaultVSPS.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Tutorial\3DCube.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Tutorial\Tutorial05.hlsli">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>

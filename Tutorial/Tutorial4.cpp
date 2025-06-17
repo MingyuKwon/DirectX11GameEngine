@@ -1,9 +1,9 @@
 //--------------------------------------------------------------------------------------
-// File: Tutorial02.cpp
+// File: Tutorial04.cpp
 //
-// This application displays a triangle using Direct3D 11
+// This application displays a 3D cube using Direct3D 11
 //
-// http://msdn.microsoft.com/en-us/library/windows/apps/ff729719.aspx
+// http://msdn.microsoft.com/en-us/library/windows/apps/ff729721.aspx
 //
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
 // ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
@@ -22,13 +22,21 @@
 
 using namespace DirectX;
 
-
 //--------------------------------------------------------------------------------------
 // Structures
 //--------------------------------------------------------------------------------------
 struct SimpleVertex
 {
     XMFLOAT3 Pos;
+    XMFLOAT4 Color;
+};
+
+
+struct ConstantBuffer
+{
+    XMMATRIX mWorld;
+    XMMATRIX mView;
+    XMMATRIX mProjection;
 };
 
 
@@ -50,6 +58,11 @@ ID3D11VertexShader* g_pVertexShader = nullptr;
 ID3D11PixelShader* g_pPixelShader = nullptr;
 ID3D11InputLayout* g_pVertexLayout = nullptr;
 ID3D11Buffer* g_pVertexBuffer = nullptr;
+ID3D11Buffer* g_pIndexBuffer = nullptr;
+ID3D11Buffer* g_pConstantBuffer = nullptr;
+XMMATRIX                g_World;
+XMMATRIX                g_View;
+XMMATRIX                g_Projection;
 
 
 //--------------------------------------------------------------------------------------
@@ -60,7 +73,6 @@ HRESULT InitDevice();
 void CleanupDevice();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 void Render();
-void ResizeScreen(UINT width, UINT height);
 
 
 //--------------------------------------------------------------------------------------
@@ -126,8 +138,8 @@ HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow)
     g_hInst = hInstance;
     RECT rc = { 0, 0, 800, 600 };
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-    g_hWnd = CreateWindow(L"TutorialWindowClass", L"Direct3D 11 Tutorial 2: Rendering a Triangle",
-        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_OVERLAPPEDWINDOW,
+    g_hWnd = CreateWindow(L"TutorialWindowClass", L"Direct3D 11 Tutorial 4: 3D Spaces",
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
         nullptr);
     if (!g_hWnd)
@@ -332,7 +344,7 @@ HRESULT InitDevice()
 
     // Compile the vertex shader
     ID3DBlob* pVSBlob = nullptr;
-    hr = CompileShaderFromFile(L"Tutorial\\DefaultVSPS.hlsli", "VS", "vs_4_0", &pVSBlob);
+    hr = CompileShaderFromFile(L"Tutorial\\3DCube.hlsli", "VS", "vs_4_0", &pVSBlob);
     if (FAILED(hr))
     {
         MessageBox(nullptr,
@@ -352,6 +364,7 @@ HRESULT InitDevice()
     const D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
     UINT numElements = ARRAYSIZE(layout);
 
@@ -364,7 +377,7 @@ HRESULT InitDevice()
 
     // Compile the pixel shader
     ID3DBlob* pPSBlob = nullptr;
-    hr = CompileShaderFromFile(L"Tutorial\\DefaultVSPS.hlsli", "PS", "ps_4_0", &pPSBlob);
+    hr = CompileShaderFromFile(L"Tutorial\\3DCube.hlsli", "PS", "ps_4_0", &pPSBlob);
     if (FAILED(hr))
     {
         MessageBox(nullptr,
@@ -379,83 +392,78 @@ HRESULT InitDevice()
         return hr;
 
     // Create vertex buffer
-    D3D11_BUFFER_DESC bd = {};
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(SimpleVertex) * 3;
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
     const SimpleVertex vertices[] =
     {
-        XMFLOAT3(0.0f, 0.5f, 0.5f),
-        XMFLOAT3(0.5f, -0.5f, 0.5f),
-        XMFLOAT3(-0.5f, -0.5f, 0.5f),
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
+        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) },
     };
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(SimpleVertex) * 8;
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA InitData = {};
     InitData.pSysMem = vertices;
-
     hr = g_pd3dDevice->CreateBuffer(&bd, &InitData, &g_pVertexBuffer);
     if (FAILED(hr))
         return hr;
 
-    return S_OK;
-}
-
-void ResizeScreen(UINT width, UINT height)
-{
-    if (g_pSwapChain != nullptr)
+    // Create index buffer
+    const WORD indices[] =
     {
-        // 렌더 타겟 뷰 제거
-        if (g_pRenderTargetView) { g_pRenderTargetView->Release(); g_pRenderTargetView = nullptr; }
+        3,1,0,
+        2,1,3,
 
-        // 스왑체인 버퍼 재생성
-        HRESULT hr = g_pSwapChain->ResizeBuffers(
-            0, // 기존 버퍼 개수 유지
-            width, // 새 너비
-            height, // 새 높이
-            DXGI_FORMAT_UNKNOWN, // 기존 포맷 유지
-            0); // 옵션 없음
+        0,5,4,
+        1,5,0,
 
-        if (FAILED(hr))
-        {
-            MessageBox(nullptr, L"ResizeBuffers failed", L"Error", MB_OK);
-            PostQuitMessage(1);
-            return;
-        }
+        3,4,7,
+        0,4,3,
 
-        // 백버퍼 재참조
-        ID3D11Texture2D* pBackBuffer = nullptr;
-        hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
-        if (FAILED(hr))
-        {
-            MessageBox(nullptr, L"GetBuffer failed", L"Error", MB_OK);
-            PostQuitMessage(1);
-            return;
-        }
+        1,6,5,
+        2,6,1,
 
-        // 렌더 타겟 뷰 다시 생성
-        hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_pRenderTargetView);
-        pBackBuffer->Release();
+        2,7,6,
+        3,7,2,
 
-        if (FAILED(hr))
-        {
-            MessageBox(nullptr, L"CreateRenderTargetView failed", L"Error", MB_OK);
-            PostQuitMessage(1);
-            return;
-        }
+        6,4,5,
+        7,4,6,
+    };
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(WORD) * 36;        // 36 vertices needed for 12 triangles in a triangle list
+    bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    InitData.pSysMem = indices;
+    hr = g_pd3dDevice->CreateBuffer(&bd, &InitData, &g_pIndexBuffer);
+    if (FAILED(hr))
+        return hr;
 
-        // 새 렌더 타겟 설정
-        g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, nullptr);
+    // Create the constant buffer
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(ConstantBuffer);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pConstantBuffer);
+    if (FAILED(hr))
+        return hr;
 
-        D3D11_VIEWPORT vp = {};
-        vp.Width = static_cast<FLOAT>(width);
-        vp.Height = static_cast<FLOAT>(height);
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-        vp.TopLeftX = 0;
-        vp.TopLeftY = 0;
-        g_pImmediateContext->RSSetViewports(1, &vp);
-    }
+    // Initialize the world matrix
+    g_World = XMMatrixIdentity();
+
+    // Initialize the view matrix
+    XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    g_View = XMMatrixLookAtLH(Eye, At, Up);
+
+    // Initialize the projection matrix
+    g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (FLOAT)height, 0.01f, 100.0f);
+
+    return S_OK;
 }
 
 
@@ -466,7 +474,9 @@ void CleanupDevice()
 {
     if (g_pImmediateContext) g_pImmediateContext->ClearState();
 
+    if (g_pConstantBuffer) g_pConstantBuffer->Release();
     if (g_pVertexBuffer) g_pVertexBuffer->Release();
+    if (g_pIndexBuffer) g_pIndexBuffer->Release();
     if (g_pVertexLayout) g_pVertexLayout->Release();
     if (g_pVertexShader) g_pVertexShader->Release();
     if (g_pPixelShader) g_pPixelShader->Release();
@@ -492,43 +502,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_PAINT:
         hdc = BeginPaint(hWnd, &ps);
-
         EndPaint(hWnd, &ps);
-        break;
-    case WM_SIZE:
-        {
-            UINT width = LOWORD(lParam);   
-            UINT height = HIWORD(lParam);  
-            ResizeScreen(width, height);
-            break;
-        }
-
-    case WM_KEYDOWN:
-        switch (wParam)
-        {
-        case VK_ESCAPE: 
-            PostQuitMessage(0);
-            break;
-        case 'W':
-            OutputDebugStringA("W key pressed\n");
-            break;
-        case 'A':
-            OutputDebugStringA("A key pressed\n");
-            break;
-        case 'S':
-            OutputDebugStringA("S key pressed\n");
-            break;
-        case 'D':
-            OutputDebugStringA("D key pressed\n");
-            break;
-        default:
-            break;
-        }
         break;
 
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+
+        // Note that this tutorial does not handle resizing (WM_SIZE) requests,
+        // so we created the window without the resize border.
 
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -543,8 +525,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //--------------------------------------------------------------------------------------
 void Render()
 {
+    // Update our time
+    static float t = 0.0f;
+    if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
+    {
+        t += (float)XM_PI * 0.0125f;
+    }
+    else
+    {
+        static ULONGLONG timeStart = 0;
+        ULONGLONG timeCur = GetTickCount64();
+        if (timeStart == 0)
+            timeStart = timeCur;
+        t = (timeCur - timeStart) / 1000.0f;
+    }
+
+    //
+    // Animate the cube
+    //
+    g_World = XMMatrixRotationY(t);
+
+    //
     // Clear the back buffer
+    //
     g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+
+    //
+    // Update variables
+    //
+    ConstantBuffer cb = {};
+    cb.mWorld = XMMatrixTranspose(g_World);
+    cb.mView = XMMatrixTranspose(g_View);
+    cb.mProjection = XMMatrixTranspose(g_Projection);
+    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     // Set the input layout
     g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
@@ -554,16 +567,22 @@ void Render()
     UINT offset = 0;
     g_pImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 
+    // Set index buffer
+    g_pImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
     // Set primitive topology
     g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    // Render a triangle
+    //
+    // Renders a triangle
+    //
     g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
     g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-    g_pImmediateContext->Draw(3, 0);
+    g_pImmediateContext->DrawIndexed(36, 0, 0);        // 36 vertices needed for 12 triangles in a triangle list
 
-    // Present the information rendered to the back buffer to the front buffer (the screen)
+    //
+    // Present our back buffer to our front buffer
+    //
     g_pSwapChain->Present(0, 0);
 }
-
-
