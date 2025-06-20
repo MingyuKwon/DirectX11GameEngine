@@ -1,7 +1,11 @@
-#include <windows.h>
 #include "EngineData.h"
 
-int InitBaseWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
+int InitBaseWindow();
+
+int InitContentPanel();
+int InitDetailPanel();
+int InitScenePanel();
+
 int InitMenuBar();
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -43,11 +47,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     LPSTR lpCmdLine, int nCmdShow)
 {
-    int result = InitBaseWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-    if (result == 0) return 0;
+    hWindowInstance = hInstance;
 
-    result = InitMenuBar();
-    if (result == 0) return 0;
+    if (!InitBaseWindow()) return 0;
+    if (!InitContentPanel()) return 0;
+    if (!InitDetailPanel()) return 0;
+    if (!InitScenePanel()) return 0;
+    if (!InitMenuBar()) return 0;
     
     MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0))
@@ -59,7 +65,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return (int)msg.wParam;
 }
 
-int InitBaseWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int InitBaseWindow()
 {
     const wchar_t CLASS_NAME[] = ENGINE_NAME;
 
@@ -67,7 +73,7 @@ int InitBaseWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = WndProc;
-    wcex.hInstance = hInstance;
+    wcex.hInstance = hWindowInstance;
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszClassName = CLASS_NAME;
@@ -77,27 +83,89 @@ int InitBaseWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-    int midXPos = (screenWidth - DEFAULT_WINDOW_WIDTH) / 2;
-    int midYPos = (screenHeight - DEFAULT_WINDOW_HEIGHT) / 2;
+    int midXPos = (screenWidth - currentWindowWidth) / 2;
+    int midYPos = (screenHeight - currentWindowHeight) / 2;
 
-    hBaseWnd = CreateWindowEx(
+    g_hMainWnd = CreateWindowEx(
         0,
         CLASS_NAME,
         ENGINE_NAME,
         WS_OVERLAPPEDWINDOW,
         midXPos, midYPos,
-        DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT,
-        nullptr, nullptr, hInstance, nullptr);
+        currentWindowWidth, currentWindowHeight,
+        nullptr, nullptr, hWindowInstance, nullptr);
 
-    if (!hBaseWnd) return 0;
-    ShowWindow(hBaseWnd, nCmdShow);
+    if (!g_hMainWnd) return 0;
+    ShowWindow(g_hMainWnd, 1);
 
     return 1;
 }
 
+int InitScenePanel()
+{
+    int scenePanelPosX = 0;
+    int scenePanelPosY = 0;
+
+    int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+    int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+
+    g_hSceneView = CreateWindowEx(
+        0,
+        L"STATIC", 
+        nullptr,
+        WS_CHILD | WS_VISIBLE | WS_BORDER,
+        scenePanelPosX, scenePanelPosY,
+        scenePanelWidth, scenePanelHeight,
+        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+
+    return 1;
+}
+
+int InitContentPanel()
+{
+    int contentPanelPosX = 0;
+    int contentPanelPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+
+    int contentPanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+    int contentPanelHeight = currentWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
+
+    g_hContentBrowser = CreateWindowEx(
+        0,
+        L"STATIC",
+        nullptr,
+        WS_CHILD | WS_VISIBLE | WS_BORDER,
+        contentPanelPosX, contentPanelPosY,
+        contentPanelWidth, contentPanelHeight,
+        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+
+    return 1;
+}
+
+int InitDetailPanel()
+{
+    int detailPanelPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+    int detailPanelPosY = 0;
+
+    int detailPanelWidth = currentWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
+    int detailPanelHeight = currentWindowHeight;
+
+    g_hDetailPanel = CreateWindowEx(
+        0,
+        L"STATIC",
+        nullptr,
+        WS_CHILD | WS_VISIBLE | WS_BORDER,
+        detailPanelPosX, detailPanelPosY,
+        detailPanelWidth, detailPanelHeight,
+        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+
+    return 1;
+}
+
+
+
 int InitMenuBar()
 {
-    if (!hBaseWnd) return 0;
+    if (!g_hMainWnd) return 0;
 
     hMenu = CreateMenu();
     hFileMenu = CreatePopupMenu();
@@ -108,7 +176,7 @@ int InitMenuBar()
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
 
-    SetMenu(hBaseWnd, hMenu);
+    SetMenu(g_hMainWnd, hMenu);
 
     return 1;
 }
