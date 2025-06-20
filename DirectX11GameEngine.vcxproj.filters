@@ -16,14 +16,20 @@
     <Filter Include="소스 파일\Tutorial">
       <UniqueIdentifier>{b6ad3ad2-16b7-4b76-bfda-89b1e508189a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\OuterLib">
+      <UniqueIdentifier>{16aef83f-cc65-4b1b-bc5c-38617c4b253c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\OuterLib">
+      <UniqueIdentifier>{c5bee752-f187-4024-a980-210bc2e9dd7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\KMGLib">
+      <UniqueIdentifier>{43ba4bda-c5df-4643-ad0d-d74e13ded444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\KMGLib">
+      <UniqueIdentifier>{3e210296-6c14-447c-93c6-efb068baf200}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="win32Test.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ConsoleTest.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Tutorial\Tutorial1.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
@@ -42,16 +48,46 @@
     <ClCompile Include="Tutorial\Tutorial07.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
-    <ClCompile Include="Tutorial\DDSTextureLoader.cpp">
-      <Filter>소스 파일\Tutorial</Filter>
+    <ClCompile Include="GameEngineStart.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="OuterLib\DDSTextureLoader.cpp">
+      <Filter>소스 파일\OuterLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\Window32APIRun.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\EngineData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\SceneWindow.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\ContentWindow.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\DetailWindow.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Resource.h">
+    <ClInclude Include="EngineData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Tutorial\DDSTextureLoader.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="OuterLib\DDSTextureLoader.h">
+      <Filter>헤더 파일\OuterLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\Window32APIRun.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\SceneWindow.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\ContentWindow.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\DetailWindow.h">
+      <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

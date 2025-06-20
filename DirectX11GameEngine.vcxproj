@@ -71,7 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)OuterLib;$(SolutionDir)KMGLib;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)OuterLib;$(SolutionDir)KMGLib;$(IncludePath)</IncludePath>
+    <SourcePath>$(SolutionDir)KMGLib;$(SolutionDir)OuterLib;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -133,6 +134,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameEngineStart.cpp" />
+    <ClCompile Include="KMGLib\ContentWindow.cpp" />
+    <ClCompile Include="KMGLib\DetailWindow.cpp" />
+    <ClCompile Include="KMGLib\EngineData.cpp" />
+    <ClCompile Include="KMGLib\SceneWindow.cpp" />
+    <ClCompile Include="KMGLib\Window32APIRun.cpp" />
     <ClCompile Include="OuterLib\DDSTextureLoader.cpp" />
     <ClCompile Include="Tutorial\Tutorial05.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -162,6 +168,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h" />
+    <ClInclude Include="KMGLib\ContentWindow.h" />
+    <ClInclude Include="KMGLib\DetailWindow.h" />
+    <ClInclude Include="KMGLib\SceneWindow.h" />
+    <ClInclude Include="KMGLib\Window32APIRun.h" />
     <ClInclude Include="OuterLib\DDSTextureLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
