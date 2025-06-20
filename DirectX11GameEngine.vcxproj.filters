@@ -36,6 +36,9 @@
     <ClCompile Include="Tutorial\Tutorial05.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
+    <ClCompile Include="Tutorial\Tutorial06.cpp">
+      <Filter>소스 파일\Tutorial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -50,6 +53,9 @@
       <Filter>리소스 파일</Filter>
     </None>
     <None Include="Tutorial\Tutorial05.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Tutorial\Tutorial06.hlsli">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
