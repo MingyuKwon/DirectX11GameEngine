@@ -1,10 +1,13 @@
 ﻿  GameEngineStart.cpp
-D:\DirectX11GameEngine\GameEngineStart.cpp(176,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\GameEngineStart.cpp(177,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\GameEngineStart.cpp(192,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\GameEngineStart.cpp(194,27): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\GameEngineStart.cpp(195,28): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\GameEngineStart.cpp(209,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\GameEngineStart.cpp(212,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\GameEngineStart.cpp(62,1): warning C4715: 'WndProc': 모든 제어 경로에서 값을 반환하지는 않습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(133,5): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(142,5): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(151,5): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(239,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(240,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(255,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(257,27): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(258,28): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(272,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(275,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\GameEngineStart.cpp(125,1): warning C4715: 'WndProc': 모든 제어 경로에서 값을 반환하지는 않습니다.
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe

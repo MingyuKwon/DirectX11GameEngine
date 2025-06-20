@@ -12,54 +12,11 @@ void ResizeSceneWindows();
 void ResizeContentWindows();
 void ResizeDetailWindows();
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_KEYDOWN: 
-        switch (wParam)
-        {
-        case VK_ESCAPE: 
-            PostQuitMessage(0); 
-            break;
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK SceneWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK ContentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK DetailWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-        default:
-            break;
-        }
-        return 0;
-    case WM_SIZE:
-    {
-        currentWindowWidth = LOWORD(lParam);
-        currentWindowHeight = HIWORD(lParam);
-
-        ResizeSceneWindows();
-        ResizeContentWindows();
-        ResizeDetailWindows();
-
-        return 0;
-    }
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
-        case 1: 
-            MessageBox(hWnd, L"Open clicked", L"Info", MB_OK);
-            break;
-
-        case 2: 
-            PostQuitMessage(0);
-            break;
-        }
-        break;
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
-       
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     LPSTR lpCmdLine, int nCmdShow)
@@ -118,11 +75,97 @@ int InitBaseWindow()
     return 1;
 }
 
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case VK_ESCAPE:
+            PostQuitMessage(0);
+            break;
+
+        default:
+            break;
+        }
+        return 0;
+    case WM_SIZE:
+    {
+        currentWindowWidth = LOWORD(lParam);
+        currentWindowHeight = HIWORD(lParam);
+
+        ResizeSceneWindows();
+        ResizeContentWindows();
+        ResizeDetailWindows();
+
+        return 0;
+    }
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case 1:
+            MessageBox(hWnd, L"Open clicked", L"Info", MB_OK);
+            break;
+
+        case 2:
+            PostQuitMessage(0);
+            break;
+        }
+        break;
+    case WM_DESTROY:
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
+
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+}
+
+LRESULT SceneWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+}
+
+LRESULT ContentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+}
+
+LRESULT DetailWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+}
+
 int InitScenePanel()
 {
+    WNDCLASSEX wc = {};
+    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.lpfnWndProc = SceneWndProc;  
+    wc.hInstance = hWindowInstance;
+    wc.lpszClassName = L"ScenePanelWindow";
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);  
+
+    RegisterClassEx(&wc);
+
     g_hSceneView = CreateWindowEx(
         0,
-        L"STATIC", 
+        L"ScenePanelWindow", 
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
         0, 0,
@@ -136,14 +179,24 @@ int InitScenePanel()
 
 int InitContentPanel()
 {
+    WNDCLASSEX wc = {};
+    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.lpfnWndProc = ContentWndProc;
+    wc.hInstance = hWindowInstance;
+    wc.lpszClassName = L"ContentPanelWindow";
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
+
+    RegisterClassEx(&wc);
+
     g_hContentBrowser = CreateWindowEx(
         0,
-        L"STATIC",
+        L"ContentPanelWindow",
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
         0, 0,
         0, 0,
-        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+        g_hMainWnd, (HMENU)2, hWindowInstance, nullptr);
 
     ResizeContentWindows();
 
@@ -152,14 +205,24 @@ int InitContentPanel()
 
 int InitDetailPanel()
 {
+    WNDCLASSEX wc = {};
+    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.lpfnWndProc = DetailWndProc;
+    wc.hInstance = hWindowInstance;
+    wc.lpszClassName = L"DetailPanelWindow";
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 3);
+
+    RegisterClassEx(&wc);
+
     g_hDetailPanel = CreateWindowEx(
         0,
-        L"STATIC",
+        L"DetailPanelWindow",
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
         0, 0,
         0, 0,
-        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+        g_hMainWnd, (HMENU)3, hWindowInstance, nullptr);
 
     ResizeDetailWindows();
 
@@ -189,7 +252,7 @@ void ResizeContentWindows()
     if (!g_hContentBrowser) return;
 
     int contentPanelPosX = 0;
-    int contentPanelPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+    int contentPanelPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO + 1;
 
     int contentPanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
     int contentPanelHeight = currentWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
@@ -206,7 +269,7 @@ void ResizeDetailWindows()
 {
     if (!g_hDetailPanel) return;
 
-    int detailPanelPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+    int detailPanelPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO + 1;
     int detailPanelPosY = 0;
 
     int detailPanelWidth = currentWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
@@ -219,6 +282,8 @@ void ResizeDetailWindows()
         TRUE
     );
 }
+
+
 
 
 int InitMenuBar()
