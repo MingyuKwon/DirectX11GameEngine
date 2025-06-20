@@ -8,6 +8,10 @@ int InitScenePanel();
 
 int InitMenuBar();
 
+void ResizeSceneWindows();
+void ResizeContentWindows();
+void ResizeDetailWindows();
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -23,6 +27,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
         }
         return 0;
+    case WM_SIZE:
+    {
+        currentWindowWidth = LOWORD(lParam);
+        currentWindowHeight = HIWORD(lParam);
+
+        ResizeSceneWindows();
+        ResizeContentWindows();
+        ResizeDetailWindows();
+
+        return 0;
+    }
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
@@ -36,9 +51,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+    {
         PostQuitMessage(0);
         return 0;
-
+    }
+       
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -103,64 +120,105 @@ int InitBaseWindow()
 
 int InitScenePanel()
 {
-    int scenePanelPosX = 0;
-    int scenePanelPosY = 0;
-
-    int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-    int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
-
     g_hSceneView = CreateWindowEx(
         0,
         L"STATIC", 
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
-        scenePanelPosX, scenePanelPosY,
-        scenePanelWidth, scenePanelHeight,
+        0, 0,
+        0, 0,
         g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+
+    ResizeSceneWindows();
 
     return 1;
 }
 
 int InitContentPanel()
 {
-    int contentPanelPosX = 0;
-    int contentPanelPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
-
-    int contentPanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-    int contentPanelHeight = currentWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
-
     g_hContentBrowser = CreateWindowEx(
         0,
         L"STATIC",
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
-        contentPanelPosX, contentPanelPosY,
-        contentPanelWidth, contentPanelHeight,
+        0, 0,
+        0, 0,
         g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+
+    ResizeContentWindows();
 
     return 1;
 }
 
 int InitDetailPanel()
 {
+    g_hDetailPanel = CreateWindowEx(
+        0,
+        L"STATIC",
+        nullptr,
+        WS_CHILD | WS_VISIBLE | WS_BORDER,
+        0, 0,
+        0, 0,
+        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+
+    ResizeDetailWindows();
+
+    return 1;
+}
+
+void ResizeSceneWindows()
+{
+    if (!g_hSceneView) return;
+
+    int scenePanelPosX = 0;
+    int scenePanelPosY = 0;
+
+    int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+    int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+
+    MoveWindow(
+        g_hSceneView,
+        scenePanelPosX, scenePanelPosY,
+        scenePanelWidth, scenePanelHeight,
+        TRUE
+    );
+}
+
+void ResizeContentWindows()
+{
+    if (!g_hContentBrowser) return;
+
+    int contentPanelPosX = 0;
+    int contentPanelPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+
+    int contentPanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+    int contentPanelHeight = currentWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
+
+    MoveWindow(
+        g_hContentBrowser,
+        contentPanelPosX, contentPanelPosY,
+        contentPanelWidth, contentPanelHeight,
+        TRUE
+    );
+}
+
+void ResizeDetailWindows()
+{
+    if (!g_hDetailPanel) return;
+
     int detailPanelPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
     int detailPanelPosY = 0;
 
     int detailPanelWidth = currentWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
     int detailPanelHeight = currentWindowHeight;
 
-    g_hDetailPanel = CreateWindowEx(
-        0,
-        L"STATIC",
-        nullptr,
-        WS_CHILD | WS_VISIBLE | WS_BORDER,
+    MoveWindow(
+        g_hDetailPanel,
         detailPanelPosX, detailPanelPosY,
         detailPanelWidth, detailPanelHeight,
-        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
-
-    return 1;
+        TRUE
+    );
 }
-
 
 
 int InitMenuBar()
@@ -180,3 +238,5 @@ int InitMenuBar()
 
     return 1;
 }
+
+
