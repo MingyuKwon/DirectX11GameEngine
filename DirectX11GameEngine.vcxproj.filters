@@ -39,9 +39,18 @@
     <ClCompile Include="Tutorial\Tutorial06.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
+    <ClCompile Include="Tutorial\Tutorial07.cpp">
+      <Filter>소스 파일\Tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="Tutorial\DDSTextureLoader.cpp">
+      <Filter>소스 파일\Tutorial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Tutorial\DDSTextureLoader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,6 +65,9 @@
       <Filter>리소스 파일</Filter>
     </None>
     <None Include="Tutorial\Tutorial06.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Tutorial\Tutorial07.hlsli">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
