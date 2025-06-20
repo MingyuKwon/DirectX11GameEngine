@@ -1,0 +1,5 @@
+#pragma once
+
+#define ENGINE_NAME L"KMG Engine"
+#define DEFAULT_WINDOW_WIDTH 1600
+#define DEFAULT_WINDOW_HEIGHT 900
