@@ -19,7 +19,7 @@ void SceneWindow::Tick(float deltaTime)
 {
     if (directx11Wraper)
     {
-
+        directx11Wraper->Render();
     }
 }
 
