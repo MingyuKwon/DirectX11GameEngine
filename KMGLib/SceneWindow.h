@@ -1,5 +1,7 @@
 #pragma once
-#include <windows.h>
+#include <DirectX11Run.h>
+
+extern DirectX11Wrapper* directx11Wraper;
 
 int InitScenePanel();
 void ResizeSceneWindows();

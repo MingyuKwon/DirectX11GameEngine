@@ -1,6 +1,8 @@
 #include <SceneWindow.h>
 #include <EngineData.h>
 
+DirectX11Wrapper* directx11Wraper = nullptr;
+
 int InitScenePanel()
 {
     WNDCLASSEX wc = {};
@@ -23,6 +25,7 @@ int InitScenePanel()
         g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
 
     ResizeSceneWindows();
+    directx11Wraper = new DirectX11Wrapper();
 
     return 1;
 }
@@ -49,6 +52,10 @@ LRESULT SceneWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case WM_CLOSE:
+        if (directx11Wraper) delete directx11Wraper;
+        return 0;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

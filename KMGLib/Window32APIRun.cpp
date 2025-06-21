@@ -9,7 +9,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case VK_ESCAPE:
-            PostQuitMessage(0);
+            CloseEngine();
             break;
 
         default:
@@ -35,13 +35,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case 2:
-            PostQuitMessage(0);
+            PostMessage(g_hSceneView, WM_CLOSE, 0, 0);
+            CloseEngine();
             break;
         }
         break;
     case WM_DESTROY:
     {
-        PostQuitMessage(0);
+        CloseEngine();
         return 0;
     }
 
@@ -101,6 +102,15 @@ int InitMenuBar()
     SetMenu(g_hMainWnd, hMenu);
 
     return 1;
+}
+
+void CloseEngine()
+{
+    PostMessage(g_hSceneView, WM_CLOSE, 0, 0);
+    PostMessage(g_hContentBrowser, WM_CLOSE, 0, 0);
+    PostMessage(g_hDetailPanel, WM_CLOSE, 0, 0);
+
+    PostQuitMessage(0);
 }
 
 

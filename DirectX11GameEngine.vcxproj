@@ -136,6 +136,7 @@
     <ClCompile Include="GameEngineStart.cpp" />
     <ClCompile Include="KMGLib\ContentWindow.cpp" />
     <ClCompile Include="KMGLib\DetailWindow.cpp" />
+    <ClCompile Include="KMGLib\DirectX11Run.cpp" />
     <ClCompile Include="KMGLib\EngineData.cpp" />
     <ClCompile Include="KMGLib\SceneWindow.cpp" />
     <ClCompile Include="KMGLib\Window32APIRun.cpp" />
@@ -160,16 +161,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Tutorial\3DCube.hlsli" />
-    <None Include="Tutorial\DefaultVSPS.hlsli" />
-    <None Include="Tutorial\Tutorial05.hlsli" />
-    <None Include="Tutorial\Tutorial06.hlsli" />
     <None Include="Tutorial\Tutorial07.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h" />
     <ClInclude Include="KMGLib\ContentWindow.h" />
     <ClInclude Include="KMGLib\DetailWindow.h" />
+    <ClInclude Include="KMGLib\DirectX11Run.h" />
     <ClInclude Include="KMGLib\SceneWindow.h" />
     <ClInclude Include="KMGLib\Window32APIRun.h" />
     <ClInclude Include="OuterLib\DDSTextureLoader.h" />
