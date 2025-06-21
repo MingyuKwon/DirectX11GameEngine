@@ -75,6 +75,12 @@
     <ClCompile Include="SubWindow.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="KMGLib\KMGActor.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\KMGDataStructure.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">
@@ -99,6 +105,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SubWindow.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\KMGActor.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
   </ItemGroup>

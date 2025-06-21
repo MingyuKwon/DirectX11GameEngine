@@ -7,11 +7,10 @@
 #include <windows.h>
 #include <d3d11_1.h>
 #include <d3dcompiler.h>
-#include <directxmath.h>
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
 
-#include <vector>
+#include <KMGActor.h>
 
 using namespace DirectX;
 using namespace std;
@@ -19,13 +18,7 @@ using namespace std;
 //--------------------------------------------------------------------------------------
 // GPU에 넘겨줄 구조체
 //--------------------------------------------------------------------------------------
-struct KMGVertex
-{
-    XMFLOAT3 Pos;
-    XMFLOAT3 Normal;
-    XMFLOAT4 Color;
-    XMFLOAT2 Tex;
-};
+
 
 struct CBNeverChanges
 {
@@ -50,15 +43,16 @@ struct DrawResource
     vector<KMGVertex> vertices;
     vector<int> indices;
 
-    ID3D11Device* device;
+    ID3D11Device* device = nullptr;
     ID3D11Buffer* vertexBuffer = nullptr;
     ID3D11Buffer* indexBuffer = nullptr;
 
+    DrawResource() = default;
     DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices);
     virtual ~DrawResource();
 
-    DrawResource(const DrawResource&) = delete;
-    DrawResource& operator=(const DrawResource&) = delete;
+    DrawResource(const DrawResource&) = default;
+    DrawResource& operator=(const DrawResource&) = default;
 
     void CreateBuffers();
 
@@ -69,6 +63,9 @@ class DirectX11Wrapper
 public:
     DirectX11Wrapper(HWND viewWindow);
     virtual ~DirectX11Wrapper();
+
+    HRESULT AddActor(const KMGActor& actor);
+    HRESULT deleteActor(wstring name);
 
     void ResizeViewtarget(int width, int height); // 렌더링할 부분이 바뀌면 호출할 함수
     void Render(); // 그림 그리기
@@ -114,6 +111,6 @@ private:
 
     HWND viewWindow;
 
-    vector<DrawResource> drawResources;
+    unordered_map<wstring, DrawResource> drawResources;
 
 };

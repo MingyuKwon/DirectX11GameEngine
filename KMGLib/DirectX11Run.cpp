@@ -60,6 +60,25 @@ DirectX11Wrapper::~DirectX11Wrapper()
     CleanupDevice();
 }
 
+HRESULT DirectX11Wrapper::AddActor(const KMGActor& actor)
+{
+    if(drawResources.count(actor.name) > 0) return S_FALSE;
+    if(!g_pd3dDevice) return S_FALSE;
+
+    drawResources[actor.name] = DrawResource(g_pd3dDevice, actor.vertices, actor.indices);
+
+    return S_OK;
+}
+
+HRESULT DirectX11Wrapper::deleteActor(wstring name)
+{
+    if (drawResources.count(name) == 0) return S_FALSE;
+
+    drawResources.erase(name);
+
+    return S_OK;
+}
+
 void DirectX11Wrapper::Render()
 {
     // Update our time
@@ -107,14 +126,16 @@ void DirectX11Wrapper::Render()
     UINT stride = sizeof(KMGVertex);
     UINT offset = 0;
 
-    for (int i = 0; i < drawResources.size(); ++i)
+    for (auto& bucket : drawResources)
     {
+        DrawResource& resource = bucket.second;
+
         UINT stride = sizeof(KMGVertex);
         UINT offset = 0;
-        g_pImmediateContext->IASetVertexBuffers(0, 1, &drawResources[i].vertexBuffer, &stride, &offset);
-        g_pImmediateContext->IASetIndexBuffer(drawResources[i].indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        g_pImmediateContext->IASetVertexBuffers(0, 1, &resource.vertexBuffer, &stride, &offset);
+        g_pImmediateContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-        g_pImmediateContext->DrawIndexed(drawResources[i].indices.size(), 0, 0);
+        g_pImmediateContext->DrawIndexed(resource.indices.size(), 0, 0);
     }
 
     // Present our back buffer to our front buffer
