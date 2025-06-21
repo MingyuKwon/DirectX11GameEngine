@@ -82,6 +82,7 @@ protected:
     HRESULT Init_Device_Context(); // 가장 기본인 Device, context를 생성
     HRESULT Init_RTV_DSV_Viewport(int width, int height); // 가장 기본인 Device, context를 생성
     HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName); 
+    HRESULT CreateConstBuffers();
 
     void CleanupDevice(); // 전역 변수 값 전부 초기화
 

@@ -62,7 +62,63 @@ DirectX11Wrapper::~DirectX11Wrapper()
 
 void DirectX11Wrapper::Render()
 {
+    // Update our time
+    static float t = 0.0f;
+    if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
+    {
+        t += (float)XM_PI * 0.0125f;
+    }
+    else
+    {
+        static ULONGLONG timeStart = 0;
+        ULONGLONG timeCur = GetTickCount64();
+        if (timeStart == 0)
+            timeStart = timeCur;
+        t = (timeCur - timeStart) / 1000.0f;
+    }
 
+    // Rotate cube around the origin
+    g_World = XMMatrixRotationY(t);
+
+    // Clear the back buffer
+    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+
+    // Clear the depth buffer to 1.0 (max depth)
+    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    // Update variables that change once per frame
+    CBChangesEveryFrame cb = {};
+    cb.mWorld = XMMatrixTranspose(g_World);
+    g_pImmediateContext->UpdateSubresource(g_pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+
+    // Set the input layout
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+
+    // Set primitive topology
+    g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pCBNeverChanges);
+    g_pImmediateContext->VSSetConstantBuffers(1, 1, &g_pCBChangeOnResize);
+    g_pImmediateContext->VSSetConstantBuffers(2, 1, &g_pCBChangesEveryFrame);
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
+    // Set vertex buffer
+    UINT stride = sizeof(KMGVertex);
+    UINT offset = 0;
+
+    for (int i = 0; i < drawResources.size(); ++i)
+    {
+        UINT stride = sizeof(KMGVertex);
+        UINT offset = 0;
+        g_pImmediateContext->IASetVertexBuffers(0, 1, &drawResources[i].vertexBuffer, &stride, &offset);
+        g_pImmediateContext->IASetIndexBuffer(drawResources[i].indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+        g_pImmediateContext->DrawIndexed(drawResources[i].indices.size(), 0, 0);
+    }
+
+    // Present our back buffer to our front buffer
+    g_pSwapChain->Present(0, 0);
 }
 
 //--------------------------------------------------------------------------------------
@@ -83,10 +139,46 @@ HRESULT DirectX11Wrapper::InitDirectX11()
     
     hr = CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
     if (FAILED(hr)) return hr;
-    
+
+    CreateConstBuffers();
+
     ResizeViewtarget(initialViewWidth, initialViewHeight);
 
-    return E_NOTIMPL;
+    // Initialize the world matrices
+
+
+    return S_OK;
+}
+
+HRESULT DirectX11Wrapper::CreateConstBuffers()
+{
+    HRESULT hr = S_OK;
+
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(CBNeverChanges);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pCBNeverChanges);
+    if (FAILED(hr)) return hr;
+
+    bd.ByteWidth = sizeof(CBChangeOnResize);
+    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pCBChangeOnResize);
+    if (FAILED(hr)) return hr;
+
+    bd.ByteWidth = sizeof(CBChangesEveryFrame);
+    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pCBChangesEveryFrame);
+    if (FAILED(hr)) return hr;
+
+    // 임시 고정 view 행렬
+    XMVECTOR Eye = XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    g_View = XMMatrixLookAtLH(Eye, At, Up);
+
+    CBNeverChanges cbNeverChanges = {};
+    cbNeverChanges.mView = XMMatrixTranspose(g_View);
+    g_pImmediateContext->UpdateSubresource(g_pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0);
 }
 
 HRESULT DirectX11Wrapper::Init_Device_Context()
@@ -323,6 +415,14 @@ void DirectX11Wrapper::ResizeViewtarget(int width, int height)
     vp.TopLeftX = 0;
     vp.TopLeftY = 0;
     g_pImmediateContext->RSSetViewports(1, &vp);
+
+    // Initialize the projection matrix
+    g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
+
+    CBChangeOnResize cbChangesOnResize = {};
+    cbChangesOnResize.mProjection = XMMatrixTranspose(g_Projection);
+    g_pImmediateContext->UpdateSubresource(g_pCBChangeOnResize, 0, nullptr, &cbChangesOnResize, 0, 0);
+
 }
 
 //--------------------------------------------------------------------------------------

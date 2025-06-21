@@ -15,7 +15,6 @@ cbuffer cbChangeOnResize : register(b1)
 cbuffer cbChangesEveryFrame : register(b2)
 {
     matrix World;
-    float4 vMeshColor;
 };
 
 struct VS_INPUT
