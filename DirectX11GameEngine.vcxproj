@@ -161,7 +161,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Tutorial\Tutorial07.hlsli" />
+    <None Include="KMGLib\PixelShader.hlsli" />
+    <None Include="KMGLib\ShaderShared.hlsl" />
+    <None Include="KMGLib\VertexShader.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h" />

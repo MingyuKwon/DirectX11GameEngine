@@ -469,7 +469,7 @@ HRESULT InitDevice()
 
     D3D11_BUFFER_DESC bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof( SimpleVertex ) * 24;
+    bd.ByteWidth = sizeof( SimpleVertex ) * ARRAYSIZE(vertices);
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA InitData = {};

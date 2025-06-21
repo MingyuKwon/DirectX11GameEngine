@@ -11,7 +11,10 @@
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
 
+#include <vector>
+
 using namespace DirectX;
+using namespace std;
 
 //--------------------------------------------------------------------------------------
 // GPU에 넘겨줄 구조체
@@ -40,6 +43,29 @@ struct CBChangesEveryFrame
 };
 
 //--------------------------------------------------------------------------------------
+// 그려야 하는 모델들을 저장하는 구조체
+//--------------------------------------------------------------------------------------
+struct DrawResource
+{
+    vector<KMGVertex> vertices;
+    vector<int> indices;
+
+    ID3D11Device* device;
+    ID3D11Buffer* vertexBuffer = nullptr;
+    ID3D11Buffer* indexBuffer = nullptr;
+
+    DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices);
+    virtual ~DrawResource();
+
+    DrawResource(const DrawResource&) = delete;
+    DrawResource& operator=(const DrawResource&) = delete;
+
+    void CreateBuffers();
+
+};
+
+
+//--------------------------------------------------------------------------------------
 // 렌더링에 사용할 전역 변수
 //--------------------------------------------------------------------------------------
 class DirectX11Wrapper
@@ -55,6 +81,7 @@ protected:
     HRESULT InitDirectX11(); // 기본적인 전역 변수 값 할당
     HRESULT Init_Device_Context(); // 가장 기본인 Device, context를 생성
     HRESULT Init_RTV_DSV_Viewport(int width, int height); // 가장 기본인 Device, context를 생성
+    HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName); 
 
     void CleanupDevice(); // 전역 변수 값 전부 초기화
 
@@ -87,4 +114,7 @@ private:
     XMMATRIX g_World = XMMatrixIdentity();
     XMMATRIX g_View = XMMatrixIdentity();
     XMMATRIX g_Projection = XMMatrixIdentity();
+
+    vector<DrawResource> drawResources;
+
 };

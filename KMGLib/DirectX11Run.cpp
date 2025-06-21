@@ -1,6 +1,55 @@
 #include <DirectX11Run.h>
 #include <EngineData.h>
 
+HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+
+DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices) : device(device), vertices(vertices), indices(indices)
+{
+    CreateBuffers();
+}
+
+DrawResource::~DrawResource()
+{
+    if (vertexBuffer)
+    {
+        vertexBuffer->Release();
+        vertexBuffer = nullptr;
+    }
+
+    if (indexBuffer)
+    {
+        indexBuffer->Release();
+        indexBuffer = nullptr;
+    }
+}
+
+void DrawResource::CreateBuffers()
+{
+    if (!device) return;
+
+    D3D11_BUFFER_DESC vbd = {};
+    vbd.Usage = D3D11_USAGE_DEFAULT;
+    vbd.ByteWidth = sizeof(KMGVertex) * (UINT)vertices.size();
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vinitData = {};
+    vinitData.pSysMem = vertices.data();
+
+    device->CreateBuffer(&vbd, &vinitData, &vertexBuffer);
+
+    // Index Buffer
+    D3D11_BUFFER_DESC ibd = {};
+    ibd.Usage = D3D11_USAGE_DEFAULT;
+    ibd.ByteWidth = sizeof(UINT) * (UINT)indices.size();
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA iinitData = {};
+    iinitData.pSysMem = indices.data();
+
+    device->CreateBuffer(&ibd, &iinitData, &indexBuffer);
+}
+
+
 DirectX11Wrapper::DirectX11Wrapper()
 {
     InitDirectX11();
@@ -32,7 +81,9 @@ HRESULT DirectX11Wrapper::InitDirectX11()
     hr = Init_RTV_DSV_Viewport(initialViewWidth, initialViewHeight);
     if (FAILED(hr)) return hr;
     
-
+    hr = CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
+    if (FAILED(hr)) return hr;
+    
     ResizeViewtarget(initialViewWidth, initialViewHeight);
 
     return E_NOTIMPL;
@@ -163,10 +214,57 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
     return hr;
 }
 
+HRESULT DirectX11Wrapper::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
+{
+    ID3DBlob* pVSBlob = nullptr;
+    HRESULT hr = CompileShaderFromFile(vertexShaderName, "VS", "vs_4_0", &pVSBlob);
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr,
+            L"The Vertex Shader file cannot be compiled.  Please run this executable from the directory that contains the Shader file.", L"Error", MB_OK);
+        return hr;
+    }
+
+    hr = g_pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &g_pVertexShader);
+    if (FAILED(hr))
+    {
+        pVSBlob->Release();
+        return hr;
+    }
+
+    const D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+    UINT numElements = ARRAYSIZE(layout);
+
+    hr = g_pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
+        pVSBlob->GetBufferSize(), &g_pVertexLayout);
+    pVSBlob->Release();
+    if (FAILED(hr)) return hr;
+
+    ID3DBlob* pPSBlob = nullptr;
+    hr = CompileShaderFromFile(pixelShaderName, "PS", "ps_4_0", &pPSBlob);
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr,
+            L"The Pixel Shader file cannot be compiled.  Please run this executable from the directory that contains the Shader file.", L"Error", MB_OK);
+        return hr;
+    }
+
+    hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &g_pPixelShader);
+    pPSBlob->Release();
+    if (FAILED(hr)) return hr;
+
+    return hr;
+}
+
 //--------------------------------------------------------------------------------------
 // 주어진 너비와 높이로 뷰 타깃과 깊이 버퍼, 뷰 포트의 크기를 바꿈
 //--------------------------------------------------------------------------------------
-
 void DirectX11Wrapper::ResizeViewtarget(int width, int height)
 {
     if (!g_pRenderTargetView || !g_pDepthStencilView || !g_pDepthStencil) return;
@@ -250,3 +348,47 @@ void DirectX11Wrapper::CleanupDevice()
     if (g_pImmediateContext) g_pImmediateContext->Release();
     if (g_pd3dDevice) g_pd3dDevice->Release();
 }
+
+
+
+// Tutorial에서 가져온 코드
+//--------------------------------------------------------------------------------------
+// Helper for compiling shaders with D3DCompile
+//
+// With VS 11, we could load up prebuilt .cso files instead...
+//--------------------------------------------------------------------------------------
+HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
+{
+    HRESULT hr = S_OK;
+
+    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#ifdef _DEBUG
+    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
+    // Setting this flag improves the shader debugging experience, but still allows
+    // the shaders to be optimized and to run exactly the way they will run in
+    // the release configuration of this program.
+    dwShaderFlags |= D3DCOMPILE_DEBUG;
+
+    // Disable optimizations to further improve shader debugging
+    dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    ID3DBlob* pErrorBlob = nullptr;
+    hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
+        dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+    if (FAILED(hr))
+    {
+        if (pErrorBlob)
+        {
+            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer()); 
+            MessageBoxA(nullptr, (char*)pErrorBlob->GetBufferPointer(), "Shader Compile Error", MB_OK);
+            pErrorBlob->Release();
+        }
+        return hr;
+    }
+    if (pErrorBlob) pErrorBlob->Release();
+
+    return S_OK;
+}
+
+
