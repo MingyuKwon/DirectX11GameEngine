@@ -97,7 +97,6 @@ int InitMenuBar()
     AppendMenu(hFileMenu, MF_STRING, 2, L"Exit");
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
-    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
 
     SetMenu(g_hMainWnd, hMenu);
 
