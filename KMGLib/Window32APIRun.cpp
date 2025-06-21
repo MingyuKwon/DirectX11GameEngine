@@ -65,6 +65,18 @@ KMGEngine::~KMGEngine()
     if (detailWindow) delete detailWindow;
 }
 
+void KMGEngine::Tick(float deltaTime)
+{
+    if (!sceneWindow) return;
+    if (!contentWindow) return;
+    if (!detailWindow) return;
+
+    sceneWindow->Tick(deltaTime);
+    contentWindow->Tick(deltaTime);
+    detailWindow->Tick(deltaTime);
+
+}
+
 LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     KMGEngine* pThis = nullptr;

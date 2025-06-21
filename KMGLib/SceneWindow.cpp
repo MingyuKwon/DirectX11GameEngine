@@ -17,7 +17,10 @@ SceneWindow::~SceneWindow()
 
 void SceneWindow::Tick(float deltaTime)
 {
+    if (directx11Wraper)
+    {
 
+    }
 }
 
 int SceneWindow::InitWindowPanel()

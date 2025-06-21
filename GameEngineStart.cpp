@@ -9,11 +9,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     KMGEngine engine;
 
     MSG msg = {};
-    while (GetMessage(&msg, nullptr, 0, 0))
+
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency); 
+    LARGE_INTEGER prevTime;
+    QueryPerformanceCounter(&prevTime); 
+
+    while (WM_QUIT != msg.message)
     {
-        TranslateMessage(&msg); 
-        DispatchMessage(&msg);  
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (msg.message == WM_QUIT)
+                break;
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        else
+        {
+            LARGE_INTEGER currentTime;
+            QueryPerformanceCounter(&currentTime);
+
+            double deltaTime = static_cast<double>(currentTime.QuadPart - prevTime.QuadPart) / frequency.QuadPart;
+            prevTime = currentTime;
+
+            engine.Tick(static_cast<float>(deltaTime));
+        }
     }
 
-    return (int)msg.wParam;
+    return static_cast<int>(msg.wParam);
 }

@@ -10,6 +10,8 @@ public:
 	KMGEngine();
 	virtual ~KMGEngine();
 
+	void Tick(float deltaTime);
+
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
