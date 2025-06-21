@@ -64,14 +64,10 @@ struct DrawResource
 
 };
 
-
-//--------------------------------------------------------------------------------------
-// 렌더링에 사용할 전역 변수
-//--------------------------------------------------------------------------------------
 class DirectX11Wrapper
 {
 public:
-    DirectX11Wrapper();
+    DirectX11Wrapper(HWND viewWindow);
     virtual ~DirectX11Wrapper();
 
     void ResizeViewtarget(int width, int height); // 렌더링할 부분이 바뀌면 호출할 함수
@@ -115,6 +111,8 @@ private:
     XMMATRIX g_World = XMMatrixIdentity();
     XMMATRIX g_View = XMMatrixIdentity();
     XMMATRIX g_Projection = XMMatrixIdentity();
+
+    HWND viewWindow;
 
     vector<DrawResource> drawResources;
 

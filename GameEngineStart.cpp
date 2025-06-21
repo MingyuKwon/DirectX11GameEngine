@@ -6,12 +6,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     hWindowInstance = hInstance;
 
-    if (!InitBaseWindow()) return 0;
-    if (!InitContentPanel()) return 0;
-    if (!InitDetailPanel()) return 0;
-    if (!InitScenePanel()) return 0;
-    if (!InitMenuBar()) return 0;
-    
+    KMGEngine engine;
+
     MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0))
     {

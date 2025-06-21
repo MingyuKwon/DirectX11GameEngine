@@ -28,7 +28,7 @@ int SceneWindow::InitWindowPanel()
         hMainWnd, (HMENU)1, hWindowInstance, this);
 
     ResizeWindow();
-    directx11Wraper = new DirectX11Wrapper();
+    directx11Wraper = new DirectX11Wrapper(hSubWnd);
 
     return 1;
 }

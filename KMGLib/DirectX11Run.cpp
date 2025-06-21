@@ -50,7 +50,7 @@ void DrawResource::CreateBuffers()
 }
 
 
-DirectX11Wrapper::DirectX11Wrapper()
+DirectX11Wrapper::DirectX11Wrapper(HWND viewWindow) : viewWindow(viewWindow)
 {
     InitDirectX11();
 }
@@ -253,7 +253,7 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
     sd.BufferDesc.RefreshRate.Numerator = 60;
     sd.BufferDesc.RefreshRate.Denominator = 1;
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = g_hSceneView;
+    sd.OutputWindow = viewWindow;
     sd.SampleDesc.Count = 1;
     sd.SampleDesc.Quality = 0;
     sd.Windowed = TRUE;

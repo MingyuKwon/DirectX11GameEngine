@@ -69,6 +69,12 @@
     <ClCompile Include="KMGLib\DetailWindow.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="KMGLib\DirectX11Run.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SubWindow.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">
@@ -89,22 +95,16 @@
     <ClInclude Include="KMGLib\DetailWindow.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
+    <ClInclude Include="KMGLib\DirectX11Run.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SubWindow.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Tutorial\DefaultVSPS.hlsli">
-      <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="Tutorial\3DCube.hlsli">
-      <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="Tutorial\Tutorial05.hlsli">
-      <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="Tutorial\Tutorial06.hlsli">
-      <Filter>리소스 파일</Filter>
-    </None>
-    <None Include="Tutorial\Tutorial07.hlsli">
-      <Filter>리소스 파일</Filter>
-    </None>
+    <None Include="KMGLib\PixelShader.hlsli" />
+    <None Include="KMGLib\ShaderShared.hlsl" />
+    <None Include="KMGLib\VertexShader.hlsli" />
   </ItemGroup>
 </Project>

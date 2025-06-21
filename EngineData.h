@@ -18,7 +18,5 @@ extern int currentWindowHeight;
 
 extern HINSTANCE hWindowInstance;
 
-extern HWND g_hMainWnd;
-
 extern HMENU hMenu;
 extern HMENU hFileMenu;

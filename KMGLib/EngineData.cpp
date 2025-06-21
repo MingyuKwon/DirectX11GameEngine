@@ -5,7 +5,5 @@ int currentWindowHeight = DEFAULT_WINDOW_HEIGHT;
 
 HINSTANCE hWindowInstance = nullptr;
 
-HWND g_hMainWnd = nullptr;
-
 HMENU hMenu = nullptr;
 HMENU hFileMenu = nullptr;

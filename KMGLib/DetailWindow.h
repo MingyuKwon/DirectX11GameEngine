@@ -1,7 +1,7 @@
 #pragma once
 #include <SubWindow.h>
 
-class DetailWindow : SubWindow
+class DetailWindow : public SubWindow
 {
 public:
 	DetailWindow(HWND hMainWnd) : SubWindow(hMainWnd) {};

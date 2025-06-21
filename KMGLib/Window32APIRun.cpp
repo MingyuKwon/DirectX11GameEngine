@@ -1,9 +1,9 @@
 #include <EngineData.h>
 #include <Window32APIRun.h>
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
+    switch (msg)
     {
     case WM_KEYDOWN:
         switch (wParam)
@@ -21,9 +21,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         currentWindowWidth = LOWORD(lParam);
         currentWindowHeight = HIWORD(lParam);
 
-        ResizeSceneWindows();
-        ResizeContentWindows();
-        ResizeDetailWindows();
+        if (sceneWindow) sceneWindow->ResizeWindow();
+        if (contentWindow) contentWindow->ResizeWindow();
+        if (detailWindow) detailWindow->ResizeWindow();
 
         return 0;
     }
@@ -35,7 +35,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case 2:
-            PostMessage(g_hSceneView, WM_CLOSE, 0, 0);
+            PostMessage(hSceneWnd, WM_CLOSE, 0, 0);
             CloseEngine();
             break;
         }
@@ -47,18 +47,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
 
     default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return DefWindowProc(hWnd, msg, wParam, lParam);
     }
 }
 
-int InitBaseWindow()
+KMGEngine::KMGEngine()
+{
+    InitBaseWindow();
+    InitSubWindow();
+    InitMenuBar();
+}
+
+KMGEngine::~KMGEngine()
+{
+    if (sceneWindow) delete sceneWindow;
+    if (contentWindow) delete contentWindow;
+    if (detailWindow) delete detailWindow;
+}
+
+LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    KMGEngine* pThis = nullptr;
+
+    if (msg == WM_NCCREATE) {
+        CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(lParam);
+        pThis = static_cast<KMGEngine*>(cs->lpCreateParams);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+    }
+    else {
+        pThis = reinterpret_cast<KMGEngine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    }
+
+    if (pThis)
+        return pThis->WndProc(hWnd, msg, wParam, lParam);
+    else
+        return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+int KMGEngine::InitBaseWindow()
 {
     const wchar_t CLASS_NAME[] = ENGINE_NAME;
 
     WNDCLASSEX wcex = {};
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WndProc;
+    wcex.lpfnWndProc = KMGEngine::StaticWndProc;
     wcex.hInstance = hWindowInstance;
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
@@ -72,24 +105,38 @@ int InitBaseWindow()
     int midXPos = (screenWidth - currentWindowWidth) / 2;
     int midYPos = (screenHeight - currentWindowHeight) / 2;
 
-    g_hMainWnd = CreateWindowEx(
+    hMainWnd = CreateWindowEx(
         0,
         CLASS_NAME,
         ENGINE_NAME,
         WS_OVERLAPPEDWINDOW,
         midXPos, midYPos,
         currentWindowWidth, currentWindowHeight,
-        nullptr, nullptr, hWindowInstance, nullptr);
+        nullptr, nullptr, hWindowInstance, this);
 
-    if (!g_hMainWnd) return 0;
-    ShowWindow(g_hMainWnd, 1);
+    if (!hMainWnd) return 0;
+    ShowWindow(hMainWnd, 1);
 
     return 1;
 }
 
-int InitMenuBar()
+int KMGEngine::InitSubWindow()
 {
-    if (!g_hMainWnd) return 0;
+    sceneWindow = new SceneWindow(hMainWnd);
+    contentWindow = new ContentWindow(hMainWnd);
+    detailWindow = new DetailWindow(hMainWnd);
+
+    hSceneWnd = sceneWindow->getWindowHandle();
+    hContentWnd = contentWindow->getWindowHandle();
+    hDetailWnd = detailWindow->getWindowHandle();
+
+
+    return 0;
+}
+
+int KMGEngine::InitMenuBar()
+{
+    if (!hMainWnd) return 0;
 
     hMenu = CreateMenu();
     hFileMenu = CreatePopupMenu();
@@ -99,18 +146,16 @@ int InitMenuBar()
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
 
-    SetMenu(g_hMainWnd, hMenu);
+    SetMenu(hMainWnd, hMenu);
 
     return 1;
 }
 
-void CloseEngine()
+void KMGEngine::CloseEngine()
 {
-    PostMessage(g_hSceneView, WM_CLOSE, 0, 0);
-    PostMessage(g_hContentBrowser, WM_CLOSE, 0, 0);
-    PostMessage(g_hDetailPanel, WM_CLOSE, 0, 0);
+    PostMessage(hSceneWnd, WM_CLOSE, 0, 0);
+    PostMessage(hContentWnd, WM_CLOSE, 0, 0);
+    PostMessage(hDetailWnd, WM_CLOSE, 0, 0);
 
     PostQuitMessage(0);
 }
-
-

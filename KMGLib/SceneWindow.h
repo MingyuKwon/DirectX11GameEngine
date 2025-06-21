@@ -2,7 +2,7 @@
 #include <SubWindow.h>
 #include <DirectX11Run.h>
 
-class SceneWindow : SubWindow
+class SceneWindow : public SubWindow
 {
 public:
 	SceneWindow(HWND hMainWnd) : SubWindow(hMainWnd){};
