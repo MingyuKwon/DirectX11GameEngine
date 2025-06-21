@@ -48,6 +48,7 @@ public:
     DirectX11Wrapper();
     virtual ~DirectX11Wrapper();
 
+    void ResizeViewtarget(int width, int height); // 렌더링할 부분이 바뀌면 호출할 함수
     void Render(); // 그림 그리기
 
 protected:
@@ -55,8 +56,6 @@ protected:
     HRESULT Init_Device_Context(); // 가장 기본인 Device, context를 생성
     HRESULT Init_RTV_DSV_Viewport(int width, int height); // 가장 기본인 Device, context를 생성
 
-
-    void ResizeViewtarget(int width, int height); // 렌더링할 부분이 바뀌면 호출할 함수
     void CleanupDevice(); // 전역 변수 값 전부 초기화
 
 private:

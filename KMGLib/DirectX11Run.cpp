@@ -164,12 +164,67 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
 }
 
 //--------------------------------------------------------------------------------------
-// 주어진 너비와 높이로 뷰 타깃과 백버퍼의 크기를 바꿈
+// 주어진 너비와 높이로 뷰 타깃과 깊이 버퍼, 뷰 포트의 크기를 바꿈
 //--------------------------------------------------------------------------------------
 
 void DirectX11Wrapper::ResizeViewtarget(int width, int height)
 {
+    if (!g_pRenderTargetView || !g_pDepthStencilView || !g_pDepthStencil) return;
 
+    HRESULT hr = S_OK;
+
+    g_pRenderTargetView->Release();
+    g_pDepthStencilView->Release();
+    g_pDepthStencil->Release();
+
+    hr = g_pSwapChain->ResizeBuffers(
+        1,
+        width,
+        height,
+        DXGI_FORMAT_R8G8B8A8_UNORM,
+        0);
+    if (FAILED(hr)) return;
+
+    ID3D11Texture2D* pBackBuffer = nullptr;
+    hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
+    if (FAILED(hr)) return;
+
+    hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_pRenderTargetView);
+    pBackBuffer->Release();
+    if (FAILED(hr)) return;
+
+    D3D11_TEXTURE2D_DESC descDepth = {};
+    descDepth.Width = width;
+    descDepth.Height = height;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+    hr = g_pd3dDevice->CreateTexture2D(&descDepth, nullptr, &g_pDepthStencil);
+    if (FAILED(hr)) return;
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+    hr = g_pd3dDevice->CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView);
+    if (FAILED(hr)) return;
+
+    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
+
+    D3D11_VIEWPORT vp = {};
+    vp.Width = static_cast<FLOAT>(width);
+    vp.Height = static_cast<FLOAT>(height);
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    vp.TopLeftX = 0;
+    vp.TopLeftY = 0;
+    g_pImmediateContext->RSSetViewports(1, &vp);
 }
 
 //--------------------------------------------------------------------------------------
@@ -178,7 +233,6 @@ void DirectX11Wrapper::ResizeViewtarget(int width, int height)
 void DirectX11Wrapper::CleanupDevice()
 {
     if (g_pImmediateContext) g_pImmediateContext->ClearState();
-
     if (g_pSamplerLinear) g_pSamplerLinear->Release();
     if (g_pTextureRV) g_pTextureRV->Release();
     if (g_pCBNeverChanges) g_pCBNeverChanges->Release();
