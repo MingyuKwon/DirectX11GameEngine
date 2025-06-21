@@ -12,7 +12,6 @@ public:
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-
 private:
 	HWND hMainWnd = nullptr;
 

@@ -12,6 +12,11 @@ LRESULT ContentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
 }
 
+ContentWindow::ContentWindow(HWND hMainWnd) : SubWindow(hMainWnd)
+{
+    InitWindowPanel();
+}
+
 void ContentWindow::Tick(float deltaTime)
 {
 }

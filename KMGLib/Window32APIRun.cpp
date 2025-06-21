@@ -130,7 +130,6 @@ int KMGEngine::InitSubWindow()
     hContentWnd = contentWindow->getWindowHandle();
     hDetailWnd = detailWindow->getWindowHandle();
 
-
     return 0;
 }
 

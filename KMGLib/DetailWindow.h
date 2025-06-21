@@ -4,7 +4,7 @@
 class DetailWindow : public SubWindow
 {
 public:
-	DetailWindow(HWND hMainWnd) : SubWindow(hMainWnd) {};
+	DetailWindow(HWND hMainWnd);
 
 	virtual void Tick(float deltaTime) override;
 

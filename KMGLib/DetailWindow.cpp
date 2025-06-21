@@ -1,6 +1,12 @@
 #include <DetailWindow.h>
 #include <EngineData.h>
 
+DetailWindow::DetailWindow(HWND hMainWnd) : SubWindow(hMainWnd) 
+{
+    InitWindowPanel();
+}
+
+
 void DetailWindow::Tick(float deltaTime)
 {
 }

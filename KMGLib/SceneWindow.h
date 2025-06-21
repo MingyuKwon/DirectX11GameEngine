@@ -5,7 +5,8 @@
 class SceneWindow : public SubWindow
 {
 public:
-	SceneWindow(HWND hMainWnd) : SubWindow(hMainWnd){};
+	SceneWindow(HWND hMainWnd);
+	virtual ~SceneWindow();
 
 	virtual void Tick(float deltaTime) override;
 
