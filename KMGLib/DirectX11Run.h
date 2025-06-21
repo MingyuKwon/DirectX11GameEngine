@@ -51,8 +51,11 @@ struct DrawResource
     DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices);
     virtual ~DrawResource();
 
-    DrawResource(const DrawResource&) = default;
-    DrawResource& operator=(const DrawResource&) = default;
+    DrawResource(const DrawResource&) = delete;
+    DrawResource& operator=(const DrawResource&) = delete;
+
+    DrawResource(DrawResource&&) noexcept;
+    DrawResource& operator=(DrawResource&&) noexcept;
 
     void CreateBuffers();
 

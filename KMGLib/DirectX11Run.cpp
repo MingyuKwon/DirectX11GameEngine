@@ -23,6 +23,31 @@ DrawResource::~DrawResource()
     }
 }
 
+DrawResource::DrawResource(DrawResource&& resource) noexcept : vertices(move(resource.vertices)), indices(move(resource.indices))
+{
+    swap(device, resource.device);
+    swap(vertexBuffer, resource.vertexBuffer);
+    swap(indexBuffer, resource.indexBuffer);
+}
+
+DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
+{
+    if (this != &resource)
+    {
+        if (vertexBuffer) vertexBuffer->Release();
+        if (indexBuffer) indexBuffer->Release();
+
+        vertices = move(resource.vertices);
+        indices = move(resource.indices);
+
+        swap(device, resource.device);
+        swap(vertexBuffer, resource.vertexBuffer);
+        swap(indexBuffer, resource.indexBuffer);
+    }
+
+    return *this;
+}
+
 void DrawResource::CreateBuffers()
 {
     if (!device) return;
