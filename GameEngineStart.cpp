@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             double deltaTime = static_cast<double>(currentTime.QuadPart - prevTime.QuadPart) / frequency.QuadPart;
             prevTime = currentTime;
 
-            //engine.Tick(static_cast<float>(deltaTime));
+            engine.Tick(static_cast<float>(deltaTime));
         }
     }
 

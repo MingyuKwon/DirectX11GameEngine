@@ -158,8 +158,7 @@ void DirectX11Wrapper::Render()
         UINT stride = sizeof(KMGVertex);
         UINT offset = 0;
         g_pImmediateContext->IASetVertexBuffers(0, 1, &resource.vertexBuffer, &stride, &offset);
-        g_pImmediateContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
+        g_pImmediateContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
         g_pImmediateContext->DrawIndexed(resource.indices.size(), 0, 0);
     }
 
