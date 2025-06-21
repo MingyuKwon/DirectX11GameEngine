@@ -1,11 +1,15 @@
 #include <DetailWindow.h>
 #include <EngineData.h>
 
-int InitDetailPanel()
+void DetailWindow::Tick(float deltaTime)
+{
+}
+
+int DetailWindow::InitWindowPanel()
 {
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
-    wc.lpfnWndProc = DetailWndProc;
+    wc.lpfnWndProc = SubWindow::StaticWndProc;
     wc.hInstance = hWindowInstance;
     wc.lpszClassName = DETAIL_WINDOW_NAME;
     wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
@@ -13,23 +17,23 @@ int InitDetailPanel()
 
     RegisterClassEx(&wc);
 
-    g_hDetailPanel = CreateWindowEx(
+    hSubWnd = CreateWindowEx(
         0,
         DETAIL_WINDOW_NAME,
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
         0, 0,
         0, 0,
-        g_hMainWnd, (HMENU)3, hWindowInstance, nullptr);
+        hMainWnd, (HMENU)3, hWindowInstance, nullptr);
 
-    ResizeDetailWindows();
+    ResizeWindow();
 
     return 1;
 }
 
-void ResizeDetailWindows()
+void DetailWindow::ResizeWindow()
 {
-    if (!g_hDetailPanel) return;
+    if (!hSubWnd) return;
 
     int detailPanelPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO + 2;
     int detailPanelPosY = 0;
@@ -38,14 +42,14 @@ void ResizeDetailWindows()
     int detailPanelHeight = currentWindowHeight;
 
     MoveWindow(
-        g_hDetailPanel,
+        hSubWnd,
         detailPanelPosX, detailPanelPosY,
         detailPanelWidth, detailPanelHeight,
         TRUE
     );
 }
 
-LRESULT DetailWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT DetailWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {

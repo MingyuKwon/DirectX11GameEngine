@@ -1,7 +1,18 @@
 #pragma once
-#include <windows.h>
+#include <SubWindow.h>
 
-int InitContentPanel();
-void ResizeContentWindows();
+class ContentWindow : SubWindow
+{
+public:
+	ContentWindow(HWND hMainWnd) : SubWindow(hMainWnd) {};
 
-LRESULT CALLBACK ContentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	virtual void Tick(float deltaTime) override;
+
+	virtual int InitWindowPanel() override;
+	virtual void ResizeWindow() override;
+
+protected:
+	virtual LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
+
+private:
+};

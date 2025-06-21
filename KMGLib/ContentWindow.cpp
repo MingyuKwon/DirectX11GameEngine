@@ -2,7 +2,21 @@
 #include <ContentWindow.h>
 #include <EngineData.h>
 
-int InitContentPanel()
+
+LRESULT ContentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+}
+
+void ContentWindow::Tick(float deltaTime)
+{
+}
+
+int ContentWindow::InitWindowPanel()
 {
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
@@ -14,23 +28,23 @@ int InitContentPanel()
 
     RegisterClassEx(&wc);
 
-    g_hContentBrowser = CreateWindowEx(
+    hSubWnd = CreateWindowEx(
         0,
         CONTENT_WINDOW_NAME,
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
         0, 0,
         0, 0,
-        g_hMainWnd, (HMENU)2, hWindowInstance, nullptr);
+        hMainWnd, (HMENU)2, hWindowInstance, nullptr);
 
-    ResizeContentWindows();
+    ResizeWindow();
 
     return 1;
 }
 
-void ResizeContentWindows()
+void ContentWindow::ResizeWindow()
 {
-    if (!g_hContentBrowser) return;
+    if (!hSubWnd) return;
 
     int contentPanelPosX = 0;
     int contentPanelPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO + 2;
@@ -39,14 +53,15 @@ void ResizeContentWindows()
     int contentPanelHeight = currentWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
 
     MoveWindow(
-        g_hContentBrowser,
+        hSubWnd,
         contentPanelPosX, contentPanelPosY,
         contentPanelWidth, contentPanelHeight,
         TRUE
     );
+
 }
 
-LRESULT ContentWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT ContentWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {

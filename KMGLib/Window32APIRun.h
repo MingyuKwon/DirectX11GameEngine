@@ -5,6 +5,7 @@
 #include <DetailWindow.h>
 
 int InitBaseWindow();
+int InitSubWindow();
 int InitMenuBar();
 
 void CloseEngine();

@@ -1,13 +1,16 @@
 #include <SceneWindow.h>
 #include <EngineData.h>
 
-DirectX11Wrapper* directx11Wraper = nullptr;
+void SceneWindow::Tick(float deltaTime)
+{
 
-int InitScenePanel()
+}
+
+int SceneWindow::InitWindowPanel()
 {
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
-    wc.lpfnWndProc = SceneWndProc;
+    wc.lpfnWndProc = SubWindow::StaticWndProc;
     wc.hInstance = hWindowInstance;
     wc.lpszClassName = SCENE_WINDOW_NAME;
     wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
@@ -15,24 +18,24 @@ int InitScenePanel()
 
     RegisterClassEx(&wc);
 
-    g_hSceneView = CreateWindowEx(
+    hSubWnd = CreateWindowEx(
         0,
         SCENE_WINDOW_NAME,
         nullptr,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
         0, 0,
         0, 0,
-        g_hMainWnd, (HMENU)1, hWindowInstance, nullptr);
+        hMainWnd, (HMENU)1, hWindowInstance, this);
 
-    ResizeSceneWindows();
+    ResizeWindow();
     directx11Wraper = new DirectX11Wrapper();
 
     return 1;
 }
 
-void ResizeSceneWindows()
+void SceneWindow::ResizeWindow()
 {
-    if (!g_hSceneView) return;
+    if (!hSubWnd) return;
 
     int scenePanelPosX = 0;
     int scenePanelPosY = 0;
@@ -41,17 +44,17 @@ void ResizeSceneWindows()
     int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
     MoveWindow(
-        g_hSceneView,
+        hSubWnd,
         scenePanelPosX, scenePanelPosY,
         scenePanelWidth, scenePanelHeight,
         TRUE
     );
 
-    if(directx11Wraper) directx11Wraper->ResizeViewtarget(scenePanelWidth, scenePanelHeight);
-    
+    if (directx11Wraper) directx11Wraper->ResizeViewtarget(scenePanelWidth, scenePanelHeight);
+
 }
 
-LRESULT SceneWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT SceneWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -63,3 +66,4 @@ LRESULT SceneWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
 }
+
