@@ -1,6 +1,8 @@
 #include <EngineData.h>
 #include <Window32APIRun.h>
 
+using namespace std;
+
 LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -9,7 +11,7 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         switch (wParam)
         {
         case VK_ESCAPE:
-            CloseEngine();
+            StopEngine();
             break;
 
         default:
@@ -36,13 +38,13 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 
         case 2:
             PostMessage(hSceneWnd, WM_CLOSE, 0, 0);
-            CloseEngine();
+            StopEngine();
             break;
         }
         break;
     case WM_DESTROY:
     {
-        CloseEngine();
+        StopEngine();
         return 0;
     }
 
@@ -65,15 +67,29 @@ KMGEngine::~KMGEngine()
     if (detailWindow) delete detailWindow;
 }
 
-void KMGEngine::Tick(float deltaTime)
+void KMGEngine::StartEngine()
 {
-    if (!sceneWindow) return;
-    if (!contentWindow) return;
-    if (!detailWindow) return;
+    if (bRunning) return;
 
-    sceneWindow->Tick(deltaTime);
-    contentWindow->Tick(deltaTime);
-    detailWindow->Tick(deltaTime);
+    bRunning = true;
+    gameThread = thread(&KMGEngine::GameLoop, this);
+    renderThread = thread(&KMGEngine::RenderLoop, this);
+
+}
+
+void KMGEngine::StopEngine()
+{
+    if (!bRunning) return;
+
+    bRunning = false;
+    if (gameThread.joinable()) gameThread.join();
+    if (renderThread.joinable()) renderThread.join();
+
+    PostMessage(hSceneWnd, WM_CLOSE, 0, 0);
+    PostMessage(hContentWnd, WM_CLOSE, 0, 0);
+    PostMessage(hDetailWnd, WM_CLOSE, 0, 0);
+
+    PostQuitMessage(0);
 
 }
 
@@ -162,11 +178,74 @@ int KMGEngine::InitMenuBar()
     return 1;
 }
 
-void KMGEngine::CloseEngine()
+void KMGEngine::GameLoop() 
 {
-    PostMessage(hSceneWnd, WM_CLOSE, 0, 0);
-    PostMessage(hContentWnd, WM_CLOSE, 0, 0);
-    PostMessage(hDetailWnd, WM_CLOSE, 0, 0);
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    LARGE_INTEGER prev;
+    QueryPerformanceCounter(&prev);
 
-    PostQuitMessage(0);
+    while (bRunning) {
+        LARGE_INTEGER now;
+        QueryPerformanceCounter(&now);
+        float deltaTime = static_cast<float>(now.QuadPart - prev.QuadPart) / frequency.QuadPart;
+        prev = now;
+
+        {
+            lock_guard<mutex> lock(engineMutex);
+            GameLogicTick(deltaTime);
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(1));
+    }
 }
+
+void KMGEngine::RenderLoop()
+{
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    LARGE_INTEGER prev;
+    QueryPerformanceCounter(&prev);
+
+    const double targetFrameTime = 1.0 / 60.0; // 기준을 60fps로 맞춤
+
+    while (bRunning) {
+        LARGE_INTEGER frameStart;
+        QueryPerformanceCounter(&frameStart);
+
+        float deltaTime = static_cast<float>(frameStart.QuadPart - prev.QuadPart) / frequency.QuadPart;
+        prev = frameStart;
+
+        {
+            lock_guard<mutex> lock(engineMutex);
+            RenderTick(deltaTime);
+        }
+
+        LARGE_INTEGER frameEnd;
+        QueryPerformanceCounter(&frameEnd);
+        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
+
+        double remainingTime = targetFrameTime - frameDuration;
+        if (remainingTime > 0.0) {
+            this_thread::sleep_for(chrono::duration<double>(remainingTime));
+        }
+    }
+}
+
+
+void KMGEngine::GameLogicTick(float deltaTime)
+{
+    if (!contentWindow) return;
+    if (!detailWindow) return;
+
+    contentWindow->Tick(deltaTime);
+    detailWindow->Tick(deltaTime);
+}
+
+void KMGEngine::RenderTick(float deltaTime)
+{
+    if (!sceneWindow) return;
+
+    sceneWindow->Tick(deltaTime);
+}
+

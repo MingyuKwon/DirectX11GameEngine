@@ -7,13 +7,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     hWindowInstance = hInstance;
 
     KMGEngine engine;
+    engine.StartEngine();
 
     MSG msg = {};
-
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency); 
-    LARGE_INTEGER prevTime;
-    QueryPerformanceCounter(&prevTime); 
 
     while (WM_QUIT != msg.message)
     {
@@ -27,15 +23,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         }
         else
         {
-            LARGE_INTEGER currentTime;
-            QueryPerformanceCounter(&currentTime);
 
-            double deltaTime = static_cast<double>(currentTime.QuadPart - prevTime.QuadPart) / frequency.QuadPart;
-            prevTime = currentTime;
-
-            engine.Tick(static_cast<float>(deltaTime));
         }
     }
+
+    engine.StopEngine();
 
     return static_cast<int>(msg.wParam);
 }

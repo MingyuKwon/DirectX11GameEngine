@@ -1,6 +1,3 @@
-﻿  DirectX11Run.cpp
-D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp(162,63): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp(176,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp(177,27): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp(227,1): warning C4715: 'DirectX11Wrapper::CreateConstBuffers': 모든 제어 경로에서 값을 반환하지는 않습니다.
+﻿  Window32APIRun.cpp
+D:\DirectX11GameEngine\KMGLib\Window32APIRun.cpp(54,1): warning C4715: 'KMGEngine::WndProc': 모든 제어 경로에서 값을 반환하지는 않습니다.
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe
