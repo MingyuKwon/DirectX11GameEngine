@@ -38,9 +38,9 @@ const wchar_t* GetMessageName(UINT msg)
 
 LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    wchar_t buffer[128];
+    /*wchar_t buffer[128];
     swprintf(buffer, 128, L"WndProc Message: %s (0x%04X)\n", GetMessageName(msg), msg);
-    if(0x0200 != msg && 0x00A0 != msg) OutputDebugString(buffer);
+    if(0x0200 != msg && 0x00A0 != msg) OutputDebugString(buffer);*/
     
     switch (msg)
     {
@@ -49,8 +49,18 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
+        int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+
+        RenderCommand command;
+        command.type = RenderCommandtype::ERC_RESIZE_VIEWTARGET;
+        command.viewTargetWidth = scenePanelWidth;
+        command.viewTargetHeight = scenePanelHeight;
+
+        AddRenderCommand(command);
+
         EndPaint(hWnd, &ps);
-        return 0;
+        break;
     }
 
     case WM_KEYDOWN:
@@ -128,19 +138,6 @@ int KMGEngine::StartEngine()
             if (msg.message == WM_QUIT)
                 return static_cast<int>(msg.wParam);
 
-            if (msg.message == WM_EXITSIZEMOVE)
-            {
-                int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-                int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
-
-                RenderCommand command;
-                command.type = RenderCommandtype::ERC_RESIZE_VIEWTARGET;
-                command.viewTargetWidth = scenePanelWidth;
-                command.viewTargetHeight = scenePanelHeight;
-
-                AddRenderCommand(command);
-            }
-
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -196,6 +193,8 @@ LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
 
 void KMGEngine::AddRenderCommand(RenderCommand command)
 {
+    OutputDebugString(L"AddRenderCommand");
+
     lock_guard<mutex> lock(renderCommandMutex);
     renderCommandQueue.push(command);
 }
