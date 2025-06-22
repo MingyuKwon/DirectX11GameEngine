@@ -143,6 +143,7 @@
     <ClCompile Include="KMGLib\SceneWindow.cpp" />
     <ClCompile Include="KMGLib\Window32APIRun.cpp" />
     <ClCompile Include="OuterLib\DDSTextureLoader.cpp" />
+    <ClCompile Include="QueueCommand.cpp" />
     <ClCompile Include="SubWindow.cpp" />
     <ClCompile Include="Tutorial\Tutorial05.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

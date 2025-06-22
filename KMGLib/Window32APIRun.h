@@ -41,9 +41,6 @@ private:
 
 	void AddRenderCommand(RenderCommand command);
 
-
-	void AddSampleActor();
-
 	int InitBaseWindow();
 	int InitSubWindow();
 	int InitMenuBar();

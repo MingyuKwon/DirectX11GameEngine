@@ -1,6 +1,8 @@
+#pragma once
 #include <directxmath.h>
 #include <vector>
 #include <string>
+#include <queue>
 #include <unordered_map>
 
 struct KMGVertex

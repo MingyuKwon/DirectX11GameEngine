@@ -81,6 +81,9 @@
     <ClCompile Include="KMGLib\KMGDataStructure.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="QueueCommand.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">

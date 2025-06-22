@@ -8,4 +8,5 @@ D:\DirectX11GameEngine\KMGLib\KMGDataStructure.h;D:\DirectX11GameEngine\DirectX1
 D:\DirectX11GameEngine\KMGLib\SceneWindow.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\SceneWindow.obj
 D:\DirectX11GameEngine\KMGLib\Window32APIRun.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\Window32APIRun.obj
 D:\DirectX11GameEngine\OuterLib\DDSTextureLoader.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DDSTextureLoader.obj
+D:\DirectX11GameEngine\QueueCommand.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\QueueCommand.obj
 D:\DirectX11GameEngine\SubWindow.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\SubWindow.obj
