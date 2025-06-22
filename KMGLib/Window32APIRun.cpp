@@ -1,35 +1,73 @@
 #include <EngineData.h>
 #include <Window32APIRun.h>
+#include <sstream>
 
 using namespace std;
 
-// 이건 메인 로직에서 처리하도록 해야하나?
-LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+// 메시지 이름 반환용 함수
+const wchar_t* GetMessageName(UINT msg)
 {
     switch (msg)
     {
-    case WM_KEYDOWN:
-        switch (wParam)
-        {
-        case VK_ESCAPE:
-            StopEngine();
-            break;
+    case WM_PAINT: return L"WM_PAINT";
+    case WM_SIZE: return L"WM_SIZE";
+    case WM_MOVE: return L"WM_MOVE";
+    case WM_MOUSEMOVE: return L"WM_MOUSEMOVE";
+    case WM_LBUTTONDOWN: return L"WM_LBUTTONDOWN";
+    case WM_LBUTTONUP: return L"WM_LBUTTONUP";
+    case WM_RBUTTONDOWN: return L"WM_RBUTTONDOWN";
+    case WM_RBUTTONUP: return L"WM_RBUTTONUP";
+    case WM_KEYDOWN: return L"WM_KEYDOWN";
+    case WM_KEYUP: return L"WM_KEYUP";
+    case WM_CHAR: return L"WM_CHAR";
+    case WM_COMMAND: return L"WM_COMMAND";
+    case WM_DESTROY: return L"WM_DESTROY";
+    case WM_QUIT: return L"WM_QUIT";
+    case WM_ENTERSIZEMOVE: return L"WM_ENTERSIZEMOVE";
+    case WM_EXITSIZEMOVE: return L"WM_EXITSIZEMOVE";
+    case WM_NCLBUTTONDOWN: return L"WM_NCLBUTTONDOWN";
+    case WM_HSCROLL: return L"WM_HSCROLL";
+    case WM_VSCROLL: return L"WM_VSCROLL";
+    case WVR_ALIGNTOP: return L"WVR_ALIGNTOP";
+    case WVR_ALIGNLEFT: return L"WVR_ALIGNLEFT";
+    case WVR_ALIGNBOTTOM: return L"WVR_ALIGNBOTTOM";
+    case WVR_ALIGNRIGHT: return L"WVR_ALIGNRIGHT";
+    default: return L"UNKNOWN";
+    }
+}
 
-        default:
-            break;
+LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    wchar_t buffer[128];
+    swprintf(buffer, 128, L"WndProc Message: %s (0x%04X)\n", GetMessageName(msg), msg);
+    if(0x0200 != msg && 0x00A0 != msg) OutputDebugString(buffer);
+    
+    switch (msg)
+    {
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        EndPaint(hWnd, &ps);
+        return 0;
+    }
+
+    case WM_KEYDOWN:
+        if (wParam == VK_ESCAPE)
+        {
+            StopEngine();
         }
         break;
+
     case WM_SIZE:
-    {
         currentWindowWidth = LOWORD(lParam);
         currentWindowHeight = HIWORD(lParam);
 
-        //if (sceneWindow) sceneWindow->ResizeWindow();
         if (contentWindow) contentWindow->ResizeWindow();
         if (detailWindow) detailWindow->ResizeWindow();
-
         break;
-    }
+
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
@@ -43,16 +81,15 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
             break;
         }
         break;
+
     case WM_DESTROY:
-    {
         StopEngine();
         break;
     }
 
-    default:
-        return DefWindowProc(hWnd, msg, wParam, lParam);
-    }
+    return DefWindowProc(hWnd, msg, wParam, lParam);
 }
+
 
 KMGEngine::KMGEngine()
 {
@@ -90,33 +127,8 @@ int KMGEngine::StartEngine()
             if (msg.message == WM_QUIT)
                 return static_cast<int>(msg.wParam);
 
-            if (msg.message == WM_ENTERSIZEMOVE)
-                bResizing = true;
-            else if (msg.message == WM_EXITSIZEMOVE)
-                bResizing = false;
-
             TranslateMessage(&msg);
             DispatchMessage(&msg);
-        }
-
-        while (bResizing)
-        {
-            MSG resizeMsg;
-            while (PeekMessage(&resizeMsg, nullptr, 0, 0, PM_REMOVE))
-            {
-                if (resizeMsg.message == WM_EXITSIZEMOVE)
-                    bResizing = false;
-
-                TranslateMessage(&resizeMsg);
-                DispatchMessage(&resizeMsg);
-            }
-
-            if (directx11Wraper) 
-            {
-                directx11Wraper->TrySceneWindowPresent();
-            }
-
-            Sleep(1); 
         }
 
         if (directx11Wraper)
@@ -366,4 +378,3 @@ void KMGEngine::RenderTick(float deltaTime)
 
     sceneWindow->Tick(deltaTime);
 }
-

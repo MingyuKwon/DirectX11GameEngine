@@ -163,7 +163,6 @@ void DirectX11Wrapper::SceneWindowRender()
     }
 
     bCanDrawSceneWindow.store(true);
-
 }
 
 HRESULT DirectX11Wrapper::TrySceneWindowPresent()

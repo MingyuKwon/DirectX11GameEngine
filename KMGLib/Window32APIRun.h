@@ -28,7 +28,6 @@ private:
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	std::atomic<bool> bRunning = false;
-	std::atomic<bool> bResizing = false;
 
 	std::thread gameThread;
 	std::thread renderThread;
