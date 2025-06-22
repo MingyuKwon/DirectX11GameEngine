@@ -3,6 +3,7 @@
 
 using namespace std;
 
+// 이건 메인 로직에서 처리하도록 해야하나?
 LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -72,7 +73,7 @@ void KMGEngine::StartEngine()
     if (bRunning) return;
 
     bRunning = true;
-    gameThread = thread(&KMGEngine::GameLoop, this);
+    gameThread = thread(&KMGEngine::MainLoop, this);
     renderThread = thread(&KMGEngine::RenderLoop, this);
 
 }
@@ -178,7 +179,7 @@ int KMGEngine::InitMenuBar()
     return 1;
 }
 
-void KMGEngine::GameLoop() 
+void KMGEngine::MainLoop() 
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -193,7 +194,7 @@ void KMGEngine::GameLoop()
 
         {
             lock_guard<mutex> lock(engineMutex);
-            GameLogicTick(deltaTime);
+            MainLogicTick(deltaTime);
         }
 
         this_thread::sleep_for(chrono::milliseconds(1));
@@ -212,6 +213,8 @@ void KMGEngine::RenderLoop()
     while (bRunning) {
         LARGE_INTEGER frameStart;
         QueryPerformanceCounter(&frameStart);
+
+        // 여기서 그리는 전처리를 해야한다
 
         float deltaTime = static_cast<float>(frameStart.QuadPart - prev.QuadPart) / frequency.QuadPart;
         prev = frameStart;
@@ -233,7 +236,7 @@ void KMGEngine::RenderLoop()
 }
 
 
-void KMGEngine::GameLogicTick(float deltaTime)
+void KMGEngine::MainLogicTick(float deltaTime)
 {
     if (!contentWindow) return;
     if (!detailWindow) return;

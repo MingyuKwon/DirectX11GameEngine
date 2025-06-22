@@ -40,10 +40,10 @@ private:
 	int InitSubWindow();
 	int InitMenuBar();
 
-	void GameLoop(); // 스레드에서 돌아갈 게임 로직
+	void MainLoop(); // 스레드에서 돌아갈 메인 로직
 	void RenderLoop(); // 스레드에서 돌아가갈 렌더링 로직
 
-	void GameLogicTick(float deltaTime); // 메인 게임 로직을 다루는 Tick
+	void MainLogicTick(float deltaTime); // 메인 로직을 다루는 Tick
 	void RenderTick(float deltaTime); // 그림이 그려지는 렌더링을 다루는 Tick
 };
 
