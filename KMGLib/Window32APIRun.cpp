@@ -18,17 +18,17 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         default:
             break;
         }
-        return 0;
+        break;
     case WM_SIZE:
     {
         currentWindowWidth = LOWORD(lParam);
         currentWindowHeight = HIWORD(lParam);
 
-        if (sceneWindow) sceneWindow->ResizeWindow();
+        //if (sceneWindow) sceneWindow->ResizeWindow();
         if (contentWindow) contentWindow->ResizeWindow();
         if (detailWindow) detailWindow->ResizeWindow();
 
-        return 0;
+        break;
     }
     case WM_COMMAND:
         switch (LOWORD(wParam))
@@ -38,7 +38,7 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
             break;
 
         case 2:
-            PostMessage(hSceneWnd, WM_CLOSE, 0, 0);
+            PostMessage(sceneWindow->getWindowHandle(), WM_CLOSE, 0, 0);
             StopEngine();
             break;
         }
@@ -46,7 +46,7 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
     case WM_DESTROY:
     {
         StopEngine();
-        return 0;
+        break;
     }
 
     default:
@@ -68,13 +68,66 @@ KMGEngine::~KMGEngine()
     if (detailWindow) delete detailWindow;
 }
 
-void KMGEngine::StartEngine()
+int KMGEngine::StartEngine()
 {
-    if (bRunning) return;
+    if (bRunning) return 0;
 
     bRunning = true;
+
+    directx11Wraper = new DirectX11Wrapper(sceneWindow->getWindowHandle());
+
     gameThread = thread(&KMGEngine::MainLoop, this);
     renderThread = thread(&KMGEngine::RenderLoop, this);
+
+    AddSampleActor();
+
+    MSG msg = {};
+
+    while (true)
+    {
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (msg.message == WM_QUIT)
+                return static_cast<int>(msg.wParam);
+
+            if (msg.message == WM_ENTERSIZEMOVE)
+                bResizing = true;
+            else if (msg.message == WM_EXITSIZEMOVE)
+                bResizing = false;
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        while (bResizing)
+        {
+            MSG resizeMsg;
+            while (PeekMessage(&resizeMsg, nullptr, 0, 0, PM_REMOVE))
+            {
+                if (resizeMsg.message == WM_EXITSIZEMOVE)
+                    bResizing = false;
+
+                TranslateMessage(&resizeMsg);
+                DispatchMessage(&resizeMsg);
+            }
+
+            if (directx11Wraper) 
+            {
+                directx11Wraper->TrySceneWindowPresent();
+            }
+
+            Sleep(1); 
+        }
+
+        if (directx11Wraper)
+        {
+            directx11Wraper->TrySceneWindowPresent();
+        }
+    }
+
+    StopEngine();
+
+    return static_cast<int>(msg.wParam);
 
 }
 
@@ -86,9 +139,11 @@ void KMGEngine::StopEngine()
     if (gameThread.joinable()) gameThread.join();
     if (renderThread.joinable()) renderThread.join();
 
-    PostMessage(hSceneWnd, WM_CLOSE, 0, 0);
-    PostMessage(hContentWnd, WM_CLOSE, 0, 0);
-    PostMessage(hDetailWnd, WM_CLOSE, 0, 0);
+    if (directx11Wraper) delete directx11Wraper;
+
+    PostMessage(sceneWindow->getWindowHandle(), WM_CLOSE, 0, 0);
+    PostMessage(contentWindow->getWindowHandle(), WM_CLOSE, 0, 0);
+    PostMessage(detailWindow->getWindowHandle(), WM_CLOSE, 0, 0);
 
     PostQuitMessage(0);
 
@@ -111,6 +166,70 @@ LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
         return pThis->WndProc(hWnd, msg, wParam, lParam);
     else
         return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+void KMGEngine::AddSampleActor()
+{
+    vector<KMGVertex> vertices =
+    {
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f), XMFLOAT2(1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 1.0f) },
+
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 0.0f) },
+        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 1.0f) },
+
+        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 1.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 0.0f) },
+
+        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 1.0f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 1.0f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 0.0f) },
+        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 0.0f) },
+
+        { XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 1.0f) },
+        { XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 1.0f) },
+        { XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 0.0f) },
+
+        { XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 1.0f) },
+        { XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 1.0f) },
+        { XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(0.0f, 0.0f) },
+        { XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),XMFLOAT2(1.0f, 0.0f) },
+    };
+
+    vector<int> indices =
+    {
+        3,1,0,
+        2,1,3,
+
+        6,4,5,
+        7,4,6,
+
+        11,9,8,
+        10,9,11,
+
+        14,12,13,
+        15,12,14,
+
+        19,17,16,
+        18,17,19,
+
+        22,20,21,
+        23,20,22
+    };
+
+    KMGActor actor1;
+    actor1.name = L"actor1";
+    actor1.vertices = vertices;
+    actor1.indices = indices;
+
+    if (directx11Wraper) directx11Wraper->AddActor(actor1);
 }
 
 int KMGEngine::InitBaseWindow()
@@ -154,10 +273,6 @@ int KMGEngine::InitSubWindow()
     sceneWindow = new SceneWindow(hMainWnd);
     contentWindow = new ContentWindow(hMainWnd);
     detailWindow = new DetailWindow(hMainWnd);
-
-    hSceneWnd = sceneWindow->getWindowHandle();
-    hContentWnd = contentWindow->getWindowHandle();
-    hDetailWnd = detailWindow->getWindowHandle();
 
     return 0;
 }

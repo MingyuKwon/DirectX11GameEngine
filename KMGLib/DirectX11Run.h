@@ -9,6 +9,8 @@
 #include <d3dcompiler.h>
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
+#include <atomic>
+#include <mutex>
 
 #include <KMGActor.h>
 
@@ -71,7 +73,8 @@ public:
     HRESULT deleteActor(wstring name);
 
     void ResizeViewtarget(int width, int height); // 렌더링할 부분이 바뀌면 호출할 함수
-    void Render(); // 그림 그리기
+    void SceneWindowRender(); // 씬에다가 백버퍼에 그림 그리기
+    HRESULT TrySceneWindowPresent(); // 메인 스레드에서 일어나야 함
 
 protected:
     HRESULT InitDirectX11(); // 기본적인 전역 변수 값 할당
@@ -83,6 +86,8 @@ protected:
     void CleanupDevice(); // 전역 변수 값 전부 초기화
 
 private:
+    atomic<bool> bCanDrawSceneWindow = false;
+
     D3D_DRIVER_TYPE                     g_driverType = D3D_DRIVER_TYPE_NULL;
     D3D_FEATURE_LEVEL                   g_featureLevel = D3D_FEATURE_LEVEL_11_0;
 

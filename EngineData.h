@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <DirectX11Run.h>
 
 #define ENGINE_NAME L"KMG Engine"
 
@@ -17,6 +18,9 @@ extern int currentWindowWidth;
 extern int currentWindowHeight;
 
 extern HINSTANCE hWindowInstance;
+
+extern DirectX11Wrapper* directx11Wraper;
+
 
 extern HMENU hMenu;
 extern HMENU hFileMenu;

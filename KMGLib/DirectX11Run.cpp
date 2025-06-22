@@ -97,14 +97,14 @@ HRESULT DirectX11Wrapper::AddActor(const KMGActor& actor)
 
 HRESULT DirectX11Wrapper::deleteActor(wstring name)
 {
-    if (drawResources.count(name) == 0) return S_FALSE;
+    if (!drawResources.count(name) == 0) return S_FALSE;
 
     drawResources.erase(name);
 
     return S_OK;
 }
 
-void DirectX11Wrapper::Render()
+void DirectX11Wrapper::SceneWindowRender()
 {
     // Update our time
     static float t = 0.0f;
@@ -162,8 +162,15 @@ void DirectX11Wrapper::Render()
         g_pImmediateContext->DrawIndexed(resource.indices.size(), 0, 0);
     }
 
-    // Present our back buffer to our front buffer
+    bCanDrawSceneWindow.store(true);
+
+}
+
+HRESULT DirectX11Wrapper::TrySceneWindowPresent()
+{
+    if (!bCanDrawSceneWindow.exchange(false)) return S_FALSE;
     g_pSwapChain->Present(0, 0);
+    return S_OK;
 }
 
 //--------------------------------------------------------------------------------------

@@ -13,17 +13,13 @@ public:
 	KMGEngine();
 	virtual ~KMGEngine();
 
-	void StartEngine();
+	int StartEngine();
 	void StopEngine();
 
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
 	HWND hMainWnd = nullptr;
-
-	HWND hSceneWnd = nullptr;
-	HWND hContentWnd = nullptr;
-	HWND hDetailWnd = nullptr;
 
 	SceneWindow* sceneWindow = nullptr;
 	ContentWindow* contentWindow = nullptr;
@@ -32,9 +28,13 @@ private:
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	std::atomic<bool> bRunning = false;
+	std::atomic<bool> bResizing = false;
+
 	std::thread gameThread;
 	std::thread renderThread;
 	std::mutex engineMutex;
+
+	void AddSampleActor();
 
 	int InitBaseWindow();
 	int InitSubWindow();

@@ -1,6 +1,5 @@
 #pragma once
 #include <SubWindow.h>
-#include <DirectX11Run.h>
 
 class SceneWindow : public SubWindow
 {
@@ -15,8 +14,5 @@ public:
 
 protected:
 	virtual LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
-
-private :
-	DirectX11Wrapper* directx11Wraper = nullptr;
 };
 
