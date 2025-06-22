@@ -64,6 +64,7 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         currentWindowWidth = LOWORD(lParam);
         currentWindowHeight = HIWORD(lParam);
 
+        if (sceneWindow) sceneWindow->ResizeWindow();
         if (contentWindow) contentWindow->ResizeWindow();
         if (detailWindow) detailWindow->ResizeWindow();
         break;
@@ -127,6 +128,19 @@ int KMGEngine::StartEngine()
             if (msg.message == WM_QUIT)
                 return static_cast<int>(msg.wParam);
 
+            if (msg.message == WM_EXITSIZEMOVE)
+            {
+                int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+                int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+
+                RenderCommand command;
+                command.type = RenderCommandtype::ERC_RESIZE_VIEWTARGET;
+                command.viewTargetWidth = scenePanelWidth;
+                command.viewTargetHeight = scenePanelHeight;
+
+                AddRenderCommand(command);
+            }
+
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -178,6 +192,12 @@ LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
         return pThis->WndProc(hWnd, msg, wParam, lParam);
     else
         return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+void KMGEngine::AddRenderCommand(RenderCommand command)
+{
+    lock_guard<mutex> lock(renderCommandMutex);
+    renderCommandQueue.push(command);
 }
 
 void KMGEngine::AddSampleActor()
@@ -341,7 +361,27 @@ void KMGEngine::RenderLoop()
         LARGE_INTEGER frameStart;
         QueryPerformanceCounter(&frameStart);
 
-        // 여기서 그리는 전처리를 해야한다
+        // 긴 lock을 피하기 위해서 스냅샷을 사용
+        std::queue<RenderCommand> tempQueue;
+        {
+            std::lock_guard<std::mutex> lock(renderCommandMutex);
+            std::swap(tempQueue, renderCommandQueue);
+        }
+
+        while (!tempQueue.empty())
+        {
+            lock_guard<mutex> lock(renderCommandMutex);
+            RenderCommand command = tempQueue.front();
+            tempQueue.pop();
+
+            if (command.type == RenderCommandtype::ERC_RESIZE_VIEWTARGET)
+            {
+                if (directx11Wraper)
+                {
+                    directx11Wraper->ResizeViewtarget(command.viewTargetWidth, command.viewTargetHeight);
+                }
+            }
+        }
 
         float deltaTime = static_cast<float>(frameStart.QuadPart - prev.QuadPart) / frequency.QuadPart;
         prev = frameStart;

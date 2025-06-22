@@ -177,6 +177,7 @@
     <ClInclude Include="KMGLib\SceneWindow.h" />
     <ClInclude Include="KMGLib\Window32APIRun.h" />
     <ClInclude Include="OuterLib\DDSTextureLoader.h" />
+    <ClInclude Include="QueueCommand.h" />
     <ClInclude Include="SubWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

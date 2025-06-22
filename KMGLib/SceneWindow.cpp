@@ -61,9 +61,6 @@ void SceneWindow::ResizeWindow()
         scenePanelWidth, scenePanelHeight,
         TRUE
     );
-
-    if (directx11Wraper) directx11Wraper->ResizeViewtarget(scenePanelWidth, scenePanelHeight);
-
 }
 
 LRESULT SceneWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

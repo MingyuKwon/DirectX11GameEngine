@@ -110,6 +110,9 @@
     <ClInclude Include="KMGLib\KMGActor.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
+    <ClInclude Include="QueueCommand.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="KMGLib\PixelShader.hlsli" />

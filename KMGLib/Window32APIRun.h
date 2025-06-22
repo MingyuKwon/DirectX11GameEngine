@@ -1,10 +1,13 @@
 #pragma once
 #include <windows.h>
+#include <QueueCommand.h>
+
 #include <SceneWindow.h>
 #include <ContentWindow.h>
 #include <DetailWindow.h>
 #include <atomic>
 #include <thread>
+
 #include <mutex>
 
 class KMGEngine
@@ -32,6 +35,12 @@ private:
 	std::thread gameThread;
 	std::thread renderThread;
 	std::mutex engineMutex;
+
+	std::mutex renderCommandMutex;
+	std::queue<RenderCommand> renderCommandQueue;
+
+	void AddRenderCommand(RenderCommand command);
+
 
 	void AddSampleActor();
 

@@ -6,5 +6,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     hWindowInstance = hInstance;
     KMGEngine engine;
-    return engine.StartEngine();
+    int result = engine.StartEngine();
+    return result;
 }
