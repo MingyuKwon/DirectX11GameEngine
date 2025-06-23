@@ -265,6 +265,8 @@ void KMGEngine::AddRenderCommand(RenderCommand command)
 
 int KMGEngine::InitBaseWindow()
 {
+    hWindowInstance = GetModuleHandle(nullptr);
+
     const wchar_t CLASS_NAME[] = ENGINE_NAME;
 
     WNDCLASSEX wcex = {};

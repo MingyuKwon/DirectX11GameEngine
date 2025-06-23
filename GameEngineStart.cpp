@@ -1,11 +1,10 @@
 #include <EngineData.h>
 #include <Window32APIRun.h>
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-    LPSTR lpCmdLine, int nCmdShow)
+int main(int, char**)
 {
-    hWindowInstance = hInstance;
     KMGEngine engine;
     int result = engine.StartEngine();
     return result;
+
 }

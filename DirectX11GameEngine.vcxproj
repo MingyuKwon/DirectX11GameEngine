@@ -134,9 +134,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameEngineStart.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="ImGuiExample.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="ImGuiExample.cpp" />
     <ClCompile Include="KMGLib\ContentWindow.cpp" />
     <ClCompile Include="KMGLib\DetailWindow.cpp" />
     <ClCompile Include="KMGLib\DirectX11Run.cpp" />
