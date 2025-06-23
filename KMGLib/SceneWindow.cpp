@@ -11,7 +11,7 @@ SceneWindow::~SceneWindow()
     
 }
 
-void SceneWindow::Tick(float deltaTime)
+void SceneWindow::RenderScene()
 {
     if (directx11Wraper)
     {

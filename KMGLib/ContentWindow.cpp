@@ -17,9 +17,6 @@ ContentWindow::ContentWindow(HWND hMainWnd) : SubWindow(hMainWnd)
     InitWindowPanel();
 }
 
-void ContentWindow::Tick(float deltaTime)
-{
-}
 
 int ContentWindow::InitWindowPanel()
 {

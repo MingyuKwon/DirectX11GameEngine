@@ -66,7 +66,7 @@ struct DrawResource
 class DirectX11Wrapper
 {
 public:
-    DirectX11Wrapper(HWND viewWindow);
+    DirectX11Wrapper(HWND mainWindow, HWND sceneWindow);
     virtual ~DirectX11Wrapper();
 
     HRESULT AddActor(const KMGActor& actor);
@@ -74,21 +74,24 @@ public:
 
     void ResizeViewtarget(int width, int height); // 렌더링할 부분이 바뀌면 호출할 함수
     void SceneWindowRender(); // 씬에다가 백버퍼에 그림 그리기
-    HRESULT TrySceneWindowPresent(); // 메인 스레드에서 일어나야 함
+    HRESULT TryUIPresent(); // 메인 스레드에서 일어나야 함
+    HRESULT SetUIDrawReady();
 
     void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
 
 protected:
     HRESULT InitDirectX11(); // 기본적인 전역 변수 값 할당
     HRESULT Init_Device_Context(); // 가장 기본인 Device, context를 생성
-    HRESULT Init_RTV_DSV_Viewport(int width, int height); // 가장 기본인 Device, context를 생성
+
+    HRESULT Init_RTV_DSV_Viewport(IDXGISwapChain*& pSwapChain, ID3D11RenderTargetView*& pRenderTargetView, int width, int height); // 렌더 타깃을 만들어주는 함수
+
     HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName); 
     HRESULT CreateConstBuffers();
 
     void CleanupDevice(); // 전역 변수 값 전부 초기화
 
 private:
-    atomic<bool> bCanDrawSceneWindow = false;
+    atomic<bool> bCanDrawUI = false;
 
     D3D_DRIVER_TYPE                     g_driverType = D3D_DRIVER_TYPE_NULL;
     D3D_FEATURE_LEVEL                   g_featureLevel = D3D_FEATURE_LEVEL_11_0;
@@ -96,8 +99,11 @@ private:
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;
 
-    IDXGISwapChain* pSwapChain = nullptr;
-    ID3D11RenderTargetView* pRenderTargetView = nullptr;
+    IDXGISwapChain* pMainSwapChain = nullptr;
+    ID3D11RenderTargetView* pMainRenderTargetView = nullptr;
+
+    IDXGISwapChain* pSceneSwapChain = nullptr;
+    ID3D11RenderTargetView* pSceneRenderTargetView = nullptr;
 
     ID3D11Texture2D* pDepthStencil = nullptr;
     ID3D11DepthStencilView* pDepthStencilView = nullptr;
@@ -119,7 +125,8 @@ private:
     XMMATRIX View = XMMatrixIdentity();
     XMMATRIX Projection = XMMatrixIdentity();
 
-    HWND viewWindow;
+    HWND mainWindow;
+    HWND sceneWindow;
 
     unordered_map<wstring, DrawResource> drawResources;
 

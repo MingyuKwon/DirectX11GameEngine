@@ -33,6 +33,7 @@ private:
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	std::atomic<bool> bRunning = false;
+	std::atomic<bool> bResizing = false;
 
 	std::thread gameThread;
 	std::thread renderThread;
@@ -55,6 +56,5 @@ private:
 	int MainLoop(); // 앱의 핵심이 되는 루프
 
 	void GameLogicTick(float deltaTime); // 메인 로직을 다루는 Tick
-	void RenderTick(float deltaTime); // 그림이 그려지는 렌더링을 다루는 Tick
 };
 

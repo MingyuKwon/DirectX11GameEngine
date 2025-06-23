@@ -7,7 +7,7 @@ public:
 	SceneWindow(HWND hMainWnd);
 	virtual ~SceneWindow();
 
-	virtual void Tick(float deltaTime) override;
+	virtual void RenderScene();
 
 	virtual int InitWindowPanel() override;
 	virtual void ResizeWindow() override;

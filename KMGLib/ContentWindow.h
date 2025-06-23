@@ -6,8 +6,6 @@ class ContentWindow : public SubWindow
 public:
 	ContentWindow(HWND hMainWnd);
 
-	virtual void Tick(float deltaTime) override;
-
 	virtual int InitWindowPanel() override;
 	virtual void ResizeWindow() override;
 

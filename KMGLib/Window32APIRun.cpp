@@ -103,7 +103,6 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
         return true;
 
-
     switch (msg)
     {
     case WM_PAINT:
@@ -114,9 +113,14 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         EndPaint(hWnd, &ps);
         break;
     }
-
+    case WM_ENTERSIZEMOVE:
+    {
+        bResizing.exchange(true);
+        break;
+    }
     case WM_EXITSIZEMOVE:
     {
+        bResizing.exchange(false);
         AddRenderCommand(RenderCommand::MakeResizeViewTargetCommand(currentWindowWidth, currentWindowHeight));
         break;
     }
@@ -259,7 +263,8 @@ int KMGEngine::InitD3DIMGUI()
     ////////////////////////////////////////////
     // Init D3D
     ////////////////////////////////////////////
-    directx11Wraper = new DirectX11Wrapper(hMainWnd);
+    if (!sceneWindow) return 0;
+    directx11Wraper = new DirectX11Wrapper(hMainWnd, sceneWindow->getWindowHandle());
 
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;
@@ -389,8 +394,6 @@ void KMGEngine::RenderLoop()
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
-    LARGE_INTEGER prev;
-    QueryPerformanceCounter(&prev);
 
     const double targetFrameTime = 1.0 / 60.0; // 기준을 60fps로 맞춤
 
@@ -451,16 +454,14 @@ void KMGEngine::RenderLoop()
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+        if (directx11Wraper) directx11Wraper->SetUIDrawReady();
+        if (!bResizing && directx11Wraper) directx11Wraper->TryUIPresent();
 
-        float deltaTime = static_cast<float>(frameStart.QuadPart - prev.QuadPart) / frequency.QuadPart;
-        prev = frameStart;
 
-        {
-            lock_guard<mutex> lock(engineMutex);
-            //RenderTick(deltaTime);
-        }
-
-        if (directx11Wraper) directx11Wraper->TrySceneWindowPresent();
+        //{
+        //    lock_guard<mutex> lock(engineMutex);
+        //    if (sceneWindow) sceneWindow->RenderScene();
+        //}
 
 
 
@@ -483,9 +484,3 @@ void KMGEngine::GameLogicTick(float deltaTime)
 
 }
 
-void KMGEngine::RenderTick(float deltaTime)
-{
-    if (!sceneWindow) return;
-
-    sceneWindow->Tick(deltaTime);
-}

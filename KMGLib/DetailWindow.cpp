@@ -6,11 +6,6 @@ DetailWindow::DetailWindow(HWND hMainWnd) : SubWindow(hMainWnd)
     InitWindowPanel();
 }
 
-
-void DetailWindow::Tick(float deltaTime)
-{
-}
-
 int DetailWindow::InitWindowPanel()
 {
     WNDCLASSEX wc = {};

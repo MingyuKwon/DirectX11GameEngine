@@ -75,7 +75,7 @@ void DrawResource::CreateBuffers()
 }
 
 
-DirectX11Wrapper::DirectX11Wrapper(HWND viewWindow) : viewWindow(viewWindow)
+DirectX11Wrapper::DirectX11Wrapper(HWND mainWindow, HWND sceneWindow) : mainWindow(mainWindow), sceneWindow(sceneWindow)
 {
     InitDirectX11();
 }
@@ -106,7 +106,6 @@ HRESULT DirectX11Wrapper::deleteActor(wstring name)
 
 void DirectX11Wrapper::SceneWindowRender()
 {
-    return;
     // Update our time
     static float t = 0.0f;
     if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
@@ -126,7 +125,7 @@ void DirectX11Wrapper::SceneWindowRender()
     World = XMMatrixRotationY(t);
 
     // Clear the back buffer
-    pImmediateContext->ClearRenderTargetView(pRenderTargetView, Colors::MidnightBlue);
+    pImmediateContext->ClearRenderTargetView(pMainRenderTargetView, Colors::MidnightBlue);
 
     // Clear the depth buffer to 1.0 (max depth)
     pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -163,13 +162,19 @@ void DirectX11Wrapper::SceneWindowRender()
         pImmediateContext->DrawIndexed(resource.indices.size(), 0, 0);
     }
 
-    bCanDrawSceneWindow.store(true);
 }
 
-HRESULT DirectX11Wrapper::TrySceneWindowPresent()
+HRESULT DirectX11Wrapper::TryUIPresent()
 {
-    //if (!bCanDrawSceneWindow.exchange(false)) return S_FALSE;
-    pSwapChain->Present(0, 0);
+    if (!bCanDrawUI.exchange(false)) return S_FALSE;
+
+    pMainSwapChain->Present(0, 0);
+    return S_OK;
+}
+
+HRESULT DirectX11Wrapper::SetUIDrawReady()
+{
+    bCanDrawUI.exchange(true);
     return S_OK;
 }
 
@@ -187,13 +192,16 @@ HRESULT DirectX11Wrapper::InitDirectX11()
 {
     HRESULT hr = S_OK;
 
-    int initialViewWidth = currentWindowWidth;
-    int initialViewHeight = currentWindowHeight;
-
     hr = Init_Device_Context();
     if (FAILED(hr)) return hr;
 
-    hr = Init_RTV_DSV_Viewport(initialViewWidth, initialViewHeight);
+    hr = Init_RTV_DSV_Viewport(pMainSwapChain, pMainRenderTargetView, currentWindowWidth, currentWindowHeight);
+    if (FAILED(hr)) return hr;
+
+    int initialSceneWidth = currentWindowWidth;
+    int initialSceneHeight = currentWindowHeight;
+
+    hr = Init_RTV_DSV_Viewport(pSceneSwapChain, pSceneRenderTargetView, initialSceneWidth, initialSceneHeight);
     if (FAILED(hr)) return hr;
     
     hr = CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
@@ -201,7 +209,7 @@ HRESULT DirectX11Wrapper::InitDirectX11()
 
     CreateConstBuffers();
 
-    ResizeViewtarget(initialViewWidth, initialViewHeight);
+    ResizeViewtarget(currentWindowWidth, currentWindowHeight);
 
     // Initialize the world matrices
 
@@ -282,7 +290,7 @@ HRESULT DirectX11Wrapper::Init_Device_Context()
     return hr;
 }
 
-HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
+HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(IDXGISwapChain*& pSwapChain, ID3D11RenderTargetView*& pRenderTargetView, int width, int height)
 {
     HRESULT hr = S_OK;
 
@@ -312,7 +320,7 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
     sd.BufferDesc.RefreshRate.Numerator = 60;
     sd.BufferDesc.RefreshRate.Denominator = 1;
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = viewWindow;
+    sd.OutputWindow = mainWindow;
     sd.SampleDesc.Count = 1;
     sd.SampleDesc.Quality = 0;
     sd.Windowed = TRUE;
@@ -351,6 +359,8 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
     hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
     if (FAILED(hr)) return hr;
 
+    // Depth도 빼야 하나?
+
     pImmediateContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
     D3D11_VIEWPORT vp = {};
@@ -364,6 +374,78 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
         
     return hr;
 }
+
+//--------------------------------------------------------------------------------------
+// 주어진 너비와 높이로 뷰 타깃과 깊이 버퍼, 뷰 포트의 크기를 바꿈
+//--------------------------------------------------------------------------------------
+void DirectX11Wrapper::ResizeViewtarget(int width, int height)
+{
+    if (!pMainRenderTargetView || !pDepthStencilView || !pDepthStencil) return;
+
+    HRESULT hr = S_OK;
+
+    pMainRenderTargetView->Release();
+    pDepthStencilView->Release();
+    pDepthStencil->Release();
+
+    hr = pMainSwapChain->ResizeBuffers(
+        1,
+        width,
+        height,
+        DXGI_FORMAT_R8G8B8A8_UNORM,
+        0);
+    if (FAILED(hr)) return;
+
+    ID3D11Texture2D* pBackBuffer = nullptr;
+    hr = pMainSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
+    if (FAILED(hr)) return;
+
+    hr = pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pMainRenderTargetView);
+    pBackBuffer->Release();
+    if (FAILED(hr)) return;
+
+    D3D11_TEXTURE2D_DESC descDepth = {};
+    descDepth.Width = width;
+    descDepth.Height = height;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+    hr = pd3dDevice->CreateTexture2D(&descDepth, nullptr, &pDepthStencil);
+    if (FAILED(hr)) return;
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+    hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
+    if (FAILED(hr)) return;
+
+    pImmediateContext->OMSetRenderTargets(1, &pMainRenderTargetView, pDepthStencilView);
+
+    D3D11_VIEWPORT vp = {};
+    vp.Width = static_cast<FLOAT>(width);
+    vp.Height = static_cast<FLOAT>(height);
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    vp.TopLeftX = 0;
+    vp.TopLeftY = 0;
+    pImmediateContext->RSSetViewports(1, &vp);
+
+    // Initialize the projection matrix
+    Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
+
+    CBChangeOnResize cbChangesOnResize = {};
+    cbChangesOnResize.mProjection = XMMatrixTranspose(Projection);
+    pImmediateContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cbChangesOnResize, 0, 0);
+
+}
+
 
 HRESULT DirectX11Wrapper::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
 {
@@ -413,76 +495,6 @@ HRESULT DirectX11Wrapper::CompileShader(const WCHAR* vertexShaderName, const WCH
     return hr;
 }
 
-//--------------------------------------------------------------------------------------
-// 주어진 너비와 높이로 뷰 타깃과 깊이 버퍼, 뷰 포트의 크기를 바꿈
-//--------------------------------------------------------------------------------------
-void DirectX11Wrapper::ResizeViewtarget(int width, int height)
-{
-    if (!pRenderTargetView || !pDepthStencilView || !pDepthStencil) return;
-
-    HRESULT hr = S_OK;
-
-    pRenderTargetView->Release();
-    pDepthStencilView->Release();
-    pDepthStencil->Release();
-
-    hr = pSwapChain->ResizeBuffers(
-        1,
-        width,
-        height,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        0);
-    if (FAILED(hr)) return;
-
-    ID3D11Texture2D* pBackBuffer = nullptr;
-    hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
-    if (FAILED(hr)) return;
-
-    hr = pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
-    pBackBuffer->Release();
-    if (FAILED(hr)) return;
-
-    D3D11_TEXTURE2D_DESC descDepth = {};
-    descDepth.Width = width;
-    descDepth.Height = height;
-    descDepth.MipLevels = 1;
-    descDepth.ArraySize = 1;
-    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    descDepth.SampleDesc.Count = 1;
-    descDepth.SampleDesc.Quality = 0;
-    descDepth.Usage = D3D11_USAGE_DEFAULT;
-    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    descDepth.CPUAccessFlags = 0;
-    descDepth.MiscFlags = 0;
-    hr = pd3dDevice->CreateTexture2D(&descDepth, nullptr, &pDepthStencil);
-    if (FAILED(hr)) return;
-
-    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-    descDSV.Format = descDepth.Format;
-    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    descDSV.Texture2D.MipSlice = 0;
-    hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
-    if (FAILED(hr)) return;
-
-    pImmediateContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
-
-    D3D11_VIEWPORT vp = {};
-    vp.Width = static_cast<FLOAT>(width);
-    vp.Height = static_cast<FLOAT>(height);
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    vp.TopLeftX = 0;
-    vp.TopLeftY = 0;
-    pImmediateContext->RSSetViewports(1, &vp);
-
-    // Initialize the projection matrix
-    Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
-
-    CBChangeOnResize cbChangesOnResize = {};
-    cbChangesOnResize.mProjection = XMMatrixTranspose(Projection);
-    pImmediateContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cbChangesOnResize, 0, 0);
-
-}
 
 //--------------------------------------------------------------------------------------
 // 전역 변수 값 전부 초기화
@@ -502,8 +514,8 @@ void DirectX11Wrapper::CleanupDevice()
     if (pPixelShader) pPixelShader->Release();
     if (pDepthStencil) pDepthStencil->Release();
     if (pDepthStencilView) pDepthStencilView->Release();
-    if (pRenderTargetView) pRenderTargetView->Release();
-    if (pSwapChain) pSwapChain->Release();
+    if (pMainRenderTargetView) pMainRenderTargetView->Release();
+    if (pMainSwapChain) pMainSwapChain->Release();
     if (pImmediateContext) pImmediateContext->Release();
     if (pd3dDevice) pd3dDevice->Release();
 }

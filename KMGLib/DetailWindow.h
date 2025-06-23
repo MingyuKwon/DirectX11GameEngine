@@ -6,8 +6,6 @@ class DetailWindow : public SubWindow
 public:
 	DetailWindow(HWND hMainWnd);
 
-	virtual void Tick(float deltaTime) override;
-
 	virtual int InitWindowPanel() override;
 	virtual void ResizeWindow() override;
 
