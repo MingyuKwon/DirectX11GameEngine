@@ -273,6 +273,7 @@ int KMGEngine::InitD3D_IMGUI()
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 
     ImGui_ImplWin32_Init(hMainWnd);
@@ -357,35 +358,46 @@ int KMGEngine::MainLoop()
 
 int KMGEngine::Render_IMGUI_Windows()
 {
+    // 프레임 시작
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-    float width = displaySize.x / 3.0f;
-    float height = displaySize.y;
+    // Docking 공간 정의
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(width, height));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::Begin("DockSpace Demo", nullptr, window_flags);
+    ImGui::PopStyleVar(2);
+
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+    ImGui::End();
+
+    // 도킹 가능한 창들
     ImGui::Begin("Left Panel");
-    ImGui::Text("This is Left Panel.");
+    ImGui::Text("Hello from the left panel!");
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(width, 0));
-    ImGui::SetNextWindowSize(ImVec2(width, height));
     ImGui::Begin("Center Panel");
-    ImGui::Text("This is Center Panel.");
+    ImGui::Text("Center area");
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(width * 2, 0));
-    ImGui::SetNextWindowSize(ImVec2(width, height));
     ImGui::Begin("Right Panel");
-    ImGui::Text("This is Right Panel.");
+    ImGui::Text("Information on the right");
     ImGui::End();
 
+    // 렌더링
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
 
     return 0;
 }
