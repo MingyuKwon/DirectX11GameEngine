@@ -1,8 +1,2 @@
-﻿  GameEngineStart.cpp
-  DirectX11Run.cpp
-D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp(162,61): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  EngineData.cpp
-  Window32APIRun.cpp
-  코드를 생성하고 있습니다...
-D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp(243,1): warning C4715: 'DirectX11Wrapper::CreateConstBuffers': 모든 제어 경로에서 값을 반환하지는 않습니다.
+﻿  Window32APIRun.cpp
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe

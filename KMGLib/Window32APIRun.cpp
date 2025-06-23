@@ -176,7 +176,8 @@ KMGEngine::KMGEngine()
 {
     InitBaseWindow();
 
-    InitD3DIMGUI();
+    InitD3D_IMGUI();
+
 
     InitMenuBar();
 }
@@ -251,11 +252,12 @@ void KMGEngine::AddRenderCommand(RenderCommand command)
     renderCommandQueue.push(command);
 }
 
-int KMGEngine::InitD3DIMGUI()
+int KMGEngine::InitD3D_IMGUI()
 {
     ////////////////////////////////////////////
-    // Init D3D
+    // Init IMGUI
     ////////////////////////////////////////////
+
     DX11W_Main = new DirectX11Wrapper(hMainWnd, currentWindowWidth, currentWindowHeight);
 
     ID3D11Device* pd3dDevice = nullptr;
@@ -264,9 +266,6 @@ int KMGEngine::InitD3DIMGUI()
     if (DX11W_Main) DX11W_Main->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
     if (pd3dDevice == nullptr || pImmediateContext == nullptr) return 1;
 
-    ////////////////////////////////////////////
-    // Init IMGUI
-    ////////////////////////////////////////////
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -279,6 +278,7 @@ int KMGEngine::InitD3DIMGUI()
 
     return 0;
 }
+
 
 int KMGEngine::InitBaseWindow()
 {
@@ -351,6 +351,44 @@ int KMGEngine::MainLoop()
             DispatchMessage(&msg);
         }
     }
+}
+
+int KMGEngine::Render_IMGUI_Windows()
+{
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+    float width = displaySize.x / 3.0f;
+    float height = displaySize.y;
+
+    // 1번 창
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(width, height));
+    ImGui::Begin("Left Panel");
+    ImGui::Text("This is Left Panel.");
+    ImGui::End();
+
+    // 2번 창
+    ImGui::SetNextWindowPos(ImVec2(width, 0));
+    ImGui::SetNextWindowSize(ImVec2(width, height));
+    ImGui::Begin("Center Panel");
+    ImGui::Text("This is Center Panel.");
+    ImGui::End();
+
+    // 3번 창
+    ImGui::SetNextWindowPos(ImVec2(width * 2, 0));
+    ImGui::SetNextWindowSize(ImVec2(width, height));
+    ImGui::Begin("Right Panel");
+    ImGui::Text("This is Right Panel.");
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+
+    return 0;
 }
 
 
@@ -429,16 +467,7 @@ void KMGEngine::RenderLoop()
 
         }
 
-        // 이건 로직 전에 써야 함 
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
-
-        ImGui::ShowDemoWindow(); // Show demo window! :)
-
-        // 이건 로직 후에 써야 함 
-        ImGui::Render();
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        Render_IMGUI_Windows();
 
         if (DX11W_Main) DX11W_Main->SetUIDrawReady();
         if (!bResizing && DX11W_Main) DX11W_Main->TryUIPresent();
