@@ -72,6 +72,9 @@
     <ClCompile Include="QueueCommand.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="ImGuiExample.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="OuterLib\imgui.cpp">
       <Filter>소스 파일\OuterLib</Filter>
     </ClCompile>
@@ -81,19 +84,16 @@
     <ClCompile Include="OuterLib\imgui_draw.cpp">
       <Filter>소스 파일\OuterLib</Filter>
     </ClCompile>
-    <ClCompile Include="OuterLib\imgui_tables.cpp">
-      <Filter>소스 파일\OuterLib</Filter>
-    </ClCompile>
-    <ClCompile Include="OuterLib\imgui_widgets.cpp">
-      <Filter>소스 파일\OuterLib</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiExample.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="OuterLib\imgui_impl_dx11.cpp">
       <Filter>소스 파일\OuterLib</Filter>
     </ClCompile>
     <ClCompile Include="OuterLib\imgui_impl_win32.cpp">
+      <Filter>소스 파일\OuterLib</Filter>
+    </ClCompile>
+    <ClCompile Include="OuterLib\imgui_tables.cpp">
+      <Filter>소스 파일\OuterLib</Filter>
+    </ClCompile>
+    <ClCompile Include="OuterLib\imgui_widgets.cpp">
       <Filter>소스 파일\OuterLib</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,6 +122,12 @@
     <ClInclude Include="OuterLib\imgui.h">
       <Filter>헤더 파일\OuterLib</Filter>
     </ClInclude>
+    <ClInclude Include="OuterLib\imgui_impl_dx11.h">
+      <Filter>헤더 파일\OuterLib</Filter>
+    </ClInclude>
+    <ClInclude Include="OuterLib\imgui_impl_win32.h">
+      <Filter>헤더 파일\OuterLib</Filter>
+    </ClInclude>
     <ClInclude Include="OuterLib\imgui_internal.h">
       <Filter>헤더 파일\OuterLib</Filter>
     </ClInclude>
@@ -132,12 +138,6 @@
       <Filter>헤더 파일\OuterLib</Filter>
     </ClInclude>
     <ClInclude Include="OuterLib\imstb_truetype.h">
-      <Filter>헤더 파일\OuterLib</Filter>
-    </ClInclude>
-    <ClInclude Include="OuterLib\imgui_impl_dx11.h">
-      <Filter>헤더 파일\OuterLib</Filter>
-    </ClInclude>
-    <ClInclude Include="OuterLib\imgui_impl_win32.h">
       <Filter>헤더 파일\OuterLib</Filter>
     </ClInclude>
   </ItemGroup>

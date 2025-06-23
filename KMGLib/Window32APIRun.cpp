@@ -270,8 +270,10 @@ int KMGEngine::InitD3D_IMGUI()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
 
     ImGui_ImplWin32_Init(hMainWnd);
     ImGui_ImplDX11_Init(pd3dDevice, pImmediateContext);
@@ -363,21 +365,18 @@ int KMGEngine::Render_IMGUI_Windows()
     float width = displaySize.x / 3.0f;
     float height = displaySize.y;
 
-    // 1번 창
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(width, height));
     ImGui::Begin("Left Panel");
     ImGui::Text("This is Left Panel.");
     ImGui::End();
 
-    // 2번 창
     ImGui::SetNextWindowPos(ImVec2(width, 0));
     ImGui::SetNextWindowSize(ImVec2(width, height));
     ImGui::Begin("Center Panel");
     ImGui::Text("This is Center Panel.");
     ImGui::End();
 
-    // 3번 창
     ImGui::SetNextWindowPos(ImVec2(width * 2, 0));
     ImGui::SetNextWindowSize(ImVec2(width, height));
     ImGui::Begin("Right Panel");
