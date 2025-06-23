@@ -60,20 +60,8 @@
     <ClCompile Include="KMGLib\EngineData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="KMGLib\SceneWindow.cpp">
-      <Filter>소스 파일\KMGLib</Filter>
-    </ClCompile>
-    <ClCompile Include="KMGLib\ContentWindow.cpp">
-      <Filter>소스 파일\KMGLib</Filter>
-    </ClCompile>
-    <ClCompile Include="KMGLib\DetailWindow.cpp">
-      <Filter>소스 파일\KMGLib</Filter>
-    </ClCompile>
     <ClCompile Include="KMGLib\DirectX11Run.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SubWindow.cpp">
-      <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
     <ClCompile Include="KMGLib\KMGActor.cpp">
       <Filter>소스 파일\KMGLib</Filter>
@@ -119,20 +107,8 @@
     <ClInclude Include="KMGLib\Window32APIRun.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
-    <ClInclude Include="KMGLib\SceneWindow.h">
-      <Filter>헤더 파일\KMGLib</Filter>
-    </ClInclude>
-    <ClInclude Include="KMGLib\ContentWindow.h">
-      <Filter>헤더 파일\KMGLib</Filter>
-    </ClInclude>
-    <ClInclude Include="KMGLib\DetailWindow.h">
-      <Filter>헤더 파일\KMGLib</Filter>
-    </ClInclude>
     <ClInclude Include="KMGLib\DirectX11Run.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SubWindow.h">
-      <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
     <ClInclude Include="KMGLib\KMGActor.h">
       <Filter>헤더 파일\KMGLib</Filter>

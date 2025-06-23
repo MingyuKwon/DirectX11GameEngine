@@ -75,9 +75,9 @@ void DrawResource::CreateBuffers()
 }
 
 
-DirectX11Wrapper::DirectX11Wrapper(HWND mainWindow, HWND sceneWindow) : mainWindow(mainWindow), sceneWindow(sceneWindow)
+DirectX11Wrapper::DirectX11Wrapper(HWND mainWindow, int width, int height) : mainWindow(mainWindow)
 {
-    InitDirectX11();
+    InitDirectX11(width, height);
 }
 
 DirectX11Wrapper::~DirectX11Wrapper()
@@ -125,7 +125,7 @@ void DirectX11Wrapper::SceneWindowRender()
     World = XMMatrixRotationY(t);
 
     // Clear the back buffer
-    pImmediateContext->ClearRenderTargetView(pMainRenderTargetView, Colors::MidnightBlue);
+    pImmediateContext->ClearRenderTargetView(pRenderTargetView, Colors::MidnightBlue);
 
     // Clear the depth buffer to 1.0 (max depth)
     pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -168,7 +168,7 @@ HRESULT DirectX11Wrapper::TryUIPresent()
 {
     if (!bCanDrawUI.exchange(false)) return S_FALSE;
 
-    pMainSwapChain->Present(0, 0);
+    pSwapChain->Present(0, 0);
     return S_OK;
 }
 
@@ -188,20 +188,14 @@ void DirectX11Wrapper::GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11Devic
 //--------------------------------------------------------------------------------------
 // 전역 변수 값 최초 할당
 //--------------------------------------------------------------------------------------
-HRESULT DirectX11Wrapper::InitDirectX11()
+HRESULT DirectX11Wrapper::InitDirectX11(int width, int height)
 {
     HRESULT hr = S_OK;
 
     hr = Init_Device_Context();
     if (FAILED(hr)) return hr;
 
-    hr = Init_RTV_DSV_Viewport(pMainSwapChain, pMainRenderTargetView, currentWindowWidth, currentWindowHeight);
-    if (FAILED(hr)) return hr;
-
-    int initialSceneWidth = currentWindowWidth;
-    int initialSceneHeight = currentWindowHeight;
-
-    hr = Init_RTV_DSV_Viewport(pSceneSwapChain, pSceneRenderTargetView, initialSceneWidth, initialSceneHeight);
+    hr = Init_RTV_DSV_Viewport(width, height);
     if (FAILED(hr)) return hr;
     
     hr = CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
@@ -209,7 +203,7 @@ HRESULT DirectX11Wrapper::InitDirectX11()
 
     CreateConstBuffers();
 
-    ResizeViewtarget(currentWindowWidth, currentWindowHeight);
+    ResizeViewtarget(width, height);
 
     // Initialize the world matrices
 
@@ -290,7 +284,7 @@ HRESULT DirectX11Wrapper::Init_Device_Context()
     return hr;
 }
 
-HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(IDXGISwapChain*& pSwapChain, ID3D11RenderTargetView*& pRenderTargetView, int width, int height)
+HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
 {
     HRESULT hr = S_OK;
 
@@ -380,15 +374,15 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(IDXGISwapChain*& pSwapChain, ID3
 //--------------------------------------------------------------------------------------
 void DirectX11Wrapper::ResizeViewtarget(int width, int height)
 {
-    if (!pMainRenderTargetView || !pDepthStencilView || !pDepthStencil) return;
+    if (!pRenderTargetView || !pDepthStencilView || !pDepthStencil) return;
 
     HRESULT hr = S_OK;
 
-    pMainRenderTargetView->Release();
+    pRenderTargetView->Release();
     pDepthStencilView->Release();
     pDepthStencil->Release();
 
-    hr = pMainSwapChain->ResizeBuffers(
+    hr = pSwapChain->ResizeBuffers(
         1,
         width,
         height,
@@ -397,10 +391,10 @@ void DirectX11Wrapper::ResizeViewtarget(int width, int height)
     if (FAILED(hr)) return;
 
     ID3D11Texture2D* pBackBuffer = nullptr;
-    hr = pMainSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
+    hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
     if (FAILED(hr)) return;
 
-    hr = pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pMainRenderTargetView);
+    hr = pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
     pBackBuffer->Release();
     if (FAILED(hr)) return;
 
@@ -426,7 +420,7 @@ void DirectX11Wrapper::ResizeViewtarget(int width, int height)
     hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
     if (FAILED(hr)) return;
 
-    pImmediateContext->OMSetRenderTargets(1, &pMainRenderTargetView, pDepthStencilView);
+    pImmediateContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
     D3D11_VIEWPORT vp = {};
     vp.Width = static_cast<FLOAT>(width);
@@ -514,8 +508,8 @@ void DirectX11Wrapper::CleanupDevice()
     if (pPixelShader) pPixelShader->Release();
     if (pDepthStencil) pDepthStencil->Release();
     if (pDepthStencilView) pDepthStencilView->Release();
-    if (pMainRenderTargetView) pMainRenderTargetView->Release();
-    if (pMainSwapChain) pMainSwapChain->Release();
+    if (pRenderTargetView) pRenderTargetView->Release();
+    if (pSwapChain) pSwapChain->Release();
     if (pImmediateContext) pImmediateContext->Release();
     if (pd3dDevice) pd3dDevice->Release();
 }

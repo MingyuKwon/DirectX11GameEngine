@@ -139,13 +139,10 @@
     <ClCompile Include="ImGuiExample.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="KMGLib\ContentWindow.cpp" />
-    <ClCompile Include="KMGLib\DetailWindow.cpp" />
     <ClCompile Include="KMGLib\DirectX11Run.cpp" />
     <ClCompile Include="KMGLib\EngineData.cpp" />
     <ClCompile Include="KMGLib\KMGActor.cpp" />
     <ClCompile Include="KMGLib\KMGDataStructure.h" />
-    <ClCompile Include="KMGLib\SceneWindow.cpp" />
     <ClCompile Include="KMGLib\Window32APIRun.cpp" />
     <ClCompile Include="OuterLib\DDSTextureLoader.cpp" />
     <ClCompile Include="OuterLib\imgui.cpp" />
@@ -156,7 +153,6 @@
     <ClCompile Include="OuterLib\imgui_tables.cpp" />
     <ClCompile Include="OuterLib\imgui_widgets.cpp" />
     <ClCompile Include="QueueCommand.cpp" />
-    <ClCompile Include="SubWindow.cpp" />
     <ClCompile Include="Tutorial\Tutorial05.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -183,11 +179,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h" />
-    <ClInclude Include="KMGLib\ContentWindow.h" />
-    <ClInclude Include="KMGLib\DetailWindow.h" />
     <ClInclude Include="KMGLib\DirectX11Run.h" />
     <ClInclude Include="KMGLib\KMGActor.h" />
-    <ClInclude Include="KMGLib\SceneWindow.h" />
     <ClInclude Include="KMGLib\Window32APIRun.h" />
     <ClInclude Include="OuterLib\DDSTextureLoader.h" />
     <ClInclude Include="OuterLib\imconfig.h" />
@@ -199,7 +192,6 @@
     <ClInclude Include="OuterLib\imstb_textedit.h" />
     <ClInclude Include="OuterLib\imstb_truetype.h" />
     <ClInclude Include="QueueCommand.h" />
-    <ClInclude Include="SubWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

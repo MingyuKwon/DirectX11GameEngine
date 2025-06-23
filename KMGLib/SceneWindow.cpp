@@ -13,9 +13,9 @@ SceneWindow::~SceneWindow()
 
 void SceneWindow::RenderScene()
 {
-    if (directx11Wraper)
+    if (DX11W_Main)
     {
-        directx11Wraper->SceneWindowRender();
+        DX11W_Main->SceneWindowRender();
     }
 }
 

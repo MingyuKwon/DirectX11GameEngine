@@ -19,7 +19,8 @@ extern int currentWindowHeight;
 
 extern HINSTANCE hWindowInstance;
 
-extern DirectX11Wrapper* directx11Wraper;
+extern DirectX11Wrapper* DX11W_Main;
+extern DirectX11Wrapper* DX11W_Scene;
 
 
 extern HMENU hMenu;

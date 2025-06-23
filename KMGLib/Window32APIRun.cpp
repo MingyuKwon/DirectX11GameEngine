@@ -151,7 +151,6 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         currentWindowWidth = LOWORD(lParam);
         currentWindowHeight = HIWORD(lParam);
 
-        if (sceneWindow) sceneWindow->ResizeWindow();
         break;
 
     case WM_COMMAND:
@@ -161,10 +160,6 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
             MessageBox(hWnd, L"Open clicked", L"Info", MB_OK);
             break;
 
-        case 2:
-            PostMessage(sceneWindow->getWindowHandle(), WM_CLOSE, 0, 0);
-            StopEngine();
-            break;
         }
         break;
 
@@ -180,7 +175,6 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 KMGEngine::KMGEngine()
 {
     InitBaseWindow();
-    InitSubWindow();
 
     InitD3DIMGUI();
 
@@ -189,7 +183,7 @@ KMGEngine::KMGEngine()
 
 KMGEngine::~KMGEngine()
 {
-    if (sceneWindow) delete sceneWindow;
+
 }
 
 int KMGEngine::StartEngine()
@@ -226,8 +220,7 @@ void KMGEngine::StopEngine()
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 
-    if (directx11Wraper) delete directx11Wraper;
-    if(sceneWindow) PostMessage(sceneWindow->getWindowHandle(), WM_CLOSE, 0, 0);
+    if (DX11W_Main) delete DX11W_Main;
 
     PostQuitMessage(0);
 
@@ -263,13 +256,12 @@ int KMGEngine::InitD3DIMGUI()
     ////////////////////////////////////////////
     // Init D3D
     ////////////////////////////////////////////
-    if (!sceneWindow) return 0;
-    directx11Wraper = new DirectX11Wrapper(hMainWnd, sceneWindow->getWindowHandle());
+    DX11W_Main = new DirectX11Wrapper(hMainWnd, currentWindowWidth, currentWindowHeight);
 
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;
 
-    if (directx11Wraper) directx11Wraper->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
+    if (DX11W_Main) DX11W_Main->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
     if (pd3dDevice == nullptr || pImmediateContext == nullptr) return 1;
 
     ////////////////////////////////////////////
@@ -326,12 +318,6 @@ int KMGEngine::InitBaseWindow()
     return 1;
 }
 
-int KMGEngine::InitSubWindow()
-{
-    sceneWindow = new SceneWindow(hMainWnd);
-
-    return 0;
-}
 
 int KMGEngine::InitMenuBar()
 {
@@ -419,23 +405,23 @@ void KMGEngine::RenderLoop()
             {
             case RenderCommandtype::ERC_RESIZE_VIEWTARGET:
                 {
-                    if (directx11Wraper)
+                    if (DX11W_Main)
                     {
                         int width = 0;
                         int height = 0;
                         command.GetViewTargetWidthHeight(width, height);
 
-                        directx11Wraper->ResizeViewtarget(width, height);
+                        DX11W_Main->ResizeViewtarget(width, height);
                     }
                     break;
                 }
             case RenderCommandtype::ERC_ADD_ACTOR:
             {
-                if (directx11Wraper)
+                if (DX11W_Main)
                 {
                     KMGActor actor;
                     command.GetActor(actor);
-                    directx11Wraper->AddActor(actor);
+                    DX11W_Main->AddActor(actor);
                 }
                 break;
             }
@@ -454,15 +440,8 @@ void KMGEngine::RenderLoop()
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        if (directx11Wraper) directx11Wraper->SetUIDrawReady();
-        if (!bResizing && directx11Wraper) directx11Wraper->TryUIPresent();
-
-
-        //{
-        //    lock_guard<mutex> lock(engineMutex);
-        //    if (sceneWindow) sceneWindow->RenderScene();
-        //}
-
+        if (DX11W_Main) DX11W_Main->SetUIDrawReady();
+        if (!bResizing && DX11W_Main) DX11W_Main->TryUIPresent();
 
 
         LARGE_INTEGER frameEnd;

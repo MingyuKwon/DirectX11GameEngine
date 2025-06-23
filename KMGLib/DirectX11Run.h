@@ -66,7 +66,7 @@ struct DrawResource
 class DirectX11Wrapper
 {
 public:
-    DirectX11Wrapper(HWND mainWindow, HWND sceneWindow);
+    DirectX11Wrapper(HWND viewWindow, int width, int height);
     virtual ~DirectX11Wrapper();
 
     HRESULT AddActor(const KMGActor& actor);
@@ -80,10 +80,10 @@ public:
     void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
 
 protected:
-    HRESULT InitDirectX11(); // 기본적인 전역 변수 값 할당
+    HRESULT InitDirectX11(int width, int height); // 기본적인 전역 변수 값 할당
     HRESULT Init_Device_Context(); // 가장 기본인 Device, context를 생성
 
-    HRESULT Init_RTV_DSV_Viewport(IDXGISwapChain*& pSwapChain, ID3D11RenderTargetView*& pRenderTargetView, int width, int height); // 렌더 타깃을 만들어주는 함수
+    HRESULT Init_RTV_DSV_Viewport(int width, int height); // 렌더 타깃을 만들어주는 함수
 
     HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName); 
     HRESULT CreateConstBuffers();
@@ -99,11 +99,8 @@ private:
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;
 
-    IDXGISwapChain* pMainSwapChain = nullptr;
-    ID3D11RenderTargetView* pMainRenderTargetView = nullptr;
-
-    IDXGISwapChain* pSceneSwapChain = nullptr;
-    ID3D11RenderTargetView* pSceneRenderTargetView = nullptr;
+    IDXGISwapChain* pSwapChain = nullptr;
+    ID3D11RenderTargetView* pRenderTargetView = nullptr;
 
     ID3D11Texture2D* pDepthStencil = nullptr;
     ID3D11DepthStencilView* pDepthStencilView = nullptr;

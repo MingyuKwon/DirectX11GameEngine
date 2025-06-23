@@ -6,9 +6,6 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
-#include <SceneWindow.h>
-#include <ContentWindow.h>
-#include <DetailWindow.h>
 #include <atomic>
 #include <thread>
 
@@ -28,8 +25,6 @@ public:
 private:
 	HWND hMainWnd = nullptr;
 
-	SceneWindow* sceneWindow = nullptr;
-
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	std::atomic<bool> bRunning = false;
@@ -46,7 +41,6 @@ private:
 
 	int InitD3DIMGUI();
 	int InitBaseWindow();
-	int InitSubWindow();
 
 
 	int InitMenuBar();
