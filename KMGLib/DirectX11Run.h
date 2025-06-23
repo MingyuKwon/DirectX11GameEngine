@@ -76,6 +76,8 @@ public:
     void SceneWindowRender(); // 씬에다가 백버퍼에 그림 그리기
     HRESULT TrySceneWindowPresent(); // 메인 스레드에서 일어나야 함
 
+    void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
+
 protected:
     HRESULT InitDirectX11(); // 기본적인 전역 변수 값 할당
     HRESULT Init_Device_Context(); // 가장 기본인 Device, context를 생성
@@ -91,31 +93,31 @@ private:
     D3D_DRIVER_TYPE                     g_driverType = D3D_DRIVER_TYPE_NULL;
     D3D_FEATURE_LEVEL                   g_featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-    ID3D11Device* g_pd3dDevice = nullptr;
-    ID3D11DeviceContext* g_pImmediateContext = nullptr;
+    ID3D11Device* pd3dDevice = nullptr;
+    ID3D11DeviceContext* pImmediateContext = nullptr;
 
-    IDXGISwapChain* g_pSwapChain = nullptr;
-    ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
+    IDXGISwapChain* pSwapChain = nullptr;
+    ID3D11RenderTargetView* pRenderTargetView = nullptr;
 
-    ID3D11Texture2D* g_pDepthStencil = nullptr;
-    ID3D11DepthStencilView* g_pDepthStencilView = nullptr;
+    ID3D11Texture2D* pDepthStencil = nullptr;
+    ID3D11DepthStencilView* pDepthStencilView = nullptr;
 
-    ID3D11VertexShader* g_pVertexShader = nullptr;
-    ID3D11PixelShader* g_pPixelShader = nullptr;
-    ID3D11InputLayout* g_pVertexLayout = nullptr;
+    ID3D11VertexShader* pVertexShader = nullptr;
+    ID3D11PixelShader* pPixelShader = nullptr;
+    ID3D11InputLayout* pVertexLayout = nullptr;
 
-    ID3D11Buffer* g_pVertexBuffer = nullptr;
-    ID3D11Buffer* g_pIndexBuffer = nullptr;
-    ID3D11Buffer* g_pCBNeverChanges = nullptr;
-    ID3D11Buffer* g_pCBChangeOnResize = nullptr;
-    ID3D11Buffer* g_pCBChangesEveryFrame = nullptr;
+    ID3D11Buffer* pVertexBuffer = nullptr;
+    ID3D11Buffer* pIndexBuffer = nullptr;
+    ID3D11Buffer* pCBNeverChanges = nullptr;
+    ID3D11Buffer* pCBChangeOnResize = nullptr;
+    ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 
-    ID3D11ShaderResourceView* g_pTextureRV = nullptr;
-    ID3D11SamplerState* g_pSamplerLinear = nullptr;
+    ID3D11ShaderResourceView* pTextureRV = nullptr;
+    ID3D11SamplerState* pSamplerLinear = nullptr;
 
-    XMMATRIX g_World = XMMatrixIdentity();
-    XMMATRIX g_View = XMMatrixIdentity();
-    XMMATRIX g_Projection = XMMatrixIdentity();
+    XMMATRIX World = XMMatrixIdentity();
+    XMMATRIX View = XMMatrixIdentity();
+    XMMATRIX Projection = XMMatrixIdentity();
 
     HWND viewWindow;
 

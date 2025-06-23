@@ -1,6 +1,7 @@
 #include <EngineData.h>
 #include <Window32APIRun.h>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -90,12 +91,19 @@ const wchar_t* GetMessageName(UINT msg)
     }
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
 LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     /*wchar_t buffer[128];
     swprintf(buffer, 128, L"WndProc Message: %s (0x%04X)\n", GetMessageName(msg), msg);
     if(0x0200 != msg && 0x00A0 != msg) OutputDebugString(buffer);*/
     
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+        return true;
+
+
     switch (msg)
     {
     case WM_PAINT:
@@ -109,10 +117,7 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 
     case WM_EXITSIZEMOVE:
     {
-        int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
-
-        AddRenderCommand(RenderCommand::MakeResizeViewTargetCommand(scenePanelWidth, scenePanelHeight));
+        AddRenderCommand(RenderCommand::MakeResizeViewTargetCommand(currentWindowWidth, currentWindowHeight));
         break;
     }
 
@@ -143,8 +148,6 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         currentWindowHeight = HIWORD(lParam);
 
         if (sceneWindow) sceneWindow->ResizeWindow();
-        if (contentWindow) contentWindow->ResizeWindow();
-        if (detailWindow) detailWindow->ResizeWindow();
         break;
 
     case WM_COMMAND:
@@ -174,14 +177,15 @@ KMGEngine::KMGEngine()
 {
     InitBaseWindow();
     InitSubWindow();
+
+    InitD3DIMGUI();
+
     InitMenuBar();
 }
 
 KMGEngine::~KMGEngine()
 {
     if (sceneWindow) delete sceneWindow;
-    if (contentWindow) delete contentWindow;
-    if (detailWindow) delete detailWindow;
 }
 
 int KMGEngine::StartEngine()
@@ -190,33 +194,18 @@ int KMGEngine::StartEngine()
 
     bRunning = true;
 
-    directx11Wraper = new DirectX11Wrapper(sceneWindow->getWindowHandle());
-
-    gameThread = thread(&KMGEngine::MainLoop, this);
+    gameThread = thread(&KMGEngine::GameLogicLoop, this);
     renderThread = thread(&KMGEngine::RenderLoop, this);
 
-    MSG msg = {};
 
-    while (true)
-    {
-        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            if (msg.message == WM_QUIT)
-                return static_cast<int>(msg.wParam);
-
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        if (directx11Wraper)
-        {
-            directx11Wraper->TrySceneWindowPresent();
-        }
-    }
+    ////////////////////////////////////////////
+    // 메인 로직 돌아가는 곳
+    ////////////////////////////////////////////
+    int result = MainLoop();
 
     StopEngine();
 
-    return static_cast<int>(msg.wParam);
+    return result;
 
 }
 
@@ -228,11 +217,13 @@ void KMGEngine::StopEngine()
     if (gameThread.joinable()) gameThread.join();
     if (renderThread.joinable()) renderThread.join();
 
-    if (directx11Wraper) delete directx11Wraper;
+    // 이건 엔진 끝날 때 넣기
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 
-    PostMessage(sceneWindow->getWindowHandle(), WM_CLOSE, 0, 0);
-    PostMessage(contentWindow->getWindowHandle(), WM_CLOSE, 0, 0);
-    PostMessage(detailWindow->getWindowHandle(), WM_CLOSE, 0, 0);
+    if (directx11Wraper) delete directx11Wraper;
+    if(sceneWindow) PostMessage(sceneWindow->getWindowHandle(), WM_CLOSE, 0, 0);
 
     PostQuitMessage(0);
 
@@ -261,6 +252,35 @@ void KMGEngine::AddRenderCommand(RenderCommand command)
 {
     lock_guard<mutex> lock(renderCommandMutex);
     renderCommandQueue.push(command);
+}
+
+int KMGEngine::InitD3DIMGUI()
+{
+    ////////////////////////////////////////////
+    // Init D3D
+    ////////////////////////////////////////////
+    directx11Wraper = new DirectX11Wrapper(hMainWnd);
+
+    ID3D11Device* pd3dDevice = nullptr;
+    ID3D11DeviceContext* pImmediateContext = nullptr;
+
+    if (directx11Wraper) directx11Wraper->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
+    if (pd3dDevice == nullptr || pImmediateContext == nullptr) return 1;
+
+    ////////////////////////////////////////////
+    // Init IMGUI
+    ////////////////////////////////////////////
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    ImGui_ImplWin32_Init(hMainWnd);
+    ImGui_ImplDX11_Init(pd3dDevice, pImmediateContext);
+
+    return 0;
 }
 
 int KMGEngine::InitBaseWindow()
@@ -304,8 +324,6 @@ int KMGEngine::InitBaseWindow()
 int KMGEngine::InitSubWindow()
 {
     sceneWindow = new SceneWindow(hMainWnd);
-    contentWindow = new ContentWindow(hMainWnd);
-    detailWindow = new DetailWindow(hMainWnd);
 
     return 0;
 }
@@ -327,7 +345,25 @@ int KMGEngine::InitMenuBar()
     return 1;
 }
 
-void KMGEngine::MainLoop() 
+int KMGEngine::MainLoop()
+{
+    MSG msg = {};
+
+    while (true)
+    {
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (msg.message == WM_QUIT)
+                return static_cast<int>(msg.wParam);
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
+}
+
+
+void KMGEngine::GameLogicLoop() 
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -342,7 +378,7 @@ void KMGEngine::MainLoop()
 
         {
             lock_guard<mutex> lock(engineMutex);
-            MainLogicTick(deltaTime);
+            GameLogicTick(deltaTime);
         }
 
         this_thread::sleep_for(chrono::milliseconds(1));
@@ -404,13 +440,29 @@ void KMGEngine::RenderLoop()
 
         }
 
+        // 이건 로직 전에 써야 함 
+        ImGui_ImplDX11_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+
+        // 이건 로직 후에 써야 함 
+        ImGui::Render();
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+
         float deltaTime = static_cast<float>(frameStart.QuadPart - prev.QuadPart) / frequency.QuadPart;
         prev = frameStart;
 
         {
             lock_guard<mutex> lock(engineMutex);
-            RenderTick(deltaTime);
+            //RenderTick(deltaTime);
         }
+
+        if (directx11Wraper) directx11Wraper->TrySceneWindowPresent();
+
+
 
         LARGE_INTEGER frameEnd;
         QueryPerformanceCounter(&frameEnd);
@@ -420,17 +472,15 @@ void KMGEngine::RenderLoop()
         if (remainingTime > 0.0) {
             this_thread::sleep_for(chrono::duration<double>(remainingTime));
         }
+
+
     }
 }
 
 
-void KMGEngine::MainLogicTick(float deltaTime)
+void KMGEngine::GameLogicTick(float deltaTime)
 {
-    if (!contentWindow) return;
-    if (!detailWindow) return;
 
-    contentWindow->Tick(deltaTime);
-    detailWindow->Tick(deltaTime);
 }
 
 void KMGEngine::RenderTick(float deltaTime)
