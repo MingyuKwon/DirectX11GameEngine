@@ -271,6 +271,8 @@ int KMGEngine::InitD3D_IMGUI()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
+    io.IniFilename = nullptr;  // 저장된 위치 무시
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -365,34 +367,37 @@ int KMGEngine::Render_IMGUI_Windows()
 
     // Docking 공간 정의
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->WorkPos);
-    ImGui::SetNextWindowSize(viewport->WorkSize);
+
+    ImGui::SetNextWindowPos(viewport->Pos);      
+    ImGui::SetNextWindowSize(viewport->Size);    
     ImGui::SetNextWindowViewport(viewport->ID);
+
     window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::Begin("DockSpace Demo", nullptr, window_flags);
-    ImGui::PopStyleVar(2);
 
-    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::Begin("KMG Engine", nullptr, window_flags);
+    ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     ImGui::End();
 
+    ImGui::PopStyleVar(2);
+
     // 도킹 가능한 창들
-    ImGui::Begin("Left Panel");
-    ImGui::Text("Hello from the left panel!");
+    ImGui::Begin("Scene Panel");
+    ImGui::Text("This is Scene Panel");
     ImGui::End();
 
-    ImGui::Begin("Center Panel");
-    ImGui::Text("Center area");
+    ImGui::Begin("Content Panel");
+    ImGui::Text("This is Content Panel");
     ImGui::End();
 
-    ImGui::Begin("Right Panel");
-    ImGui::Text("Information on the right");
+    ImGui::Begin("Detail Panel");
+    ImGui::Text("This is Detail Panel");
     ImGui::End();
 
     // 렌더링
