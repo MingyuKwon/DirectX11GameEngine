@@ -110,7 +110,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)DirectX11\Lib\x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -133,7 +133,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GameEngineStart.cpp" />
+    <ClCompile Include="GameEngineStart.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="ImGuiExample.cpp" />
     <ClCompile Include="KMGLib\ContentWindow.cpp" />
     <ClCompile Include="KMGLib\DetailWindow.cpp" />
     <ClCompile Include="KMGLib\DirectX11Run.cpp" />
@@ -143,6 +146,13 @@
     <ClCompile Include="KMGLib\SceneWindow.cpp" />
     <ClCompile Include="KMGLib\Window32APIRun.cpp" />
     <ClCompile Include="OuterLib\DDSTextureLoader.cpp" />
+    <ClCompile Include="OuterLib\imgui.cpp" />
+    <ClCompile Include="OuterLib\imgui_demo.cpp" />
+    <ClCompile Include="OuterLib\imgui_draw.cpp" />
+    <ClCompile Include="OuterLib\imgui_impl_dx11.cpp" />
+    <ClCompile Include="OuterLib\imgui_impl_win32.cpp" />
+    <ClCompile Include="OuterLib\imgui_tables.cpp" />
+    <ClCompile Include="OuterLib\imgui_widgets.cpp" />
     <ClCompile Include="QueueCommand.cpp" />
     <ClCompile Include="SubWindow.cpp" />
     <ClCompile Include="Tutorial\Tutorial05.cpp">
@@ -178,6 +188,14 @@
     <ClInclude Include="KMGLib\SceneWindow.h" />
     <ClInclude Include="KMGLib\Window32APIRun.h" />
     <ClInclude Include="OuterLib\DDSTextureLoader.h" />
+    <ClInclude Include="OuterLib\imconfig.h" />
+    <ClInclude Include="OuterLib\imgui.h" />
+    <ClInclude Include="OuterLib\imgui_impl_dx11.h" />
+    <ClInclude Include="OuterLib\imgui_impl_win32.h" />
+    <ClInclude Include="OuterLib\imgui_internal.h" />
+    <ClInclude Include="OuterLib\imstb_rectpack.h" />
+    <ClInclude Include="OuterLib\imstb_textedit.h" />
+    <ClInclude Include="OuterLib\imstb_truetype.h" />
     <ClInclude Include="QueueCommand.h" />
     <ClInclude Include="SubWindow.h" />
   </ItemGroup>

@@ -67,6 +67,15 @@ LRESULT SceneWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 {
     switch (message)
     {
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+
+        EndPaint(hWnd, &ps);
+        break;
+    }
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

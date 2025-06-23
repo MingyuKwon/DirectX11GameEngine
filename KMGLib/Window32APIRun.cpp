@@ -103,12 +103,16 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
 
+        EndPaint(hWnd, &ps);
+        break;
+    }
+
+    case WM_EXITSIZEMOVE:
+    {
         int scenePanelWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
         int scenePanelHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
         AddRenderCommand(RenderCommand::MakeResizeViewTargetCommand(scenePanelWidth, scenePanelHeight));
-
-        EndPaint(hWnd, &ps);
         break;
     }
 

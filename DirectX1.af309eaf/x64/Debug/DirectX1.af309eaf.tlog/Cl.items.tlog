@@ -1,4 +1,4 @@
-D:\DirectX11GameEngine\GameEngineStart.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\GameEngineStart.obj
+D:\DirectX11GameEngine\ImGuiExample.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\ImGuiExample.obj
 D:\DirectX11GameEngine\KMGLib\ContentWindow.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\ContentWindow.obj
 D:\DirectX11GameEngine\KMGLib\DetailWindow.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DetailWindow.obj
 D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DirectX11Run.obj
@@ -8,5 +8,12 @@ D:\DirectX11GameEngine\KMGLib\KMGDataStructure.h;D:\DirectX11GameEngine\DirectX1
 D:\DirectX11GameEngine\KMGLib\SceneWindow.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\SceneWindow.obj
 D:\DirectX11GameEngine\KMGLib\Window32APIRun.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\Window32APIRun.obj
 D:\DirectX11GameEngine\OuterLib\DDSTextureLoader.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DDSTextureLoader.obj
+D:\DirectX11GameEngine\OuterLib\imgui.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui.obj
+D:\DirectX11GameEngine\OuterLib\imgui_demo.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_demo.obj
+D:\DirectX11GameEngine\OuterLib\imgui_draw.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_draw.obj
+D:\DirectX11GameEngine\OuterLib\imgui_impl_dx11.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_impl_dx11.obj
+D:\DirectX11GameEngine\OuterLib\imgui_impl_win32.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_impl_win32.obj
+D:\DirectX11GameEngine\OuterLib\imgui_tables.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_tables.obj
+D:\DirectX11GameEngine\OuterLib\imgui_widgets.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_widgets.obj
 D:\DirectX11GameEngine\QueueCommand.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\QueueCommand.obj
 D:\DirectX11GameEngine\SubWindow.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\SubWindow.obj
