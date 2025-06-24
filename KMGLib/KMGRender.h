@@ -14,12 +14,12 @@
 class KMGRender
 {
 public:
-	KMGRender();
+	KMGRender(HWND hMainWnd);
 	virtual ~KMGRender();
 
 	void AddRenderCommand(RenderCommand command);
 
-	int StartRenderEngine();
+	void StartRenderEngine();
 	void StopRenderEngine();
 private:
 	HWND hMainWnd = nullptr;
@@ -35,15 +35,11 @@ private:
 	IDXGISwapChain* pSwapChain = nullptr;
 	ID3D11RenderTargetView* mainRenderTargetView = nullptr;
 
-	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-	int InitBaseWindow();
 	bool CreateDeviceD3D();
 	int InitD3D_IMGUI();
 
 	void RenderLoop(); // ∑ª¥ı ∫Í∑£ƒ° ∑Á«¡
-	int MainLoop(); // «ŸΩ… ∑ª¥ı ∑Á«¡
+	void MainLoop(); // «ŸΩ… ∑ª¥ı ∑Á«¡
 
 	void CreateRenderTarget();
 
