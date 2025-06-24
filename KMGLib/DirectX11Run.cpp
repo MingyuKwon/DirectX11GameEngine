@@ -89,18 +89,12 @@ void DirectX11Wrapper::SceneWindowRender()
 {
     // Update our time
     static float t = 0.0f;
-    if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
-    {
-        t += (float)XM_PI * 0.0125f;
-    }
-    else
-    {
-        static ULONGLONG timeStart = 0;
-        ULONGLONG timeCur = GetTickCount64();
-        if (timeStart == 0)
-            timeStart = timeCur;
-        t = (timeCur - timeStart) / 1000.0f;
-    }
+    static ULONGLONG timeStart = 0;
+    ULONGLONG timeCur = GetTickCount64();
+    if (timeStart == 0)
+        timeStart = timeCur;
+    t = (timeCur - timeStart) / 1000.0f;
+
 
     // Rotate cube around the origin
     World = XMMatrixRotationY(t);
@@ -241,6 +235,9 @@ HRESULT DirectX11Wrapper::Init_Device_Context()
         D3D_FEATURE_LEVEL_10_0,
     };
     UINT numFeatureLevels = ARRAYSIZE(featureLevels);
+
+    D3D_DRIVER_TYPE                     g_driverType = D3D_DRIVER_TYPE_NULL;
+    D3D_FEATURE_LEVEL                   g_featureLevel = D3D_FEATURE_LEVEL_11_0;
 
     for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
     {
@@ -462,15 +459,22 @@ HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCS
     return S_OK;
 }
 
-
-D3D11Machine::D3D11Machine(HWND hWnd)
-{
-    CreateDeviceD3D(hWnd);
-}
-
 D3D11Machine::~D3D11Machine()
 {
     CleanupDeviceD3D();
+}
+
+D3D11Machine::D3D11Machine(EDirectXMode mode, HWND hWnd) : mode(mode)
+{
+    if (mode == EDirectXMode::EDXM_IMGUI)
+    {
+        CreateDeviceD3D(hWnd);
+    }
+    else if (mode == EDirectXMode::EDXM_TEXTURE)
+    {
+        CreateDeviceD3D();
+    }
+    
 }
 
 bool D3D11Machine::CreateDeviceD3D(HWND hWnd)
@@ -505,6 +509,98 @@ bool D3D11Machine::CreateDeviceD3D(HWND hWnd)
     return true;
 }
 
+bool D3D11Machine::CreateDeviceD3D()
+{
+    // 1. 디바이스와 디바이스 컨텍스트 생성
+    UINT createDeviceFlags = 0;
+    D3D_FEATURE_LEVEL featureLevels[] = {
+        D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0
+    };
+    D3D_FEATURE_LEVEL createdFeatureLevel;
+
+    HRESULT hr = D3D11CreateDevice(
+        nullptr,                       
+        D3D_DRIVER_TYPE_HARDWARE,      
+        nullptr,                        
+        createDeviceFlags,             
+        featureLevels,                  
+        ARRAYSIZE(featureLevels),
+        D3D11_SDK_VERSION,
+        &pd3dDevice,                   
+        &createdFeatureLevel,           
+        &pd3dDeviceContext              
+    );
+
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    CreateRenderTarget();
+
+    return true;
+}
+
+void D3D11Machine::CreateRenderTarget()
+{
+    CleanupRenderTarget();
+
+    HRESULT hr = S_OK;
+
+    if (mode == EDirectXMode::EDXM_IMGUI)
+    {
+        pSwapChain->ResizeBuffers(0, screenWidth, screenHeight, DXGI_FORMAT_UNKNOWN, 0);
+
+        ID3D11Texture2D* pBackBuffer;
+        pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+        pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
+        pBackBuffer->Release();
+    }
+    else if (mode == EDirectXMode::EDXM_TEXTURE)
+    {
+        D3D11_TEXTURE2D_DESC texDesc = {};
+        texDesc.Width = screenWidth;
+        texDesc.Height = screenHeight;
+        texDesc.MipLevels = 1;
+        texDesc.ArraySize = 1;
+        texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        texDesc.SampleDesc.Count = 1;
+        texDesc.Usage = D3D11_USAGE_DEFAULT;
+        texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+        ID3D11Texture2D* renderTexture = nullptr;
+
+        HRESULT hr = S_OK;
+        hr = pd3dDevice->CreateTexture2D(&texDesc, nullptr, &renderTexture);
+        if (FAILED(hr)) return;
+
+        hr = pd3dDevice->CreateRenderTargetView(renderTexture, nullptr, &pRenderTargetView);
+        if (FAILED(hr))
+        {
+            renderTexture->Release();
+            renderTexture = nullptr;
+            return;
+        }
+
+        hr = pd3dDevice->CreateShaderResourceView(renderTexture, nullptr, &pTextureSRV);
+        if (FAILED(hr))
+        {
+            renderTexture->Release();
+            renderTexture = nullptr;
+
+            pRenderTargetView->Release();
+            pRenderTargetView = nullptr;
+
+            return;
+        }
+
+        if (renderTexture) {
+            renderTexture->Release();
+            renderTexture = nullptr; 
+        }
+    }
+
+}
+
 void D3D11Machine::CleanupDeviceD3D()
 {
     CleanupRenderTarget();
@@ -514,14 +610,6 @@ void D3D11Machine::CleanupDeviceD3D()
 
 }
 
-void D3D11Machine::CreateRenderTarget()
-{
-    ID3D11Texture2D* pBackBuffer;
-    pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
-    pBackBuffer->Release();
-
-}
 
 void D3D11Machine::CleanupRenderTarget()
 {
@@ -530,6 +618,13 @@ void D3D11Machine::CleanupRenderTarget()
         pRenderTargetView->Release(); 
         pRenderTargetView = nullptr; 
     }
+
+    if (pTextureSRV) 
+    { 
+        pTextureSRV->Release(); 
+        pTextureSRV = nullptr;
+    }
+
 
 }
 
@@ -561,14 +656,13 @@ void D3D11Machine::SetScreenSize(int width, int height)
 
 void D3D11Machine::ResizeScreen()
 {
-    if (screenWidth != 0 && screenHeight != 0)
-    {
-        CleanupRenderTarget();
-        pSwapChain->ResizeBuffers(0, screenWidth, screenHeight, DXGI_FORMAT_UNKNOWN, 0);
-        screenWidth.store(0);
-        screenHeight.store(0);
-        CreateRenderTarget();
-    }
+    if (screenWidth == 0 || screenHeight == 0) return;
+
+    CreateRenderTarget();
+
+    screenWidth.store(0);
+    screenHeight.store(0);
+    
 }
 
 void D3D11Machine::ClearScreen()

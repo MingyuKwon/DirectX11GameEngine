@@ -17,6 +17,14 @@
 using namespace DirectX;
 using namespace std;
 
+enum class EDirectXMode : int
+{
+    EDXM_NONE,
+    EDXM_IMGUI,
+    EDXM_TEXTURE,
+    EDXM_MAX,
+};
+
 //--------------------------------------------------------------------------------------
 // GPU에 넘겨줄 구조체
 //--------------------------------------------------------------------------------------
@@ -66,7 +74,7 @@ struct DrawResource
 class D3D11Machine
 {
 public:
-    D3D11Machine(HWND hWnd);
+    D3D11Machine(EDirectXMode mode, HWND hWnd);
     virtual ~D3D11Machine();
 
     //////////////////////////////
@@ -91,13 +99,18 @@ private:
     //////////////////////////////
     /// IMGUI를 위해서 필요한 부분
     /////////////////////////////
+    EDirectXMode mode = EDirectXMode::EDXM_NONE;
+
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pd3dDeviceContext = nullptr;
     IDXGISwapChain* pSwapChain = nullptr;
     atomic<UINT> screenWidth = 0, screenHeight = 0;
+
     ID3D11RenderTargetView* pRenderTargetView = nullptr;
 
+    bool CreateDeviceD3D();
     bool CreateDeviceD3D(HWND hWnd);
+
     void CleanupRenderTarget();
     void CleanupDeviceD3D();
     void CreateRenderTarget();
@@ -106,11 +119,12 @@ private:
     //////////////////////////////
     /// + 게임 씬을 그리기 위해서 필요한 부분
     /////////////////////////////
-    ID3D11Buffer* pVertexBuffer = nullptr;
-    ID3D11Buffer* pIndexBuffer = nullptr;
     ID3D11Buffer* pCBNeverChanges = nullptr;
     ID3D11Buffer* pCBChangeOnResize = nullptr;
     ID3D11Buffer* pCBChangesEveryFrame = nullptr;
+
+    ID3D11ShaderResourceView* pTextureSRV = nullptr;
+
 
     //////////////////////////////
     /// + 외부에서 명령을 줄 때 필요한 부분
@@ -145,9 +159,6 @@ protected:
 
 private:
     atomic<bool> bCanDrawUI = false;
-
-    D3D_DRIVER_TYPE                     g_driverType = D3D_DRIVER_TYPE_NULL;
-    D3D_FEATURE_LEVEL                   g_featureLevel = D3D_FEATURE_LEVEL_11_0;
 
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;

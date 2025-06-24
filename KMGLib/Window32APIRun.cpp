@@ -291,7 +291,7 @@ void KMGEngine::AddRenderCommand(RenderCommand command)
 
 int KMGEngine::InitD3D_IMGUI()
 {
-    DX11C_Main = new D3D11Machine(hMainWnd);
+    DX11C_Main = new D3D11Machine(EDirectXMode::EDXM_IMGUI, hMainWnd);
 
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;
