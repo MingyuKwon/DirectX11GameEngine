@@ -42,9 +42,7 @@ private:
 	void AddRenderCommand(RenderCommand command);
 
 	int InitBaseWindow();
-
 	int InitD3D_IMGUI();
-
 	int InitMenuBar();
 
 	void GameLogicLoop(); // 스레드에서 돌아갈 메인 로직
@@ -52,7 +50,9 @@ private:
 	int MainLoop(); // 앱의 핵심이 되는 루프
 
 	int Render_IMGUI_Windows();
+	void Render_SceneWindow();
+	void Render_ContentWindow();
+	void Render_DetailWindow();
 
-	void GameLogicTick(float deltaTime); // 메인 로직을 다루는 Tick
 };
 

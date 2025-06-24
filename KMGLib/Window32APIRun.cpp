@@ -160,6 +160,24 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    KMGEngine* pThis = nullptr;
+
+    if (msg == WM_NCCREATE) {
+        CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(lParam);
+        pThis = static_cast<KMGEngine*>(cs->lpCreateParams);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+    }
+    else {
+        pThis = reinterpret_cast<KMGEngine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    }
+
+    if (pThis)
+        return pThis->WndProc(hWnd, msg, wParam, lParam);
+    else
+        return DefWindowProc(hWnd, msg, wParam, lParam);
+}
 
 KMGEngine::KMGEngine()
 {
@@ -208,59 +226,6 @@ void KMGEngine::StopEngine()
     if(DX11C_Main) delete DX11C_Main;
 }
 
-LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    KMGEngine* pThis = nullptr;
-
-    if (msg == WM_NCCREATE) {
-        CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(lParam);
-        pThis = static_cast<KMGEngine*>(cs->lpCreateParams);
-        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
-    }
-    else {
-        pThis = reinterpret_cast<KMGEngine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-    }
-
-    if (pThis)
-        return pThis->WndProc(hWnd, msg, wParam, lParam);
-    else
-        return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-void KMGEngine::AddRenderCommand(RenderCommand command)
-{
-    lock_guard<mutex> lock(renderCommandMutex);
-    renderCommandQueue.push(command);
-}
-
-int KMGEngine::InitD3D_IMGUI()
-{
-    DX11C_Main = new D3D11Machine(hMainWnd);
-
-    ID3D11Device* pd3dDevice = nullptr;
-    ID3D11DeviceContext* pImmediateContext = nullptr;
-
-    if (DX11C_Main) DX11C_Main->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
-    if (pd3dDevice == nullptr || pImmediateContext == nullptr) return 1;
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    io.IniFilename = nullptr;  // 저장된 위치 무시
-
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-
-    ImGui_ImplWin32_Init(hMainWnd);
-    ImGui_ImplDX11_Init(pd3dDevice, pImmediateContext);
-
-    return 0;
-}
-
-
 int KMGEngine::InitBaseWindow()
 {
     hWindowInstance = GetModuleHandle(nullptr);
@@ -301,7 +266,6 @@ int KMGEngine::InitBaseWindow()
     return 0;
 }
 
-
 int KMGEngine::InitMenuBar()
 {
     if (!hMainWnd) return 0;
@@ -317,6 +281,39 @@ int KMGEngine::InitMenuBar()
     SetMenu(hMainWnd, hMenu);
 
     return 1;
+}
+
+void KMGEngine::AddRenderCommand(RenderCommand command)
+{
+    lock_guard<mutex> lock(renderCommandMutex);
+    renderCommandQueue.push(command);
+}
+
+int KMGEngine::InitD3D_IMGUI()
+{
+    DX11C_Main = new D3D11Machine(hMainWnd);
+
+    ID3D11Device* pd3dDevice = nullptr;
+    ID3D11DeviceContext* pImmediateContext = nullptr;
+
+    if (DX11C_Main) DX11C_Main->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
+    if (pd3dDevice == nullptr || pImmediateContext == nullptr) return 1;
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.IniFilename = nullptr;  // 저장된 위치 무시
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+
+    ImGui_ImplWin32_Init(hMainWnd);
+    ImGui_ImplDX11_Init(pd3dDevice, pImmediateContext);
+
+    return 0;
 }
 
 int KMGEngine::MainLoop()
@@ -369,49 +366,94 @@ int KMGEngine::Render_IMGUI_Windows()
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     ImGui::End();
 
-    ImGui::PopStyleVar(2);
+    ImGui::PopStyleVar(2);    
 
-    // 도킹 가능한 창들
-    ImGui::Begin("Scene Panel");
-    ImGui::Text("This is Scene Panel");
-    ImGui::End();
+    Render_SceneWindow();
+    Render_ContentWindow();
+    Render_DetailWindow();
 
-    ImGui::Begin("Content Panel");
-    ImGui::Text("This is Content Panel");
-    ImGui::End();
-
-    ImGui::Begin("Detail Panel");
-    ImGui::Text("This is Detail Panel");
-    ImGui::End();
-
-    // Rendering
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     return 0;
 }
 
-
-void KMGEngine::GameLogicLoop() 
+void KMGEngine::Render_SceneWindow()
 {
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-    LARGE_INTEGER prev;
-    QueryPerformanceCounter(&prev);
+    ImGuiID id = ImGui::GetID(SCENE_WINDOW_NAME);
+    ImGuiStorage* storage = ImGui::GetStateStorage();
+    if (!storage->GetBool(id)) {
+        int WindowPosX = 0;
+        int WindowPosY = 0;
 
-    while (bRunning) {
-        LARGE_INTEGER now;
-        QueryPerformanceCounter(&now);
-        float deltaTime = static_cast<float>(now.QuadPart - prev.QuadPart) / frequency.QuadPart;
-        prev = now;
+        int WindowWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
-        {
-            lock_guard<mutex> lock(engineMutex);
-            GameLogicTick(deltaTime);
-        }
+        ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
+        ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
 
-        this_thread::sleep_for(chrono::milliseconds(1));
     }
+
+    ImGui::Begin(SCENE_WINDOW_NAME);
+
+    if (!storage->GetBool(id)) {
+        storage->SetBool(id, true);  
+    }
+
+    ImGui::Text("Hello");
+    ImGui::End();
+}
+
+void KMGEngine::Render_ContentWindow()
+{
+    ImGuiID id = ImGui::GetID(CONTENT_WINDOW_NAME);
+    ImGuiStorage* storage = ImGui::GetStateStorage();
+    if (!storage->GetBool(id)) {
+        int WindowPosX = 0;
+        int WindowPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+
+        int WindowWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowHeight = currentWindowHeight * (1- SCENE_CONTENT_HEIGHT_RATIO);
+
+        ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
+        ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
+
+    }
+
+    ImGui::Begin(CONTENT_WINDOW_NAME);
+
+    if (!storage->GetBool(id)) {
+        storage->SetBool(id, true);
+    }
+
+    ImGui::Text("Hello");
+    ImGui::End();
+}
+
+void KMGEngine::Render_DetailWindow()
+{
+    ImGuiID id = ImGui::GetID(DETAIL_WINDOW_NAME);
+    ImGuiStorage* storage = ImGui::GetStateStorage();
+    if (!storage->GetBool(id)) {
+        int WindowPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowPosY = 0;
+
+        int WindowWidth = currentWindowWidth * (1- SCENE_DETAIL_WIDTH_RATIO);
+        int WindowHeight = currentWindowHeight;
+
+        ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
+        ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
+
+    }
+
+    ImGui::Begin(DETAIL_WINDOW_NAME);
+
+    if (!storage->GetBool(id)) {
+        storage->SetBool(id, true);
+    }
+
+    ImGui::Text("Hello");
+    ImGui::End();
 }
 
 void KMGEngine::RenderLoop()
@@ -486,8 +528,24 @@ void KMGEngine::RenderLoop()
 }
 
 
-void KMGEngine::GameLogicTick(float deltaTime)
+void KMGEngine::GameLogicLoop()
 {
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    LARGE_INTEGER prev;
+    QueryPerformanceCounter(&prev);
 
+    while (bRunning) {
+        LARGE_INTEGER now;
+        QueryPerformanceCounter(&now);
+        float deltaTime = static_cast<float>(now.QuadPart - prev.QuadPart) / frequency.QuadPart;
+        prev = now;
+
+        {
+            lock_guard<mutex> lock(engineMutex);
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(1));
+    }
 }
 
