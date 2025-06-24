@@ -67,7 +67,30 @@ KMGRender::KMGRender(HWND hMainWnd) : hMainWnd(hMainWnd)
 
 KMGRender::~KMGRender()
 {
-    StopRenderEngine();
+    if (!pMainDevice)
+    {
+        pMainDevice->Release();
+        pMainDevice = nullptr;
+    }
+
+    if (!pMainContext)
+    {
+        pMainContext->Release();
+        pMainContext = nullptr;
+    }
+
+    if (!pSwapChain)
+    {
+        pSwapChain->Release();
+        pSwapChain = nullptr;
+    }
+
+    if (!mainRenderTargetView)
+    {
+        mainRenderTargetView->Release();
+        mainRenderTargetView = nullptr;
+    }
+
 }
 
 void KMGRender::StartRenderEngine()
@@ -77,6 +100,19 @@ void KMGRender::StartRenderEngine()
     bRunning = true;
     renderThread = thread(&KMGRender::RenderLoop, this);
 
+}
+
+void KMGRender::StopRenderEngine()
+{
+    if (!bRunning) return;
+
+    bRunning = false;
+    if (renderThread.joinable()) renderThread.join();
+
+    // 이건 엔진 끝날 때 넣기
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 }
 
 bool KMGRender::CreateDeviceD3D()
@@ -138,31 +174,106 @@ int KMGRender::InitD3D_IMGUI()
     return 0;
 }
 
-void KMGRender::StopRenderEngine()
+void KMGRender::RenderLoop()
 {
-    if (!bRunning) return;
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
 
-    bRunning = false;
-    if (renderThread.joinable()) renderThread.join();
+    const double targetFrameTime = 1.0 / 60.0; // 기준을 60fps로 맞춤
 
-    // 이건 엔진 끝날 때 넣기
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
+    while (bRunning) {
+        LARGE_INTEGER frameStart;
+        QueryPerformanceCounter(&frameStart);
+
+        CheckRenderQueue();
+
+        ImGui_ImplDX11_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        DrawIMGUI_UI();
+
+        ImGui::Render();
+        pMainContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
+        pMainContext->ClearRenderTargetView(mainRenderTargetView, Colors::Aqua);
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+        pSwapChain->Present(0,0);
+
+        LARGE_INTEGER frameEnd;
+        QueryPerformanceCounter(&frameEnd);
+        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
+
+        double remainingTime = targetFrameTime - frameDuration;
+        if (remainingTime > 0.0) {
+            this_thread::sleep_for(chrono::duration<double>(remainingTime));
+        }
+
+
+    }
 }
 
-
-void KMGRender::MainLoop()
+void KMGRender::DrawIMGUI_UI()
 {
-    
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+    ImGui::Begin("KMG Engine", nullptr, window_flags);
+    ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+    ImGui::End();
+
+    ImGui::PopStyleVar(2);
+
+    Render_SceneWindow();
+    Render_ContentWindow();
+    Render_DetailWindow();
 }
 
-
-int KMGRender::Render_IMGUI_Windows()
+void KMGRender::CheckRenderQueue()
 {
+    // 긴 lock을 피하기 위해서 스냅샷을 사용
+    std::queue<RenderCommand> tempQueue;
+    {
+        std::lock_guard<std::mutex> lock(renderCommandMutex);
+        std::swap(tempQueue, renderCommandQueue);
+    }
 
-    return 0;
+    while (!tempQueue.empty())
+    {
+        lock_guard<mutex> lock(renderCommandMutex);
+        RenderCommand command = tempQueue.front();
+        tempQueue.pop();
+
+        RenderCommandtype type = command.getType();
+        switch (type)
+        {
+        case RenderCommandtype::ERC_RESIZE_VIEWTARGET:
+        {
+
+            break;
+        }
+        case RenderCommandtype::ERC_ADD_ACTOR:
+        {
+
+            break;
+        }
+        }
+
+    }
 }
+
 
 void KMGRender::Render_SceneWindow()
 {
@@ -183,10 +294,10 @@ void KMGRender::Render_SceneWindow()
     ImGui::Begin(SCENE_WINDOW_NAME);
 
     if (!storage->GetBool(id)) {
-        storage->SetBool(id, true);  
+        storage->SetBool(id, true);
     }
 
-    static ImVec2 prevSize = ImVec2(0,0);
+    static ImVec2 prevSize = ImVec2(0, 0);
     ImVec2 contentSize = ImGui::GetContentRegionAvail();
 
     if (prevSize.x != contentSize.x || prevSize.y != contentSize.y)
@@ -209,7 +320,7 @@ void KMGRender::Render_ContentWindow()
         int WindowPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
         int WindowWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = currentWindowHeight * (1- SCENE_CONTENT_HEIGHT_RATIO);
+        int WindowHeight = currentWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -234,7 +345,7 @@ void KMGRender::Render_DetailWindow()
         int WindowPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
         int WindowPosY = 0;
 
-        int WindowWidth = currentWindowWidth * (1- SCENE_DETAIL_WIDTH_RATIO);
+        int WindowWidth = currentWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
         int WindowHeight = currentWindowHeight;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
@@ -251,99 +362,3 @@ void KMGRender::Render_DetailWindow()
     ImGui::Text("Hello");
     ImGui::End();
 }
-
-void KMGRender::RenderLoop()
-{
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-
-    const double targetFrameTime = 1.0 / 60.0; // 기준을 60fps로 맞춤
-
-    while (bRunning) {
-        LARGE_INTEGER frameStart;
-        QueryPerformanceCounter(&frameStart);
-
-        // 긴 lock을 피하기 위해서 스냅샷을 사용
-        std::queue<RenderCommand> tempQueue;
-        {
-            std::lock_guard<std::mutex> lock(renderCommandMutex);
-            std::swap(tempQueue, renderCommandQueue);
-        }
-
-        while (!tempQueue.empty())
-        {
-            lock_guard<mutex> lock(renderCommandMutex);
-            RenderCommand command = tempQueue.front();
-            tempQueue.pop();
-
-            RenderCommandtype type = command.getType();
-            switch (type)
-            {
-            case RenderCommandtype::ERC_RESIZE_VIEWTARGET:
-                {
-                    
-                    break;
-                }
-            case RenderCommandtype::ERC_ADD_ACTOR:
-            {
-
-                break;
-            }
-            }
-
-        }
-
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
-
-        // Docking 공간 정의
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
-        std::cout << viewport->Size.x << " " <<  viewport->Size.y << "\n";
-
-        ImGui::SetNextWindowViewport(viewport->ID);
-
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-        ImGui::Begin("KMG Engine", nullptr, window_flags);
-        ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-        ImGui::End();
-
-        ImGui::PopStyleVar(2);
-
-        Render_SceneWindow();
-        Render_ContentWindow();
-        Render_DetailWindow();
-
-        ImGui::Render();
-        pMainContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
-        pMainContext->ClearRenderTargetView(mainRenderTargetView, Colors::Aqua);
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-        pSwapChain->Present(0,0);
-
-        LARGE_INTEGER frameEnd;
-        QueryPerformanceCounter(&frameEnd);
-        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
-
-        double remainingTime = targetFrameTime - frameDuration;
-        if (remainingTime > 0.0) {
-            this_thread::sleep_for(chrono::duration<double>(remainingTime));
-        }
-
-
-    }
-}
-
-
-

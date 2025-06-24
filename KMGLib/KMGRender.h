@@ -38,12 +38,13 @@ private:
 	bool CreateDeviceD3D();
 	int InitD3D_IMGUI();
 
-	void RenderLoop(); // ∑ª¥ı ∫Í∑£ƒ° ∑Á«¡
-	void MainLoop(); // «ŸΩ… ∑ª¥ı ∑Á«¡
+	void RenderLoop(); // «ŸΩ… ∑ª¥ı ∑Á«¡
+	void CheckRenderQueue();
+
+	void DrawIMGUI_UI();
 
 	void CreateRenderTarget();
 
-	int Render_IMGUI_Windows();
 	void Render_SceneWindow();
 	void Render_ContentWindow();
 	void Render_DetailWindow();

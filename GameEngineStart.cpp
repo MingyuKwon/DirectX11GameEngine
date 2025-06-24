@@ -167,17 +167,23 @@ int main(int, char**)
 
     MSG msg = {};
 
-    while (true)
+    bool bRunning = true;
+
+    while (bRunning)
     {
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
-                return static_cast<int>(msg.wParam);
-
+            {
+                bRunning = false;
+            }
+                
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
     }
+
+    renderEngine.StopRenderEngine();
 
     return 0;
 
