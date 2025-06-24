@@ -85,25 +85,6 @@ DirectX11Wrapper::~DirectX11Wrapper()
     CleanupDevice();
 }
 
-HRESULT DirectX11Wrapper::AddActor(const KMGActor& actor)
-{
-    if(drawResources.count(actor.name) > 0) return S_FALSE;
-    if(!pd3dDevice) return S_FALSE;
-
-    drawResources[actor.name] = DrawResource(pd3dDevice, actor.vertices, actor.indices);
-
-    return S_OK;
-}
-
-HRESULT DirectX11Wrapper::deleteActor(wstring name)
-{
-    if (!drawResources.count(name) == 0) return S_FALSE;
-
-    drawResources.erase(name);
-
-    return S_OK;
-}
-
 void DirectX11Wrapper::SceneWindowRender()
 {
     // Update our time
@@ -164,7 +145,7 @@ void DirectX11Wrapper::SceneWindowRender()
 
 }
 
-HRESULT DirectX11Wrapper::TryUIPresent()
+HRESULT DirectX11Wrapper::TryPresent()
 {
     if (!bCanDrawUI.exchange(false)) return S_FALSE;
 
@@ -172,7 +153,7 @@ HRESULT DirectX11Wrapper::TryUIPresent()
     return S_OK;
 }
 
-HRESULT DirectX11Wrapper::SetUIDrawReady()
+HRESULT DirectX11Wrapper::SetDrawReady()
 {
     bCanDrawUI.exchange(true);
     return S_OK;
@@ -202,9 +183,6 @@ HRESULT DirectX11Wrapper::InitDirectX11(int width, int height)
     if (FAILED(hr)) return hr;
 
     CreateConstBuffers();
-
-    ResizeViewtarget(width, height);
-
     // Initialize the world matrices
 
 
@@ -369,78 +347,6 @@ HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
     return hr;
 }
 
-//--------------------------------------------------------------------------------------
-// ÁÖ¾îÁø ³Êºñ¿Í ³ôÀÌ·Î ºä Å¸±ê°ú ±íÀÌ ¹öÆÛ, ºä Æ÷Æ®ÀÇ Å©±â¸¦ ¹Ù²Þ
-//--------------------------------------------------------------------------------------
-void DirectX11Wrapper::ResizeViewtarget(int width, int height)
-{
-    if (!pRenderTargetView || !pDepthStencilView || !pDepthStencil) return;
-
-    HRESULT hr = S_OK;
-
-    pRenderTargetView->Release();
-    pDepthStencilView->Release();
-    pDepthStencil->Release();
-
-    hr = pSwapChain->ResizeBuffers(
-        1,
-        width,
-        height,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        0);
-    if (FAILED(hr)) return;
-
-    ID3D11Texture2D* pBackBuffer = nullptr;
-    hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
-    if (FAILED(hr)) return;
-
-    hr = pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
-    pBackBuffer->Release();
-    if (FAILED(hr)) return;
-
-    D3D11_TEXTURE2D_DESC descDepth = {};
-    descDepth.Width = width;
-    descDepth.Height = height;
-    descDepth.MipLevels = 1;
-    descDepth.ArraySize = 1;
-    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    descDepth.SampleDesc.Count = 1;
-    descDepth.SampleDesc.Quality = 0;
-    descDepth.Usage = D3D11_USAGE_DEFAULT;
-    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    descDepth.CPUAccessFlags = 0;
-    descDepth.MiscFlags = 0;
-    hr = pd3dDevice->CreateTexture2D(&descDepth, nullptr, &pDepthStencil);
-    if (FAILED(hr)) return;
-
-    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-    descDSV.Format = descDepth.Format;
-    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    descDSV.Texture2D.MipSlice = 0;
-    hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
-    if (FAILED(hr)) return;
-
-    pImmediateContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
-
-    D3D11_VIEWPORT vp = {};
-    vp.Width = static_cast<FLOAT>(width);
-    vp.Height = static_cast<FLOAT>(height);
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    vp.TopLeftX = 0;
-    vp.TopLeftY = 0;
-    pImmediateContext->RSSetViewports(1, &vp);
-
-    // Initialize the projection matrix
-    Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100.0f);
-
-    CBChangeOnResize cbChangesOnResize = {};
-    cbChangesOnResize.mProjection = XMMatrixTranspose(Projection);
-    pImmediateContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cbChangesOnResize, 0, 0);
-
-}
-
-
 HRESULT DirectX11Wrapper::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
 {
     ID3DBlob* pVSBlob = nullptr;
@@ -557,3 +463,135 @@ HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCS
 }
 
 
+D3D11Machine::D3D11Machine(HWND hWnd)
+{
+    CreateDeviceD3D(hWnd);
+}
+
+D3D11Machine::~D3D11Machine()
+{
+    CleanupDeviceD3D();
+}
+
+bool D3D11Machine::CreateDeviceD3D(HWND hWnd)
+{
+    DXGI_SWAP_CHAIN_DESC sd;
+    ZeroMemory(&sd, sizeof(sd));
+    sd.BufferCount = 2;
+    sd.BufferDesc.Width = 0;
+    sd.BufferDesc.Height = 0;
+    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.BufferDesc.RefreshRate.Numerator = 60;
+    sd.BufferDesc.RefreshRate.Denominator = 1;
+    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.OutputWindow = hWnd;
+    sd.SampleDesc.Count = 1;
+    sd.SampleDesc.Quality = 0;
+    sd.Windowed = TRUE;
+    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+    UINT createDeviceFlags = 0;
+    D3D_FEATURE_LEVEL featureLevel;
+    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
+
+    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pd3dDevice, &featureLevel, &pd3dDeviceContext);
+    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
+        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pd3dDevice, &featureLevel, &pd3dDeviceContext);
+    if (res != S_OK)
+        return false;
+
+    CreateRenderTarget();
+    return true;
+}
+
+void D3D11Machine::CleanupDeviceD3D()
+{
+    CleanupRenderTarget();
+    if (pSwapChain) { pSwapChain->Release(); pSwapChain = nullptr; }
+    if (pd3dDeviceContext) { pd3dDeviceContext->Release(); pd3dDeviceContext = nullptr; }
+    if (pd3dDevice) { pd3dDevice->Release(); pd3dDevice = nullptr; }
+
+}
+
+void D3D11Machine::CreateRenderTarget()
+{
+    ID3D11Texture2D* pBackBuffer;
+    pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+    pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
+    pBackBuffer->Release();
+
+}
+
+void D3D11Machine::CleanupRenderTarget()
+{
+    if (pRenderTargetView) 
+    { 
+        pRenderTargetView->Release(); 
+        pRenderTargetView = nullptr; 
+    }
+
+}
+
+HRESULT D3D11Machine::TryPresent()
+{
+    if (!bCanDrawUI) return S_FALSE;
+    pSwapChain->Present(0, 0);
+    return S_OK;
+}
+
+HRESULT D3D11Machine::SetDrawReady()
+{
+    bCanDrawUI.exchange(true);
+    return S_OK;
+}
+
+void D3D11Machine::GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext)
+{
+    *outDevice = pd3dDevice;
+    *outContext = pd3dDeviceContext;
+
+}
+
+void D3D11Machine::SetScreenSize(int width, int height)
+{
+    screenWidth.store(width);
+    screenHeight.store(height);
+}
+
+void D3D11Machine::ResizeScreen()
+{
+    if (screenWidth != 0 && screenHeight != 0)
+    {
+        CleanupRenderTarget();
+        pSwapChain->ResizeBuffers(0, screenWidth, screenHeight, DXGI_FORMAT_UNKNOWN, 0);
+        screenWidth.store(0);
+        screenHeight.store(0);
+        CreateRenderTarget();
+    }
+}
+
+void D3D11Machine::ClearScreen()
+{
+    pd3dDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, nullptr);
+    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Black);
+}
+
+HRESULT D3D11Machine::AddActor(const KMGActor& actor)
+{
+    if (drawResources.count(actor.name) > 0) return S_FALSE;
+    if (!pd3dDevice) return S_FALSE;
+
+    drawResources[actor.name] = DrawResource(pd3dDevice, actor.vertices, actor.indices);
+
+    return S_OK;
+}
+
+HRESULT D3D11Machine::deleteActor(wstring name)
+{
+    if (!drawResources.count(name) == 0) return S_FALSE;
+
+    drawResources.erase(name);
+
+    return S_OK;
+}

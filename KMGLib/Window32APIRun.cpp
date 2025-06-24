@@ -113,24 +113,13 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         EndPaint(hWnd, &ps);
         break;
     }
-    case WM_ENTERSIZEMOVE:
-    {
-        bResizing.exchange(true);
-        break;
-    }
-    case WM_EXITSIZEMOVE:
-    {
-        bResizing.exchange(false);
-        AddRenderCommand(RenderCommand::MakeResizeViewTargetCommand(currentWindowWidth, currentWindowHeight));
-        break;
-    }
 
     case WM_KEYDOWN:
         switch (wParam)
         {
         case VK_ESCAPE:
             {
-                StopEngine();
+                PostQuitMessage(0);
                 break;
             }
         case VK_SPACE:
@@ -151,6 +140,7 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         currentWindowWidth = LOWORD(lParam);
         currentWindowHeight = HIWORD(lParam);
 
+        if (DX11C_Main) DX11C_Main->SetScreenSize(currentWindowWidth, currentWindowHeight);
         break;
 
     case WM_COMMAND:
@@ -164,7 +154,6 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         break;
 
     case WM_DESTROY:
-        StopEngine();
         break;
     }
 
@@ -175,16 +164,13 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
 KMGEngine::KMGEngine()
 {
     InitBaseWindow();
-
     InitD3D_IMGUI();
-
-
     InitMenuBar();
 }
 
 KMGEngine::~KMGEngine()
 {
-
+    StopEngine();
 }
 
 int KMGEngine::StartEngine()
@@ -201,8 +187,6 @@ int KMGEngine::StartEngine()
     // 메인 로직 돌아가는 곳
     ////////////////////////////////////////////
     int result = MainLoop();
-
-    StopEngine();
 
     return result;
 
@@ -221,10 +205,7 @@ void KMGEngine::StopEngine()
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 
-    if (DX11W_Main) delete DX11W_Main;
-
-    PostQuitMessage(0);
-
+    if(DX11C_Main) delete DX11C_Main;
 }
 
 LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -254,19 +235,14 @@ void KMGEngine::AddRenderCommand(RenderCommand command)
 
 int KMGEngine::InitD3D_IMGUI()
 {
-    ////////////////////////////////////////////
-    // Init IMGUI
-    ////////////////////////////////////////////
-
-    DX11W_Main = new DirectX11Wrapper(hMainWnd, currentWindowWidth, currentWindowHeight);
+    DX11C_Main = new D3D11Machine(hMainWnd);
 
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;
 
-    if (DX11W_Main) DX11W_Main->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
+    if (DX11C_Main) DX11C_Main->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
     if (pd3dDevice == nullptr || pImmediateContext == nullptr) return 1;
 
-    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -317,10 +293,12 @@ int KMGEngine::InitBaseWindow()
         currentWindowWidth, currentWindowHeight,
         nullptr, nullptr, hWindowInstance, this);
 
-    if (!hMainWnd) return 0;
+    if (!hMainWnd) return 1;
     ShowWindow(hMainWnd, 1);
+    UpdateWindow(hMainWnd);
 
-    return 1;
+
+    return 0;
 }
 
 
@@ -360,6 +338,12 @@ int KMGEngine::MainLoop()
 
 int KMGEngine::Render_IMGUI_Windows()
 {
+    if (DX11C_Main)
+    {
+        DX11C_Main->ResizeScreen();
+        DX11C_Main->ClearScreen();
+    }
+        
     // 프레임 시작
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -370,8 +354,8 @@ int KMGEngine::Render_IMGUI_Windows()
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-    ImGui::SetNextWindowPos(viewport->Pos);      
-    ImGui::SetNextWindowSize(viewport->Size);    
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
 
     window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
@@ -400,7 +384,7 @@ int KMGEngine::Render_IMGUI_Windows()
     ImGui::Text("This is Detail Panel");
     ImGui::End();
 
-    // 렌더링
+    // Rendering
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -459,23 +443,22 @@ void KMGEngine::RenderLoop()
             {
             case RenderCommandtype::ERC_RESIZE_VIEWTARGET:
                 {
-                    if (DX11W_Main)
+                    if (DX11C_Main)
                     {
                         int width = 0;
                         int height = 0;
                         command.GetViewTargetWidthHeight(width, height);
 
-                        DX11W_Main->ResizeViewtarget(width, height);
                     }
                     break;
                 }
             case RenderCommandtype::ERC_ADD_ACTOR:
             {
-                if (DX11W_Main)
+                if (DX11C_Main)
                 {
                     KMGActor actor;
                     command.GetActor(actor);
-                    DX11W_Main->AddActor(actor);
+                    DX11C_Main->AddActor(actor);
                 }
                 break;
             }
@@ -485,8 +468,8 @@ void KMGEngine::RenderLoop()
 
         Render_IMGUI_Windows();
 
-        if (DX11W_Main) DX11W_Main->SetUIDrawReady();
-        if (!bResizing && DX11W_Main) DX11W_Main->TryUIPresent();
+        if (DX11C_Main) DX11C_Main->SetDrawReady();
+        if (DX11C_Main) DX11C_Main->TryPresent();
 
 
         LARGE_INTEGER frameEnd;

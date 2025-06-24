@@ -28,7 +28,6 @@ private:
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	std::atomic<bool> bRunning = false;
-	std::atomic<bool> bResizing = false;
 
 	std::thread gameThread;
 	std::thread renderThread;
@@ -36,6 +35,9 @@ private:
 
 	std::mutex renderCommandMutex;
 	std::queue<RenderCommand> renderCommandQueue;
+
+	D3D11Machine* DX11C_Main = nullptr;
+	D3D11Machine* DX11C_Scene = nullptr;
 
 	void AddRenderCommand(RenderCommand command);
 

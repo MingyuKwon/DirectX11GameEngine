@@ -63,19 +63,72 @@ struct DrawResource
 
 };
 
+class D3D11Machine
+{
+public:
+    D3D11Machine(HWND hWnd);
+    virtual ~D3D11Machine();
+
+    //////////////////////////////
+    /// IMGUI를 위해서 필요한 부분
+    /////////////////////////////
+    HRESULT TryPresent(); // 메인 스레드에서 일어나야 함
+    HRESULT SetDrawReady();
+    void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
+
+    void SetScreenSize(int width, int height);
+    void ResizeScreen();
+    void ClearScreen();
+
+    //////////////////////////////
+    /// + 외부에서 명령을 줄 때 필요한 부분
+    /////////////////////////////
+    HRESULT AddActor(const KMGActor& actor);
+    HRESULT deleteActor(wstring name);
+
+
+private:
+    //////////////////////////////
+    /// IMGUI를 위해서 필요한 부분
+    /////////////////////////////
+    ID3D11Device* pd3dDevice = nullptr;
+    ID3D11DeviceContext* pd3dDeviceContext = nullptr;
+    IDXGISwapChain* pSwapChain = nullptr;
+    atomic<UINT> screenWidth = 0, screenHeight = 0;
+    ID3D11RenderTargetView* pRenderTargetView = nullptr;
+
+    bool CreateDeviceD3D(HWND hWnd);
+    void CleanupRenderTarget();
+    void CleanupDeviceD3D();
+    void CreateRenderTarget();
+
+
+    //////////////////////////////
+    /// + 게임 씬을 그리기 위해서 필요한 부분
+    /////////////////////////////
+    ID3D11Buffer* pVertexBuffer = nullptr;
+    ID3D11Buffer* pIndexBuffer = nullptr;
+    ID3D11Buffer* pCBNeverChanges = nullptr;
+    ID3D11Buffer* pCBChangeOnResize = nullptr;
+    ID3D11Buffer* pCBChangesEveryFrame = nullptr;
+
+    //////////////////////////////
+    /// + 외부에서 명령을 줄 때 필요한 부분
+    /////////////////////////////
+    unordered_map<wstring, DrawResource> drawResources;
+    atomic<bool> bCanDrawUI = false;
+
+};
+
 class DirectX11Wrapper
 {
 public:
     DirectX11Wrapper(HWND viewWindow, int width, int height);
     virtual ~DirectX11Wrapper();
 
-    HRESULT AddActor(const KMGActor& actor);
-    HRESULT deleteActor(wstring name);
-
-    void ResizeViewtarget(int width, int height); // 렌더링할 부분이 바뀌면 호출할 함수
     void SceneWindowRender(); // 씬에다가 백버퍼에 그림 그리기
-    HRESULT TryUIPresent(); // 메인 스레드에서 일어나야 함
-    HRESULT SetUIDrawReady();
+    HRESULT TryPresent(); // 메인 스레드에서 일어나야 함
+    HRESULT SetDrawReady();
 
     void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
 
