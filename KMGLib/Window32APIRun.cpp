@@ -477,7 +477,8 @@ void KMGEngine::Render_SceneWindow()
 
     if (srv)
     {
-        //ImGui::Image(srv, ImVec2(0, 0));
+        ImGui::Text("Something Starnge");
+        ImGui::Image(srv, ImVec2(100, 100));
     }
 
     ImGui::End();
