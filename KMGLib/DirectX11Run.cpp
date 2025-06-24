@@ -2,7 +2,45 @@
 #include <EngineData.h>
 #include <iostream>
 
-HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+// Tutorial에서 가져온 코드
+//--------------------------------------------------------------------------------------
+// Helper for compiling shaders with D3DCompile
+//
+// With VS 11, we could load up prebuilt .cso files instead...
+//--------------------------------------------------------------------------------------
+HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
+{
+    HRESULT hr = S_OK;
+
+    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#ifdef _DEBUG
+    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
+    // Setting this flag improves the shader debugging experience, but still allows
+    // the shaders to be optimized and to run exactly the way they will run in
+    // the release configuration of this program.
+    dwShaderFlags |= D3DCOMPILE_DEBUG;
+
+    // Disable optimizations to further improve shader debugging
+    dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    ID3DBlob* pErrorBlob = nullptr;
+    hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
+        dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+    if (FAILED(hr))
+    {
+        if (pErrorBlob)
+        {
+            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
+            MessageBoxA(nullptr, (char*)pErrorBlob->GetBufferPointer(), "Shader Compile Error", MB_OK);
+            pErrorBlob->Release();
+        }
+        return hr;
+    }
+    if (pErrorBlob) pErrorBlob->Release();
+
+    return S_OK;
+}
 
 DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices) : device(device), vertices(vertices), indices(indices)
 {
@@ -131,30 +169,7 @@ void DirectX11Wrapper::SceneWindowRender()
 }
 
 
-//--------------------------------------------------------------------------------------
-// 전역 변수 값 최초 할당
-//--------------------------------------------------------------------------------------
-HRESULT DirectX11Wrapper::InitDirectX11(int width, int height)
-{
-    HRESULT hr = S_OK;
-
-    hr = Init_Device_Context();
-    if (FAILED(hr)) return hr;
-
-    hr = Init_RTV_DSV_Viewport(width, height);
-    if (FAILED(hr)) return hr;
-    
-    hr = CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
-    if (FAILED(hr)) return hr;
-
-    CreateConstBuffers();
-    // Initialize the world matrices
-
-
-    return S_OK;
-}
-
-HRESULT DirectX11Wrapper::CreateConstBuffers()
+HRESULT D3D11Machine::CreateConstBuffers()
 {
     HRESULT hr = S_OK;
 
@@ -178,144 +193,14 @@ HRESULT DirectX11Wrapper::CreateConstBuffers()
     XMVECTOR Eye = XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f);
     XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    View = XMMatrixLookAtLH(Eye, At, Up);
+    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
 
     CBNeverChanges cbNeverChanges = {};
     cbNeverChanges.mView = XMMatrixTranspose(View);
-    pImmediateContext->UpdateSubresource(pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0);
+    pd3dDeviceContext->UpdateSubresource(pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0);
 }
 
-HRESULT DirectX11Wrapper::Init_Device_Context()
-{
-    HRESULT hr = S_OK;
-    UINT createDeviceFlags = 0;
-
-    D3D_DRIVER_TYPE driverTypes[] =
-    {
-        D3D_DRIVER_TYPE_HARDWARE,
-        D3D_DRIVER_TYPE_WARP,
-        D3D_DRIVER_TYPE_REFERENCE,
-    };
-    UINT numDriverTypes = ARRAYSIZE(driverTypes);
-
-    D3D_FEATURE_LEVEL featureLevels[] =
-    {
-        D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1,
-        D3D_FEATURE_LEVEL_10_0,
-    };
-    UINT numFeatureLevels = ARRAYSIZE(featureLevels);
-
-    D3D_DRIVER_TYPE                     g_driverType = D3D_DRIVER_TYPE_NULL;
-    D3D_FEATURE_LEVEL                   g_featureLevel = D3D_FEATURE_LEVEL_11_0;
-
-    for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
-    {
-        g_driverType = driverTypes[driverTypeIndex];
-        hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-            D3D11_SDK_VERSION, &pd3dDevice, &g_featureLevel, &pImmediateContext);
-
-        if (hr == E_INVALIDARG)
-        {
-            // DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
-            hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, &featureLevels[1], numFeatureLevels - 1,
-                D3D11_SDK_VERSION, &pd3dDevice, &g_featureLevel, &pImmediateContext);
-        }
-
-        if (SUCCEEDED(hr))
-            break;
-    }
-
-    return hr;
-}
-
-HRESULT DirectX11Wrapper::Init_RTV_DSV_Viewport(int width, int height)
-{
-    HRESULT hr = S_OK;
-
-    IDXGIFactory1* dxgiFactory = nullptr;
-    {
-        IDXGIDevice* dxgiDevice = nullptr;
-        hr = pd3dDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice));
-        if (SUCCEEDED(hr))
-        {
-            IDXGIAdapter* adapter = nullptr;
-            hr = dxgiDevice->GetAdapter(&adapter);
-            if (SUCCEEDED(hr))
-            {
-                hr = adapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&dxgiFactory));
-                adapter->Release();
-            }
-            dxgiDevice->Release();
-        }
-    }
-    if (FAILED(hr)) return hr;
-        
-    DXGI_SWAP_CHAIN_DESC sd = {};
-    sd.BufferCount = 1;
-    sd.BufferDesc.Width = width;
-    sd.BufferDesc.Height = height;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 60;
-    sd.BufferDesc.RefreshRate.Denominator = 1;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = mainWindow;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.Windowed = TRUE;
-
-    hr = dxgiFactory->CreateSwapChain(pd3dDevice, &sd, &pSwapChain);
-    dxgiFactory->Release();
-    if (FAILED(hr)) return hr;
-       
-    ID3D11Texture2D* pBackBuffer = nullptr;
-    hr = pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer));
-    if (FAILED(hr)) return hr;
-        
-    hr = pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
-    pBackBuffer->Release();
-    if (FAILED(hr)) return hr;
-
-    D3D11_TEXTURE2D_DESC descDepth = {};
-    descDepth.Width = width;
-    descDepth.Height = height;
-    descDepth.MipLevels = 1;
-    descDepth.ArraySize = 1;
-    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    descDepth.SampleDesc.Count = 1;
-    descDepth.SampleDesc.Quality = 0;
-    descDepth.Usage = D3D11_USAGE_DEFAULT;
-    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    descDepth.CPUAccessFlags = 0;
-    descDepth.MiscFlags = 0;
-    hr = pd3dDevice->CreateTexture2D(&descDepth, nullptr, &pDepthStencil);
-    if (FAILED(hr)) return hr;
-
-    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-    descDSV.Format = descDepth.Format;
-    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    descDSV.Texture2D.MipSlice = 0;
-    hr = pd3dDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &pDepthStencilView);
-    if (FAILED(hr)) return hr;
-
-    // Depth도 빼야 하나?
-
-    pImmediateContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
-
-    D3D11_VIEWPORT vp = {};
-    vp.Width = static_cast<FLOAT>(width);
-    vp.Height = static_cast<FLOAT>(height);
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    vp.TopLeftX = 0;
-    vp.TopLeftY = 0;
-    pImmediateContext->RSSetViewports(1, &vp);
-        
-    return hr;
-}
-
-HRESULT DirectX11Wrapper::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
+HRESULT D3D11Machine::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
 {
     ID3DBlob* pVSBlob = nullptr;
     HRESULT hr = CompileShaderFromFile(vertexShaderName, "VS", "vs_4_0", &pVSBlob);
@@ -363,95 +248,48 @@ HRESULT DirectX11Wrapper::CompileShader(const WCHAR* vertexShaderName, const WCH
     return hr;
 }
 
-
-//--------------------------------------------------------------------------------------
-// 전역 변수 값 전부 초기화
-//--------------------------------------------------------------------------------------
-void DirectX11Wrapper::CleanupDevice()
-{
-    if (pImmediateContext) pImmediateContext->ClearState();
-    if (pSamplerLinear) pSamplerLinear->Release();
-    if (pTextureRV) pTextureRV->Release();
-    if (pCBNeverChanges) pCBNeverChanges->Release();
-    if (pCBChangeOnResize) pCBChangeOnResize->Release();
-    if (pCBChangesEveryFrame) pCBChangesEveryFrame->Release();
-    if (pVertexBuffer) pVertexBuffer->Release();
-    if (pIndexBuffer) pIndexBuffer->Release();
-    if (pVertexLayout) pVertexLayout->Release();
-    if (pVertexShader) pVertexShader->Release();
-    if (pPixelShader) pPixelShader->Release();
-    if (pDepthStencil) pDepthStencil->Release();
-    if (pDepthStencilView) pDepthStencilView->Release();
-    if (pRenderTargetView) pRenderTargetView->Release();
-    if (pSwapChain) pSwapChain->Release();
-    if (pImmediateContext) pImmediateContext->Release();
-    if (pd3dDevice) pd3dDevice->Release();
-}
-
-
-
-// Tutorial에서 가져온 코드
-//--------------------------------------------------------------------------------------
-// Helper for compiling shaders with D3DCompile
-//
-// With VS 11, we could load up prebuilt .cso files instead...
-//--------------------------------------------------------------------------------------
-HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
-{
-    HRESULT hr = S_OK;
-
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef _DEBUG
-    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-    // Setting this flag improves the shader debugging experience, but still allows
-    // the shaders to be optimized and to run exactly the way they will run in
-    // the release configuration of this program.
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-
-    // Disable optimizations to further improve shader debugging
-    dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-    ID3DBlob* pErrorBlob = nullptr;
-    hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
-        dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
-    if (FAILED(hr))
-    {
-        if (pErrorBlob)
-        {
-            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer()); 
-            MessageBoxA(nullptr, (char*)pErrorBlob->GetBufferPointer(), "Shader Compile Error", MB_OK);
-            pErrorBlob->Release();
-        }
-        return hr;
-    }
-    if (pErrorBlob) pErrorBlob->Release();
-
-    return S_OK;
-}
-
 D3D11Machine::~D3D11Machine()
 {
     CleanupDeviceD3D();
 }
 
-D3D11Machine::D3D11Machine(EDirectXMode mode, HWND hWnd) : mode(mode)
+D3D11Machine::D3D11Machine(EDirectXMode mode, ID3D11Device* pd3dDevice, HWND hWnd) : mode(mode), pd3dDevice(pd3dDevice)
 {
     if (mode == EDirectXMode::EDXM_IMGUI)
     {
-        CreateDeviceD3D(hWnd);
+        Initialize(hWnd);
     }
     else if (mode == EDirectXMode::EDXM_TEXTURE)
     {
-        CreateDeviceD3D();
+        Initialize();
     }
     
 }
 
-bool D3D11Machine::CreateDeviceD3D(HWND hWnd)
+bool D3D11Machine::Initialize(HWND hWnd)
 {
-    DXGI_SWAP_CHAIN_DESC sd;
-    ZeroMemory(&sd, sizeof(sd));
+    if (pd3dDevice == nullptr) return false;
+
+    pd3dDevice->AddRef();
+
+    pd3dDevice->GetImmediateContext(&pd3dDeviceContext);
+
+    IDXGIDevice* dxgiDevice = nullptr;
+    HRESULT hr = pd3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
+    if (FAILED(hr) || dxgiDevice == nullptr) return false;
+
+    IDXGIAdapter* adapter = nullptr;
+    hr = dxgiDevice->GetAdapter(&adapter);
+    dxgiDevice->Release();
+    if (FAILED(hr) || adapter == nullptr) return false;
+
+    IDXGIFactory* factory = nullptr;
+    hr = adapter->GetParent(__uuidof(IDXGIFactory), (void**)&factory);
+    adapter->Release();
+    if (FAILED(hr) || factory == nullptr) return false;
+
+    // 스왑체인 설정
+    DXGI_SWAP_CHAIN_DESC sd = {};
     sd.BufferCount = 2;
     sd.BufferDesc.Width = 0;
     sd.BufferDesc.Height = 0;
@@ -466,49 +304,31 @@ bool D3D11Machine::CreateDeviceD3D(HWND hWnd)
     sd.Windowed = TRUE;
     sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-    UINT createDeviceFlags = 0;
-    D3D_FEATURE_LEVEL featureLevel;
-    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
+    // 스왑체인 생성
+    hr = factory->CreateSwapChain(pd3dDevice, &sd, &pSwapChain);
+    factory->Release();
+    if (FAILED(hr)) return false;
 
-    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pd3dDevice, &featureLevel, &pd3dDeviceContext);
-    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
-        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pd3dDevice, &featureLevel, &pd3dDeviceContext);
-    if (res != S_OK)
-        return false;
+    // 셰이더 및 버퍼 생성
+    CreateConstBuffers();
+    CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
 
+    // 렌더 타겟 생성
     CreateRenderTarget();
+
     return true;
 }
 
-bool D3D11Machine::CreateDeviceD3D()
+
+bool D3D11Machine::Initialize()
 {
-    UINT createDeviceFlags = 0;
-    D3D_FEATURE_LEVEL featureLevels[] = {
-        D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0
-    };
-    D3D_FEATURE_LEVEL createdFeatureLevel;
-
-    HRESULT hr = D3D11CreateDevice(
-        nullptr,                       
-        D3D_DRIVER_TYPE_HARDWARE,      
-        nullptr,                        
-        createDeviceFlags,             
-        featureLevels,                  
-        ARRAYSIZE(featureLevels),
-        D3D11_SDK_VERSION,
-        &pd3dDevice,                   
-        &createdFeatureLevel,           
-        &pd3dDeviceContext              
-    );
-
-    if (FAILED(hr)) {
-        return false;
-    }
+    pd3dDevice->AddRef(); // 참조 유지
+    pd3dDevice->GetImmediateContext(&pd3dDeviceContext);
 
     CreateRenderTarget();
-
     return true;
 }
+
 
 void D3D11Machine::CreateRenderTarget()
 {
@@ -600,14 +420,13 @@ void D3D11Machine::CleanupRenderTarget()
 
 void D3D11Machine::DrawTexture()
 {
-    ClearScreen();
+    //ClearScreen();
 }
 
 void D3D11Machine::ClearScreen()
 {
     pd3dDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, nullptr);
-    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Black);
-
+    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Yellow);
 }
 
 HRESULT D3D11Machine::TryPresent()
@@ -644,7 +463,6 @@ void D3D11Machine::SetScreenSize(int width, int height)
 void D3D11Machine::ResizeScreen()
 {
     if (screenWidth == 0 || screenHeight == 0) return;
-    cout << "ResizeScreen\n";
     CreateRenderTarget();
 
     screenWidth.store(0);

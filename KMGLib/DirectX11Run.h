@@ -74,7 +74,7 @@ struct DrawResource
 class D3D11Machine
 {
 public:
-    D3D11Machine(EDirectXMode mode, HWND hWnd);
+    D3D11Machine(EDirectXMode mode, ID3D11Device* pd3dDevice, HWND hWnd);
     virtual ~D3D11Machine();
 
     //////////////////////////////
@@ -85,6 +85,8 @@ public:
     HRESULT TryPresent(); 
     HRESULT SetDrawReady();
 
+    bool Initialize(HWND hWnd);
+    bool Initialize();
 
     void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
     void GetSRVTexture(ID3D11ShaderResourceView** outSRV);
@@ -113,9 +115,6 @@ private:
 
     ID3D11RenderTargetView* pRenderTargetView = nullptr;
 
-    bool CreateDeviceD3D();
-    bool CreateDeviceD3D(HWND hWnd);
-
     void CleanupRenderTarget();
     void CleanupDeviceD3D();
     void CreateRenderTarget();
@@ -128,7 +127,15 @@ private:
     ID3D11Buffer* pCBChangeOnResize = nullptr;
     ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 
+    ID3D11VertexShader* pVertexShader = nullptr;
+    ID3D11PixelShader* pPixelShader = nullptr;
+    ID3D11InputLayout* pVertexLayout = nullptr;
+
+
     ID3D11ShaderResourceView* pTextureSRV = nullptr;
+
+    HRESULT CreateConstBuffers();
+    HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName);
 
 
     //////////////////////////////
@@ -143,17 +150,6 @@ class DirectX11Wrapper
 {
 public:
     void SceneWindowRender(); // 씬에다가 백버퍼에 그림 그리기
-
-protected:
-    HRESULT InitDirectX11(int width, int height); // 기본적인 전역 변수 값 할당
-    HRESULT Init_Device_Context(); // 가장 기본인 Device, context를 생성
-
-    HRESULT Init_RTV_DSV_Viewport(int width, int height); // 렌더 타깃을 만들어주는 함수
-
-    HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName); 
-    HRESULT CreateConstBuffers();
-
-    void CleanupDevice(); // 전역 변수 값 전부 초기화
 
 private:
     ID3D11Device* pd3dDevice = nullptr;

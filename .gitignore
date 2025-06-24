@@ -4,11 +4,4 @@
 /Saved
 /Build
 /.vs
-/Content/Asset
-/Content/LevelPrototyping
-/Content/FPWeapon
-/Content/Sci-fi_UI_Pack/Weapons
-/Plugins/OculusHandTools/Intermediate
-/Plugins/OculusHandTools/Binaries
-/Plugins/MultiplayerSession/Intermediate
-/Plugins/MultiplayerSession/Binaries
+/x64

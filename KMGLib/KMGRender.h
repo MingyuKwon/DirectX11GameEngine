@@ -11,11 +11,11 @@
 
 #include <mutex>
 
-class KMGEngine
+class KMGRender
 {
 public:
-	KMGEngine();
-	virtual ~KMGEngine();
+	KMGRender();
+	virtual ~KMGRender();
 
 	int StartEngine();
 	void StopEngine();
@@ -36,18 +36,24 @@ private:
 	std::mutex renderCommandMutex;
 	std::queue<RenderCommand> renderCommandQueue;
 
-	D3D11Machine* DX11C_Main = nullptr;
-	D3D11Machine* DX11C_Scene = nullptr;
+	ID3D11Device* pMainDevice = nullptr;
+	ID3D11DeviceContext* pMainContext = nullptr;
+	IDXGISwapChain* pSwapChain = nullptr;
+	ID3D11RenderTargetView* mainRenderTargetView = nullptr;
 
 	void AddRenderCommand(RenderCommand command);
 
+
 	int InitBaseWindow();
+	bool CreateDeviceD3D();
 	int InitD3D_IMGUI();
 	int InitMenuBar();
 
 	void GameLogicLoop(); // 스레드에서 돌아갈 메인 로직
 	void RenderLoop(); // 스레드에서 돌아가갈 렌더링 로직
 	int MainLoop(); // 앱의 핵심이 되는 루프
+
+	void CreateRenderTarget();
 
 	int Render_IMGUI_Windows();
 	void Render_SceneWindow();

@@ -1,5 +1,5 @@
 #include <EngineData.h>
-#include <Window32APIRun.h>
+#include <KMGRender.h>
 #include <sstream>
 #include <iostream>
 
@@ -141,7 +141,7 @@ void PrintSRVInfo(ID3D11ShaderResourceView* srv)
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
-LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK KMGRender::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     /*wchar_t buffer[128];
     swprintf(buffer, 128, L"WndProc Message: %s (0x%04X)\n", GetMessageName(msg), msg);
@@ -186,8 +186,6 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
     case WM_SIZE:
         currentWindowWidth = LOWORD(lParam);
         currentWindowHeight = HIWORD(lParam);
-
-        if (DX11C_Main) DX11C_Main->SetScreenSize(currentWindowWidth, currentWindowHeight);
         break;
 
     case WM_COMMAND:
@@ -207,17 +205,17 @@ LRESULT CALLBACK KMGEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT KMGRender::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    KMGEngine* pThis = nullptr;
+    KMGRender* pThis = nullptr;
 
     if (msg == WM_NCCREATE) {
         CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(lParam);
-        pThis = static_cast<KMGEngine*>(cs->lpCreateParams);
+        pThis = static_cast<KMGRender*>(cs->lpCreateParams);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
     }
     else {
-        pThis = reinterpret_cast<KMGEngine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        pThis = reinterpret_cast<KMGRender*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     }
 
     if (pThis)
@@ -226,26 +224,26 @@ LRESULT KMGEngine::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
         return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-KMGEngine::KMGEngine()
+KMGRender::KMGRender()
 {
     InitBaseWindow();
     InitD3D_IMGUI();
     InitMenuBar();
 }
 
-KMGEngine::~KMGEngine()
+KMGRender::~KMGRender()
 {
     StopEngine();
 }
 
-int KMGEngine::StartEngine()
+int KMGRender::StartEngine()
 {
     if (bRunning) return 0;
 
     bRunning = true;
 
-    gameThread = thread(&KMGEngine::GameLogicLoop, this);
-    renderThread = thread(&KMGEngine::RenderLoop, this);
+    gameThread = thread(&KMGRender::GameLogicLoop, this);
+    renderThread = thread(&KMGRender::RenderLoop, this);
 
 
     ////////////////////////////////////////////
@@ -257,7 +255,7 @@ int KMGEngine::StartEngine()
 
 }
 
-void KMGEngine::StopEngine()
+void KMGRender::StopEngine()
 {
     if (!bRunning) return;
 
@@ -269,11 +267,9 @@ void KMGEngine::StopEngine()
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-
-    if(DX11C_Main) delete DX11C_Main;
 }
 
-int KMGEngine::InitBaseWindow()
+int KMGRender::InitBaseWindow()
 {
     hWindowInstance = GetModuleHandle(nullptr);
 
@@ -282,7 +278,7 @@ int KMGEngine::InitBaseWindow()
     WNDCLASSEX wcex = {};
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = KMGEngine::StaticWndProc;
+    wcex.lpfnWndProc = KMGRender::StaticWndProc;
     wcex.hInstance = hWindowInstance;
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
@@ -313,7 +309,7 @@ int KMGEngine::InitBaseWindow()
     return 0;
 }
 
-int KMGEngine::InitMenuBar()
+int KMGRender::InitMenuBar()
 {
     if (!hMainWnd) return 0;
 
@@ -330,21 +326,55 @@ int KMGEngine::InitMenuBar()
     return 1;
 }
 
-void KMGEngine::AddRenderCommand(RenderCommand command)
+void KMGRender::AddRenderCommand(RenderCommand command)
 {
     lock_guard<mutex> lock(renderCommandMutex);
     renderCommandQueue.push(command);
 }
 
-int KMGEngine::InitD3D_IMGUI()
+bool KMGRender::CreateDeviceD3D()
 {
-    DX11C_Main = new D3D11Machine(EDirectXMode::EDXM_IMGUI, hMainWnd);
+    DXGI_SWAP_CHAIN_DESC sd;
+    ZeroMemory(&sd, sizeof(sd));
+    sd.BufferCount = 2;
+    sd.BufferDesc.Width = 0;
+    sd.BufferDesc.Height = 0;
+    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.BufferDesc.RefreshRate.Numerator = 60;
+    sd.BufferDesc.RefreshRate.Denominator = 1;
+    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.OutputWindow = hMainWnd;
+    sd.SampleDesc.Count = 1;
+    sd.SampleDesc.Quality = 0;
+    sd.Windowed = TRUE;
+    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-    ID3D11Device* pd3dDevice = nullptr;
-    ID3D11DeviceContext* pImmediateContext = nullptr;
+    UINT createDeviceFlags = 0;
+    //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    D3D_FEATURE_LEVEL featureLevel;
+    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
+    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
+    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
+        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
+    if (res != S_OK)
+        return false;
 
-    if (DX11C_Main) DX11C_Main->GetD3DDeviceContext(&pd3dDevice, &pImmediateContext);
-    if (pd3dDevice == nullptr || pImmediateContext == nullptr) return 1;
+    CreateRenderTarget();
+}
+
+void KMGRender::CreateRenderTarget()
+{
+    ID3D11Texture2D* pBackBuffer;
+    pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+    pMainDevice->CreateRenderTargetView(pBackBuffer, nullptr, &mainRenderTargetView);
+    pBackBuffer->Release();
+
+}
+
+int KMGRender::InitD3D_IMGUI()
+{
+    CreateDeviceD3D();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -356,16 +386,13 @@ int KMGEngine::InitD3D_IMGUI()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-
     ImGui_ImplWin32_Init(hMainWnd);
-    ImGui_ImplDX11_Init(pd3dDevice, pImmediateContext);
-
-    DX11C_Scene = new D3D11Machine(EDirectXMode::EDXM_TEXTURE, nullptr);
+    ImGui_ImplDX11_Init(pMainDevice, pMainContext);
 
     return 0;
 }
 
-int KMGEngine::MainLoop()
+int KMGRender::MainLoop()
 {
     MSG msg = {};
 
@@ -382,52 +409,14 @@ int KMGEngine::MainLoop()
     }
 }
 
-int KMGEngine::Render_IMGUI_Windows()
+
+int KMGRender::Render_IMGUI_Windows()
 {
-    if (DX11C_Main)
-    {
-        DX11C_Main->ResizeScreen();
-        DX11C_Main->ClearScreen();
-    }
-
-    // 프레임 시작
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-    // Docking 공간 정의
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-    ImGui::SetNextWindowPos(viewport->Pos);
-    ImGui::SetNextWindowSize(viewport->Size);
-    ImGui::SetNextWindowViewport(viewport->ID);
-
-    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-    ImGui::Begin("KMG Engine", nullptr, window_flags);
-    ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-    ImGui::End();
-
-    ImGui::PopStyleVar(2);    
-
-    Render_SceneWindow();
-    Render_ContentWindow();
-    Render_DetailWindow();
-
-    ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     return 0;
 }
 
-void KMGEngine::Render_SceneWindow()
+void KMGRender::Render_SceneWindow()
 {
     ImGuiID id = ImGui::GetID(SCENE_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
@@ -455,39 +444,15 @@ void KMGEngine::Render_SceneWindow()
     if (prevSize.x != contentSize.x || prevSize.y != contentSize.y)
     {
         cout << contentSize.x << "  " << contentSize.y << "\n";
-        if (DX11C_Scene)
-        {
-            DX11C_Scene->SetScreenSize(contentSize.x, contentSize.y);
-        }
-
         prevSize = contentSize;
     }
 
-    if (DX11C_Scene)
-    {
-        DX11C_Scene->ResizeScreen();
-        DX11C_Scene->DrawTexture();
-        DX11C_Scene->SetDrawReady();
-    }
-
-    ID3D11ShaderResourceView* srv = nullptr;
-    DX11C_Scene->GetSRVTexture(&srv);
-
-    PrintSRVInfo(srv);
-
-    if (srv)
-    {
-        ImGui::Text("Something Starnge");
-        ImGui::Image(srv, ImVec2(100, 100));
-    }
+    ImGui::Text("Something Starnge");
 
     ImGui::End();
-
-
-
 }
 
-void KMGEngine::Render_ContentWindow()
+void KMGRender::Render_ContentWindow()
 {
     ImGuiID id = ImGui::GetID(CONTENT_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
@@ -513,7 +478,7 @@ void KMGEngine::Render_ContentWindow()
     ImGui::End();
 }
 
-void KMGEngine::Render_DetailWindow()
+void KMGRender::Render_DetailWindow()
 {
     ImGuiID id = ImGui::GetID(DETAIL_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
@@ -539,7 +504,7 @@ void KMGEngine::Render_DetailWindow()
     ImGui::End();
 }
 
-void KMGEngine::RenderLoop()
+void KMGRender::RenderLoop()
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -568,35 +533,56 @@ void KMGEngine::RenderLoop()
             {
             case RenderCommandtype::ERC_RESIZE_VIEWTARGET:
                 {
-                    if (DX11C_Scene)
-                    {
-                        int width = 0;
-                        int height = 0;
-                        command.GetViewTargetWidthHeight(width, height);
-
-                    }
+                    
                     break;
                 }
             case RenderCommandtype::ERC_ADD_ACTOR:
             {
-                if (DX11C_Scene)
-                {
-                    KMGActor actor;
-                    command.GetActor(actor);
 
-                }
                 break;
             }
             }
 
         }
 
-        Render_IMGUI_Windows();
+        ImGui_ImplDX11_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
 
+        // Docking 공간 정의
+        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-        if (DX11C_Main) DX11C_Main->SetDrawReady();
-        if (DX11C_Main) DX11C_Main->TryPresent();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        std::cout << viewport->Size.x << " " <<  viewport->Size.y << "\n";
 
+        ImGui::SetNextWindowViewport(viewport->ID);
+
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+        ImGui::Begin("KMG Engine", nullptr, window_flags);
+        ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+        ImGui::End();
+
+        ImGui::PopStyleVar(2);
+
+        Render_SceneWindow();
+        Render_ContentWindow();
+        Render_DetailWindow();
+
+        ImGui::Render();
+        pMainContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
+        pMainContext->ClearRenderTargetView(mainRenderTargetView, Colors::Aqua);
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+        pSwapChain->Present(0,0);
 
         LARGE_INTEGER frameEnd;
         QueryPerformanceCounter(&frameEnd);
@@ -612,7 +598,7 @@ void KMGEngine::RenderLoop()
 }
 
 
-void KMGEngine::GameLogicLoop()
+void KMGRender::GameLogicLoop()
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
