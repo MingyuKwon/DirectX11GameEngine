@@ -114,7 +114,7 @@ void DrawResource::CreateBuffers()
 }
 
 
-void DirectX11Wrapper::SceneWindowRender()
+void D3D11Machine::SceneWindowRender()
 {
     // Update our time
     static float t = 0.0f;
@@ -129,27 +129,27 @@ void DirectX11Wrapper::SceneWindowRender()
     World = XMMatrixRotationY(t);
 
     // Clear the back buffer
-    pImmediateContext->ClearRenderTargetView(pRenderTargetView, Colors::MidnightBlue);
+    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::MidnightBlue);
 
     // Clear the depth buffer to 1.0 (max depth)
-    pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    pd3dDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     // Update variables that change once per frame
     CBChangesEveryFrame cb = {};
     cb.mWorld = XMMatrixTranspose(World);
-    pImmediateContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+    pd3dDeviceContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 
     // Set the input layout
-    pImmediateContext->IASetInputLayout(pVertexLayout);
+    pd3dDeviceContext->IASetInputLayout(pVertexLayout);
 
     // Set primitive topology
-    pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pd3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    pImmediateContext->VSSetShader(pVertexShader, nullptr, 0);
-    pImmediateContext->VSSetConstantBuffers(0, 1, &pCBNeverChanges);
-    pImmediateContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
-    pImmediateContext->VSSetConstantBuffers(2, 1, &pCBChangesEveryFrame);
-    pImmediateContext->PSSetShader(pPixelShader, nullptr, 0);
+    pd3dDeviceContext->VSSetShader(pVertexShader, nullptr, 0);
+    pd3dDeviceContext->VSSetConstantBuffers(0, 1, &pCBNeverChanges);
+    pd3dDeviceContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
+    pd3dDeviceContext->VSSetConstantBuffers(2, 1, &pCBChangesEveryFrame);
+    pd3dDeviceContext->PSSetShader(pPixelShader, nullptr, 0);
 
     // Set vertex buffer
     UINT stride = sizeof(KMGVertex);
@@ -161,9 +161,9 @@ void DirectX11Wrapper::SceneWindowRender()
 
         UINT stride = sizeof(KMGVertex);
         UINT offset = 0;
-        pImmediateContext->IASetVertexBuffers(0, 1, &resource.vertexBuffer, &stride, &offset);
-        pImmediateContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-        pImmediateContext->DrawIndexed(resource.indices.size(), 0, 0);
+        pd3dDeviceContext->IASetVertexBuffers(0, 1, &resource.vertexBuffer, &stride, &offset);
+        pd3dDeviceContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+        pd3dDeviceContext->DrawIndexed(resource.indices.size(), 0, 0);
     }
 
 }

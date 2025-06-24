@@ -95,6 +95,7 @@ public:
     void ResizeScreen();
     void ClearScreen();
 
+    void SceneWindowRender();
     //////////////////////////////
     /// + 외부에서 명령을 줄 때 필요한 부분
     /////////////////////////////
@@ -127,9 +128,17 @@ private:
     ID3D11Buffer* pCBChangeOnResize = nullptr;
     ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 
+    ID3D11Texture2D* pDepthStencil = nullptr;
+    ID3D11DepthStencilView* pDepthStencilView = nullptr;
+
     ID3D11VertexShader* pVertexShader = nullptr;
     ID3D11PixelShader* pPixelShader = nullptr;
     ID3D11InputLayout* pVertexLayout = nullptr;
+
+    XMMATRIX World = XMMatrixIdentity();
+    XMMATRIX View = XMMatrixIdentity();
+    XMMATRIX Projection = XMMatrixIdentity();
+
 
 
     ID3D11ShaderResourceView* pTextureSRV = nullptr;
@@ -143,44 +152,5 @@ private:
     /////////////////////////////
     unordered_map<wstring, DrawResource> drawResources;
     atomic<bool> bCanDrawUI = false;
-
-};
-
-class DirectX11Wrapper
-{
-public:
-    void SceneWindowRender(); // 씬에다가 백버퍼에 그림 그리기
-
-private:
-    ID3D11Device* pd3dDevice = nullptr;
-    ID3D11DeviceContext* pImmediateContext = nullptr;
-
-    IDXGISwapChain* pSwapChain = nullptr;
-    ID3D11RenderTargetView* pRenderTargetView = nullptr;
-
-    ID3D11Texture2D* pDepthStencil = nullptr;
-    ID3D11DepthStencilView* pDepthStencilView = nullptr;
-
-    ID3D11VertexShader* pVertexShader = nullptr;
-    ID3D11PixelShader* pPixelShader = nullptr;
-    ID3D11InputLayout* pVertexLayout = nullptr;
-
-    ID3D11Buffer* pVertexBuffer = nullptr;
-    ID3D11Buffer* pIndexBuffer = nullptr;
-    ID3D11Buffer* pCBNeverChanges = nullptr;
-    ID3D11Buffer* pCBChangeOnResize = nullptr;
-    ID3D11Buffer* pCBChangesEveryFrame = nullptr;
-
-    ID3D11ShaderResourceView* pTextureRV = nullptr;
-    ID3D11SamplerState* pSamplerLinear = nullptr;
-
-    XMMATRIX World = XMMatrixIdentity();
-    XMMATRIX View = XMMatrixIdentity();
-    XMMATRIX Projection = XMMatrixIdentity();
-
-    HWND mainWindow;
-    HWND sceneWindow;
-
-    unordered_map<wstring, DrawResource> drawResources;
 
 };

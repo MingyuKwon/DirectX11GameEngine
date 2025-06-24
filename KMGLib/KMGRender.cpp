@@ -198,6 +198,7 @@ void KMGRender::RenderLoop()
         pMainContext->ClearRenderTargetView(mainRenderTargetView, Colors::Aqua);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+        // Present는 단 한번
         pSwapChain->Present(0,0);
 
         LARGE_INTEGER frameEnd;
