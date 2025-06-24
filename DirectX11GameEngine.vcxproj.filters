@@ -48,7 +48,7 @@
     <ClCompile Include="Tutorial\Tutorial07.cpp">
       <Filter>소스 파일\Tutorial</Filter>
     </ClCompile>
-    <ClCompile Include="GameEngineStart.cpp">
+    <ClCompile Include="KMGEngine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="OuterLib\DDSTextureLoader.cpp">

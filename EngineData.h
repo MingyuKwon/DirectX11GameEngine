@@ -14,6 +14,3 @@
 #define SCENE_DETAIL_WIDTH_RATIO 0.8
 #define SCENE_CONTENT_HEIGHT_RATIO 0.7
 
-extern int currentWindowWidth;
-extern int currentWindowHeight;
-

@@ -253,72 +253,10 @@ D3D11Machine::~D3D11Machine()
     CleanupDeviceD3D();
 }
 
-D3D11Machine::D3D11Machine(EDirectXMode mode, ID3D11Device* pd3dDevice, HWND hWnd) : mode(mode), pd3dDevice(pd3dDevice)
+D3D11Machine::D3D11Machine(ID3D11Device* pd3dDevice) : pd3dDevice(pd3dDevice)
 {
-    if (mode == EDirectXMode::EDXM_IMGUI)
-    {
-        Initialize(hWnd);
-    }
-    else if (mode == EDirectXMode::EDXM_TEXTURE)
-    {
-        Initialize();
-    }
-    
+    Initialize();
 }
-
-bool D3D11Machine::Initialize(HWND hWnd)
-{
-    if (pd3dDevice == nullptr) return false;
-
-    pd3dDevice->AddRef();
-
-    pd3dDevice->GetImmediateContext(&pd3dDeviceContext);
-
-    IDXGIDevice* dxgiDevice = nullptr;
-    HRESULT hr = pd3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
-    if (FAILED(hr) || dxgiDevice == nullptr) return false;
-
-    IDXGIAdapter* adapter = nullptr;
-    hr = dxgiDevice->GetAdapter(&adapter);
-    dxgiDevice->Release();
-    if (FAILED(hr) || adapter == nullptr) return false;
-
-    IDXGIFactory* factory = nullptr;
-    hr = adapter->GetParent(__uuidof(IDXGIFactory), (void**)&factory);
-    adapter->Release();
-    if (FAILED(hr) || factory == nullptr) return false;
-
-    // 스왑체인 설정
-    DXGI_SWAP_CHAIN_DESC sd = {};
-    sd.BufferCount = 2;
-    sd.BufferDesc.Width = 0;
-    sd.BufferDesc.Height = 0;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 60;
-    sd.BufferDesc.RefreshRate.Denominator = 1;
-    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = hWnd;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.Windowed = TRUE;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-    // 스왑체인 생성
-    hr = factory->CreateSwapChain(pd3dDevice, &sd, &pSwapChain);
-    factory->Release();
-    if (FAILED(hr)) return false;
-
-    // 셰이더 및 버퍼 생성
-    CreateConstBuffers();
-    CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
-
-    // 렌더 타겟 생성
-    CreateRenderTarget();
-
-    return true;
-}
-
 
 bool D3D11Machine::Initialize()
 {
@@ -336,65 +274,52 @@ void D3D11Machine::CreateRenderTarget()
 
     HRESULT hr = S_OK;
 
-    if (mode == EDirectXMode::EDXM_IMGUI)
+    D3D11_TEXTURE2D_DESC texDesc = {};
+    texDesc.Width = screenWidth;
+    texDesc.Height = screenHeight;
+    texDesc.MipLevels = 1;
+    texDesc.ArraySize = 1;
+    texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    texDesc.SampleDesc.Count = 1;
+    texDesc.Usage = D3D11_USAGE_DEFAULT;
+    texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+    ID3D11Texture2D* renderTexture = nullptr;
+
+    hr = pd3dDevice->CreateTexture2D(&texDesc, nullptr, &renderTexture);
+    if (FAILED(hr)) return;
+
+    hr = pd3dDevice->CreateRenderTargetView(renderTexture, nullptr, &pRenderTargetView);
+    if (FAILED(hr))
     {
-        pSwapChain->ResizeBuffers(0, screenWidth, screenHeight, DXGI_FORMAT_UNKNOWN, 0);
-
-        ID3D11Texture2D* pBackBuffer;
-        pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-        pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pRenderTargetView);
-        pBackBuffer->Release();
+        renderTexture->Release();
+        renderTexture = nullptr;
+        return;
     }
-    else if (mode == EDirectXMode::EDXM_TEXTURE)
+
+    hr = pd3dDevice->CreateShaderResourceView(renderTexture, nullptr, &pTextureSRV);
+    if (FAILED(hr))
     {
-        D3D11_TEXTURE2D_DESC texDesc = {};
-        texDesc.Width = screenWidth;
-        texDesc.Height = screenHeight;
-        texDesc.MipLevels = 1;
-        texDesc.ArraySize = 1;
-        texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        texDesc.SampleDesc.Count = 1;
-        texDesc.Usage = D3D11_USAGE_DEFAULT;
-        texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+        renderTexture->Release();
+        renderTexture = nullptr;
 
-        ID3D11Texture2D* renderTexture = nullptr;
+        pRenderTargetView->Release();
+        pRenderTargetView = nullptr;
 
-        HRESULT hr = S_OK;
-        hr = pd3dDevice->CreateTexture2D(&texDesc, nullptr, &renderTexture);
-        if (FAILED(hr)) return;
-
-        hr = pd3dDevice->CreateRenderTargetView(renderTexture, nullptr, &pRenderTargetView);
-        if (FAILED(hr))
-        {
-            renderTexture->Release();
-            renderTexture = nullptr;
-            return;
-        }
-
-        hr = pd3dDevice->CreateShaderResourceView(renderTexture, nullptr, &pTextureSRV);
-        if (FAILED(hr))
-        {
-            renderTexture->Release();
-            renderTexture = nullptr;
-
-            pRenderTargetView->Release();
-            pRenderTargetView = nullptr;
-
-            return;
-        }
-
-        if (renderTexture) {
-            renderTexture->Release();
-            renderTexture = nullptr; 
-        }
+        return;
     }
+
+    if (renderTexture) {
+        renderTexture->Release();
+        renderTexture = nullptr;
+    }
+
 
 }
 
 void D3D11Machine::CleanupDeviceD3D()
 {
     CleanupRenderTarget();
-    if (pSwapChain) { pSwapChain->Release(); pSwapChain = nullptr; }
     if (pd3dDeviceContext) { pd3dDeviceContext->Release(); pd3dDeviceContext = nullptr; }
     if (pd3dDevice) { pd3dDevice->Release(); pd3dDevice = nullptr; }
 
@@ -427,26 +352,6 @@ void D3D11Machine::ClearScreen()
 {
     pd3dDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, nullptr);
     pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Yellow);
-}
-
-HRESULT D3D11Machine::TryPresent()
-{
-    if (!bCanDrawUI) return S_FALSE;
-    pSwapChain->Present(0, 0);
-    return S_OK;
-}
-
-HRESULT D3D11Machine::SetDrawReady()
-{
-    bCanDrawUI.exchange(true);
-    return S_OK;
-}
-
-void D3D11Machine::GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext)
-{
-    *outDevice = pd3dDevice;
-    *outContext = pd3dDeviceContext;
-
 }
 
 void D3D11Machine::GetSRVTexture(ID3D11ShaderResourceView** outSRV)

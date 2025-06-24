@@ -60,6 +60,13 @@ void KMGRender::AddRenderCommand(RenderCommand command)
     renderCommandQueue.push(command);
 }
 
+void KMGRender::ResizeScreen(int width, int height)
+{
+    resizeRequested.store(true);
+    windowWidth.store(width);
+    windowHeight.store(height);
+}
+
 KMGRender::KMGRender(HWND hMainWnd) : hMainWnd(hMainWnd)
 {
     InitD3D_IMGUI();
@@ -154,6 +161,16 @@ void KMGRender::CreateRenderTarget()
     pBackBuffer->Release();
 }
 
+void KMGRender::CleanupRenderTarget()
+{
+    if (mainRenderTargetView) 
+    { 
+        mainRenderTargetView->Release(); 
+        mainRenderTargetView = nullptr; 
+    }
+}
+
+
 int KMGRender::InitD3D_IMGUI()
 {
     CreateDeviceD3D();
@@ -186,6 +203,14 @@ void KMGRender::RenderLoop()
         QueryPerformanceCounter(&frameStart);
 
         CheckRenderQueue();
+
+        if (resizeRequested.exchange(false))
+        {
+            CleanupRenderTarget();
+            pSwapChain->ResizeBuffers(0, windowWidth, windowHeight, DXGI_FORMAT_UNKNOWN, 0);
+            std::cout << "Resizing" << windowWidth << " " << windowHeight << "\n";
+            CreateRenderTarget();
+        }
 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
@@ -284,8 +309,8 @@ void KMGRender::Render_SceneWindow()
         int WindowPosX = 0;
         int WindowPosY = 0;
 
-        int WindowWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+        int WindowWidth = windowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowHeight = windowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -318,10 +343,10 @@ void KMGRender::Render_ContentWindow()
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
         int WindowPosX = 0;
-        int WindowPosY = currentWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+        int WindowPosY = windowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
-        int WindowWidth = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = currentWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
+        int WindowWidth = windowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowHeight = windowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -343,11 +368,11 @@ void KMGRender::Render_DetailWindow()
     ImGuiID id = ImGui::GetID(DETAIL_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
-        int WindowPosX = currentWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowPosX = windowWidth * SCENE_DETAIL_WIDTH_RATIO;
         int WindowPosY = 0;
 
-        int WindowWidth = currentWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
-        int WindowHeight = currentWindowHeight;
+        int WindowWidth = windowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
+        int WindowHeight = windowHeight;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));

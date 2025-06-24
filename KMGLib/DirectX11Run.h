@@ -17,14 +17,6 @@
 using namespace DirectX;
 using namespace std;
 
-enum class EDirectXMode : int
-{
-    EDXM_NONE,
-    EDXM_IMGUI,
-    EDXM_TEXTURE,
-    EDXM_MAX,
-};
-
 //--------------------------------------------------------------------------------------
 // GPU에 넘겨줄 구조체
 //--------------------------------------------------------------------------------------
@@ -74,21 +66,15 @@ struct DrawResource
 class D3D11Machine
 {
 public:
-    D3D11Machine(EDirectXMode mode, ID3D11Device* pd3dDevice, HWND hWnd);
+    D3D11Machine(ID3D11Device* pd3dDevice);
     virtual ~D3D11Machine();
 
     //////////////////////////////
     /// IMGUI를 위해서 필요한 부분
     /////////////////////////////
     void DrawTexture();
-
-    HRESULT TryPresent(); 
-    HRESULT SetDrawReady();
-
-    bool Initialize(HWND hWnd);
     bool Initialize();
 
-    void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
     void GetSRVTexture(ID3D11ShaderResourceView** outSRV);
 
     void SetScreenSize(int width, int height);
@@ -107,11 +93,8 @@ private:
     //////////////////////////////
     /// IMGUI를 위해서 필요한 부분
     /////////////////////////////
-    EDirectXMode mode = EDirectXMode::EDXM_NONE;
-
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pd3dDeviceContext = nullptr;
-    IDXGISwapChain* pSwapChain = nullptr;
     atomic<UINT> screenWidth = 0, screenHeight = 0;
 
     ID3D11RenderTargetView* pRenderTargetView = nullptr;
@@ -140,7 +123,6 @@ private:
     XMMATRIX Projection = XMMatrixIdentity();
 
 
-
     ID3D11ShaderResourceView* pTextureSRV = nullptr;
 
     HRESULT CreateConstBuffers();
@@ -151,6 +133,4 @@ private:
     /// + 외부에서 명령을 줄 때 필요한 부분
     /////////////////////////////
     unordered_map<wstring, DrawResource> drawResources;
-    atomic<bool> bCanDrawUI = false;
-
 };

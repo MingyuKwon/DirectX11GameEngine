@@ -17,7 +17,14 @@ public:
 	KMGRender(HWND hMainWnd);
 	virtual ~KMGRender();
 
+	KMGRender(const KMGRender&) = delete;
+	KMGRender& operator=(const KMGRender&) = delete;
+
+	KMGRender(KMGRender&&) = delete;
+	KMGRender& operator=(KMGRender&&) = delete;
+
 	void AddRenderCommand(RenderCommand command);
+	void ResizeScreen(int width, int height);
 
 	void StartRenderEngine();
 	void StopRenderEngine();
@@ -35,6 +42,10 @@ private:
 	IDXGISwapChain* pSwapChain = nullptr;
 	ID3D11RenderTargetView* mainRenderTargetView = nullptr;
 
+	std::atomic<int> windowWidth = DEFAULT_WINDOW_WIDTH;
+	std::atomic<int> windowHeight = DEFAULT_WINDOW_HEIGHT;
+	std::atomic<bool> resizeRequested = false;
+
 	bool CreateDeviceD3D();
 	int InitD3D_IMGUI();
 
@@ -44,10 +55,14 @@ private:
 	void DrawIMGUI_UI();
 
 	void CreateRenderTarget();
+	void CleanupRenderTarget();
 
 	void Render_SceneWindow();
 	void Render_ContentWindow();
 	void Render_DetailWindow();
+
+	unordered_map<wstring, DrawResource> drawResources;
+
 
 };
 
