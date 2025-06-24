@@ -224,27 +224,31 @@ LRESULT KMGRender::StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
         return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+void KMGRender::AddRenderCommand(RenderCommand command)
+{
+    lock_guard<mutex> lock(renderCommandMutex);
+    renderCommandQueue.push(command);
+}
+
+
 KMGRender::KMGRender()
 {
     InitBaseWindow();
     InitD3D_IMGUI();
-    InitMenuBar();
 }
 
 KMGRender::~KMGRender()
 {
-    StopEngine();
+    StopRenderEngine();
 }
 
-int KMGRender::StartEngine()
+int KMGRender::StartRenderEngine()
 {
     if (bRunning) return 0;
 
     bRunning = true;
 
-    gameThread = thread(&KMGRender::GameLogicLoop, this);
     renderThread = thread(&KMGRender::RenderLoop, this);
-
 
     ////////////////////////////////////////////
     // 메인 로직 돌아가는 곳
@@ -255,12 +259,70 @@ int KMGRender::StartEngine()
 
 }
 
-void KMGRender::StopEngine()
+bool KMGRender::CreateDeviceD3D()
+{
+    DXGI_SWAP_CHAIN_DESC sd;
+    ZeroMemory(&sd, sizeof(sd));
+    sd.BufferCount = 2;
+    sd.BufferDesc.Width = 0;
+    sd.BufferDesc.Height = 0;
+    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.BufferDesc.RefreshRate.Numerator = 60;
+    sd.BufferDesc.RefreshRate.Denominator = 1;
+    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.OutputWindow = hMainWnd;
+    sd.SampleDesc.Count = 1;
+    sd.SampleDesc.Quality = 0;
+    sd.Windowed = TRUE;
+    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+    UINT createDeviceFlags = 0;
+    //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    D3D_FEATURE_LEVEL featureLevel;
+    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
+    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
+    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
+        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
+    if (res != S_OK)
+        return false;
+
+    CreateRenderTarget();
+}
+
+void KMGRender::CreateRenderTarget()
+{
+    ID3D11Texture2D* pBackBuffer;
+    pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+    pMainDevice->CreateRenderTargetView(pBackBuffer, nullptr, &mainRenderTargetView);
+    pBackBuffer->Release();
+}
+
+int KMGRender::InitD3D_IMGUI()
+{
+    CreateDeviceD3D();
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.IniFilename = nullptr;  // 저장된 위치 무시
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    ImGui_ImplWin32_Init(hMainWnd);
+    ImGui_ImplDX11_Init(pMainDevice, pMainContext);
+
+    return 0;
+}
+
+void KMGRender::StopRenderEngine()
 {
     if (!bRunning) return;
 
     bRunning = false;
-    if (gameThread.joinable()) gameThread.join();
     if (renderThread.joinable()) renderThread.join();
 
     // 이건 엔진 끝날 때 넣기
@@ -301,17 +363,6 @@ int KMGRender::InitBaseWindow()
         currentWindowWidth, currentWindowHeight,
         nullptr, nullptr, hWindowInstance, this);
 
-    if (!hMainWnd) return 1;
-    ShowWindow(hMainWnd, 1);
-    UpdateWindow(hMainWnd);
-
-
-    return 0;
-}
-
-int KMGRender::InitMenuBar()
-{
-    if (!hMainWnd) return 0;
 
     hMenu = CreateMenu();
     hFileMenu = CreatePopupMenu();
@@ -323,74 +374,15 @@ int KMGRender::InitMenuBar()
 
     SetMenu(hMainWnd, hMenu);
 
-    return 1;
-}
 
-void KMGRender::AddRenderCommand(RenderCommand command)
-{
-    lock_guard<mutex> lock(renderCommandMutex);
-    renderCommandQueue.push(command);
-}
+    if (!hMainWnd) return 1;
+    ShowWindow(hMainWnd, 1);
+    UpdateWindow(hMainWnd);
 
-bool KMGRender::CreateDeviceD3D()
-{
-    DXGI_SWAP_CHAIN_DESC sd;
-    ZeroMemory(&sd, sizeof(sd));
-    sd.BufferCount = 2;
-    sd.BufferDesc.Width = 0;
-    sd.BufferDesc.Height = 0;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 60;
-    sd.BufferDesc.RefreshRate.Denominator = 1;
-    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = hMainWnd;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.Windowed = TRUE;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-    UINT createDeviceFlags = 0;
-    //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-    D3D_FEATURE_LEVEL featureLevel;
-    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
-    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
-    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
-        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
-    if (res != S_OK)
-        return false;
-
-    CreateRenderTarget();
-}
-
-void KMGRender::CreateRenderTarget()
-{
-    ID3D11Texture2D* pBackBuffer;
-    pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    pMainDevice->CreateRenderTargetView(pBackBuffer, nullptr, &mainRenderTargetView);
-    pBackBuffer->Release();
-
-}
-
-int KMGRender::InitD3D_IMGUI()
-{
-    CreateDeviceD3D();
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    io.IniFilename = nullptr;  // 저장된 위치 무시
-
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-    ImGui_ImplWin32_Init(hMainWnd);
-    ImGui_ImplDX11_Init(pMainDevice, pMainContext);
 
     return 0;
 }
+
 
 int KMGRender::MainLoop()
 {
@@ -597,26 +589,5 @@ void KMGRender::RenderLoop()
     }
 }
 
-
-void KMGRender::GameLogicLoop()
-{
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-    LARGE_INTEGER prev;
-    QueryPerformanceCounter(&prev);
-
-    while (bRunning) {
-        LARGE_INTEGER now;
-        QueryPerformanceCounter(&now);
-        float deltaTime = static_cast<float>(now.QuadPart - prev.QuadPart) / frequency.QuadPart;
-        prev = now;
-
-        {
-            lock_guard<mutex> lock(engineMutex);
-        }
-
-        this_thread::sleep_for(chrono::milliseconds(1));
-    }
-}
 
 

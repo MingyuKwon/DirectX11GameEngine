@@ -143,7 +143,7 @@
     <ClCompile Include="KMGLib\EngineData.cpp" />
     <ClCompile Include="KMGLib\KMGActor.cpp" />
     <ClCompile Include="KMGLib\KMGDataStructure.h" />
-    <ClCompile Include="KMGLib\Window32APIRun.cpp" />
+    <ClCompile Include="KMGLib\KMGRender.cpp" />
     <ClCompile Include="OuterLib\DDSTextureLoader.cpp" />
     <ClCompile Include="OuterLib\imgui.cpp" />
     <ClCompile Include="OuterLib\imgui_demo.cpp" />
@@ -181,7 +181,7 @@
     <ClInclude Include="EngineData.h" />
     <ClInclude Include="KMGLib\DirectX11Run.h" />
     <ClInclude Include="KMGLib\KMGActor.h" />
-    <ClInclude Include="KMGLib\Window32APIRun.h" />
+    <ClInclude Include="KMGLib\KMGRender.h" />
     <ClInclude Include="OuterLib\DDSTextureLoader.h" />
     <ClInclude Include="OuterLib\imconfig.h" />
     <ClInclude Include="OuterLib\imgui.h" />

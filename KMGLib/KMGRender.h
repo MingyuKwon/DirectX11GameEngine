@@ -17,21 +17,15 @@ public:
 	KMGRender();
 	virtual ~KMGRender();
 
-	int StartEngine();
-	void StopEngine();
+	void AddRenderCommand(RenderCommand command);
 
-	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
+	int StartRenderEngine();
+	void StopRenderEngine();
 private:
 	HWND hMainWnd = nullptr;
 
-	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 	std::atomic<bool> bRunning = false;
-
-	std::thread gameThread;
 	std::thread renderThread;
-	std::mutex engineMutex;
 
 	std::mutex renderCommandMutex;
 	std::queue<RenderCommand> renderCommandQueue;
@@ -41,17 +35,15 @@ private:
 	IDXGISwapChain* pSwapChain = nullptr;
 	ID3D11RenderTargetView* mainRenderTargetView = nullptr;
 
-	void AddRenderCommand(RenderCommand command);
-
+	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	int InitBaseWindow();
 	bool CreateDeviceD3D();
 	int InitD3D_IMGUI();
-	int InitMenuBar();
 
-	void GameLogicLoop(); // 스레드에서 돌아갈 메인 로직
-	void RenderLoop(); // 스레드에서 돌아가갈 렌더링 로직
-	int MainLoop(); // 앱의 핵심이 되는 루프
+	void RenderLoop(); // 렌더 브랜치 루프
+	int MainLoop(); // 핵심 렌더 루프
 
 	void CreateRenderTarget();
 

@@ -1,10 +1,10 @@
 #include <EngineData.h>
-#include <Window32APIRun.h>
+#include <KMGRender.h>
 
 int main(int, char**)
 {
-    KMGEngine engine;
-    int result = engine.StartEngine();
+    KMGRender engine;
+    int result = engine.StartRenderEngine();
     return result;
 
 }
