@@ -1,5 +1,6 @@
 #include <DirectX11Run.h>
 #include <EngineData.h>
+#include <iostream>
 
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
@@ -75,16 +76,6 @@ void DrawResource::CreateBuffers()
 }
 
 
-DirectX11Wrapper::DirectX11Wrapper(HWND mainWindow, int width, int height) : mainWindow(mainWindow)
-{
-    InitDirectX11(width, height);
-}
-
-DirectX11Wrapper::~DirectX11Wrapper()
-{
-    CleanupDevice();
-}
-
 void DirectX11Wrapper::SceneWindowRender()
 {
     // Update our time
@@ -137,26 +128,6 @@ void DirectX11Wrapper::SceneWindowRender()
         pImmediateContext->DrawIndexed(resource.indices.size(), 0, 0);
     }
 
-}
-
-HRESULT DirectX11Wrapper::TryPresent()
-{
-    if (!bCanDrawUI.exchange(false)) return S_FALSE;
-
-    pSwapChain->Present(0, 0);
-    return S_OK;
-}
-
-HRESULT DirectX11Wrapper::SetDrawReady()
-{
-    bCanDrawUI.exchange(true);
-    return S_OK;
-}
-
-void DirectX11Wrapper::GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext)
-{
-    *outDevice = pd3dDevice;
-    *outContext = pImmediateContext;
 }
 
 
@@ -511,7 +482,6 @@ bool D3D11Machine::CreateDeviceD3D(HWND hWnd)
 
 bool D3D11Machine::CreateDeviceD3D()
 {
-    // 1. 디바이스와 디바이스 컨텍스트 생성
     UINT createDeviceFlags = 0;
     D3D_FEATURE_LEVEL featureLevels[] = {
         D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0
@@ -628,6 +598,18 @@ void D3D11Machine::CleanupRenderTarget()
 
 }
 
+void D3D11Machine::DrawTexture()
+{
+    ClearScreen();
+}
+
+void D3D11Machine::ClearScreen()
+{
+    pd3dDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, nullptr);
+    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Black);
+
+}
+
 HRESULT D3D11Machine::TryPresent()
 {
     if (!bCanDrawUI) return S_FALSE;
@@ -648,6 +630,11 @@ void D3D11Machine::GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceCon
 
 }
 
+void D3D11Machine::GetSRVTexture(ID3D11ShaderResourceView** outSRV)
+{
+    *outSRV = pTextureSRV;
+}
+
 void D3D11Machine::SetScreenSize(int width, int height)
 {
     screenWidth.store(width);
@@ -657,18 +644,12 @@ void D3D11Machine::SetScreenSize(int width, int height)
 void D3D11Machine::ResizeScreen()
 {
     if (screenWidth == 0 || screenHeight == 0) return;
-
+    cout << "ResizeScreen\n";
     CreateRenderTarget();
 
     screenWidth.store(0);
     screenHeight.store(0);
     
-}
-
-void D3D11Machine::ClearScreen()
-{
-    pd3dDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, nullptr);
-    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Black);
 }
 
 HRESULT D3D11Machine::AddActor(const KMGActor& actor)

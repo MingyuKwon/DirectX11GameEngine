@@ -91,6 +91,53 @@ const wchar_t* GetMessageName(UINT msg)
     }
 }
 
+void PrintSRVInfo(ID3D11ShaderResourceView* srv)
+{
+    if (!srv)
+    {
+        std::cout << "SRV is null.\n";
+        return;
+    }
+
+    ID3D11Resource* resource = nullptr;
+    srv->GetResource(&resource);
+    if (!resource)
+    {
+        std::cout << "SRV has no resource.\n";
+        return;
+    }
+
+    D3D11_RESOURCE_DIMENSION dim;
+    resource->GetType(&dim);
+
+    if (dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D)
+    {
+        ID3D11Texture2D* tex = nullptr;
+        HRESULT hr = resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex);
+        if (SUCCEEDED(hr) && tex)
+        {
+            D3D11_TEXTURE2D_DESC desc;
+            tex->GetDesc(&desc);
+
+            std::cout << "Texture2D Info:\n";
+            std::cout << "  Width       : " << desc.Width << "\n";
+            std::cout << "  Height      : " << desc.Height << "\n";
+            std::cout << "  MipLevels   : " << desc.MipLevels << "\n";
+            std::cout << "  Format      : " << desc.Format << "\n";
+            std::cout << "  BindFlags   : " << desc.BindFlags << "\n";
+            std::cout << "  Usage       : " << desc.Usage << "\n";
+
+            tex->Release();
+        }
+    }
+    else
+    {
+        std::cout << "SRV resource is not Texture2D. Dimension: " << dim << "\n";
+    }
+
+    resource->Release();
+}
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
@@ -313,6 +360,8 @@ int KMGEngine::InitD3D_IMGUI()
     ImGui_ImplWin32_Init(hMainWnd);
     ImGui_ImplDX11_Init(pd3dDevice, pImmediateContext);
 
+    DX11C_Scene = new D3D11Machine(EDirectXMode::EDXM_TEXTURE, nullptr);
+
     return 0;
 }
 
@@ -340,7 +389,7 @@ int KMGEngine::Render_IMGUI_Windows()
         DX11C_Main->ResizeScreen();
         DX11C_Main->ClearScreen();
     }
-        
+
     // 프레임 시작
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -400,8 +449,41 @@ void KMGEngine::Render_SceneWindow()
         storage->SetBool(id, true);  
     }
 
-    ImGui::Text("Hello");
+    static ImVec2 prevSize = ImVec2(0,0);
+    ImVec2 contentSize = ImGui::GetContentRegionAvail();
+
+    if (prevSize.x != contentSize.x || prevSize.y != contentSize.y)
+    {
+        cout << contentSize.x << "  " << contentSize.y << "\n";
+        if (DX11C_Scene)
+        {
+            DX11C_Scene->SetScreenSize(contentSize.x, contentSize.y);
+        }
+
+        prevSize = contentSize;
+    }
+
+    if (DX11C_Scene)
+    {
+        DX11C_Scene->ResizeScreen();
+        DX11C_Scene->DrawTexture();
+        DX11C_Scene->SetDrawReady();
+    }
+
+    ID3D11ShaderResourceView* srv = nullptr;
+    DX11C_Scene->GetSRVTexture(&srv);
+
+    PrintSRVInfo(srv);
+
+    if (srv)
+    {
+        //ImGui::Image(srv, ImVec2(0, 0));
+    }
+
     ImGui::End();
+
+
+
 }
 
 void KMGEngine::Render_ContentWindow()
@@ -485,7 +567,7 @@ void KMGEngine::RenderLoop()
             {
             case RenderCommandtype::ERC_RESIZE_VIEWTARGET:
                 {
-                    if (DX11C_Main)
+                    if (DX11C_Scene)
                     {
                         int width = 0;
                         int height = 0;
@@ -496,11 +578,11 @@ void KMGEngine::RenderLoop()
                 }
             case RenderCommandtype::ERC_ADD_ACTOR:
             {
-                if (DX11C_Main)
+                if (DX11C_Scene)
                 {
                     KMGActor actor;
                     command.GetActor(actor);
-                    DX11C_Main->AddActor(actor);
+
                 }
                 break;
             }
@@ -509,6 +591,7 @@ void KMGEngine::RenderLoop()
         }
 
         Render_IMGUI_Windows();
+
 
         if (DX11C_Main) DX11C_Main->SetDrawReady();
         if (DX11C_Main) DX11C_Main->TryPresent();
@@ -548,4 +631,5 @@ void KMGEngine::GameLogicLoop()
         this_thread::sleep_for(chrono::milliseconds(1));
     }
 }
+
 

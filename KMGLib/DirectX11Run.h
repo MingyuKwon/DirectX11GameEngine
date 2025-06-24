@@ -80,9 +80,14 @@ public:
     //////////////////////////////
     /// IMGUI를 위해서 필요한 부분
     /////////////////////////////
-    HRESULT TryPresent(); // 메인 스레드에서 일어나야 함
+    void DrawTexture();
+
+    HRESULT TryPresent(); 
     HRESULT SetDrawReady();
+
+
     void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
+    void GetSRVTexture(ID3D11ShaderResourceView** outSRV);
 
     void SetScreenSize(int width, int height);
     void ResizeScreen();
@@ -137,14 +142,7 @@ private:
 class DirectX11Wrapper
 {
 public:
-    DirectX11Wrapper(HWND viewWindow, int width, int height);
-    virtual ~DirectX11Wrapper();
-
     void SceneWindowRender(); // 씬에다가 백버퍼에 그림 그리기
-    HRESULT TryPresent(); // 메인 스레드에서 일어나야 함
-    HRESULT SetDrawReady();
-
-    void GetD3DDeviceContext(ID3D11Device** outDevice, ID3D11DeviceContext** outContext);
 
 protected:
     HRESULT InitDirectX11(int width, int height); // 기본적인 전역 변수 값 할당
@@ -158,8 +156,6 @@ protected:
     void CleanupDevice(); // 전역 변수 값 전부 초기화
 
 private:
-    atomic<bool> bCanDrawUI = false;
-
     ID3D11Device* pd3dDevice = nullptr;
     ID3D11DeviceContext* pImmediateContext = nullptr;
 
