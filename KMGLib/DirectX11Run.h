@@ -120,8 +120,8 @@ private:
     XMMATRIX View = XMMatrixIdentity();
     XMMATRIX Projection = XMMatrixIdentity();
 
-
-    ID3D11ShaderResourceView* pTextureSRV = nullptr;
+    ID3D11RenderTargetView* pSceneRTV = nullptr;
+    ID3D11ShaderResourceView* pSceneSRV = nullptr;
 
     HRESULT CreateConstBuffers();
 

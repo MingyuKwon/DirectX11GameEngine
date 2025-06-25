@@ -41,15 +41,22 @@ private:
 	ID3D11Device* pMainDevice = nullptr;
 	ID3D11DeviceContext* pMainContext = nullptr;
 	IDXGISwapChain* pSwapChain = nullptr;
-	ID3D11RenderTargetView* mainRenderTargetView = nullptr;
+
+	ID3D11RenderTargetView* pMainRTV = nullptr;
+	ID3D11RenderTargetView* pSceneRTV = nullptr;
+	ID3D11ShaderResourceView* pSceneSRV = nullptr;
 
 	ID3D11VertexShader* pVertexShader = nullptr;
 	ID3D11PixelShader* pPixelShader = nullptr;
 	ID3D11InputLayout* pVertexLayout = nullptr;
 
 
-	std::atomic<int> windowWidth = DEFAULT_WINDOW_WIDTH;
-	std::atomic<int> windowHeight = DEFAULT_WINDOW_HEIGHT;
+	std::atomic<int> mainWindowWidth = DEFAULT_WINDOW_WIDTH;
+	std::atomic<int> mainWindowHeight = DEFAULT_WINDOW_HEIGHT;
+
+	std::atomic<int> sceneWindowWidth = DEFAULT_WINDOW_WIDTH * SCENE_DETAIL_WIDTH_RATIO;
+	std::atomic<int> sceneWindowHeight = DEFAULT_WINDOW_HEIGHT * SCENE_CONTENT_HEIGHT_RATIO;
+
 	std::atomic<bool> resizeRequested = false;
 
 	bool CreateDeviceD3D();

@@ -65,9 +65,9 @@ void KMGRender::AddRenderCommand(RenderCommand command)
 
 void KMGRender::ResizeScreen(int width, int height)
 {
+    mainWindowWidth.store(width);
+    mainWindowHeight.store(height);
     resizeRequested.store(true);
-    windowWidth.store(width);
-    windowHeight.store(height);
 }
 
 KMGRender::KMGRender(HWND hMainWnd) : hMainWnd(hMainWnd)
@@ -95,10 +95,10 @@ KMGRender::~KMGRender()
         pSwapChain = nullptr;
     }
 
-    if (mainRenderTargetView)
+    if (pMainRTV)
     {
-        mainRenderTargetView->Release();
-        mainRenderTargetView = nullptr;
+        pMainRTV->Release();
+        pMainRTV = nullptr;
     }
 
     if (pVertexShader)
@@ -171,24 +171,93 @@ bool KMGRender::CreateDeviceD3D()
     if (res != S_OK)
         return false;
 
+    ID3D11Texture2D* pBackBuffer;
+    pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+    D3D11_TEXTURE2D_DESC desc;
+    pBackBuffer->GetDesc(&desc);
+    mainWindowWidth.store(desc.Width);
+    mainWindowHeight.store(desc.Height);
+    pBackBuffer->Release();
+
     CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
     CreateRenderTarget();
 }
 
 void KMGRender::CreateRenderTarget()
 {
+    // 여기선 전체 swapChain에 해당하는 RTV를 갱신
     ID3D11Texture2D* pBackBuffer;
     pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    pMainDevice->CreateRenderTargetView(pBackBuffer, nullptr, &mainRenderTargetView);
+
+    D3D11_TEXTURE2D_DESC desc;
+    pBackBuffer->GetDesc(&desc);
+
+    std::cout << "BackBuffer Size: " << desc.Width << " x " << desc.Height << "\n";
+
+    // RenderTargetView 생성
+    pMainDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pMainRTV);
     pBackBuffer->Release();
+
+    // 여기선 Scene에 그릴 텍스처에 해당하는 RTV를 갱신
+    D3D11_TEXTURE2D_DESC texDesc = {};
+    texDesc.Width = sceneWindowWidth;
+    texDesc.Height = sceneWindowHeight;
+    texDesc.MipLevels = 1;
+    texDesc.ArraySize = 1;
+    texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    texDesc.SampleDesc.Count = 1;
+    texDesc.Usage = D3D11_USAGE_DEFAULT;
+    texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+    ID3D11Texture2D* renderTexture = nullptr;
+
+    HRESULT hr = pMainDevice->CreateTexture2D(&texDesc, nullptr, &renderTexture);
+    if (FAILED(hr)) return;
+
+    hr = pMainDevice->CreateRenderTargetView(renderTexture, nullptr, &pSceneRTV);
+    if (FAILED(hr))
+    {
+        renderTexture->Release();
+        renderTexture = nullptr;
+        return;
+    }
+
+    hr = pMainDevice->CreateShaderResourceView(renderTexture, nullptr, &pSceneSRV);
+    if (FAILED(hr))
+    {
+        renderTexture->Release();
+        renderTexture = nullptr;
+
+        pSceneRTV->Release();
+        pSceneRTV = nullptr;
+
+        return;
+    }
+
+    if (renderTexture) {
+        renderTexture->Release();
+        renderTexture = nullptr;
+    }
 }
 
 void KMGRender::CleanupRenderTarget()
 {
-    if (mainRenderTargetView) 
+    if (pMainRTV) 
     { 
-        mainRenderTargetView->Release(); 
-        mainRenderTargetView = nullptr; 
+        pMainRTV->Release(); 
+        pMainRTV = nullptr; 
+    }
+
+    if (pSceneRTV)
+    {
+        pSceneRTV->Release();
+        pSceneRTV = nullptr;
+    }
+
+    if (pSceneSRV)
+    {
+        pSceneSRV->Release();
+        pSceneSRV = nullptr;
     }
 }
 
@@ -229,7 +298,7 @@ void KMGRender::RenderLoop()
         if (resizeRequested.exchange(false))
         {
             CleanupRenderTarget();
-            pSwapChain->ResizeBuffers(0, windowWidth, windowHeight, DXGI_FORMAT_UNKNOWN, 0);
+            pSwapChain->ResizeBuffers(0, mainWindowWidth, mainWindowHeight, DXGI_FORMAT_UNKNOWN, 0);
             CreateRenderTarget();
         }
 
@@ -240,8 +309,8 @@ void KMGRender::RenderLoop()
         DrawIMGUI_UI();
 
         ImGui::Render();
-        pMainContext->OMSetRenderTargets(1, &mainRenderTargetView, nullptr);
-        pMainContext->ClearRenderTargetView(mainRenderTargetView, Colors::Aqua);
+        pMainContext->OMSetRenderTargets(1, &pMainRTV, nullptr);
+        pMainContext->ClearRenderTargetView(pMainRTV, Colors::Aqua);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
         pSwapChain->Present(0,0);
@@ -329,8 +398,8 @@ void KMGRender::Render_SceneWindow()
         int WindowPosX = 0;
         int WindowPosY = 0;
 
-        int WindowWidth = windowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = windowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+        int WindowWidth = sceneWindowWidth;
+        int WindowHeight = sceneWindowHeight;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -343,13 +412,15 @@ void KMGRender::Render_SceneWindow()
         storage->SetBool(id, true);
     }
 
-    static ImVec2 prevSize = ImVec2(0, 0);
     ImVec2 contentSize = ImGui::GetContentRegionAvail();
 
-    if (prevSize.x != contentSize.x || prevSize.y != contentSize.y)
+    if (sceneWindowWidth != contentSize.x || sceneWindowHeight != contentSize.y)
     {
-        cout << contentSize.x << "  " << contentSize.y << "\n";
-        prevSize = contentSize;
+        sceneWindowWidth.store(contentSize.x);
+        sceneWindowHeight.store(contentSize.y);
+        resizeRequested.store(true);
+
+        cout << "SceneResize : "  << sceneWindowWidth << "  " << sceneWindowHeight << "\n";
     }
 
     ImGui::Text("Something Starnge");
@@ -363,10 +434,10 @@ void KMGRender::Render_ContentWindow()
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
         int WindowPosX = 0;
-        int WindowPosY = windowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+        int WindowPosY = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
-        int WindowWidth = windowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = windowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
+        int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowHeight = mainWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -388,11 +459,11 @@ void KMGRender::Render_DetailWindow()
     ImGuiID id = ImGui::GetID(DETAIL_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
-        int WindowPosX = windowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowPosX = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
         int WindowPosY = 0;
 
-        int WindowWidth = windowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
-        int WindowHeight = windowHeight;
+        int WindowWidth = mainWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
+        int WindowHeight = mainWindowHeight;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));

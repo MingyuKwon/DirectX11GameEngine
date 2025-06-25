@@ -202,7 +202,7 @@ void DeferredRenderThread::CreateRenderTarget()
         return;
     }
 
-    hr = pd3dDevice->CreateShaderResourceView(renderTexture, nullptr, &pTextureSRV);
+    hr = pd3dDevice->CreateShaderResourceView(renderTexture, nullptr, &pSceneSRV);
     if (FAILED(hr))
     {
         renderTexture->Release();
@@ -239,10 +239,10 @@ void DeferredRenderThread::CleanupRenderTarget()
         pRenderTargetView = nullptr; 
     }
 
-    if (pTextureSRV) 
+    if (pSceneSRV)
     { 
-        pTextureSRV->Release(); 
-        pTextureSRV = nullptr;
+        pSceneSRV->Release();
+        pSceneSRV = nullptr;
     }
 
 
@@ -261,7 +261,7 @@ void DeferredRenderThread::ClearScreen()
 
 void DeferredRenderThread::GetSRVTexture(ID3D11ShaderResourceView** outSRV)
 {
-    *outSRV = pTextureSRV;
+    *outSRV = pSceneSRV;
 }
 
 void DeferredRenderThread::SetScreenSize(int width, int height)
