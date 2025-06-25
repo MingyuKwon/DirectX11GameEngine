@@ -6,56 +6,7 @@
 using namespace std;
 
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
-
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-// 메시지 이름 반환용 함수
-void PrintSRVInfo(ID3D11ShaderResourceView* srv)
-{
-    if (!srv)
-    {
-        std::cout << "SRV is null.\n";
-        return;
-    }
-
-    ID3D11Resource* resource = nullptr;
-    srv->GetResource(&resource);
-    if (!resource)
-    {
-        std::cout << "SRV has no resource.\n";
-        return;
-    }
-
-    D3D11_RESOURCE_DIMENSION dim;
-    resource->GetType(&dim);
-
-    if (dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D)
-    {
-        ID3D11Texture2D* tex = nullptr;
-        HRESULT hr = resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex);
-        if (SUCCEEDED(hr) && tex)
-        {
-            D3D11_TEXTURE2D_DESC desc;
-            tex->GetDesc(&desc);
-
-            std::cout << "Texture2D Info:\n";
-            std::cout << "  Width       : " << desc.Width << "\n";
-            std::cout << "  Height      : " << desc.Height << "\n";
-            std::cout << "  MipLevels   : " << desc.MipLevels << "\n";
-            std::cout << "  Format      : " << desc.Format << "\n";
-            std::cout << "  BindFlags   : " << desc.BindFlags << "\n";
-            std::cout << "  Usage       : " << desc.Usage << "\n";
-
-            tex->Release();
-        }
-    }
-    else
-    {
-        std::cout << "SRV resource is not Texture2D. Dimension: " << dim << "\n";
-    }
-
-    resource->Release();
-}
 
 void KMGRender::AddRenderCommand(RenderCommand command)
 {
@@ -308,7 +259,7 @@ void KMGRender::CreateRenderTarget()
 
     XMMATRIX Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
     CBChangeOnResize cb = {};
-    cb.mProjection = Projection;
+    cb.mProjection = XMMatrixTranspose(Projection);
     pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cb, 0, 0);
 }
 
@@ -622,9 +573,6 @@ void KMGRender::Render_DetailWindow()
     ImGui::End();
 }
 
-
-
-
 HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
 {
     ID3DBlob* pVSBlob = nullptr;
@@ -671,44 +619,4 @@ HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pix
     if (FAILED(hr)) return hr;
 
     return hr;
-}
-
-// Tutorial에서 가져온 코드
-//--------------------------------------------------------------------------------------
-// Helper for compiling shaders with D3DCompile
-//
-// With VS 11, we could load up prebuilt .cso files instead...
-//--------------------------------------------------------------------------------------
-HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
-{
-    HRESULT hr = S_OK;
-
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef _DEBUG
-    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-    // Setting this flag improves the shader debugging experience, but still allows
-    // the shaders to be optimized and to run exactly the way they will run in
-    // the release configuration of this program.
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-
-    // Disable optimizations to further improve shader debugging
-    dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-    ID3DBlob* pErrorBlob = nullptr;
-    hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
-        dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
-    if (FAILED(hr))
-    {
-        if (pErrorBlob)
-        {
-            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
-            MessageBoxA(nullptr, (char*)pErrorBlob->GetBufferPointer(), "Shader Compile Error", MB_OK);
-            pErrorBlob->Release();
-        }
-        return hr;
-    }
-    if (pErrorBlob) pErrorBlob->Release();
-
-    return S_OK;
 }
