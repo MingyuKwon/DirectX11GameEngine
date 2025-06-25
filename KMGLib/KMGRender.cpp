@@ -370,6 +370,10 @@ void KMGRender::RenderLoop()
 void KMGRender::DrawScene()
 {
     pMainContext->ClearRenderTargetView(pSceneRTV, Colors::MidnightBlue);
+
+    ID3D11Resource* pResource = nullptr;
+    pSceneRTV->GetResource(&pResource);
+
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     pMainContext->IASetInputLayout(pVertexLayout);
@@ -461,16 +465,14 @@ void KMGRender::CheckRenderQueue()
 
 void KMGRender::Render_SceneWindow()
 {
-    static float titleBarH = ImGui::GetFrameHeight();  
-
     ImGuiID id = ImGui::GetID(SCENE_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
         int WindowPosX = 0;
         int WindowPosY = 0;
 
-        int WindowWidth = sceneWindowWidth;
-        int WindowHeight = sceneWindowHeight - titleBarH;
+        int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowHeight = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -484,7 +486,6 @@ void KMGRender::Render_SceneWindow()
     }
 
     ImVec2 contentSize = ImGui::GetContentRegionAvail();
-
     if (sceneWindowWidth != contentSize.x || sceneWindowHeight != contentSize.y)
     {
         sceneWindowWidth.store(contentSize.x);
@@ -492,23 +493,21 @@ void KMGRender::Render_SceneWindow()
         resizeRequested.store(true);
     }
 
-    ImGui::Text("Something Starnge");
+    ImGui::Image(pSceneSRV, ImVec2(sceneWindowWidth, sceneWindowHeight));
 
     ImGui::End();
 }
 
 void KMGRender::Render_ContentWindow()
 {
-    static float titleBarH = ImGui::GetFrameHeight();
-
     ImGuiID id = ImGui::GetID(CONTENT_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
         int WindowPosX = 0;
-        int WindowPosY = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO + titleBarH;
+        int WindowPosY = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
 
         int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = mainWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO) - titleBarH;
+        int WindowHeight = mainWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
