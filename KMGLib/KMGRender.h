@@ -51,7 +51,6 @@ private:
 	ID3D11PixelShader* pPixelShader = nullptr;
 	ID3D11InputLayout* pVertexLayout = nullptr;
 
-
 	ID3D11Buffer* pCBChangeOnResize = nullptr;
 	ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 
@@ -63,6 +62,10 @@ private:
 	std::atomic<int> sceneWindowHeight = DEFAULT_WINDOW_HEIGHT * SCENE_CONTENT_HEIGHT_RATIO;
 
 	std::atomic<bool> resizeRequested = false;
+
+	vector<ID3D11CommandList*> DX11CommandLists;
+	mutex dx11CommandMutex;
+
 
 	bool CreateDeviceD3D();
 	HRESULT CreateConstBuffers();

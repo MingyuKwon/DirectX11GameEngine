@@ -1,8 +1,3 @@
-//--------------------------------------------------------------------------------------
-// 이 코드의 기본 골자는 Microsoft에서 제공하는 DirectX11 Tutorial에서 따왔습니다.
-// https://github.com/microsoft/DirectX-SDK-Samples/tree/main/C%2B%2B/Direct3D11/Tutorials
-//--------------------------------------------------------------------------------------
-
 #pragma once
 #include <windows.h>
 #include <d3d11_1.h>
@@ -60,69 +55,15 @@ struct DrawResource
 
 };
 
-class DeferredRenderThread
-{
-public:
-    DeferredRenderThread(ID3D11Device* pd3dDevice);
-    virtual ~DeferredRenderThread();
-
-    //////////////////////////////
-    /// IMGUI를 위해서 필요한 부분
-    /////////////////////////////
-    void DrawTexture();
-    bool Initialize();
-
-    void GetSRVTexture(ID3D11ShaderResourceView** outSRV);
-
-    void SetScreenSize(int width, int height);
-    void ResizeScreen();
-    void ClearScreen();
-
-    void SceneWindowRender();
-    //////////////////////////////
-    /// + 외부에서 명령을 줄 때 필요한 부분
-    /////////////////////////////
-
-
-private:
-    //////////////////////////////
-    /// IMGUI를 위해서 필요한 부분
-    /////////////////////////////
-    ID3D11Device* pd3dDevice = nullptr;
-    ID3D11DeviceContext* pd3dDeviceContext = nullptr;
-    atomic<UINT> screenWidth = 0, screenHeight = 0;
-
-    ID3D11RenderTargetView* pRenderTargetView = nullptr;
-
-    void CleanupRenderTarget();
-    void CleanupDeviceD3D();
-    void CreateRenderTarget();
-
-
-    //////////////////////////////
-    /// + 게임 씬을 그리기 위해서 필요한 부분
-    /////////////////////////////
-    ID3D11Buffer* pCBChangeOnResize = nullptr;
-    ID3D11Buffer* pCBChangesEveryFrame = nullptr;
-
-    ID3D11Texture2D* pDepthStencil = nullptr;
-    ID3D11DepthStencilView* pDepthStencilView = nullptr;
-
-    ID3D11VertexShader* pVertexShader = nullptr;
-    ID3D11PixelShader* pPixelShader = nullptr;
-    ID3D11InputLayout* pVertexLayout = nullptr;
-
-    XMMATRIX View = XMMatrixIdentity();
-    XMMATRIX Projection = XMMatrixIdentity();
-
-    ID3D11RenderTargetView* pSceneRTV = nullptr;
-    ID3D11ShaderResourceView* pSceneSRV = nullptr;
-
-    HRESULT CreateConstBuffers();
-
-
-    //////////////////////////////
-    /// + 외부에서 명령을 줄 때 필요한 부분
-    /////////////////////////////
-    DrawResource* pDrawResource;
-};
+void RenderThread(
+    vector<ID3D11CommandList*>& DX11CommandLists, mutex& dx11CommandMutex,
+    ID3D11Device* pMainDevice,
+    ID3D11VertexShader* pVertexShader,
+    ID3D11PixelShader* pPixelShader,
+    ID3D11InputLayout* pVertexLayout,
+    ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
+    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
+    ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
+    int drawIndexCount,
+    const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+    int textureWidth, int textureHeight);

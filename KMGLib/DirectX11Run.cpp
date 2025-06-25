@@ -82,191 +82,70 @@ void DrawResource::CreateBuffers()
 }
 
 
-void DeferredRenderThread::SceneWindowRender()
+void RenderThread(
+    vector<ID3D11CommandList*>& DX11CommandLists, mutex& dx11CommandMutex,
+    ID3D11Device* pMainDevice, 
+    ID3D11VertexShader* pVertexShader,
+    ID3D11PixelShader* pPixelShader,
+    ID3D11InputLayout* pVertexLayout,
+    ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
+    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
+    ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
+    int drawIndexCount,
+    const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+    int textureWidth, int textureHeight)
 {
+    ID3D11DeviceContext* pDeferredContext = nullptr;
+    HRESULT hr = pMainDevice->CreateDeferredContext(0, &pDeferredContext);
+    if (FAILED(hr)) {
+        std::cout << "CreateDeferredContext failed: HRESULT = 0x"
+            << std::hex << hr << std::endl;
+    }
 
-    // Clear the back buffer
-    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::MidnightBlue);
+    pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pDeferredContext->IASetInputLayout(pVertexLayout);
+    pDeferredContext->VSSetShader(pVertexShader, nullptr, 0);
+    pDeferredContext->PSSetShader(pPixelShader, nullptr, 0);
 
-    // Clear the depth buffer to 1.0 (max depth)
-    pd3dDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
+    D3D11_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = static_cast<float>(textureWidth);
+    viewport.Height = static_cast<float>(textureHeight);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    pDeferredContext->RSSetViewports(1, &viewport);
 
-    // Set the input layout
-    pd3dDeviceContext->IASetInputLayout(pVertexLayout);
+    pDeferredContext->OMSetRenderTargets(1, &pRTV, pDSV);
 
-    // Set primitive topology
-    pd3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pDeferredContext->VSSetConstantBuffers(0, 1, &pCBChangesEveryFrame);
+    pDeferredContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
 
-    pd3dDeviceContext->VSSetShader(pVertexShader, nullptr, 0);
-    pd3dDeviceContext->VSSetConstantBuffers(0, 1, &pCBChangesEveryFrame);
-    pd3dDeviceContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
-    pd3dDeviceContext->PSSetShader(pPixelShader, nullptr, 0);
-
-    // Set vertex buffer
     UINT stride = sizeof(KMGVertex);
     UINT offset = 0;
 
-    pd3dDeviceContext->IASetVertexBuffers(0, 1, &pDrawResource->vertexBuffer, &stride, &offset);
-    pd3dDeviceContext->IASetIndexBuffer(pDrawResource->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    pDeferredContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
+    pDeferredContext->IASetIndexBuffer(pIdexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-    // 임시 고정 view 행렬
-    XMVECTOR Eye = XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
-
-    // Update variables that change once per frame
     CBChangesEveryFrame cb = {};
-    cb.mWorld = XMMatrixTranspose(pDrawResource->WorldMatrix);
-    cb.mView = XMMatrixTranspose(View);
-    pd3dDeviceContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+    cb.mWorld = XMMatrixTranspose(worldMatrix);
+    cb.mView = XMMatrixTranspose(viewMatrix);
+    pDeferredContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 
-    pd3dDeviceContext->DrawIndexed(pDrawResource->indices.size(), 0, 0);
+    pDeferredContext->DrawIndexed(drawIndexCount, 0, 0);
 
-}
+    ID3D11CommandList* pCmdList = nullptr;
+    pDeferredContext->FinishCommandList(FALSE, &pCmdList);
 
-
-HRESULT DeferredRenderThread::CreateConstBuffers()
-{
-    HRESULT hr = S_OK;
-
-    D3D11_BUFFER_DESC bd = {};
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(CBChangeOnResize);
-    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bd.CPUAccessFlags = 0;
-    hr = pd3dDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnResize);
-    if (FAILED(hr)) return hr;
-
-    bd.ByteWidth = sizeof(CBChangesEveryFrame);
-    hr = pd3dDevice->CreateBuffer(&bd, nullptr, &pCBChangesEveryFrame);
-    if (FAILED(hr)) return hr;
-}
-
-DeferredRenderThread::~DeferredRenderThread()
-{
-    CleanupDeviceD3D();
-}
-
-DeferredRenderThread::DeferredRenderThread(ID3D11Device* pd3dDevice) : pd3dDevice(pd3dDevice)
-{
-    Initialize();
-}
-
-bool DeferredRenderThread::Initialize()
-{
-    pd3dDevice->AddRef(); // 참조 유지
-    pd3dDevice->GetImmediateContext(&pd3dDeviceContext);
-
-    CreateRenderTarget();
-    return true;
-}
-
-
-void DeferredRenderThread::CreateRenderTarget()
-{
-    CleanupRenderTarget();
-
-    HRESULT hr = S_OK;
-
-    D3D11_TEXTURE2D_DESC texDesc = {};
-    texDesc.Width = screenWidth;
-    texDesc.Height = screenHeight;
-    texDesc.MipLevels = 1;
-    texDesc.ArraySize = 1;
-    texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    texDesc.SampleDesc.Count = 1;
-    texDesc.Usage = D3D11_USAGE_DEFAULT;
-    texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-
-    ID3D11Texture2D* renderTexture = nullptr;
-
-    hr = pd3dDevice->CreateTexture2D(&texDesc, nullptr, &renderTexture);
-    if (FAILED(hr)) return;
-
-    hr = pd3dDevice->CreateRenderTargetView(renderTexture, nullptr, &pRenderTargetView);
-    if (FAILED(hr))
     {
-        renderTexture->Release();
-        renderTexture = nullptr;
-        return;
+        std::lock_guard<std::mutex> lock(dx11CommandMutex);
+        DX11CommandLists.push_back(pCmdList);
     }
 
-    hr = pd3dDevice->CreateShaderResourceView(renderTexture, nullptr, &pSceneSRV);
-    if (FAILED(hr))
+    if (pDeferredContext)
     {
-        renderTexture->Release();
-        renderTexture = nullptr;
-
-        pRenderTargetView->Release();
-        pRenderTargetView = nullptr;
-
-        return;
+        pDeferredContext->Release();
+        pDeferredContext = nullptr;
     }
-
-    if (renderTexture) {
-        renderTexture->Release();
-        renderTexture = nullptr;
-    }
-
-
-}
-
-void DeferredRenderThread::CleanupDeviceD3D()
-{
-    CleanupRenderTarget();
-    if (pd3dDeviceContext) { pd3dDeviceContext->Release(); pd3dDeviceContext = nullptr; }
-    if (pd3dDevice) { pd3dDevice->Release(); pd3dDevice = nullptr; }
-
-}
-
-
-void DeferredRenderThread::CleanupRenderTarget()
-{
-    if (pRenderTargetView) 
-    { 
-        pRenderTargetView->Release(); 
-        pRenderTargetView = nullptr; 
-    }
-
-    if (pSceneSRV)
-    { 
-        pSceneSRV->Release();
-        pSceneSRV = nullptr;
-    }
-
-
-}
-
-void DeferredRenderThread::DrawTexture()
-{
-    //ClearScreen();
-}
-
-void DeferredRenderThread::ClearScreen()
-{
-    pd3dDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, nullptr);
-    pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Yellow);
-}
-
-void DeferredRenderThread::GetSRVTexture(ID3D11ShaderResourceView** outSRV)
-{
-    *outSRV = pSceneSRV;
-}
-
-void DeferredRenderThread::SetScreenSize(int width, int height)
-{
-    screenWidth.store(width);
-    screenHeight.store(height);
-}
-
-void DeferredRenderThread::ResizeScreen()
-{
-    if (screenWidth == 0 || screenHeight == 0) return;
-    CreateRenderTarget();
-
-    screenWidth.store(0);
-    screenHeight.store(0);
-    
 }

@@ -5,6 +5,7 @@
 
 using namespace std;
 
+
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -114,7 +115,7 @@ bool KMGRender::CreateDeviceD3D()
     sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
     UINT createDeviceFlags = 0;
-    //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
     D3D_FEATURE_LEVEL featureLevel;
     const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
     HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
@@ -363,33 +364,12 @@ void KMGRender::RenderLoop()
 void KMGRender::DrawScene()
 {
     // 여기선 뷰 포트를 만들어서 적용시켜줘야 한다
-    D3D11_VIEWPORT viewport = {};
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-    viewport.Width = static_cast<float>(sceneWindowWidth);
-    viewport.Height = static_cast<float>(sceneWindowHeight);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    pMainContext->RSSetViewports(1, &viewport);
 
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    pMainContext->OMSetRenderTargets(1, &pSceneRTV, pSceneDSV);
     pMainContext->ClearRenderTargetView(pSceneRTV, Colors::Blue);
 
-    pMainContext->IASetInputLayout(pVertexLayout);
-    pMainContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    pMainContext->VSSetShader(pVertexShader, nullptr, 0);
-    pMainContext->PSSetShader(pPixelShader, nullptr, 0);
-
-    pMainContext->VSSetConstantBuffers(0, 1, &pCBChangesEveryFrame);
-    pMainContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
-
-    // Set vertex buffer
-    UINT stride = sizeof(KMGVertex);
-    UINT offset = 0;
-
-    // Update our time
+    ////////////////////////////////////////////
+    ///////////////////////////////////////////
     static float t = 0.0f;
     static ULONGLONG timeStart = 0;
     ULONGLONG timeCur = GetTickCount64();
@@ -397,27 +377,60 @@ void KMGRender::DrawScene()
         timeStart = timeCur;
     t = (timeCur - timeStart) / 1000.0f;
 
-    // 임시 고정 view 행렬
-    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);  // 좀 더 낮게 내려와서
-    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);   // 큐브 중심을 정면으로 바라봄
+    XMMATRIX RotateMatrix = XMMatrixRotationY(t);
+
+    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
 
+    vector<thread> renderSettingThreads;
+
     for (auto& bucket : drawResources)
     {
+        cout << "CommandList record\n";
+
         DrawResource& resource = bucket.second;
 
-        pMainContext->IASetVertexBuffers(0, 1, &resource.vertexBuffer, &stride, &offset);
-        pMainContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+        RenderThread(
+            DX11CommandLists, dx11CommandMutex,
+            pMainDevice,
+            pVertexShader,
+            pPixelShader,
+            pVertexLayout,
+            pSceneRTV, pSceneDSV,
+            pCBChangeOnResize, pCBChangesEveryFrame,
+            resource.vertexBuffer, resource.indexBuffer,
+            resource.indices.size(),
+            resource.WorldMatrix * RotateMatrix, View,
+            sceneWindowWidth, sceneWindowHeight
+        );
 
-        XMMATRIX RotateMatrix = XMMatrixRotationY(t);
-        CBChangesEveryFrame cb = {};
-        cb.mWorld = XMMatrixTranspose(resource.WorldMatrix * RotateMatrix);
-        cb.mView = XMMatrixTranspose(View);
-        pMainContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
-
-        pMainContext->DrawIndexed(resource.indices.size(), 0, 0);
+        /*renderSettingThreads.emplace_back([&] {
+            RenderThread(
+                DX11CommandLists, dx11CommandMutex,
+                pMainDevice,
+                pSceneRTV, pSceneDSV,
+                pCBChangeOnResize, pCBChangesEveryFrame,
+                resource.vertexBuffer, resource.indexBuffer,
+                resource.indices.size(),
+                resource.WorldMatrix * RotateMatrix, View,
+                sceneWindowWidth, sceneWindowHeight
+            );}
+         );*/
     }
+
+    for (auto& t : renderSettingThreads)
+    {
+        t.join();
+    }
+
+    for (auto cmd : DX11CommandLists) {
+        cout << "CommandList Execute\n";
+        pMainContext->ExecuteCommandList(cmd, TRUE);
+        cmd->Release(); 
+    }
+    DX11CommandLists.clear();
 }
 
 void KMGRender::DrawIMGUI_UI()
