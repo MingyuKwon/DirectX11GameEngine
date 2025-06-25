@@ -388,36 +388,23 @@ void KMGRender::DrawScene()
 
     for (auto& bucket : drawResources)
     {
-        cout << "CommandList record\n";
-
         DrawResource& resource = bucket.second;
 
-        RenderThread(
-            DX11CommandLists, dx11CommandMutex,
-            pMainDevice,
-            pVertexShader,
-            pPixelShader,
-            pVertexLayout,
-            pSceneRTV, pSceneDSV,
-            pCBChangeOnResize, pCBChangesEveryFrame,
-            resource.vertexBuffer, resource.indexBuffer,
-            resource.indices.size(),
-            resource.WorldMatrix * RotateMatrix, View,
-            sceneWindowWidth, sceneWindowHeight
-        );
-
-        /*renderSettingThreads.emplace_back([&] {
+        renderSettingThreads.emplace_back([&] {
             RenderThread(
                 DX11CommandLists, dx11CommandMutex,
                 pMainDevice,
+                pVertexShader,
+                pPixelShader,
+                pVertexLayout,
                 pSceneRTV, pSceneDSV,
                 pCBChangeOnResize, pCBChangesEveryFrame,
                 resource.vertexBuffer, resource.indexBuffer,
                 resource.indices.size(),
                 resource.WorldMatrix * RotateMatrix, View,
                 sceneWindowWidth, sceneWindowHeight
-            );}
-         );*/
+            ); }
+         );
     }
 
     for (auto& t : renderSettingThreads)
@@ -426,7 +413,6 @@ void KMGRender::DrawScene()
     }
 
     for (auto cmd : DX11CommandLists) {
-        cout << "CommandList Execute\n";
         pMainContext->ExecuteCommandList(cmd, TRUE);
         cmd->Release(); 
     }
