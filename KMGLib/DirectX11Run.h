@@ -63,11 +63,11 @@ struct DrawResource
 
 };
 
-class D3D11Machine
+class DeferredRenderThread
 {
 public:
-    D3D11Machine(ID3D11Device* pd3dDevice);
-    virtual ~D3D11Machine();
+    DeferredRenderThread(ID3D11Device* pd3dDevice);
+    virtual ~DeferredRenderThread();
 
     //////////////////////////////
     /// IMGUI를 위해서 필요한 부분
@@ -85,8 +85,6 @@ public:
     //////////////////////////////
     /// + 외부에서 명령을 줄 때 필요한 부분
     /////////////////////////////
-    HRESULT AddActor(const KMGActor& actor);
-    HRESULT deleteActor(wstring name);
 
 
 private:
@@ -126,11 +124,10 @@ private:
     ID3D11ShaderResourceView* pTextureSRV = nullptr;
 
     HRESULT CreateConstBuffers();
-    HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName);
 
 
     //////////////////////////////
     /// + 외부에서 명령을 줄 때 필요한 부분
     /////////////////////////////
-    unordered_map<wstring, DrawResource> drawResources;
+    DrawResource* pDrawResource;
 };

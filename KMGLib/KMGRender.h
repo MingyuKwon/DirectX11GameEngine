@@ -1,4 +1,5 @@
 #pragma once
+#include <EngineData.h>
 #include <windows.h>
 #include <QueueCommand.h>
 
@@ -42,12 +43,18 @@ private:
 	IDXGISwapChain* pSwapChain = nullptr;
 	ID3D11RenderTargetView* mainRenderTargetView = nullptr;
 
+	ID3D11VertexShader* pVertexShader = nullptr;
+	ID3D11PixelShader* pPixelShader = nullptr;
+	ID3D11InputLayout* pVertexLayout = nullptr;
+
+
 	std::atomic<int> windowWidth = DEFAULT_WINDOW_WIDTH;
 	std::atomic<int> windowHeight = DEFAULT_WINDOW_HEIGHT;
 	std::atomic<bool> resizeRequested = false;
 
 	bool CreateDeviceD3D();
 	int InitD3D_IMGUI();
+	HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName);
 
 	void RenderLoop(); // «ŸΩ… ∑ª¥ı ∑Á«¡
 	void CheckRenderQueue();

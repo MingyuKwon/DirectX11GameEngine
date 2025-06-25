@@ -2,46 +2,6 @@
 #include <EngineData.h>
 #include <iostream>
 
-// Tutorial에서 가져온 코드
-//--------------------------------------------------------------------------------------
-// Helper for compiling shaders with D3DCompile
-//
-// With VS 11, we could load up prebuilt .cso files instead...
-//--------------------------------------------------------------------------------------
-HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
-{
-    HRESULT hr = S_OK;
-
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef _DEBUG
-    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-    // Setting this flag improves the shader debugging experience, but still allows
-    // the shaders to be optimized and to run exactly the way they will run in
-    // the release configuration of this program.
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-
-    // Disable optimizations to further improve shader debugging
-    dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-    ID3DBlob* pErrorBlob = nullptr;
-    hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
-        dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
-    if (FAILED(hr))
-    {
-        if (pErrorBlob)
-        {
-            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
-            MessageBoxA(nullptr, (char*)pErrorBlob->GetBufferPointer(), "Shader Compile Error", MB_OK);
-            pErrorBlob->Release();
-        }
-        return hr;
-    }
-    if (pErrorBlob) pErrorBlob->Release();
-
-    return S_OK;
-}
-
 DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices) : device(device), vertices(vertices), indices(indices)
 {
     CreateBuffers();
@@ -114,7 +74,7 @@ void DrawResource::CreateBuffers()
 }
 
 
-void D3D11Machine::SceneWindowRender()
+void DeferredRenderThread::SceneWindowRender()
 {
     // Update our time
     static float t = 0.0f;
@@ -155,21 +115,14 @@ void D3D11Machine::SceneWindowRender()
     UINT stride = sizeof(KMGVertex);
     UINT offset = 0;
 
-    for (auto& bucket : drawResources)
-    {
-        DrawResource& resource = bucket.second;
-
-        UINT stride = sizeof(KMGVertex);
-        UINT offset = 0;
-        pd3dDeviceContext->IASetVertexBuffers(0, 1, &resource.vertexBuffer, &stride, &offset);
-        pd3dDeviceContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-        pd3dDeviceContext->DrawIndexed(resource.indices.size(), 0, 0);
-    }
+    pd3dDeviceContext->IASetVertexBuffers(0, 1, &pDrawResource->vertexBuffer, &stride, &offset);
+    pd3dDeviceContext->IASetIndexBuffer(pDrawResource->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    pd3dDeviceContext->DrawIndexed(pDrawResource->indices.size(), 0, 0);
 
 }
 
 
-HRESULT D3D11Machine::CreateConstBuffers()
+HRESULT DeferredRenderThread::CreateConstBuffers()
 {
     HRESULT hr = S_OK;
 
@@ -200,65 +153,17 @@ HRESULT D3D11Machine::CreateConstBuffers()
     pd3dDeviceContext->UpdateSubresource(pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0);
 }
 
-HRESULT D3D11Machine::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
-{
-    ID3DBlob* pVSBlob = nullptr;
-    HRESULT hr = CompileShaderFromFile(vertexShaderName, "VS", "vs_4_0", &pVSBlob);
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr,
-            L"The Vertex Shader file cannot be compiled.  Please run this executable from the directory that contains the Shader file.", L"Error", MB_OK);
-        return hr;
-    }
-
-    hr = pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &pVertexShader);
-    if (FAILED(hr))
-    {
-        pVSBlob->Release();
-        return hr;
-    }
-
-    const D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
-    UINT numElements = ARRAYSIZE(layout);
-
-    hr = pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
-        pVSBlob->GetBufferSize(), &pVertexLayout);
-    pVSBlob->Release();
-    if (FAILED(hr)) return hr;
-
-    ID3DBlob* pPSBlob = nullptr;
-    hr = CompileShaderFromFile(pixelShaderName, "PS", "ps_4_0", &pPSBlob);
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr,
-            L"The Pixel Shader file cannot be compiled.  Please run this executable from the directory that contains the Shader file.", L"Error", MB_OK);
-        return hr;
-    }
-
-    hr = pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &pPixelShader);
-    pPSBlob->Release();
-    if (FAILED(hr)) return hr;
-
-    return hr;
-}
-
-D3D11Machine::~D3D11Machine()
+DeferredRenderThread::~DeferredRenderThread()
 {
     CleanupDeviceD3D();
 }
 
-D3D11Machine::D3D11Machine(ID3D11Device* pd3dDevice) : pd3dDevice(pd3dDevice)
+DeferredRenderThread::DeferredRenderThread(ID3D11Device* pd3dDevice) : pd3dDevice(pd3dDevice)
 {
     Initialize();
 }
 
-bool D3D11Machine::Initialize()
+bool DeferredRenderThread::Initialize()
 {
     pd3dDevice->AddRef(); // 참조 유지
     pd3dDevice->GetImmediateContext(&pd3dDeviceContext);
@@ -268,7 +173,7 @@ bool D3D11Machine::Initialize()
 }
 
 
-void D3D11Machine::CreateRenderTarget()
+void DeferredRenderThread::CreateRenderTarget()
 {
     CleanupRenderTarget();
 
@@ -317,7 +222,7 @@ void D3D11Machine::CreateRenderTarget()
 
 }
 
-void D3D11Machine::CleanupDeviceD3D()
+void DeferredRenderThread::CleanupDeviceD3D()
 {
     CleanupRenderTarget();
     if (pd3dDeviceContext) { pd3dDeviceContext->Release(); pd3dDeviceContext = nullptr; }
@@ -326,7 +231,7 @@ void D3D11Machine::CleanupDeviceD3D()
 }
 
 
-void D3D11Machine::CleanupRenderTarget()
+void DeferredRenderThread::CleanupRenderTarget()
 {
     if (pRenderTargetView) 
     { 
@@ -343,29 +248,29 @@ void D3D11Machine::CleanupRenderTarget()
 
 }
 
-void D3D11Machine::DrawTexture()
+void DeferredRenderThread::DrawTexture()
 {
     //ClearScreen();
 }
 
-void D3D11Machine::ClearScreen()
+void DeferredRenderThread::ClearScreen()
 {
     pd3dDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, nullptr);
     pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::Yellow);
 }
 
-void D3D11Machine::GetSRVTexture(ID3D11ShaderResourceView** outSRV)
+void DeferredRenderThread::GetSRVTexture(ID3D11ShaderResourceView** outSRV)
 {
     *outSRV = pTextureSRV;
 }
 
-void D3D11Machine::SetScreenSize(int width, int height)
+void DeferredRenderThread::SetScreenSize(int width, int height)
 {
     screenWidth.store(width);
     screenHeight.store(height);
 }
 
-void D3D11Machine::ResizeScreen()
+void DeferredRenderThread::ResizeScreen()
 {
     if (screenWidth == 0 || screenHeight == 0) return;
     CreateRenderTarget();
@@ -373,23 +278,4 @@ void D3D11Machine::ResizeScreen()
     screenWidth.store(0);
     screenHeight.store(0);
     
-}
-
-HRESULT D3D11Machine::AddActor(const KMGActor& actor)
-{
-    if (drawResources.count(actor.name) > 0) return S_FALSE;
-    if (!pd3dDevice) return S_FALSE;
-
-    drawResources[actor.name] = DrawResource(pd3dDevice, actor.vertices, actor.indices);
-
-    return S_OK;
-}
-
-HRESULT D3D11Machine::deleteActor(wstring name)
-{
-    if (!drawResources.count(name) == 0) return S_FALSE;
-
-    drawResources.erase(name);
-
-    return S_OK;
 }

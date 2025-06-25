@@ -5,6 +5,9 @@
 
 using namespace std;
 
+HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // 메시지 이름 반환용 함수
 void PrintSRVInfo(ID3D11ShaderResourceView* srv)
@@ -74,28 +77,46 @@ KMGRender::KMGRender(HWND hMainWnd) : hMainWnd(hMainWnd)
 
 KMGRender::~KMGRender()
 {
-    if (!pMainDevice)
+    if (pMainDevice)
     {
         pMainDevice->Release();
         pMainDevice = nullptr;
     }
 
-    if (!pMainContext)
+    if (pMainContext)
     {
         pMainContext->Release();
         pMainContext = nullptr;
     }
 
-    if (!pSwapChain)
+    if (pSwapChain)
     {
         pSwapChain->Release();
         pSwapChain = nullptr;
     }
 
-    if (!mainRenderTargetView)
+    if (mainRenderTargetView)
     {
         mainRenderTargetView->Release();
         mainRenderTargetView = nullptr;
+    }
+
+    if (pVertexShader)
+    {
+        pVertexShader->Release();
+        pVertexShader = nullptr;
+    }
+
+    if (pPixelShader)
+    {
+        pPixelShader->Release();
+        pPixelShader = nullptr;
+    }
+
+    if (pVertexLayout)
+    {
+        pVertexLayout->Release();
+        pVertexLayout = nullptr;
     }
 
 }
@@ -150,6 +171,7 @@ bool KMGRender::CreateDeviceD3D()
     if (res != S_OK)
         return false;
 
+    CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
     CreateRenderTarget();
 }
 
@@ -208,7 +230,6 @@ void KMGRender::RenderLoop()
         {
             CleanupRenderTarget();
             pSwapChain->ResizeBuffers(0, windowWidth, windowHeight, DXGI_FORMAT_UNKNOWN, 0);
-            std::cout << "Resizing" << windowWidth << " " << windowHeight << "\n";
             CreateRenderTarget();
         }
 
@@ -223,7 +244,6 @@ void KMGRender::RenderLoop()
         pMainContext->ClearRenderTargetView(mainRenderTargetView, Colors::Aqua);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        // Present는 단 한번
         pSwapChain->Present(0,0);
 
         LARGE_INTEGER frameEnd;
@@ -387,4 +407,95 @@ void KMGRender::Render_DetailWindow()
 
     ImGui::Text("Hello");
     ImGui::End();
+}
+
+
+
+
+HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
+{
+    ID3DBlob* pVSBlob = nullptr;
+    HRESULT hr = CompileShaderFromFile(vertexShaderName, "VS", "vs_4_0", &pVSBlob);
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr,
+            L"The Vertex Shader file cannot be compiled.  Please run this executable from the directory that contains the Shader file.", L"Error", MB_OK);
+        return hr;
+    }
+
+    hr = pMainDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &pVertexShader);
+    if (FAILED(hr))
+    {
+        pVSBlob->Release();
+        return hr;
+    }
+
+    const D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+    UINT numElements = ARRAYSIZE(layout);
+
+    hr = pMainDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
+        pVSBlob->GetBufferSize(), &pVertexLayout);
+    pVSBlob->Release();
+    if (FAILED(hr)) return hr;
+
+    ID3DBlob* pPSBlob = nullptr;
+    hr = CompileShaderFromFile(pixelShaderName, "PS", "ps_4_0", &pPSBlob);
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr,
+            L"The Pixel Shader file cannot be compiled.  Please run this executable from the directory that contains the Shader file.", L"Error", MB_OK);
+        return hr;
+    }
+
+    hr = pMainDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &pPixelShader);
+    pPSBlob->Release();
+    if (FAILED(hr)) return hr;
+
+    return hr;
+}
+
+// Tutorial에서 가져온 코드
+//--------------------------------------------------------------------------------------
+// Helper for compiling shaders with D3DCompile
+//
+// With VS 11, we could load up prebuilt .cso files instead...
+//--------------------------------------------------------------------------------------
+HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
+{
+    HRESULT hr = S_OK;
+
+    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#ifdef _DEBUG
+    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
+    // Setting this flag improves the shader debugging experience, but still allows
+    // the shaders to be optimized and to run exactly the way they will run in
+    // the release configuration of this program.
+    dwShaderFlags |= D3DCOMPILE_DEBUG;
+
+    // Disable optimizations to further improve shader debugging
+    dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    ID3DBlob* pErrorBlob = nullptr;
+    hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
+        dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+    if (FAILED(hr))
+    {
+        if (pErrorBlob)
+        {
+            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
+            MessageBoxA(nullptr, (char*)pErrorBlob->GetBufferPointer(), "Shader Compile Error", MB_OK);
+            pErrorBlob->Release();
+        }
+        return hr;
+    }
+    if (pErrorBlob) pErrorBlob->Release();
+
+    return S_OK;
 }

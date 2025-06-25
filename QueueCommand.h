@@ -13,16 +13,12 @@ enum class RenderCommandtype : int
 struct RenderCommand 
 {
 public:
-	static RenderCommand MakeResizeViewTargetCommand(int width, int height);
 	static RenderCommand MakeAddActorCommand(KMGActor actor);
 
 	RenderCommandtype getType();
-	void GetViewTargetWidthHeight(int& outWidth, int& outHeight);
 	void GetActor(KMGActor& outActor);
 
 private:
 	RenderCommandtype type;
-	int viewTargetWidth = 0;
-	int viewTargetHeight = 0;
 	KMGActor actor;
 };
