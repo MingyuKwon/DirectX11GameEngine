@@ -22,11 +22,6 @@ using namespace std;
 //--------------------------------------------------------------------------------------
 
 
-struct CBNeverChanges
-{
-    XMMATRIX mView;
-};
-
 struct CBChangeOnResize
 {
     XMMATRIX mProjection;
@@ -34,6 +29,7 @@ struct CBChangeOnResize
 
 struct CBChangesEveryFrame
 {
+    XMMATRIX mView;
     XMMATRIX mWorld;
 };
 
@@ -106,7 +102,6 @@ private:
     //////////////////////////////
     /// + 게임 씬을 그리기 위해서 필요한 부분
     /////////////////////////////
-    ID3D11Buffer* pCBNeverChanges = nullptr;
     ID3D11Buffer* pCBChangeOnResize = nullptr;
     ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 

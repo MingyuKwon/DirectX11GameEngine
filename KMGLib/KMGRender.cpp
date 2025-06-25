@@ -181,7 +181,38 @@ bool KMGRender::CreateDeviceD3D()
     pBackBuffer->Release();
 
     CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
+    CreateConstBuffers();
     CreateRenderTarget();
+}
+
+HRESULT KMGRender::CreateConstBuffers()
+{
+    HRESULT hr = S_OK;
+
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(CBChangeOnResize);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    hr = pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnResize);
+    if (FAILED(hr)) return hr;
+
+    float fovAngleY = XMConvertToRadians(45.0f); 
+    float aspectRatio = (float)sceneWindowWidth / (float)sceneWindowHeight; 
+    float nearZ = 0.1f;  
+    float farZ = 100.0f;
+
+    XMMATRIX Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
+    CBChangeOnResize cb = {};
+    cb.mProjection = Projection;
+    pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cb, 0, 0);
+
+
+    bd.ByteWidth = sizeof(CBChangesEveryFrame);
+    hr = pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangesEveryFrame);
+    if (FAILED(hr)) return hr;
+
+
 }
 
 void KMGRender::CreateRenderTarget()
@@ -268,6 +299,17 @@ void KMGRender::CreateRenderTarget()
         depthStencilBuffer->Release();
         depthStencilBuffer = nullptr;
     }
+
+    // 여기선 투영 행렬를 저장하는 버퍼를 업데이트 시켜준다
+    float fovAngleY = XMConvertToRadians(45.0f);
+    float aspectRatio = (float)sceneWindowWidth / (float)sceneWindowHeight;
+    float nearZ = 0.1f;
+    float farZ = 100.0f;
+
+    XMMATRIX Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
+    CBChangeOnResize cb = {};
+    cb.mProjection = Projection;
+    pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cb, 0, 0);
 }
 
 void KMGRender::CleanupRenderTarget()
@@ -369,36 +411,64 @@ void KMGRender::RenderLoop()
 
 void KMGRender::DrawScene()
 {
-    pMainContext->ClearRenderTargetView(pSceneRTV, Colors::MidnightBlue);
+    // 여기선 뷰 포트를 만들어서 적용시켜줘야 한다
+    D3D11_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = static_cast<float>(sceneWindowWidth);
+    viewport.Height = static_cast<float>(sceneWindowHeight);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    pMainContext->RSSetViewports(1, &viewport);
 
-    ID3D11Resource* pResource = nullptr;
-    pSceneRTV->GetResource(&pResource);
-
-    pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    pMainContext->OMSetRenderTargets(1, &pSceneRTV, pSceneDSV);
+    pMainContext->ClearRenderTargetView(pSceneRTV, Colors::BlueViolet);
 
     pMainContext->IASetInputLayout(pVertexLayout);
     pMainContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     pMainContext->VSSetShader(pVertexShader, nullptr, 0);
-    //pMainContext->VSSetConstantBuffers(0, 1, &pCBNeverChanges);
-    //pd3dDeviceContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
-    //pd3dDeviceContext->VSSetConstantBuffers(2, 1, &pCBChangesEveryFrame);
-    //pd3dDeviceContext->PSSetShader(pPixelShader, nullptr, 0);
+    pMainContext->PSSetShader(pPixelShader, nullptr, 0);
 
-    //// Set vertex buffer
-    //UINT stride = sizeof(KMGVertex);
-    //UINT offset = 0;
+    pMainContext->VSSetConstantBuffers(0, 1, &pCBChangesEveryFrame);
+    pMainContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
 
-    //pd3dDeviceContext->IASetVertexBuffers(0, 1, &pDrawResource->vertexBuffer, &stride, &offset);
-    //pd3dDeviceContext->IASetIndexBuffer(pDrawResource->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    // Set vertex buffer
+    UINT stride = sizeof(KMGVertex);
+    UINT offset = 0;
 
-    //// Update variables that change once per frame
-    //CBChangesEveryFrame cb = {};
-    //cb.mWorld = XMMatrixTranspose(pDrawResource->WorldMatrix);
-    //pd3dDeviceContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+    // Update our time
+    static float t = 0.0f;
+    static ULONGLONG timeStart = 0;
+    ULONGLONG timeCur = GetTickCount64();
+    if (timeStart == 0)
+        timeStart = timeCur;
+    t = (timeCur - timeStart) / 1000.0f;
 
-    //pd3dDeviceContext->DrawIndexed(pDrawResource->indices.size(), 0, 0);
+    // 임시 고정 view 행렬
+    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);  // 좀 더 낮게 내려와서
+    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);   // 큐브 중심을 정면으로 바라봄
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
 
+    for (auto& bucket : drawResources)
+    {
+        DrawResource& resource = bucket.second;
+
+        pMainContext->IASetVertexBuffers(0, 1, &resource.vertexBuffer, &stride, &offset);
+        pMainContext->IASetIndexBuffer(resource.indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+        XMMATRIX RotateMatrix = XMMatrixRotationY(t);
+        CBChangesEveryFrame cb = {};
+        cb.mWorld = XMMatrixTranspose(resource.WorldMatrix);
+        cb.mView = XMMatrixTranspose(View);
+        pMainContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+
+        cout << "Draw\n";
+
+        pMainContext->DrawIndexed(resource.indices.size(), 0, 0);
+    }
 }
 
 void KMGRender::DrawIMGUI_UI()
@@ -447,14 +517,16 @@ void KMGRender::CheckRenderQueue()
         RenderCommandtype type = command.getType();
         switch (type)
         {
-        case RenderCommandtype::ERC_RESIZE_VIEWTARGET:
-        {
-
-            break;
-        }
         case RenderCommandtype::ERC_ADD_ACTOR:
         {
+            KMGActor actor;
+            command.GetActor(actor);
 
+            if (drawResources.count(actor.name) == 0)
+            {
+                drawResources[actor.name] = DrawResource(pMainDevice, actor.vertices, actor.indices, actor.WorldMatrix);
+            }
+            
             break;
         }
         }

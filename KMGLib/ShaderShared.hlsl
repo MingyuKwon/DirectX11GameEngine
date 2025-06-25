@@ -2,9 +2,10 @@
 Texture2D txDiffuse : register(t0);
 SamplerState samLinear : register(s0);
 
-cbuffer cbNeverChanges : register(b0)
+cbuffer cbChangesEveryFrame : register(b0)
 {
     matrix View;
+    matrix World;
 };
 
 cbuffer cbChangeOnResize : register(b1)
@@ -12,10 +13,7 @@ cbuffer cbChangeOnResize : register(b1)
     matrix Projection;
 };
 
-cbuffer cbChangesEveryFrame : register(b2)
-{
-    matrix World;
-};
+
 
 struct VS_INPUT
 {

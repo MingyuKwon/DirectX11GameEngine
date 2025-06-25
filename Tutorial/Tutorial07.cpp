@@ -32,7 +32,7 @@ struct SimpleVertex
     XMFLOAT2 Tex;
 };
 
-struct CBNeverChanges
+struct CBPlayerData
 {
     XMMATRIX mView;
 };
@@ -510,7 +510,7 @@ HRESULT InitDevice()
 
     // Create the constant buffers
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(CBNeverChanges);
+    bd.ByteWidth = sizeof(CBPlayerData);
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = 0;
     hr = g_pd3dDevice->CreateBuffer( &bd, nullptr, &g_pCBNeverChanges );
@@ -554,7 +554,7 @@ HRESULT InitDevice()
     XMVECTOR Up = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
     g_View = XMMatrixLookAtLH( Eye, At, Up );
 
-    CBNeverChanges cbNeverChanges = {};
+    CBPlayerData cbNeverChanges = {};
     cbNeverChanges.mView = XMMatrixTranspose( g_View );
     g_pImmediateContext->UpdateSubresource( g_pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0 );
 

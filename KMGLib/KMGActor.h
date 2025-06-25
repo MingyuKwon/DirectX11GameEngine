@@ -7,6 +7,7 @@ public:
     std::wstring name;
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;
+    DirectX::XMMATRIX WorldMatrix;
 
     const std::vector<KMGVertex>& GetVertices();
     const std::vector<int>& GetIndexes();

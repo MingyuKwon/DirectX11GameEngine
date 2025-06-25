@@ -5,7 +5,6 @@
 enum class RenderCommandtype : int
 {
 	ERC_NONE,
-	ERC_RESIZE_VIEWTARGET,
 	ERC_ADD_ACTOR,
 	ERC_MAX,
 };
@@ -13,7 +12,7 @@ enum class RenderCommandtype : int
 struct RenderCommand 
 {
 public:
-	static RenderCommand MakeAddActorCommand(KMGActor actor);
+	static RenderCommand MakeAddActorCommand(const KMGActor& actor);
 
 	RenderCommandtype getType();
 	void GetActor(KMGActor& outActor);

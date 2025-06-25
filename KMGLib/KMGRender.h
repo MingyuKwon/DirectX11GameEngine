@@ -52,6 +52,10 @@ private:
 	ID3D11InputLayout* pVertexLayout = nullptr;
 
 
+	ID3D11Buffer* pCBChangeOnResize = nullptr;
+	ID3D11Buffer* pCBChangesEveryFrame = nullptr;
+
+
 	std::atomic<int> mainWindowWidth = DEFAULT_WINDOW_WIDTH;
 	std::atomic<int> mainWindowHeight = DEFAULT_WINDOW_HEIGHT;
 
@@ -61,6 +65,8 @@ private:
 	std::atomic<bool> resizeRequested = false;
 
 	bool CreateDeviceD3D();
+	HRESULT CreateConstBuffers();
+
 	int InitD3D_IMGUI();
 	HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName);
 

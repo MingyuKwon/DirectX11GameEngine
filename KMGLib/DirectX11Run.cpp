@@ -76,17 +76,6 @@ void DrawResource::CreateBuffers()
 
 void DeferredRenderThread::SceneWindowRender()
 {
-    //// Update our time
-    //static float t = 0.0f;
-    //static ULONGLONG timeStart = 0;
-    //ULONGLONG timeCur = GetTickCount64();
-    //if (timeStart == 0)
-    //    timeStart = timeCur;
-    //t = (timeCur - timeStart) / 1000.0f;
-
-
-    //// Rotate cube around the origin
-    //World = XMMatrixRotationY(t);
 
     // Clear the back buffer
     pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::MidnightBlue);
@@ -102,9 +91,8 @@ void DeferredRenderThread::SceneWindowRender()
     pd3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     pd3dDeviceContext->VSSetShader(pVertexShader, nullptr, 0);
-    pd3dDeviceContext->VSSetConstantBuffers(0, 1, &pCBNeverChanges);
+    pd3dDeviceContext->VSSetConstantBuffers(0, 1, &pCBChangesEveryFrame);
     pd3dDeviceContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
-    pd3dDeviceContext->VSSetConstantBuffers(2, 1, &pCBChangesEveryFrame);
     pd3dDeviceContext->PSSetShader(pPixelShader, nullptr, 0);
 
     // Set vertex buffer
@@ -114,9 +102,16 @@ void DeferredRenderThread::SceneWindowRender()
     pd3dDeviceContext->IASetVertexBuffers(0, 1, &pDrawResource->vertexBuffer, &stride, &offset);
     pd3dDeviceContext->IASetIndexBuffer(pDrawResource->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
+    // 임시 고정 view 행렬
+    XMVECTOR Eye = XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
+
     // Update variables that change once per frame
     CBChangesEveryFrame cb = {};
     cb.mWorld = XMMatrixTranspose(pDrawResource->WorldMatrix);
+    cb.mView = XMMatrixTranspose(View);
     pd3dDeviceContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 
     pd3dDeviceContext->DrawIndexed(pDrawResource->indices.size(), 0, 0);
@@ -130,29 +125,15 @@ HRESULT DeferredRenderThread::CreateConstBuffers()
 
     D3D11_BUFFER_DESC bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(CBNeverChanges);
+    bd.ByteWidth = sizeof(CBChangeOnResize);
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = 0;
-    hr = pd3dDevice->CreateBuffer(&bd, nullptr, &pCBNeverChanges);
-    if (FAILED(hr)) return hr;
-
-    bd.ByteWidth = sizeof(CBChangeOnResize);
     hr = pd3dDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnResize);
     if (FAILED(hr)) return hr;
 
     bd.ByteWidth = sizeof(CBChangesEveryFrame);
     hr = pd3dDevice->CreateBuffer(&bd, nullptr, &pCBChangesEveryFrame);
     if (FAILED(hr)) return hr;
-
-    // 임시 고정 view 행렬
-    XMVECTOR Eye = XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
-
-    CBNeverChanges cbNeverChanges = {};
-    cbNeverChanges.mView = XMMatrixTranspose(View);
-    pd3dDeviceContext->UpdateSubresource(pCBNeverChanges, 0, nullptr, &cbNeverChanges, 0, 0);
 }
 
 DeferredRenderThread::~DeferredRenderThread()

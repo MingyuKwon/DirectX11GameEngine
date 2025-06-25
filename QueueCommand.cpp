@@ -1,6 +1,6 @@
 #include "QueueCommand.h"
 
-RenderCommand RenderCommand::MakeAddActorCommand(KMGActor actor)
+RenderCommand RenderCommand::MakeAddActorCommand(const KMGActor& actor)
 {
 	RenderCommand command;
 	command.type = RenderCommandtype::ERC_ADD_ACTOR;

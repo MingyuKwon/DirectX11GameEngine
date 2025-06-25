@@ -3,7 +3,6 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-
 vector<KMGVertex> sampleVertices =
 {
     { XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f), XMFLOAT2(1.0f, 0.0f) },
@@ -57,6 +56,8 @@ vector<int> sampleIndices =
     22,20,21,
     23,20,22
 };
+
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
@@ -129,6 +130,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             actor1.name = L"actor1";
             actor1.vertices = sampleVertices;
             actor1.indices = sampleIndices;
+            actor1.WorldMatrix = XMMatrixIdentity();
+
+            if (renderEngine)
+            {
+                renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor1));
+            }
 
             break;
         }
