@@ -412,11 +412,9 @@ void KMGRender::DrawScene()
 
         XMMATRIX RotateMatrix = XMMatrixRotationY(t);
         CBChangesEveryFrame cb = {};
-        cb.mWorld = XMMatrixTranspose(resource.WorldMatrix);
+        cb.mWorld = XMMatrixTranspose(resource.WorldMatrix * RotateMatrix);
         cb.mView = XMMatrixTranspose(View);
         pMainContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
-
-        cout << "Draw\n";
 
         pMainContext->DrawIndexed(resource.indices.size(), 0, 0);
     }
