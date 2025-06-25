@@ -2,7 +2,7 @@
 #include <EngineData.h>
 #include <iostream>
 
-DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices, XMMATRIX WorldMatrix) : device(device), vertices(vertices), indices(indices), WorldMatrix(WorldMatrix)
+DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices, XMMATRIX WorldMatrix) : device(device), vertices(vertices), indices(indices), worldMatrix(WorldMatrix)
 {
     CreateBuffers();
 }
@@ -25,9 +25,8 @@ DrawResource::~DrawResource()
 
 }
 
-DrawResource::DrawResource(DrawResource&& resource) noexcept : vertices(move(resource.vertices)), indices(move(resource.indices))
+DrawResource::DrawResource(DrawResource&& resource) noexcept : vertices(move(resource.vertices)), indices(move(resource.indices)), worldMatrix(resource.worldMatrix)
 {
-
     swap(device, resource.device);
     swap(vertexBuffer, resource.vertexBuffer);
     swap(indexBuffer, resource.indexBuffer);
@@ -35,7 +34,7 @@ DrawResource::DrawResource(DrawResource&& resource) noexcept : vertices(move(res
 
 DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
 {
-    cout << "Move Buffer in Draw Resource\n";
+    cout << "operator = Move Buffer in Draw Resource\n";
 
     if (this != &resource)
     {
@@ -44,6 +43,7 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
 
         vertices = move(resource.vertices);
         indices = move(resource.indices);
+        worldMatrix = move(resource.worldMatrix);
 
         swap(device, resource.device);
         swap(vertexBuffer, resource.vertexBuffer);
@@ -106,7 +106,6 @@ void RenderThread(
     pDeferredContext->IASetInputLayout(pVertexLayout);
     pDeferredContext->VSSetShader(pVertexShader, nullptr, 0);
     pDeferredContext->PSSetShader(pPixelShader, nullptr, 0);
-
 
     D3D11_VIEWPORT viewport = {};
     viewport.TopLeftX = 0;

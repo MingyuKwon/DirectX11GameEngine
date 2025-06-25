@@ -5,6 +5,7 @@ RenderCommand RenderCommand::MakeAddActorCommand(const KMGActor& actor)
 	RenderCommand command;
 	command.type = RenderCommandtype::ERC_ADD_ACTOR;
 	command.actor = actor;
+
 	return command;
 }
 

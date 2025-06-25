@@ -366,7 +366,7 @@ void KMGRender::DrawScene()
     // 여기선 뷰 포트를 만들어서 적용시켜줘야 한다
 
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    pMainContext->ClearRenderTargetView(pSceneRTV, Colors::Blue);
+    pMainContext->ClearRenderTargetView(pSceneRTV, Colors::White);
 
     ////////////////////////////////////////////
     ///////////////////////////////////////////
@@ -401,9 +401,9 @@ void KMGRender::DrawScene()
                 pCBChangeOnResize, pCBChangesEveryFrame,
                 resource.vertexBuffer, resource.indexBuffer,
                 resource.indices.size(),
-                resource.WorldMatrix * RotateMatrix, View,
+                resource.worldMatrix * RotateMatrix, View,
                 sceneWindowWidth, sceneWindowHeight
-            ); }
+            );}
          );
     }
 
@@ -412,10 +412,14 @@ void KMGRender::DrawScene()
         t.join();
     }
 
+    int count = 0;
     for (auto cmd : DX11CommandLists) {
+        count++;
         pMainContext->ExecuteCommandList(cmd, TRUE);
         cmd->Release(); 
     }
+    if(count > 0) cout << "DrawCommand " << count << "\n";
+    
     DX11CommandLists.clear();
 }
 

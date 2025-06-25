@@ -1,5 +1,7 @@
 #include <EngineData.h>
 #include <KMGRender.h>
+#include <iostream>
+#include <string>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -110,6 +112,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             if (renderEngine)
             {
                 renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor1));
+            }
+
+            KMGActor actor2;
+            actor2.name = L"actor2";
+            actor2.vertices = sampleVertices;
+            actor2.indices = sampleIndices;
+
+            actor2.WorldMatrix = XMMatrixTranslation(1.0f, 1.0f, 1.0f);
+
+            if (renderEngine)
+            {
+                renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor2));
             }
 
             break;

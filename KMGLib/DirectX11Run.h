@@ -35,7 +35,7 @@ struct DrawResource
 {
     vector<KMGVertex> vertices;
     vector<int> indices;
-    XMMATRIX WorldMatrix = XMMatrixIdentity();
+    XMMATRIX worldMatrix = XMMatrixIdentity();
 
     ID3D11Device* device = nullptr;
     ID3D11Buffer* vertexBuffer = nullptr;
