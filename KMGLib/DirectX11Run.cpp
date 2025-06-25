@@ -2,7 +2,7 @@
 #include <EngineData.h>
 #include <iostream>
 
-DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices) : device(device), vertices(vertices), indices(indices)
+DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices, XMMATRIX WorldMatrix) : device(device), vertices(vertices), indices(indices), WorldMatrix(WorldMatrix)
 {
     CreateBuffers();
 }
@@ -76,17 +76,17 @@ void DrawResource::CreateBuffers()
 
 void DeferredRenderThread::SceneWindowRender()
 {
-    // Update our time
-    static float t = 0.0f;
-    static ULONGLONG timeStart = 0;
-    ULONGLONG timeCur = GetTickCount64();
-    if (timeStart == 0)
-        timeStart = timeCur;
-    t = (timeCur - timeStart) / 1000.0f;
+    //// Update our time
+    //static float t = 0.0f;
+    //static ULONGLONG timeStart = 0;
+    //ULONGLONG timeCur = GetTickCount64();
+    //if (timeStart == 0)
+    //    timeStart = timeCur;
+    //t = (timeCur - timeStart) / 1000.0f;
 
 
-    // Rotate cube around the origin
-    World = XMMatrixRotationY(t);
+    //// Rotate cube around the origin
+    //World = XMMatrixRotationY(t);
 
     // Clear the back buffer
     pd3dDeviceContext->ClearRenderTargetView(pRenderTargetView, Colors::MidnightBlue);
@@ -94,10 +94,6 @@ void DeferredRenderThread::SceneWindowRender()
     // Clear the depth buffer to 1.0 (max depth)
     pd3dDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    // Update variables that change once per frame
-    CBChangesEveryFrame cb = {};
-    cb.mWorld = XMMatrixTranspose(World);
-    pd3dDeviceContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 
     // Set the input layout
     pd3dDeviceContext->IASetInputLayout(pVertexLayout);
@@ -117,6 +113,12 @@ void DeferredRenderThread::SceneWindowRender()
 
     pd3dDeviceContext->IASetVertexBuffers(0, 1, &pDrawResource->vertexBuffer, &stride, &offset);
     pd3dDeviceContext->IASetIndexBuffer(pDrawResource->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    // Update variables that change once per frame
+    CBChangesEveryFrame cb = {};
+    cb.mWorld = XMMatrixTranspose(pDrawResource->WorldMatrix);
+    pd3dDeviceContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+
     pd3dDeviceContext->DrawIndexed(pDrawResource->indices.size(), 0, 0);
 
 }

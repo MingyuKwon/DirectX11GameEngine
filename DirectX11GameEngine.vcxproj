@@ -173,11 +173,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="KMGLib\PixelShader.hlsli" />
-    <None Include="KMGLib\ShaderShared.hlsl" />
-    <None Include="KMGLib\VertexShader.hlsli" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="EngineData.h" />
     <ClInclude Include="KMGLib\DirectX11Run.h" />
     <ClInclude Include="KMGLib\KMGActor.h" />
@@ -192,6 +187,17 @@
     <ClInclude Include="OuterLib\imstb_textedit.h" />
     <ClInclude Include="OuterLib\imstb_truetype.h" />
     <ClInclude Include="QueueCommand.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="KMGLib\ShaderShared.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </EntryPointName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KMGLib\PixelShader.hlsli" />
+    <None Include="KMGLib\VertexShader.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -42,6 +42,7 @@ private:
 	ID3D11DeviceContext* pMainContext = nullptr;
 	IDXGISwapChain* pSwapChain = nullptr;
 
+	ID3D11DepthStencilView* pSceneDSV = nullptr;
 	ID3D11RenderTargetView* pMainRTV = nullptr;
 	ID3D11RenderTargetView* pSceneRTV = nullptr;
 	ID3D11ShaderResourceView* pSceneSRV = nullptr;
@@ -66,6 +67,7 @@ private:
 	void RenderLoop(); // «ŸΩ… ∑ª¥ı ∑Á«¡
 	void CheckRenderQueue();
 
+	void DrawScene();
 	void DrawIMGUI_UI();
 
 	void CreateRenderTarget();

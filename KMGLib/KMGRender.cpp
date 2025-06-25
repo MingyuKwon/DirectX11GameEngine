@@ -77,6 +77,8 @@ KMGRender::KMGRender(HWND hMainWnd) : hMainWnd(hMainWnd)
 
 KMGRender::~KMGRender()
 {
+    CleanupRenderTarget();
+
     if (pMainDevice)
     {
         pMainDevice->Release();
@@ -118,7 +120,6 @@ KMGRender::~KMGRender()
         pVertexLayout->Release();
         pVertexLayout = nullptr;
     }
-
 }
 
 void KMGRender::StartRenderEngine()
@@ -208,6 +209,7 @@ void KMGRender::CreateRenderTarget()
     texDesc.SampleDesc.Count = 1;
     texDesc.Usage = D3D11_USAGE_DEFAULT;
     texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+    cout << "Texture Size : " << texDesc.Width << "  " << texDesc.Height << "\n";
 
     ID3D11Texture2D* renderTexture = nullptr;
 
@@ -238,6 +240,34 @@ void KMGRender::CreateRenderTarget()
         renderTexture->Release();
         renderTexture = nullptr;
     }
+
+    // 여기선 Depth STencil buffer을 갱신
+    D3D11_TEXTURE2D_DESC descDepth = {};
+    descDepth.Width = sceneWindowWidth;
+    descDepth.Height = sceneWindowHeight;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+    ID3D11Texture2D* depthStencilBuffer = nullptr;
+    hr = pMainDevice->CreateTexture2D(&descDepth, nullptr, &depthStencilBuffer);
+    if (FAILED(hr)) return;
+    
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+
+    hr = pMainDevice->CreateDepthStencilView(depthStencilBuffer, &descDSV, &pSceneDSV);
+    
+    if (depthStencilBuffer)
+    {
+        depthStencilBuffer->Release();
+        depthStencilBuffer = nullptr;
+    }
 }
 
 void KMGRender::CleanupRenderTarget()
@@ -259,6 +289,13 @@ void KMGRender::CleanupRenderTarget()
         pSceneSRV->Release();
         pSceneSRV = nullptr;
     }
+
+    if (pSceneDSV)
+    { 
+        pSceneDSV->Release();
+        pSceneDSV = nullptr;
+    }
+
 }
 
 
@@ -306,6 +343,8 @@ void KMGRender::RenderLoop()
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
+        DrawScene();
+        // 이건 최종적인 UI를 그리는 것이므로 이 전에 그릴 텍스처가 다 준비되어 있어야 한다
         DrawIMGUI_UI();
 
         ImGui::Render();
@@ -326,6 +365,36 @@ void KMGRender::RenderLoop()
 
 
     }
+}
+
+void KMGRender::DrawScene()
+{
+    pMainContext->ClearRenderTargetView(pSceneRTV, Colors::MidnightBlue);
+    pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    pMainContext->IASetInputLayout(pVertexLayout);
+    pMainContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    pMainContext->VSSetShader(pVertexShader, nullptr, 0);
+    //pMainContext->VSSetConstantBuffers(0, 1, &pCBNeverChanges);
+    //pd3dDeviceContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
+    //pd3dDeviceContext->VSSetConstantBuffers(2, 1, &pCBChangesEveryFrame);
+    //pd3dDeviceContext->PSSetShader(pPixelShader, nullptr, 0);
+
+    //// Set vertex buffer
+    //UINT stride = sizeof(KMGVertex);
+    //UINT offset = 0;
+
+    //pd3dDeviceContext->IASetVertexBuffers(0, 1, &pDrawResource->vertexBuffer, &stride, &offset);
+    //pd3dDeviceContext->IASetIndexBuffer(pDrawResource->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    //// Update variables that change once per frame
+    //CBChangesEveryFrame cb = {};
+    //cb.mWorld = XMMatrixTranspose(pDrawResource->WorldMatrix);
+    //pd3dDeviceContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+
+    //pd3dDeviceContext->DrawIndexed(pDrawResource->indices.size(), 0, 0);
+
 }
 
 void KMGRender::DrawIMGUI_UI()
@@ -421,8 +490,6 @@ void KMGRender::Render_SceneWindow()
         sceneWindowWidth.store(contentSize.x);
         sceneWindowHeight.store(contentSize.y);
         resizeRequested.store(true);
-
-        cout << "SceneResize : "  << sceneWindowWidth << "  " << sceneWindowHeight << "\n";
     }
 
     ImGui::Text("Something Starnge");

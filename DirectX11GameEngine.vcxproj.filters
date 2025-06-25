@@ -142,8 +142,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="KMGLib\PixelShader.hlsli" />
-    <None Include="KMGLib\ShaderShared.hlsl" />
-    <None Include="KMGLib\VertexShader.hlsli" />
+    <FxCompile Include="KMGLib\ShaderShared.hlsl">
+      <Filter>리소스 파일</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KMGLib\VertexShader.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="KMGLib\PixelShader.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

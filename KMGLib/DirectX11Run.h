@@ -44,13 +44,14 @@ struct DrawResource
 {
     vector<KMGVertex> vertices;
     vector<int> indices;
+    XMMATRIX WorldMatrix = XMMatrixIdentity();
 
     ID3D11Device* device = nullptr;
     ID3D11Buffer* vertexBuffer = nullptr;
     ID3D11Buffer* indexBuffer = nullptr;
 
     DrawResource() = default;
-    DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices);
+    DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices, XMMATRIX WorldMatrix);
     virtual ~DrawResource();
 
     DrawResource(const DrawResource&) = delete;
@@ -116,7 +117,6 @@ private:
     ID3D11PixelShader* pPixelShader = nullptr;
     ID3D11InputLayout* pVertexLayout = nullptr;
 
-    XMMATRIX World = XMMatrixIdentity();
     XMMATRIX View = XMMatrixIdentity();
     XMMATRIX Projection = XMMatrixIdentity();
 
