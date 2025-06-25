@@ -91,6 +91,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             PostQuitMessage(0);
             break;
         }
+        case VK_DELETE:
+        {
+            if (renderEngine)
+            {
+                renderEngine->AddRenderCommand(RenderCommand::MakeRemoveActorCommand(L"actor1"));
+            }
+            break;
+        }
         case VK_SPACE:
         {
             KMGActor actor1;

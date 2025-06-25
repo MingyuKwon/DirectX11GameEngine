@@ -24,7 +24,7 @@ public:
 	KMGRender(KMGRender&&) = delete;
 	KMGRender& operator=(KMGRender&&) = delete;
 
-	void AddRenderCommand(RenderCommand command);
+	void AddRenderCommand(const RenderCommand& command);
 	void ResizeScreen(int width, int height);
 
 	void StartRenderEngine();

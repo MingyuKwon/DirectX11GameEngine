@@ -8,7 +8,7 @@ using namespace std;
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-void KMGRender::AddRenderCommand(RenderCommand command)
+void KMGRender::AddRenderCommand(const RenderCommand& command)
 {
     lock_guard<mutex> lock(renderCommandMutex);
     renderCommandQueue.push(command);
@@ -476,6 +476,19 @@ void KMGRender::CheckRenderQueue()
                 drawResources[actor.name] = DrawResource(pMainDevice, actor.vertices, actor.indices, actor.WorldMatrix);
             }
             
+            break;
+        }
+
+        case RenderCommandtype::ERC_REMOVE_ACTOR:
+        {
+            KMGActor actor;
+            command.GetActor(actor);
+
+            if (drawResources.count(actor.name) != 0)
+            {
+                drawResources.erase(actor.name);
+            }
+
             break;
         }
         }

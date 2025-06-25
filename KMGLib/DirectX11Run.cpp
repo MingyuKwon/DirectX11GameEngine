@@ -20,10 +20,14 @@ DrawResource::~DrawResource()
         indexBuffer->Release();
         indexBuffer = nullptr;
     }
+
+    cout << "Release Buffer in Draw Resource\n";
+
 }
 
 DrawResource::DrawResource(DrawResource&& resource) noexcept : vertices(move(resource.vertices)), indices(move(resource.indices))
 {
+
     swap(device, resource.device);
     swap(vertexBuffer, resource.vertexBuffer);
     swap(indexBuffer, resource.indexBuffer);
@@ -31,6 +35,8 @@ DrawResource::DrawResource(DrawResource&& resource) noexcept : vertices(move(res
 
 DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
 {
+    cout << "Move Buffer in Draw Resource\n";
+
     if (this != &resource)
     {
         if (vertexBuffer) vertexBuffer->Release();
@@ -50,6 +56,8 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
 void DrawResource::CreateBuffers()
 {
     if (!device) return;
+
+    cout << "Create Buffer in Draw Resource\n";
 
     D3D11_BUFFER_DESC vbd = {};
     vbd.Usage = D3D11_USAGE_DEFAULT;

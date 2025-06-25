@@ -8,6 +8,14 @@ RenderCommand RenderCommand::MakeAddActorCommand(const KMGActor& actor)
 	return command;
 }
 
+RenderCommand RenderCommand::MakeRemoveActorCommand(const std::wstring& name)
+{
+	RenderCommand command;
+	command.type = RenderCommandtype::ERC_REMOVE_ACTOR;
+	command.actor.name = name;
+	return command;
+}
+
 RenderCommandtype RenderCommand::getType()
 {
 	return type;
