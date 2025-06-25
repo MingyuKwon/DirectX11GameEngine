@@ -392,6 +392,8 @@ void KMGRender::CheckRenderQueue()
 
 void KMGRender::Render_SceneWindow()
 {
+    static float titleBarH = ImGui::GetFrameHeight();  
+
     ImGuiID id = ImGui::GetID(SCENE_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
@@ -399,7 +401,7 @@ void KMGRender::Render_SceneWindow()
         int WindowPosY = 0;
 
         int WindowWidth = sceneWindowWidth;
-        int WindowHeight = sceneWindowHeight;
+        int WindowHeight = sceneWindowHeight - titleBarH;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -430,14 +432,16 @@ void KMGRender::Render_SceneWindow()
 
 void KMGRender::Render_ContentWindow()
 {
+    static float titleBarH = ImGui::GetFrameHeight();
+
     ImGuiID id = ImGui::GetID(CONTENT_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
         int WindowPosX = 0;
-        int WindowPosY = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+        int WindowPosY = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO + titleBarH;
 
         int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = mainWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
+        int WindowHeight = mainWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO) - titleBarH;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
