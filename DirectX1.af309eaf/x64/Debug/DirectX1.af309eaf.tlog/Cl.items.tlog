@@ -1,4 +1,3 @@
-D:\DirectX11GameEngine\KMGEngine.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\KMGEngine.obj
 D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DirectX11Run.obj
 D:\DirectX11GameEngine\KMGLib\EngineData.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\EngineData.obj
 D:\DirectX11GameEngine\KMGLib\KMGActor.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\KMGActor.obj
@@ -13,3 +12,4 @@ D:\DirectX11GameEngine\OuterLib\imgui_impl_win32.cpp;D:\DirectX11GameEngine\Dire
 D:\DirectX11GameEngine\OuterLib\imgui_tables.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_tables.obj
 D:\DirectX11GameEngine\OuterLib\imgui_widgets.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_widgets.obj
 D:\DirectX11GameEngine\QueueCommand.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\QueueCommand.obj
+D:\DirectX11GameEngine\test.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\test.obj

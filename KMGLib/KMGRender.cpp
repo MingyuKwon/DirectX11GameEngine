@@ -423,7 +423,7 @@ void KMGRender::DrawScene()
 
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     pMainContext->OMSetRenderTargets(1, &pSceneRTV, pSceneDSV);
-    pMainContext->ClearRenderTargetView(pSceneRTV, Colors::BlueViolet);
+    pMainContext->ClearRenderTargetView(pSceneRTV, Colors::Blue);
 
     pMainContext->IASetInputLayout(pVertexLayout);
     pMainContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
