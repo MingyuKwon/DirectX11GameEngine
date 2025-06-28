@@ -99,6 +99,9 @@
     <ClCompile Include="test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="KMGScene.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="OuterLib\imstb_truetype.h">
       <Filter>헤더 파일\OuterLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGScene.h">
+      <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

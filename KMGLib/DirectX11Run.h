@@ -4,8 +4,6 @@
 #include <d3dcompiler.h>
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
-#include <atomic>
-#include <mutex>
 
 #include <KMGActor.h>
 

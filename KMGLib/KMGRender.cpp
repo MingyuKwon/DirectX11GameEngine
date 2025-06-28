@@ -385,8 +385,6 @@ void KMGRender::DrawScene()
          
      prevTime = timeCur;
 
-
-
     XMMATRIX RotateMatrix = XMMatrixRotationY(t);
 
     XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);

@@ -4,6 +4,9 @@
 #include <string>
 #include <queue>
 #include <unordered_map>
+#include <atomic>
+#include <mutex>
+
 
 struct KMGVertex
 {

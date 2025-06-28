@@ -5,29 +5,6 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-vector<KMGVertex> sampleVertices =
-{
-        { {-1,1,-1},{},{1,0,0,1},{1,0} }, { {1,1,-1},{},{1,0,0,1},{0,0} },
-        { {1,1,1},{},{1,0,0,1},{0,1} }, { {-1,1,1},{},{1,0,0,1},{1,1} },
-        { {-1,-1,-1},{},{1,0,0,1},{0,0} }, { {1,-1,-1},{},{1,0,0,1},{1,0} },
-        { {1,-1,1},{},{1,0,0,1},{1,1} }, { {-1,-1,1},{},{1,0,0,1},{0,1} },
-        { {-1,-1,1},{},{1,0,0,1},{0,1} }, { {-1,-1,-1},{},{1,0,0,1},{1,1} },
-        { {-1,1,-1},{},{1,0,0,1},{1,0} }, { {-1,1,1},{},{1,0,0,1},{0,0} },
-        { {1,-1,1},{},{1,0,0,1},{1,1} }, { {1,-1,-1},{},{1,0,0,1},{0,1} },
-        { {1,1,-1},{},{1,0,0,1},{0,0} }, { {1,1,1},{},{1,0,0,1},{1,0} },
-        { {-1,-1,-1},{},{1,0,0,1},{0,1} }, { {1,-1,-1},{},{1,0,0,1},{1,1} },
-        { {1,1,-1},{},{1,0,0,1},{1,0} }, { {-1,1,-1},{},{1,0,0,1},{0,0} },
-        { {-1,-1,1},{},{1,0,0,1},{1,1} }, { {1,-1,1},{},{1,0,0,1},{0,1} },
-        { {1,1,1},{},{1,0,0,1},{0,0} }, { {-1,1,1},{},{1,0,0,1},{1,0} },
-};
-
-vector<int> sampleIndices =
-{
-    3,1,0, 2,1,3, 6,4,5, 7,4,6, 11,9,8, 10,9,11,
-    14,12,13, 15,12,14, 19,17,16, 18,17,19, 22,20,21, 23,20,22
-};
-
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
 
@@ -99,33 +76,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             if (renderEngine)
             {
-                renderEngine->AddRenderCommand(RenderCommand::MakeRemoveActorCommand(L"actor1"));
+                //renderEngine->AddRenderCommand(RenderCommand::MakeRemoveActorCommand(L"actor1"));
             }
             break;
         }
         case VK_SPACE:
         {
-            KMGActor actor1;
-            actor1.name = L"actor1";
-            actor1.vertices = sampleVertices;
-            actor1.indices = sampleIndices;
-            actor1.WorldMatrix = XMMatrixIdentity();
-
             if (renderEngine)
             {
-                renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor1));
+                //renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor1));
             }
 
-            KMGActor actor2;
-            actor2.name = L"actor2";
-            actor2.vertices = sampleVertices;
-            actor2.indices = sampleIndices;
-
-            actor2.WorldMatrix = XMMatrixTranslation(1.0f, 1.0f, 1.0f);
-
             if (renderEngine)
             {
-                renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor2));
+                //renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor2));
             }
 
             break;
