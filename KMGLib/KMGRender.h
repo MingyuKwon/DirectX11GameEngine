@@ -64,6 +64,9 @@ private:
 
 	std::atomic<bool> resizeRequested = false;
 
+	float deltaTime = 0.0f;
+
+
 	vector<ID3D11CommandList*> DX11CommandLists;
 	mutex dx11CommandMutex;
 

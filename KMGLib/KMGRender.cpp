@@ -318,7 +318,7 @@ void KMGRender::RenderTick()
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
-    const double targetFrameTime = 1.0 / 60.0; // 기준을 60fps로 맞춤
+    const double targetFrameTime = 1.0 / 120.0; // 기준을 60fps로 맞춤
 
     LARGE_INTEGER frameStart;
     QueryPerformanceCounter(&frameStart);
@@ -366,12 +366,26 @@ void KMGRender::DrawScene()
 
     ////////////////////////////////////////////
     ///////////////////////////////////////////
-    static float t = 0.0f;
     static ULONGLONG timeStart = 0;
+    static ULONGLONG prevTime = 0;
+
+    static float t = 0;
     ULONGLONG timeCur = GetTickCount64();
     if (timeStart == 0)
         timeStart = timeCur;
-    t = (timeCur - timeStart) / 1000.0f;
+     t = (timeCur - timeStart) / 1000.0f;
+
+     if (prevTime == 0)
+         prevTime = timeCur;
+
+     ULONGLONG elapsedTimeMs = timeCur - prevTime;
+     float newDeltaTime = elapsedTimeMs / 1000.0f; 
+
+     if (newDeltaTime > 0.000001f) deltaTime = newDeltaTime;
+         
+     prevTime = timeCur;
+
+
 
     XMMATRIX RotateMatrix = XMMatrixRotationY(t);
 
@@ -527,6 +541,38 @@ void KMGRender::Render_SceneWindow()
     }
 
     ImGui::Image(pSceneSRV, ImVec2(sceneWindowWidth, sceneWindowHeight));
+
+    ImVec2 imagePos = ImGui::GetItemRectMin();   
+    ImVec2 imageSize = ImGui::GetItemRectSize(); 
+
+    string fpsStr = "FPS : " + to_string(static_cast<int>(1 / deltaTime));
+    const char* c_fpsStr = fpsStr.c_str();
+
+    ImVec2 textSize = ImGui::CalcTextSize(c_fpsStr);
+
+    // 텍스트 오버레이 위치 (예: 이미지 중앙)
+    ImVec2 textPos = ImVec2(
+        imagePos.x + imageSize.x - textSize.x + 20,
+        imagePos.y 
+    );
+
+    // 오버레이로 텍스트 출력
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    // 반투명 배경
+
+    ImVec2 bgPadding = ImVec2(8, 4);
+    drawList->AddRectFilled(
+        ImVec2(textPos.x - textSize.x * 0.5f - bgPadding.x, textPos.y - bgPadding.y),
+        ImVec2(textPos.x + textSize.x * 0.5f + bgPadding.x, textPos.y + textSize.y + bgPadding.y),
+        IM_COL32(0, 0, 0, 128)
+    );
+
+    // 텍스트
+    drawList->AddText(
+        ImVec2(textPos.x - textSize.x * 0.5f, textPos.y),
+        IM_COL32(255, 255, 255, 255),
+        c_fpsStr
+    );
 
     ImGui::End();
 }
