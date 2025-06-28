@@ -53,6 +53,14 @@ int main(int, char**)
         GetDeltaTime();
         XMMATRIX RotateMatrix = XMMatrixRotationY(deltaTime);
 
+        if (currentScene)
+        {
+            KMGActor* actor = currentScene->GetActor(L"Actor1");
+            if (actor)
+            {
+                actor->UpdateWorldMatrix(actor->getWorldMatrix() * RotateMatrix);
+            }
+        }
 
         renderEngine->RenderScene(currentScene);
     }
