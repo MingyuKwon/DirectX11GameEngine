@@ -58,5 +58,10 @@ struct DrawResource
     void UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix);
 
 private:
-    DirectX::XMMATRIX WorldMatrix = DirectX::XMMatrixIdentity();
+    DirectX::XMMATRIX WorldMatrix = DirectX::XMMATRIX(
+        0.f, 0.f, 0.f, 0.f,
+        0.f, 0.f, 0.f, 0.f,
+        0.f, 0.f, 0.f, 0.f,
+        0.f, 0.f, 0.f, 0.f
+    );;
 };

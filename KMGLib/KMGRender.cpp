@@ -165,13 +165,6 @@ HRESULT KMGRender::CreateConstBuffers()
     CBChangeOnResize cb = {};
     cb.mProjection = Projection;
     pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cb, 0, 0);
-
-
-    bd.ByteWidth = sizeof(CBChangesEveryFrame);
-    hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangesEveryFrame);
-    if (FAILED(hr)) return hr;
-
-
 }
 
 void KMGRender::CreateRenderTarget()

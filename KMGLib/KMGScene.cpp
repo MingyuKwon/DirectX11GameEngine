@@ -2,6 +2,8 @@
 
 KMGActor* KMGScene::CreateActor(const std::wstring& name)
 {
+    if (actors.count(name) != 0) return nullptr;
+
     auto actor = std::make_unique<KMGActor>(name);
 
     KMGActor* ptr = actor.get();

@@ -89,12 +89,12 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
 void DrawResource::CreateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices)
 {
     if (!g_pMainDevice) return;
-    if (!pVertexBuffer)
+    if (pVertexBuffer)
     {
         cout << "vertexBuffer is already created. Create Buffer Failed\n";
         return;
     }
-    if (!pIndexBuffer)
+    if (pIndexBuffer)
     {
         cout << "indexBuffer is already created. Create Buffer Failed\n";
         return;
@@ -144,6 +144,7 @@ void DrawResource::CreateBuffers(std::vector<KMGVertex> vertices, std::vector<in
 void DrawResource::UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, XMMATRIX WorldMatrix)
 {
     if (this->WorldMatrix == WorldMatrix) return;
+    std::cout << "Enter UpdateWorldMatrix\n";
 
     this->WorldMatrix = WorldMatrix;
 

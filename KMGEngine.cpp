@@ -86,9 +86,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         case VK_SPACE:
         {
-            if (renderEngine)
+            if (currentScene)
             {
-                //renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor1));
+                KMGActor* actor = currentScene->CreateActor(L"Actor1");
+                if (!actor)  std::cout << "Failed to Create Actor\n";
             }
 
             if (renderEngine)

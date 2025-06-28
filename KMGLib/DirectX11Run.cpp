@@ -18,6 +18,7 @@ void RenderThread(
     int drawIndexCount,
     int textureWidth, int textureHeight)
 {
+
     ID3D11DeviceContext* pDeferredContext = nullptr;
     HRESULT hr = pMainDevice->CreateDeferredContext(0, &pDeferredContext);
     if (FAILED(hr)) {
