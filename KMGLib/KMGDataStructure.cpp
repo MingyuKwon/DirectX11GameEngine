@@ -1,59 +1,108 @@
 #include <KMGDataStructure.h>
+#include <iostream>
 
 using namespace std;
 using namespace DirectX;
 
-DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices, XMMATRIX WorldMatrix) : device(device), vertices(vertices), indices(indices), worldMatrix(WorldMatrix)
+inline bool operator==(const XMMATRIX& lhs, const XMMATRIX& rhs)
 {
-    CreateBuffers();
+    const float epsilon = 1e-5f;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        if (!XMVector4NearEqual(lhs.r[i], rhs.r[i], XMVectorReplicate(epsilon)))
+            return false;
+    }
+
+    return true;
+}
+
+inline bool operator!=(const XMMATRIX& lhs, const XMMATRIX& rhs)
+{
+    return !(lhs == rhs);
+}
+
+DrawResource::DrawResource(std::wstring name) : name(name)
+{
 }
 
 DrawResource::~DrawResource()
 {
-    if (vertexBuffer)
+    if (pVertexBuffer)
     {
-        vertexBuffer->Release();
-        vertexBuffer = nullptr;
+        pVertexBuffer->Release();
+        pVertexBuffer = nullptr;
     }
 
-    if (indexBuffer)
+    if (pIndexBuffer)
     {
-        indexBuffer->Release();
-        indexBuffer = nullptr;
+        pIndexBuffer->Release();
+        pIndexBuffer = nullptr;
     }
 
+    if (pCBChangesEveryFrame)
+    {
+        pCBChangesEveryFrame->Release();
+        pCBChangesEveryFrame = nullptr;
+    }
 }
 
-DrawResource::DrawResource(DrawResource&& resource) noexcept : vertices(move(resource.vertices)), indices(move(resource.indices)), worldMatrix(resource.worldMatrix)
+DrawResource::DrawResource(DrawResource&& resource) noexcept
 {
-    swap(device, resource.device);
-    swap(vertexBuffer, resource.vertexBuffer);
-    swap(indexBuffer, resource.indexBuffer);
+    name = resource.name;
+    swap(pVertexBuffer, resource.pVertexBuffer);
+    swap(pIndexBuffer, resource.pIndexBuffer);
+    swap(pCBChangesEveryFrame, resource.pCBChangesEveryFrame);
 }
 
 DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
 {
     if (this != &resource)
     {
-        if (vertexBuffer) vertexBuffer->Release();
-        if (indexBuffer) indexBuffer->Release();
+        if (pVertexBuffer)
+        {
+            pVertexBuffer->Release();
+            pVertexBuffer = nullptr;
+        }
 
-        vertices = move(resource.vertices);
-        indices = move(resource.indices);
-        worldMatrix = move(resource.worldMatrix);
+        if (pIndexBuffer)
+        {
+            pIndexBuffer->Release();
+            pIndexBuffer = nullptr;
+        }
 
-        swap(device, resource.device);
-        swap(vertexBuffer, resource.vertexBuffer);
-        swap(indexBuffer, resource.indexBuffer);
+        if (pCBChangesEveryFrame)
+        {
+            pCBChangesEveryFrame->Release();
+            pCBChangesEveryFrame = nullptr;
+        }
+
+        swap(pVertexBuffer, resource.pVertexBuffer);
+        swap(pIndexBuffer, resource.pIndexBuffer);
+        swap(pCBChangesEveryFrame, resource.pCBChangesEveryFrame);
+
     }
 
     return *this;
 }
 
-void DrawResource::CreateBuffers()
+void DrawResource::CreateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices)
 {
-    if (!device) return;
+    if (!g_pMainDevice) return;
+    if (!pVertexBuffer)
+    {
+        cout << "vertexBuffer is already created. Create Buffer Failed\n";
+        return;
+    }
+    if (!pIndexBuffer)
+    {
+        cout << "indexBuffer is already created. Create Buffer Failed\n";
+        return;
+    }
 
+    ////////////////////////////////////////
+    // 버텍스 버퍼 생성
+    ////////////////////////////////////////
     D3D11_BUFFER_DESC vbd = {};
     vbd.Usage = D3D11_USAGE_DEFAULT;
     vbd.ByteWidth = sizeof(KMGVertex) * (UINT)vertices.size();
@@ -62,9 +111,11 @@ void DrawResource::CreateBuffers()
     D3D11_SUBRESOURCE_DATA vinitData = {};
     vinitData.pSysMem = vertices.data();
 
-    device->CreateBuffer(&vbd, &vinitData, &vertexBuffer);
+    g_pMainDevice->CreateBuffer(&vbd, &vinitData, &pVertexBuffer);
 
-    // Index Buffer
+    ////////////////////////////////////////
+    // 인덱스 버퍼 생성
+    ////////////////////////////////////////
     D3D11_BUFFER_DESC ibd = {};
     ibd.Usage = D3D11_USAGE_DEFAULT;
     ibd.ByteWidth = sizeof(UINT) * (UINT)indices.size();
@@ -73,5 +124,39 @@ void DrawResource::CreateBuffers()
     D3D11_SUBRESOURCE_DATA iinitData = {};
     iinitData.pSysMem = indices.data();
 
-    device->CreateBuffer(&ibd, &iinitData, &indexBuffer);
+    g_pMainDevice->CreateBuffer(&ibd, &iinitData, &pIndexBuffer);
+
+    indexCount = indices.size();
+
+
+    ////////////////////////////////////////
+    // 매 프레임 바뀌는 버퍼 생성
+    ////////////////////////////////////////
+    D3D11_BUFFER_DESC cbd = {};
+    cbd.Usage = D3D11_USAGE_DEFAULT;
+    cbd.ByteWidth = sizeof(CBChangesEveryFrame);
+    cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cbd.CPUAccessFlags = 0;
+
+    g_pMainDevice->CreateBuffer(&cbd, nullptr, &pCBChangesEveryFrame);
 }
+
+void DrawResource::UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, XMMATRIX WorldMatrix)
+{
+    if (this->WorldMatrix == WorldMatrix) return;
+
+    this->WorldMatrix = WorldMatrix;
+
+    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
+
+    CBChangesEveryFrame cb = {};
+    cb.mWorld = XMMatrixTranspose(WorldMatrix);
+    cb.mView = XMMatrixTranspose(View);
+
+    pMainContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
+
+}
+

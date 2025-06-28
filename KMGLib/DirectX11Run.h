@@ -15,5 +15,4 @@ void RenderThread(
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
     int drawIndexCount,
-    const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix,
     int textureWidth, int textureHeight);

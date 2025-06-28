@@ -18,7 +18,6 @@ void RenderThread(
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
     int drawIndexCount,
-    const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix,
     int textureWidth, int textureHeight);
 
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
@@ -421,10 +420,9 @@ void KMGRender::DrawScene()
                 pPixelShader,
                 pVertexLayout,
                 pSceneRTV, pSceneDSV,
-                pCBChangeOnResize, pCBChangesEveryFrame,
-                resource.vertexBuffer, resource.indexBuffer,
-                resource.indices.size(),
-                resource.worldMatrix * RotateMatrix, View,
+                pCBChangeOnResize, resource.pCBChangesEveryFrame,
+                resource.pVertexBuffer, resource.pIndexBuffer,
+                resource.indexCount,
                 sceneWindowWidth, sceneWindowHeight
             );}
          );

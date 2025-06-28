@@ -38,16 +38,14 @@ struct CBChangesEveryFrame
 //--------------------------------------------------------------------------------------
 struct DrawResource
 {
-    std::vector<KMGVertex> vertices;
-    std::vector<int> indices;
-    DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
+    std::wstring name;
+    ID3D11Buffer* pVertexBuffer = nullptr;
+    ID3D11Buffer* pIndexBuffer = nullptr;
+    ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 
-    ID3D11Device* device = nullptr;
-    ID3D11Buffer* vertexBuffer = nullptr;
-    ID3D11Buffer* indexBuffer = nullptr;
+    int indexCount = 0;
 
-    DrawResource() = default;
-    DrawResource(ID3D11Device* device, std::vector<KMGVertex> vertices, std::vector<int> indices, DirectX::XMMATRIX WorldMatrix);
+    DrawResource(std::wstring name);
     virtual ~DrawResource();
 
     DrawResource(const DrawResource&) = delete;
@@ -56,6 +54,9 @@ struct DrawResource
     DrawResource(DrawResource&&) noexcept;
     DrawResource& operator=(DrawResource&&) noexcept;
 
-    void CreateBuffers();
+    void CreateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices);
+    void UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix);
 
+private:
+    DirectX::XMMATRIX WorldMatrix = DirectX::XMMatrixIdentity();
 };

@@ -16,7 +16,6 @@ void RenderThread(
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
     int drawIndexCount,
-    const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
     int textureWidth, int textureHeight)
 {
     ID3D11DeviceContext* pDeferredContext = nullptr;
@@ -50,11 +49,6 @@ void RenderThread(
 
     pDeferredContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
     pDeferredContext->IASetIndexBuffer(pIdexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-    CBChangesEveryFrame cb = {};
-    cb.mWorld = XMMatrixTranspose(worldMatrix);
-    cb.mView = XMMatrixTranspose(viewMatrix);
-    pDeferredContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 
     pDeferredContext->DrawIndexed(drawIndexCount, 0, 0);
 
