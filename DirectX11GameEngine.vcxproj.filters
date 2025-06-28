@@ -66,9 +66,6 @@
     <ClCompile Include="KMGLib\KMGActor.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
-    <ClCompile Include="KMGLib\KMGDataStructure.h">
-      <Filter>헤더 파일\KMGLib</Filter>
-    </ClCompile>
     <ClCompile Include="QueueCommand.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
@@ -99,10 +96,10 @@
     <ClCompile Include="test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="KMGLib\KMGDataStructure.cpp">
+    <ClCompile Include="KMGLib\KMGScene.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
-    <ClCompile Include="KMGLib\KMGScene.cpp">
+    <ClCompile Include="KMGLib\KMGDataStructure.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,6 +147,9 @@
       <Filter>헤더 파일\OuterLib</Filter>
     </ClInclude>
     <ClInclude Include="KMGLib\KMGScene.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\KMGDataStructure.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
   </ItemGroup>
