@@ -24,6 +24,26 @@ using namespace std;
 using namespace DirectX;
 
 
+void RotateCube()
+{
+    XMMATRIX RotateMatrix = XMMatrixRotationY(deltaTime);
+
+    if (currentScene)
+    {
+        KMGActor* actor = currentScene->GetActor(L"Actor1");
+        if (actor)
+        {
+            actor->UpdateWorldMatrix(actor->getWorldMatrix() * RotateMatrix);
+        }
+
+        actor = currentScene->GetActor(L"Actor2");
+        if (actor)
+        {
+            actor->UpdateWorldMatrix(actor->getWorldMatrix() * RotateMatrix);
+        }
+    }
+}
+
 int main(int, char**)
 {
     InitBaseWindow();
@@ -51,16 +71,8 @@ int main(int, char**)
         }
 
         GetDeltaTime();
-        XMMATRIX RotateMatrix = XMMatrixRotationY(deltaTime);
 
-        if (currentScene)
-        {
-            KMGActor* actor = currentScene->GetActor(L"Actor1");
-            if (actor)
-            {
-                actor->UpdateWorldMatrix(actor->getWorldMatrix() * RotateMatrix);
-            }
-        }
+        RotateCube();
 
         renderEngine->RenderScene(currentScene);
     }
@@ -97,10 +109,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         case VK_DELETE:
         {
-            if (renderEngine)
+            if (currentScene)
             {
-                //renderEngine->AddRenderCommand(RenderCommand::MakeRemoveActorCommand(L"actor1"));
+                currentScene->EraseActor(L"Actor1");
             }
+
             break;
         }
         case VK_SPACE:
@@ -113,7 +126,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
             if (renderEngine)
             {
-                //renderEngine->AddRenderCommand(RenderCommand::MakeAddActorCommand(actor2));
+                KMGActor* actor = currentScene->CreateActor(L"Actor2");
+                if (actor)
+                {
+                    actor->UpdateWorldMatrix(XMMatrixTranslation(4.0f, 0.0f, 0.0f));
+                }
             }
 
             break;
