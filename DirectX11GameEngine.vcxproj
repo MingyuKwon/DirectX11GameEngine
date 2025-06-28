@@ -142,6 +142,7 @@
     <ClCompile Include="KMGLib\DirectX11Run.cpp" />
     <ClCompile Include="KMGLib\EngineData.cpp" />
     <ClCompile Include="KMGLib\KMGActor.cpp" />
+    <ClCompile Include="KMGLib\KMGDataStructure.cpp" />
     <ClCompile Include="KMGLib\KMGDataStructure.h" />
     <ClCompile Include="KMGLib\KMGRender.cpp" />
     <ClCompile Include="KMGScene.cpp" />

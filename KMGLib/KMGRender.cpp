@@ -6,6 +6,18 @@
 using namespace std;
 using namespace DirectX;
 
+void RenderThread(
+    std::vector<ID3D11CommandList*>& DX11CommandLists, std::mutex& dx11CommandMutex,
+    ID3D11Device* pMainDevice,
+    ID3D11VertexShader* pVertexShader,
+    ID3D11PixelShader* pPixelShader,
+    ID3D11InputLayout* pVertexLayout,
+    ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
+    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
+    ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
+    int drawIndexCount,
+    const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix,
+    int textureWidth, int textureHeight);
 
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

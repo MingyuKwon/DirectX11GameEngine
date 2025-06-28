@@ -1,7 +1,5 @@
 #pragma once
 #include <windows.h>
-#include <DirectX11Run.h>
-
 
 #define ENGINE_NAME L"KMG Engine"
 
