@@ -144,7 +144,6 @@ void DrawResource::CreateBuffers(std::vector<KMGVertex> vertices, std::vector<in
 void DrawResource::UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, XMMATRIX WorldMatrix)
 {
     if (this->WorldMatrix == WorldMatrix) return;
-    std::cout << "Enter UpdateWorldMatrix\n";
 
     this->WorldMatrix = WorldMatrix;
 

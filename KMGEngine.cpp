@@ -8,6 +8,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
+void GetDeltaTime();
+
+std::atomic<float> deltaTime = 0;
 
 HINSTANCE hWindowInstance = nullptr;
 HWND hMainWnd = nullptr;
@@ -16,6 +19,10 @@ HMENU hFileMenu = nullptr;
 
 KMGRender* renderEngine = nullptr;
 KMGScene* currentScene = nullptr;
+
+using namespace std;
+using namespace DirectX;
+
 
 int main(int, char**)
 {
@@ -42,6 +49,10 @@ int main(int, char**)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        GetDeltaTime();
+        XMMATRIX RotateMatrix = XMMatrixRotationY(deltaTime);
+
 
         renderEngine->RenderScene(currentScene);
     }
@@ -127,6 +138,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+void GetDeltaTime()
+{
+    static ULONGLONG prevTime = 0;
+    ULONGLONG timeCur = GetTickCount64();
+
+    if (prevTime == 0)
+        prevTime = timeCur;
+
+    ULONGLONG elapsedTimeMs = timeCur - prevTime;
+    deltaTime.store(elapsedTimeMs / 1000.0f);
+
+    prevTime = timeCur;
+
 }
 
 int InitBaseWindow()

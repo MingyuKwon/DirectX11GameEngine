@@ -7,6 +7,8 @@
 using namespace std;
 using namespace DirectX;
 
+extern std::atomic<float> deltaTime;
+
 ID3D11Device* g_pMainDevice = nullptr;
 
 void RenderThread(
@@ -368,27 +370,6 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     ////////////////////////////////////////////
     ///////////////////////////////////////////
-    static ULONGLONG timeStart = 0;
-    static ULONGLONG prevTime = 0;
-
-    static float t = 0;
-    ULONGLONG timeCur = GetTickCount64();
-    if (timeStart == 0)
-        timeStart = timeCur;
-     t = (timeCur - timeStart) / 1000.0f;
-
-     if (prevTime == 0)
-         prevTime = timeCur;
-
-     ULONGLONG elapsedTimeMs = timeCur - prevTime;
-     float newDeltaTime = elapsedTimeMs / 1000.0f; 
-
-     if (newDeltaTime > 0.000001f) deltaTime = newDeltaTime;
-         
-     prevTime = timeCur;
-
-    XMMATRIX RotateMatrix = XMMatrixRotationY(t);
-
     XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);
     XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -533,7 +514,10 @@ void KMGRender::Render_SceneWindow()
     ImVec2 imagePos = ImGui::GetItemRectMin();   
     ImVec2 imageSize = ImGui::GetItemRectSize(); 
 
-    int framePerSecond = static_cast<int>(1 / deltaTime);
+    static float showDeltaTime = deltaTime;
+    if (deltaTime > 0.000001f) showDeltaTime = deltaTime;
+
+    int framePerSecond = static_cast<int>(1 / showDeltaTime);
     string fpsStr = "FPS : " + to_string(framePerSecond);
     const char* c_fpsStr = fpsStr.c_str();
 
