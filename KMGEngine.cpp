@@ -2,6 +2,7 @@
 #include <KMGRender.h>
 #include <iostream>
 #include <string>
+#include <KMGScene.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -14,6 +15,7 @@ HMENU hMenu = nullptr;
 HMENU hFileMenu = nullptr;
 
 KMGRender* renderEngine = nullptr;
+KMGScene* currentScene = nullptr;
 
 int main(int, char**)
 {
@@ -21,6 +23,8 @@ int main(int, char**)
 
     renderEngine = new KMGRender(hMainWnd);
     renderEngine->StartRenderEngine();
+
+    currentScene = new KMGScene();
 
     MSG msg = {};
 
@@ -39,7 +43,7 @@ int main(int, char**)
             DispatchMessage(&msg);
         }
 
-        renderEngine->RenderTick();
+        renderEngine->RenderScene(currentScene);
     }
 
     renderEngine->StopRenderEngine();

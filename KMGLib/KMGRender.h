@@ -10,6 +10,7 @@
 #include <KMGDataStructure.h>
 
 extern ID3D11Device* g_pMainDevice;
+class KMGScene;
 
 class KMGRender
 {
@@ -23,20 +24,18 @@ public:
 	KMGRender(KMGRender&&) = delete;
 	KMGRender& operator=(KMGRender&&) = delete;
 
-	void AddRenderCommand(const RenderCommand& command);
 	void ResizeScreen(int width, int height);
 
 	void StartRenderEngine();
 	void StopRenderEngine();
 
-	void RenderTick(); // «ŸΩ… ∑ª¥ı ∑Á«¡
+	void RenderScene(KMGScene* scene); // «ŸΩ… ∑ª¥ı ∑Á«¡
 private:
 	HWND hMainWnd = nullptr;
 
 	std::atomic<bool> bRunning = false;
 
 	std::mutex renderCommandMutex;
-	std::queue<RenderCommand> renderCommandQueue;
 
 	ID3D11DeviceContext* pMainContext = nullptr;
 	IDXGISwapChain* pSwapChain = nullptr;

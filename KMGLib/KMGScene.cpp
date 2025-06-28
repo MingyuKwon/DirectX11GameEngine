@@ -11,12 +11,17 @@ KMGActor* KMGScene::CreateActor(const std::wstring& name)
 
 void KMGScene::EraseActor(const std::wstring& name)
 {
-
+    if (actors.count(name) == 0) return;
+    actors.erase(name);
 }
 
 KMGActor* KMGScene::GetActor(const std::wstring& name)
 {
-    auto it = actors.find(name);
-    if (it != actors.end()) return it->second.get();
+    if (actors.count(name) != 0) return actors[name].get();
     return nullptr;
+}
+
+const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::getAllActors()
+{
+    return actors;
 }

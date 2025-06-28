@@ -10,17 +10,3 @@ enum class RenderCommandtype : int
 
 	ERC_MAX,
 };
-
-struct RenderCommand 
-{
-public:
-	static RenderCommand MakeAddActorCommand(const KMGActor& actor);
-	static RenderCommand MakeRemoveActorCommand(const std::wstring& name);
-
-	RenderCommandtype getType();
-	void GetActor(KMGActor& outActor);
-
-private:
-	RenderCommandtype type;
-	KMGActor actor;
-};

@@ -2,6 +2,7 @@
 #include <KMGRender.h>
 #include <sstream>
 #include <iostream>
+#include <KMGScene.h>
 
 using namespace std;
 using namespace DirectX;
@@ -22,12 +23,6 @@ void RenderThread(
 
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-void KMGRender::AddRenderCommand(const RenderCommand& command)
-{
-    lock_guard<mutex> lock(renderCommandMutex);
-    renderCommandQueue.push(command);
-}
 
 void KMGRender::ResizeScreen(int width, int height)
 {
@@ -325,7 +320,7 @@ int KMGRender::InitD3D_IMGUI()
     return 0;
 }
 
-void KMGRender::RenderTick()
+void KMGRender::RenderScene(KMGScene* scene)
 {
     if (!bRunning) return;
 
@@ -475,7 +470,7 @@ void KMGRender::DrawIMGUI_UI()
 void KMGRender::CheckRenderQueue()
 {
     // 긴 lock을 피하기 위해서 스냅샷을 사용
-    std::queue<RenderCommand> tempQueue;
+    /*std::queue<RenderCommand> tempQueue;
     {
         std::lock_guard<std::mutex> lock(renderCommandMutex);
         std::swap(tempQueue, renderCommandQueue);
@@ -484,7 +479,7 @@ void KMGRender::CheckRenderQueue()
     while (!tempQueue.empty())
     {
         lock_guard<mutex> lock(renderCommandMutex);
-        RenderCommand command = tempQueue.front();
+        RenderCommand frontCommand = tempQueue.front();
         tempQueue.pop();
 
         RenderCommandtype type = command.getType();
@@ -493,7 +488,7 @@ void KMGRender::CheckRenderQueue()
 
         }
 
-    }
+    }*/
 }
 
 

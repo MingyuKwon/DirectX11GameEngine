@@ -7,6 +7,8 @@ public:
     KMGActor(std::wstring name);
     const std::vector<KMGVertex>& GetVertices();
     const std::vector<int>& GetIndexes();
+
+    void UpdateWorldMatrix(DirectX::XMMATRIX);
 private:
     std::wstring name;
     std::vector<KMGVertex> vertices = {
@@ -29,5 +31,5 @@ private:
     14,12,13, 15,12,14, 19,17,16, 18,17,19, 22,20,21, 23,20,22
     };
 
-    DirectX::XMMATRIX WorldMatrix = DirectX::XMMatrixIdentity();
+    std::atomic<DirectX::XMMATRIX> WorldMatrix = DirectX::XMMatrixIdentity();
 };

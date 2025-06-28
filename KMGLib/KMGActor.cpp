@@ -14,3 +14,8 @@ const std::vector<int>& KMGActor::GetIndexes()
 {
     return indices;
 }
+
+void KMGActor::UpdateWorldMatrix(DirectX::XMMATRIX newMatrix)
+{
+    WorldMatrix.exchange(newMatrix);
+}
