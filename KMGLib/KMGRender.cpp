@@ -4,6 +4,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace DirectX;
 
 
 HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
@@ -477,31 +478,7 @@ void KMGRender::CheckRenderQueue()
         RenderCommandtype type = command.getType();
         switch (type)
         {
-        case RenderCommandtype::ERC_ADD_ACTOR:
-        {
-            KMGActor actor;
-            command.GetActor(actor);
 
-            if (drawResources.count(actor.name) == 0)
-            {
-                drawResources[actor.name] = DrawResource(pMainDevice, actor.vertices, actor.indices, actor.WorldMatrix);
-            }
-            
-            break;
-        }
-
-        case RenderCommandtype::ERC_REMOVE_ACTOR:
-        {
-            KMGActor actor;
-            command.GetActor(actor);
-
-            if (drawResources.count(actor.name) != 0)
-            {
-                drawResources.erase(actor.name);
-            }
-
-            break;
-        }
         }
 
     }

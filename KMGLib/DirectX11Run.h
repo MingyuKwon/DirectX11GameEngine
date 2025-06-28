@@ -4,11 +4,7 @@
 #include <d3dcompiler.h>
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
-
-#include <KMGActor.h>
-
-using namespace DirectX;
-using namespace std;
+#include <KMGDataStructure.h>
 
 //--------------------------------------------------------------------------------------
 // GPU에 넘겨줄 구조체
@@ -17,13 +13,13 @@ using namespace std;
 
 struct CBChangeOnResize
 {
-    XMMATRIX mProjection;
+    DirectX::XMMATRIX mProjection;
 };
 
 struct CBChangesEveryFrame
 {
-    XMMATRIX mView;
-    XMMATRIX mWorld;
+    DirectX::XMMATRIX mView;
+    DirectX::XMMATRIX mWorld;
 };
 
 //--------------------------------------------------------------------------------------
@@ -31,16 +27,16 @@ struct CBChangesEveryFrame
 //--------------------------------------------------------------------------------------
 struct DrawResource
 {
-    vector<KMGVertex> vertices;
-    vector<int> indices;
-    XMMATRIX worldMatrix = XMMatrixIdentity();
+    std::vector<KMGVertex> vertices;
+    std::vector<int> indices;
+    DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
 
     ID3D11Device* device = nullptr;
     ID3D11Buffer* vertexBuffer = nullptr;
     ID3D11Buffer* indexBuffer = nullptr;
 
     DrawResource() = default;
-    DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices, XMMATRIX WorldMatrix);
+    DrawResource(ID3D11Device* device, std::vector<KMGVertex> vertices, std::vector<int> indices, DirectX::XMMATRIX WorldMatrix);
     virtual ~DrawResource();
 
     DrawResource(const DrawResource&) = delete;
@@ -54,7 +50,7 @@ struct DrawResource
 };
 
 void RenderThread(
-    vector<ID3D11CommandList*>& DX11CommandLists, mutex& dx11CommandMutex,
+    std::vector<ID3D11CommandList*>& DX11CommandLists, std::mutex& dx11CommandMutex,
     ID3D11Device* pMainDevice,
     ID3D11VertexShader* pVertexShader,
     ID3D11PixelShader* pPixelShader,
@@ -63,5 +59,5 @@ void RenderThread(
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
     int drawIndexCount,
-    const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix,
+    const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix,
     int textureWidth, int textureHeight);

@@ -4,6 +4,10 @@
 class KMGActor {
 
 public:
+    KMGActor(std::wstring name);
+    const std::vector<KMGVertex>& GetVertices();
+    const std::vector<int>& GetIndexes();
+private:
     std::wstring name;
     std::vector<KMGVertex> vertices = {
         { {-1,1,-1},{},{1,0,0,1},{1,0} }, { {1,1,-1},{},{1,0,0,1},{0,0} },
@@ -25,10 +29,6 @@ public:
     };;
     DirectX::XMMATRIX WorldMatrix = DirectX::XMMatrixIdentity();
 
-    const std::vector<KMGVertex>& GetVertices();
-    const std::vector<int>& GetIndexes();
-private:
-    
    
 
 };

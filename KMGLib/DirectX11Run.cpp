@@ -1,6 +1,10 @@
 #include <DirectX11Run.h>
 #include <EngineData.h>
 #include <iostream>
+#include <KMGActor.h>
+
+using namespace DirectX;
+using namespace std;
 
 DrawResource::DrawResource(ID3D11Device* device, vector<KMGVertex> vertices, vector<int> indices, XMMATRIX WorldMatrix) : device(device), vertices(vertices), indices(indices), worldMatrix(WorldMatrix)
 {

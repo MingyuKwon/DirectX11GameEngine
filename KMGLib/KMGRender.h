@@ -67,8 +67,8 @@ private:
 	float deltaTime = 0.0f;
 
 
-	vector<ID3D11CommandList*> DX11CommandLists;
-	mutex dx11CommandMutex;
+	std::vector<ID3D11CommandList*> DX11CommandLists;
+	std::mutex dx11CommandMutex;
 
 
 	bool CreateDeviceD3D();
@@ -89,7 +89,7 @@ private:
 	void Render_ContentWindow();
 	void Render_DetailWindow();
 
-	unordered_map<wstring, DrawResource> drawResources;
+	std::unordered_map<std::wstring, DrawResource> drawResources;
 
 
 };

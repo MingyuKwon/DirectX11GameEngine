@@ -2,8 +2,8 @@
 
 KMGActor* KMGScene::CreateActor(const std::wstring& name)
 {
-    auto actor = std::make_unique<KMGActor>();
-    actor->name = name;
+    auto actor = std::make_unique<KMGActor>(name);
+
     KMGActor* ptr = actor.get();
     actors[name] = std::move(actor);
     return ptr;
