@@ -29,11 +29,12 @@ public:
 
 	void StartRenderEngine();
 	void StopRenderEngine();
+
+	void RenderTick(); // «ŸΩ… ∑ª¥ı ∑Á«¡
 private:
 	HWND hMainWnd = nullptr;
 
 	std::atomic<bool> bRunning = false;
-	std::thread renderThread;
 
 	std::mutex renderCommandMutex;
 	std::queue<RenderCommand> renderCommandQueue;
@@ -73,7 +74,6 @@ private:
 	int InitD3D_IMGUI();
 	HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName);
 
-	void RenderLoop(); // «ŸΩ… ∑ª¥ı ∑Á«¡
 	void CheckRenderQueue();
 
 	void DrawScene();

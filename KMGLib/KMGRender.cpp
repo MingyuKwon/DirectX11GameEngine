@@ -79,7 +79,6 @@ void KMGRender::StartRenderEngine()
     if (bRunning) return;
 
     bRunning = true;
-    renderThread = thread(&KMGRender::RenderLoop, this);
 
 }
 
@@ -88,7 +87,6 @@ void KMGRender::StopRenderEngine()
     if (!bRunning) return;
 
     bRunning = false;
-    if (renderThread.joinable()) renderThread.join();
 
     // 이건 엔진 끝날 때 넣기
     ImGui_ImplDX11_Shutdown();
@@ -313,51 +311,49 @@ int KMGRender::InitD3D_IMGUI()
     return 0;
 }
 
-void KMGRender::RenderLoop()
+void KMGRender::RenderTick()
 {
+    if (!bRunning) return;
+
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
     const double targetFrameTime = 1.0 / 60.0; // 기준을 60fps로 맞춤
 
-    while (bRunning) {
-        LARGE_INTEGER frameStart;
-        QueryPerformanceCounter(&frameStart);
+    LARGE_INTEGER frameStart;
+    QueryPerformanceCounter(&frameStart);
 
-        CheckRenderQueue();
+    CheckRenderQueue();
 
-        if (resizeRequested.exchange(false))
-        {
-            CleanupRenderTarget();
-            pSwapChain->ResizeBuffers(0, mainWindowWidth, mainWindowHeight, DXGI_FORMAT_UNKNOWN, 0);
-            CreateRenderTarget();
-        }
+    if (resizeRequested.exchange(false))
+    {
+        CleanupRenderTarget();
+        pSwapChain->ResizeBuffers(0, mainWindowWidth, mainWindowHeight, DXGI_FORMAT_UNKNOWN, 0);
+        CreateRenderTarget();
+    }
 
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
 
-        DrawScene();
-        // 이건 최종적인 UI를 그리는 것이므로 이 전에 그릴 텍스처가 다 준비되어 있어야 한다
-        DrawIMGUI_UI();
+    DrawScene();
+    // 이건 최종적인 UI를 그리는 것이므로 이 전에 그릴 텍스처가 다 준비되어 있어야 한다
+    DrawIMGUI_UI();
 
-        ImGui::Render();
-        pMainContext->OMSetRenderTargets(1, &pMainRTV, nullptr);
-        pMainContext->ClearRenderTargetView(pMainRTV, Colors::Aqua);
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    ImGui::Render();
+    pMainContext->OMSetRenderTargets(1, &pMainRTV, nullptr);
+    pMainContext->ClearRenderTargetView(pMainRTV, Colors::Aqua);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        pSwapChain->Present(0,0);
+    pSwapChain->Present(0, 0);
 
-        LARGE_INTEGER frameEnd;
-        QueryPerformanceCounter(&frameEnd);
-        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
+    LARGE_INTEGER frameEnd;
+    QueryPerformanceCounter(&frameEnd);
+    double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
 
-        double remainingTime = targetFrameTime - frameDuration;
-        if (remainingTime > 0.0) {
-            this_thread::sleep_for(chrono::duration<double>(remainingTime));
-        }
-
-
+    double remainingTime = targetFrameTime - frameDuration;
+    if (remainingTime > 0.0) {
+        this_thread::sleep_for(chrono::duration<double>(remainingTime));
     }
 }
 

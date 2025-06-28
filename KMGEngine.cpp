@@ -61,6 +61,8 @@ int main(int, char**)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        renderEngine->RenderTick();
     }
 
     renderEngine->StopRenderEngine();
