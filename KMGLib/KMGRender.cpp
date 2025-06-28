@@ -390,9 +390,18 @@ void KMGRender::DrawScene(KMGScene* scene)
         emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
     }
 
+    vector<wstring> erasedActorName;
+
     for (auto& bucket : drawResources)
     {
         DrawResource& resource = bucket.second;
+        wstring resourceName = bucket.first;
+
+        if (actors.count(resourceName) == 0)
+        {
+            erasedActorName.push_back(resourceName);
+            continue;
+        }
 
         renderSettingThreads.emplace_back([&] {
             RenderThread(
@@ -413,6 +422,11 @@ void KMGRender::DrawScene(KMGScene* scene)
     for (auto& t : renderSettingThreads)
     {
         t.join();
+    }
+
+    for (wstring name : erasedActorName)
+    {
+        drawResources.erase(name);
     }
 
     int count = 0;
