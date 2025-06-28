@@ -6,6 +6,8 @@
 using namespace std;
 using namespace DirectX;
 
+ID3D11Device* g_pMainDevice = nullptr;
+
 void RenderThread(
     std::vector<ID3D11CommandList*>& DX11CommandLists, std::mutex& dx11CommandMutex,
     ID3D11Device* pMainDevice,
@@ -44,10 +46,10 @@ KMGRender::~KMGRender()
 {
     CleanupRenderTarget();
 
-    if (pMainDevice)
+    if (g_pMainDevice)
     {
-        pMainDevice->Release();
-        pMainDevice = nullptr;
+        g_pMainDevice->Release();
+        g_pMainDevice = nullptr;
     }
 
     if (pMainContext)
@@ -129,9 +131,9 @@ bool KMGRender::CreateDeviceD3D()
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
     D3D_FEATURE_LEVEL featureLevel;
     const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
-    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
+    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &g_pMainDevice, &featureLevel, &pMainContext);
     if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
-        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &pMainDevice, &featureLevel, &pMainContext);
+        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &pSwapChain, &g_pMainDevice, &featureLevel, &pMainContext);
     if (res != S_OK)
         return false;
 
@@ -157,7 +159,7 @@ HRESULT KMGRender::CreateConstBuffers()
     bd.ByteWidth = sizeof(CBChangeOnResize);
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = 0;
-    hr = pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnResize);
+    hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnResize);
     if (FAILED(hr)) return hr;
 
     float fovAngleY = XMConvertToRadians(45.0f); 
@@ -172,7 +174,7 @@ HRESULT KMGRender::CreateConstBuffers()
 
 
     bd.ByteWidth = sizeof(CBChangesEveryFrame);
-    hr = pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangesEveryFrame);
+    hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangesEveryFrame);
     if (FAILED(hr)) return hr;
 
 
@@ -190,7 +192,7 @@ void KMGRender::CreateRenderTarget()
     std::cout << "BackBuffer Size: " << desc.Width << " x " << desc.Height << "\n";
 
     // RenderTargetView 생성
-    pMainDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pMainRTV);
+    g_pMainDevice->CreateRenderTargetView(pBackBuffer, nullptr, &pMainRTV);
     pBackBuffer->Release();
 
     // 여기선 Scene에 그릴 텍스처에 해당하는 RTV를 갱신
@@ -207,10 +209,10 @@ void KMGRender::CreateRenderTarget()
 
     ID3D11Texture2D* renderTexture = nullptr;
 
-    HRESULT hr = pMainDevice->CreateTexture2D(&texDesc, nullptr, &renderTexture);
+    HRESULT hr = g_pMainDevice->CreateTexture2D(&texDesc, nullptr, &renderTexture);
     if (FAILED(hr)) return;
 
-    hr = pMainDevice->CreateRenderTargetView(renderTexture, nullptr, &pSceneRTV);
+    hr = g_pMainDevice->CreateRenderTargetView(renderTexture, nullptr, &pSceneRTV);
     if (FAILED(hr))
     {
         renderTexture->Release();
@@ -218,7 +220,7 @@ void KMGRender::CreateRenderTarget()
         return;
     }
 
-    hr = pMainDevice->CreateShaderResourceView(renderTexture, nullptr, &pSceneSRV);
+    hr = g_pMainDevice->CreateShaderResourceView(renderTexture, nullptr, &pSceneSRV);
     if (FAILED(hr))
     {
         renderTexture->Release();
@@ -247,7 +249,7 @@ void KMGRender::CreateRenderTarget()
     descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
     ID3D11Texture2D* depthStencilBuffer = nullptr;
-    hr = pMainDevice->CreateTexture2D(&descDepth, nullptr, &depthStencilBuffer);
+    hr = g_pMainDevice->CreateTexture2D(&descDepth, nullptr, &depthStencilBuffer);
     if (FAILED(hr)) return;
     
     D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
@@ -255,7 +257,7 @@ void KMGRender::CreateRenderTarget()
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
 
-    hr = pMainDevice->CreateDepthStencilView(depthStencilBuffer, &descDSV, &pSceneDSV);
+    hr = g_pMainDevice->CreateDepthStencilView(depthStencilBuffer, &descDSV, &pSceneDSV);
     
     if (depthStencilBuffer)
     {
@@ -319,7 +321,7 @@ int KMGRender::InitD3D_IMGUI()
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     ImGui_ImplWin32_Init(hMainWnd);
-    ImGui_ImplDX11_Init(pMainDevice, pMainContext);
+    ImGui_ImplDX11_Init(g_pMainDevice, pMainContext);
 
     return 0;
 }
@@ -414,7 +416,7 @@ void KMGRender::DrawScene()
         renderSettingThreads.emplace_back([&] {
             RenderThread(
                 DX11CommandLists, dx11CommandMutex,
-                pMainDevice,
+                g_pMainDevice,
                 pVertexShader,
                 pPixelShader,
                 pVertexLayout,
@@ -623,7 +625,7 @@ HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pix
         return hr;
     }
 
-    hr = pMainDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &pVertexShader);
+    hr = g_pMainDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &pVertexShader);
     if (FAILED(hr))
     {
         pVSBlob->Release();
@@ -639,7 +641,7 @@ HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pix
     };
     UINT numElements = ARRAYSIZE(layout);
 
-    hr = pMainDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
+    hr = g_pMainDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
         pVSBlob->GetBufferSize(), &pVertexLayout);
     pVSBlob->Release();
     if (FAILED(hr)) return hr;
@@ -653,7 +655,7 @@ HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pix
         return hr;
     }
 
-    hr = pMainDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &pPixelShader);
+    hr = g_pMainDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &pPixelShader);
     pPSBlob->Release();
     if (FAILED(hr)) return hr;
 

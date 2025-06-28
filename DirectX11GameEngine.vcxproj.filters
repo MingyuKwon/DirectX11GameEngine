@@ -102,6 +102,9 @@
     <ClCompile Include="KMGScene.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="KMGLib\KMGDataStructure.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">

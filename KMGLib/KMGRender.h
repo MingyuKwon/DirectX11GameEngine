@@ -9,6 +9,8 @@
 
 #include <KMGDataStructure.h>
 
+extern ID3D11Device* g_pMainDevice;
+
 class KMGRender
 {
 public:
@@ -36,7 +38,6 @@ private:
 	std::mutex renderCommandMutex;
 	std::queue<RenderCommand> renderCommandQueue;
 
-	ID3D11Device* pMainDevice = nullptr;
 	ID3D11DeviceContext* pMainContext = nullptr;
 	IDXGISwapChain* pSwapChain = nullptr;
 

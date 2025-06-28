@@ -1,6 +1,4 @@
-﻿  DirectX11Run.cpp
-  KMGDataStructure.cpp
+﻿  KMGDataStructure.cpp
   KMGDataStructure.h
   코드를 생성하고 있습니다...
-DirectX1.af309eaf\x64\Debug\KMGDataStructure.obj : warning LNK4042: 개체가 두 번 이상 지정되었습니다. 나머지는 무시됩니다.
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe

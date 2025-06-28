@@ -12,6 +12,7 @@
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
 
+extern ID3D11Device* g_pMainDevice;
 
 struct KMGVertex
 {
