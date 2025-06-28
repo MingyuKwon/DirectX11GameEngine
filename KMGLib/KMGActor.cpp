@@ -2,20 +2,31 @@
 
 KMGActor::KMGActor(std::wstring name) : name(name)
 {
-
 }
 
-const std::vector<KMGVertex>& KMGActor::GetVertices()
-{
-    return vertices;
-}
 
-const std::vector<int>& KMGActor::GetIndexes()
+
+std::wstring KMGActor::GetName()
 {
-    return indices;
+    return name;
 }
 
 void KMGActor::UpdateWorldMatrix(DirectX::XMMATRIX newMatrix)
 {
     WorldMatrix.exchange(newMatrix);
+}
+
+const std::vector<KMGVertex>& KMGActor::getVertices()
+{
+    return vertices;
+}
+
+const std::vector<int>& KMGActor::getIndices()
+{
+    return indices;
+}
+
+DirectX::XMMATRIX KMGActor::getWorldMatrix()
+{
+    return WorldMatrix;
 }

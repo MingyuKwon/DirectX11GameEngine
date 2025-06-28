@@ -345,7 +345,7 @@ void KMGRender::RenderScene(KMGScene* scene)
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    DrawScene();
+    DrawScene(scene);
     // 이건 최종적인 UI를 그리는 것이므로 이 전에 그릴 텍스처가 다 준비되어 있어야 한다
     DrawIMGUI_UI();
 
@@ -366,7 +366,7 @@ void KMGRender::RenderScene(KMGScene* scene)
     }
 }
 
-void KMGRender::DrawScene()
+void KMGRender::DrawScene(KMGScene* scene)
 {
     // 여기선 뷰 포트를 만들어서 적용시켜줘야 한다
 
@@ -402,6 +402,19 @@ void KMGRender::DrawScene()
     XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
 
     vector<thread> renderSettingThreads;
+
+    const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
+    for (auto& bucket : actors)
+    {
+        KMGActor* actor = bucket.second.get();
+        wstring actorName = actor->GetName();
+
+        auto emplaceResult = drawResources.emplace(actorName, DrawResource(actorName));
+        if (emplaceResult.second) {
+            emplaceResult.first->second.CreateBuffers(actor->getVertices(), actor->getIndices());
+        }
+        emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+    }
 
     for (auto& bucket : drawResources)
     {

@@ -5,10 +5,13 @@ class KMGActor {
 
 public:
     KMGActor(std::wstring name);
-    const std::vector<KMGVertex>& GetVertices();
-    const std::vector<int>& GetIndexes();
 
+    std::wstring GetName();
     void UpdateWorldMatrix(DirectX::XMMATRIX);
+
+    const std::vector<KMGVertex>& getVertices();
+    const std::vector<int>& getIndices();
+    DirectX::XMMATRIX getWorldMatrix();
 private:
     std::wstring name;
     std::vector<KMGVertex> vertices = {

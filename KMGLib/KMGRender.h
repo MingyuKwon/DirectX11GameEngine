@@ -76,7 +76,7 @@ private:
 
 	void CheckRenderQueue();
 
-	void DrawScene();
+	void DrawScene(KMGScene* scene);
 	void DrawIMGUI_UI();
 
 	void CreateRenderTarget();
