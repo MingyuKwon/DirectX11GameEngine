@@ -545,32 +545,28 @@ void KMGRender::Render_SceneWindow()
     ImVec2 imagePos = ImGui::GetItemRectMin();   
     ImVec2 imageSize = ImGui::GetItemRectSize(); 
 
-    string fpsStr = "FPS : " + to_string(static_cast<int>(1 / deltaTime));
+    int framePerSecond = static_cast<int>(1 / deltaTime);
+    string fpsStr = "FPS : " + to_string(framePerSecond);
     const char* c_fpsStr = fpsStr.c_str();
 
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
     ImVec2 textSize = ImGui::CalcTextSize(c_fpsStr);
+    ImVec2 bgPadding = ImVec2(8, 4);
 
-    // 텍스트 오버레이 위치 (예: 이미지 중앙)
     ImVec2 textPos = ImVec2(
         imagePos.x + imageSize.x - textSize.x + 20,
         imagePos.y 
     );
 
-    // 오버레이로 텍스트 출력
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-    // 반투명 배경
-
-    ImVec2 bgPadding = ImVec2(8, 4);
     drawList->AddRectFilled(
         ImVec2(textPos.x - textSize.x * 0.5f - bgPadding.x, textPos.y - bgPadding.y),
         ImVec2(textPos.x + textSize.x * 0.5f + bgPadding.x, textPos.y + textSize.y + bgPadding.y),
-        IM_COL32(0, 0, 0, 128)
+        IM_COL32(0, 0, 0, 220)
     );
 
-    // 텍스트
     drawList->AddText(
         ImVec2(textPos.x - textSize.x * 0.5f, textPos.y),
-        IM_COL32(255, 255, 255, 255),
+        framePerSecond > 40 ? IM_COL32(29, 219, 22, 255) : IM_COL32(255, 0, 0, 255),
         c_fpsStr
     );
 
