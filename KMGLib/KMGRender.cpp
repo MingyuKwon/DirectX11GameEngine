@@ -267,7 +267,7 @@ void KMGRender::CreateRenderTarget()
     }
 
     // 여기선 투영 행렬를 저장하는 버퍼를 업데이트 시켜준다
-    float fovAngleY = XMConvertToRadians(45.0f);
+    float fovAngleY = XMConvertToRadians(70.0f);
     float aspectRatio = (float)sceneWindowWidth / (float)sceneWindowHeight;
     float nearZ = 0.1f;
     float farZ = 100.0f;

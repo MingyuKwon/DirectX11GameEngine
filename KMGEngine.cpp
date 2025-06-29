@@ -10,6 +10,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
 void GetDeltaTime();
+void MoveCamera(WPARAM wParam);
 
 std::atomic<float> deltaTime = 0;
 
@@ -96,38 +97,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_KEYDOWN:
+
         switch (wParam)
         {
-        case VK_ESCAPE:
-        {
-            PostQuitMessage(0);
-            break;
-        }
-        case VK_DELETE:
-        {
-            if (schedular)
+            case VK_ESCAPE:
             {
-                schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
-                schedular->PushCommand(KMGCommand::RemoveActor(L"Actor2"));
+                PostQuitMessage(0);
+                break;
             }
-
-            break;
-        }
-        case VK_SPACE:
-        {
-            if (schedular)
+            case VK_DELETE:
             {
-                schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
-                schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
+                if (schedular)
+                {
+                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
+                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor2"));
+                }
 
-                schedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
-
+                break;
             }
+            case VK_SPACE:
+            {
+                if (schedular)
+                {
+                    schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
+                    schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
 
-            break;
+                    schedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
+
+                }
+
+                break;
+            }
         }
 
-        }
+        MoveCamera(wParam);
         break;
 
     case WM_SIZE:
@@ -156,6 +159,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+void MoveCamera(WPARAM wParam)
+{
+    switch (wParam)
+    {
+    case 'A':
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(-SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f, 0.0f)));
+        break;
+    case 'D':
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(+SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f, 0.0f)));
+        break;
+    case 'W':
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, 0.0f, +SCENE_EDIT_CAMERASPEED, 0.0f)));
+        break;
+    case 'S':
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, 0.0f, -SCENE_EDIT_CAMERASPEED, 0.0f)));
+        break;
+    case 'Q':
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, +SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
+        break;
+    case 'E':
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, -SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
+        break;
+
+    }
+
+}
+
 void GetDeltaTime()
 {
     static ULONGLONG prevTime = 0;
@@ -170,6 +200,8 @@ void GetDeltaTime()
     prevTime = timeCur;
 
 }
+
+
 
 int InitBaseWindow()
 {
