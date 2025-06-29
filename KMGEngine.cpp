@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <KMGScene.h>
+#include <CommandSchedular.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -18,6 +19,8 @@ HMENU hMenu = nullptr;
 HMENU hFileMenu = nullptr;
 
 KMGRender* renderEngine = nullptr;
+CommandSchedular* shedular = nullptr;
+
 KMGScene* currentScene = nullptr;
 
 using namespace std;
@@ -51,7 +54,8 @@ int main(int, char**)
     renderEngine = new KMGRender(hMainWnd);
     renderEngine->StartRenderEngine();
 
-    currentScene = new KMGScene();
+    shedular = new CommandSchedular();
+    shedular->PushCommand(make_unique<SceneCommand_ChangeScene>(new KMGScene()));
 
     MSG msg = {};
 
@@ -73,12 +77,13 @@ int main(int, char**)
         GetDeltaTime();
 
         RotateCube();
-
+        shedular->ExecuteMessage_InSchedular(currentScene);
         renderEngine->RenderScene(currentScene);
     }
 
     renderEngine->StopRenderEngine();
     delete renderEngine;
+    delete shedular;
     return 0;
 
 }

@@ -319,6 +319,12 @@ void KMGRender::RenderScene(KMGScene* scene)
 {
     if (!bRunning) return;
 
+    if (!scene)
+    {
+        std::cout << "This Scene is nullptr not suitable to Render\n";
+        return;
+    }
+
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
