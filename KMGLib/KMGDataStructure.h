@@ -27,9 +27,13 @@ struct CBChangeOnResize
     DirectX::XMMATRIX mProjection;
 };
 
-struct CBChangesEveryFrame
+struct CBChangeOnPlayer
 {
     DirectX::XMMATRIX mView;
+};
+
+struct CBChangeOnActor
+{
     DirectX::XMMATRIX mWorld;
 };
 

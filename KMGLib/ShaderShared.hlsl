@@ -2,13 +2,17 @@
 Texture2D txDiffuse : register(t0);
 SamplerState samLinear : register(s0);
 
-cbuffer cbChangesEveryFrame : register(b0)
+cbuffer cbChangeOnActor : register(b0)
 {
-    matrix View;
     matrix World;
 };
 
-cbuffer cbChangeOnResize : register(b1)
+cbuffer cbChangeOnPlayer : register(b1)
+{
+    matrix View;
+};
+
+cbuffer cbChangeOnResize : register(b2)
 {
     matrix Projection;
 };

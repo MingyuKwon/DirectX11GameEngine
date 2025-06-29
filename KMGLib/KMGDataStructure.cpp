@@ -134,7 +134,7 @@ void DrawResource::CreateBuffers(std::vector<KMGVertex> vertices, std::vector<in
     ////////////////////////////////////////
     D3D11_BUFFER_DESC cbd = {};
     cbd.Usage = D3D11_USAGE_DEFAULT;
-    cbd.ByteWidth = sizeof(CBChangesEveryFrame);
+    cbd.ByteWidth = sizeof(CBChangeOnActor);
     cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     cbd.CPUAccessFlags = 0;
 
@@ -147,14 +147,8 @@ void DrawResource::UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, XMMATRIX
 
     this->WorldMatrix = WorldMatrix;
 
-    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
-
-    CBChangesEveryFrame cb = {};
+    CBChangeOnActor cb = {};
     cb.mWorld = XMMatrixTranspose(WorldMatrix);
-    cb.mView = XMMatrixTranspose(View);
 
     pMainContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 

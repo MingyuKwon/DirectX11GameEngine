@@ -13,7 +13,7 @@ void RenderThread(
     ID3D11PixelShader* pPixelShader,
     ID3D11InputLayout* pVertexLayout,
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
-    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
+    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangeOnActor,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
     int drawIndexCount,
     int textureWidth, int textureHeight)
@@ -42,8 +42,9 @@ void RenderThread(
 
     pDeferredContext->OMSetRenderTargets(1, &pRTV, pDSV);
 
-    pDeferredContext->VSSetConstantBuffers(0, 1, &pCBChangesEveryFrame);
-    pDeferredContext->VSSetConstantBuffers(1, 1, &pCBChangeOnResize);
+    pDeferredContext->VSSetConstantBuffers(0, 1, &pCBChangeOnActor);
+    pDeferredContext->VSSetConstantBuffers(1, 1, &pCBChangeOnPlayer);
+    pDeferredContext->VSSetConstantBuffers(2, 1, &pCBChangeOnResize);
 
     UINT stride = sizeof(KMGVertex);
     UINT offset = 0;

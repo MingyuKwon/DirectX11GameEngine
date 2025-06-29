@@ -12,13 +12,13 @@ extern std::atomic<float> deltaTime;
 ID3D11Device* g_pMainDevice = nullptr;
 
 void RenderThread(
-    std::vector<ID3D11CommandList*>& DX11CommandLists, std::mutex& dx11CommandMutex,
+    vector<ID3D11CommandList*>& DX11CommandLists, mutex& dx11CommandMutex,
     ID3D11Device* pMainDevice,
     ID3D11VertexShader* pVertexShader,
     ID3D11PixelShader* pPixelShader,
     ID3D11InputLayout* pVertexLayout,
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
-    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangesEveryFrame,
+    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangeOnActor,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
     int drawIndexCount,
     int textureWidth, int textureHeight);
@@ -152,21 +152,42 @@ HRESULT KMGRender::CreateConstBuffers()
 
     D3D11_BUFFER_DESC bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(CBChangeOnResize);
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = 0;
+
+    ////////////////////////////////
+    // 창이 바뀔 때 마다 변하는 값을 저장하는 버퍼 생성
+    ////////////////////////////////
+    bd.ByteWidth = sizeof(CBChangeOnResize);
     hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnResize);
     if (FAILED(hr)) return hr;
 
+    ///////////////////////////////
+    // 플레이어(카메라)가 변할 때마다 저장하는 버퍼 생성
+    ////////////////////////////////
+    bd.ByteWidth = sizeof(CBChangeOnPlayer);
+    hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnPlayer);
+    if (FAILED(hr)) return hr;
+    
     float fovAngleY = XMConvertToRadians(45.0f); 
     float aspectRatio = (float)sceneWindowWidth / (float)sceneWindowHeight; 
     float nearZ = 0.1f;  
     float farZ = 100.0f;
-
     XMMATRIX Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
-    CBChangeOnResize cb = {};
-    cb.mProjection = Projection;
-    pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cb, 0, 0);
+
+    CBChangeOnResize cbr = {};
+    cbr.mProjection = Projection;
+    pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cbr, 0, 0);
+
+    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
+
+    CBChangeOnPlayer cbp = {};
+    cbp.mView = XMMatrixTranspose(View);
+    pMainContext->UpdateSubresource(pCBChangeOnPlayer, 0, nullptr, &cbp, 0, 0);
+
 }
 
 void KMGRender::CreateRenderTarget()
@@ -417,7 +438,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                 pPixelShader,
                 pVertexLayout,
                 pSceneRTV, pSceneDSV,
-                pCBChangeOnResize, resource.pCBChangesEveryFrame,
+                pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame,
                 resource.pVertexBuffer, resource.pIndexBuffer,
                 resource.indexCount,
                 sceneWindowWidth, sceneWindowHeight

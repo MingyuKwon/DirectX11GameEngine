@@ -42,7 +42,7 @@ struct CBChangeOnResize
     XMMATRIX mProjection;
 };
 
-struct CBChangesEveryFrame
+struct CBChangeOnActor
 {
     XMMATRIX mWorld;
     XMFLOAT4 vMeshColor;
@@ -522,7 +522,7 @@ HRESULT InitDevice()
     if( FAILED( hr ) )
         return hr;
 
-    bd.ByteWidth = sizeof(CBChangesEveryFrame);
+    bd.ByteWidth = sizeof(CBChangeOnActor);
     hr = g_pd3dDevice->CreateBuffer( &bd, nullptr, &g_pCBChangesEveryFrame );
     if( FAILED( hr ) )
         return hr;
@@ -669,7 +669,7 @@ void Render()
     //
     // Update variables that change once per frame
     //
-    CBChangesEveryFrame cb = {};
+    CBChangeOnActor cb = {};
     cb.mWorld = XMMatrixTranspose( g_World );
     cb.vMeshColor = g_vMeshColor;
     g_pImmediateContext->UpdateSubresource( g_pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0 );

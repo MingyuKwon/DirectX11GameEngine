@@ -20,7 +20,7 @@ struct KMGVertex {
     XMFLOAT2 Tex;
 };
 
-struct CBChangesEveryFrame {
+struct CBChangeOnActor {
     XMMATRIX View;
     XMMATRIX World;
 };
@@ -162,7 +162,7 @@ void InitD3D(HWND hwnd) {
     depthBuffer->Release();
 
     // Create constant buffers
-    D3D11_BUFFER_DESC cbDesc = { sizeof(CBChangesEveryFrame), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER };
+    D3D11_BUFFER_DESC cbDesc = { sizeof(CBChangeOnActor), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER };
     gDevice->CreateBuffer(&cbDesc, nullptr, &gCBFrame);
     cbDesc.ByteWidth = sizeof(CBChangeOnResize);
     gDevice->CreateBuffer(&cbDesc, nullptr, &gCBResize);
@@ -178,7 +178,7 @@ void DrawScene() {
     XMMATRIX World = XMMatrixIdentity();
     XMMATRIX Projection = XMMatrixPerspectiveFovLH(XM_PIDIV4, 1280.0f / 720.0f, 0.1f, 100.0f);
 
-    CBChangesEveryFrame cbFrame = { XMMatrixTranspose(View), XMMatrixTranspose(World) };
+    CBChangeOnActor cbFrame = { XMMatrixTranspose(View), XMMatrixTranspose(World) };
     gContext->UpdateSubresource(gCBFrame, 0, nullptr, &cbFrame, 0, 0);
     CBChangeOnResize cbResize = { XMMatrixTranspose(Projection) };
     gContext->UpdateSubresource(gCBResize, 0, nullptr, &cbResize, 0, 0);

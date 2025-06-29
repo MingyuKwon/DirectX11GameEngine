@@ -50,7 +50,7 @@ private:
 	ID3D11InputLayout* pVertexLayout = nullptr;
 
 	ID3D11Buffer* pCBChangeOnResize = nullptr;
-	ID3D11Buffer* pCBPlayer = nullptr;
+	ID3D11Buffer* pCBChangeOnPlayer = nullptr;
 
 
 	std::atomic<int> mainWindowWidth = DEFAULT_WINDOW_WIDTH;
