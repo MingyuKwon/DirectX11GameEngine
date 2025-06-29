@@ -176,10 +176,10 @@ void MoveCamera(WPARAM wParam)
         schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, 0.0f, -SCENE_EDIT_CAMERASPEED, 0.0f)));
         break;
     case 'Q':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, +SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, -SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
         break;
     case 'E':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, -SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, +SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
         break;
 
     }

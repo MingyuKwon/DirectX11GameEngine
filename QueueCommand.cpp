@@ -32,20 +32,16 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, false);
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraTarget_A(DirectX::XMVECTOR TargetPosition)
-	{
-		return std::make_unique<SceneCommand_CameraTargetUpdate>(TargetPosition, false);
-	}
-
 	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition)
 	{
 		return std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, true);
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraTarget_R(DirectX::XMVECTOR TargetPosition)
+	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(DirectX::XMVECTOR forwardVector)
 	{
-		return std::make_unique<SceneCommand_CameraTargetUpdate>(TargetPosition, true);
+		return std::make_unique<SceneCommand_CameraForwardVectorUpdate>(forwardVector);
 	}
+
 }
 
 void SceneCommand_AddActor::Execute(KMGScene*& scene)
@@ -94,12 +90,12 @@ void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)
 	currentCamera.SetCameraPosition(bRelative ? currentCamera.GetCameraPosition() + cameraPosition : cameraPosition);
 }
 
-void SceneCommand_CameraTargetUpdate::Execute(KMGScene*& scene)
+void SceneCommand_CameraForwardVectorUpdate::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
 	KMGCamera& currentCamera = scene->GetCurrentCamera();
 
-	currentCamera.SetTargetPosition(bRelative ? currentCamera.GetTargetPosition() + targetPosition : targetPosition);
+	currentCamera.SetForwardVector(forwardVector);
 }
 

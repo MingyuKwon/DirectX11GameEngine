@@ -20,7 +20,7 @@ enum class CommandMessageType : int
 	ERC_UPDATE_ACTOR,
 
 	ERC_CAMERA_POSITION_UPDATE,
-	ERC_CAMERA_TARGET_UPDATE,
+	ERC_CAMERA_FORWARD_UPDATE,
 
 	ERC_MAX,
 };
@@ -41,11 +41,9 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix);
 
 	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition);
-	std::unique_ptr<SceneCommandMessage> UpdateCameraTarget_A(DirectX::XMVECTOR TargetPosition);
-
 	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition);
-	std::unique_ptr<SceneCommandMessage> UpdateCameraTarget_R(DirectX::XMVECTOR TargetPosition);
 
+	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(DirectX::XMVECTOR forwardVector);
 
 }
 
@@ -120,18 +118,14 @@ private:
 
 };
 
-struct SceneCommand_CameraTargetUpdate : public SceneCommandMessage
+struct SceneCommand_CameraForwardVectorUpdate : public SceneCommandMessage
 {
-	SceneCommand_CameraTargetUpdate(const DirectX::XMVECTOR& TargetPosition, bool bRelative) : targetPosition(TargetPosition), bRelative(bRelative) {
-		type = CommandMessageType::ERC_CAMERA_TARGET_UPDATE;
+	SceneCommand_CameraForwardVectorUpdate(const DirectX::XMVECTOR& forwardVector) : forwardVector(forwardVector) {
+		type = CommandMessageType::ERC_CAMERA_FORWARD_UPDATE;
 	}
 
 	void Execute(KMGScene*& scene) override;
 
 private:
-	DirectX::XMVECTOR targetPosition;
-
-	// 이게 true이면 현재 값에 행렬을 추가로 곱하고, false이면 그냥 행렬 값을 그대로 대입한다
-	bool bRelative;
-
+	DirectX::XMVECTOR forwardVector;
 };

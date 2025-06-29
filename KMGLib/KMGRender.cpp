@@ -453,7 +453,8 @@ void KMGRender::DrawScene(KMGScene* scene)
         pMainContext->ExecuteCommandList(cmd, TRUE);
         cmd->Release(); 
     }
-    if(count > 0) cout << "DrawCommand " << count << "\n";
+
+    //if(count > 0) cout << "DrawCommand " << count << "\n";
     
     DX11CommandLists.clear();
 }
