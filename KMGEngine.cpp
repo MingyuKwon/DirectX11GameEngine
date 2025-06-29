@@ -80,7 +80,7 @@ int main(int, char**)
             RotateCameraRealtime();
         }
         
-        RotateCube();
+        //RotateCube();
         schedular->ExecuteMessage_InSchedular(currentScene);
         renderEngine->RenderScene(currentScene);
     }
@@ -203,17 +203,13 @@ void RotateCameraRealtime()
     POINT currMousePos;
     GetCursorPos(&currMousePos);
 
-    if ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0 &&
-        (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0)
+    if ((GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0)
     {
         int deltaX = currMousePos.x - prevMousePos.x;
         int deltaY = currMousePos.y - prevMousePos.y;
 
-        XMMATRIX rotYaw = XMMatrixRotationY(deltaX * SCENE_EDIT_CAMERAROTATESPEED);
-        XMMATRIX rotPitch = XMMatrixRotationX(deltaY * SCENE_EDIT_CAMERAROTATESPEED);
-
         schedular->PushCommand(KMGCommand::UpdateCameraForwardVector(
-            rotYaw, rotPitch
+            deltaX * SCENE_EDIT_CAMERAROTATESPEED, deltaY * SCENE_EDIT_CAMERAROTATESPEED
         ));
 
 

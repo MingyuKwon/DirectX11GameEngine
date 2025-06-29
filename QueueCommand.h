@@ -43,8 +43,7 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition);
 	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition);
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(DirectX::XMMATRIX rotYaw, DirectX::XMMATRIX rotPitch);
-
+	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(float yawAngle, float pitchAngle);
 }
 
 
@@ -120,14 +119,14 @@ private:
 
 struct SceneCommand_CameraForwardVectorUpdate : public SceneCommandMessage
 {
-	SceneCommand_CameraForwardVectorUpdate(DirectX::XMMATRIX rotYaw, DirectX::XMMATRIX rotPitch) : rotYaw(rotYaw), rotPitch(rotPitch){
+	SceneCommand_CameraForwardVectorUpdate(float yawAngle, float pitchAngle) : yawAngle(yawAngle), pitchAngle(pitchAngle){
 		type = CommandMessageType::ERC_CAMERA_FORWARD_UPDATE;
 	}
 
 	void Execute(KMGScene*& scene) override;
 
 private:
-	DirectX::XMMATRIX rotYaw;
-	DirectX::XMMATRIX rotPitch;
+	float yawAngle;
+	float pitchAngle;
 
 };

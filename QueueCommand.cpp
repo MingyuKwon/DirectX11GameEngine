@@ -37,9 +37,9 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, true);
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(DirectX::XMMATRIX rotYaw, DirectX::XMMATRIX rotPitch)
+	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(float yawAngle, float pitchAngle)
 	{
-		return std::make_unique<SceneCommand_CameraForwardVectorUpdate>(rotYaw, rotPitch);
+		return std::make_unique<SceneCommand_CameraForwardVectorUpdate>(yawAngle, pitchAngle);
 	}
 
 }
@@ -87,7 +87,30 @@ void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)
 
 	KMGCamera& currentCamera = scene->GetCurrentCamera();
 
-	currentCamera.SetCameraPosition(bRelative ? currentCamera.GetCameraPosition() + cameraPosition : cameraPosition);
+	if (bRelative)
+	{
+		XMVECTOR forward = currentCamera.GetForwardVector();
+		XMVECTOR up = currentCamera.GetUpVector();
+		XMVECTOR right = currentCamera.GetRightVector();
+
+		float dx = XMVectorGetX(cameraPosition);
+		float dy = XMVectorGetY(cameraPosition);
+		float dz = XMVectorGetZ(cameraPosition);
+
+		XMVECTOR worldMove =
+			XMVectorScale(right, dx) +
+			XMVectorScale(up, dy) +
+			XMVectorScale(forward, dz);
+
+		XMVECTOR newPosition = XMVectorAdd(currentCamera.GetCameraPosition(), (dx == 0 && dz == 0) ? cameraPosition : worldMove);
+		currentCamera.SetCameraPosition(newPosition);
+	}
+	else
+	{
+		currentCamera.SetCameraPosition(cameraPosition);
+	}
+
+	
 }
 
 void SceneCommand_CameraForwardVectorUpdate::Execute(KMGScene*& scene)
@@ -96,11 +119,17 @@ void SceneCommand_CameraForwardVectorUpdate::Execute(KMGScene*& scene)
 
 	KMGCamera& currentCamera = scene->GetCurrentCamera();
 
-	XMVECTOR forward = currentCamera.GetForwardVector(); 
-	forward = XMVector3TransformNormal(forward, rotYaw);  
-	forward = XMVector3TransformNormal(forward, rotPitch); 
-	forward = XMVector3Normalize(forward);
+	XMVECTOR forward = currentCamera.GetForwardVector();
+	XMVECTOR up = currentCamera.GetUpVector();
+	XMVECTOR right = currentCamera.GetRightVector();
 
+	XMMATRIX yawMat = XMMatrixRotationAxis(up, yawAngle);
+	forward = XMVector3TransformNormal(forward, yawMat);
+
+	XMMATRIX pitchMat = XMMatrixRotationAxis(right, pitchAngle);
+	forward = XMVector3TransformNormal(forward, pitchMat);
+
+	forward = XMVector3Normalize(forward);
 	currentCamera.SetForwardVector(forward);
 }
 
