@@ -8,6 +8,9 @@ using namespace std;
 using namespace DirectX;
 
 extern std::atomic<float> deltaTime;
+extern std::atomic<bool> bSceneFocused;
+extern std::atomic<bool> bContentFocused;
+extern std::atomic<bool> bDetailFocused;
 
 ID3D11Device* g_pMainDevice = nullptr;
 
@@ -506,6 +509,8 @@ void KMGRender::Render_SceneWindow()
 
     ImGui::Begin(SCENE_WINDOW_NAME);
 
+    bSceneFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
+
     if (!storage->GetBool(id)) {
         storage->SetBool(id, true);
     }
@@ -572,6 +577,8 @@ void KMGRender::Render_ContentWindow()
 
     ImGui::Begin(CONTENT_WINDOW_NAME);
 
+    bContentFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
+
     if (!storage->GetBool(id)) {
         storage->SetBool(id, true);
     }
@@ -597,6 +604,8 @@ void KMGRender::Render_DetailWindow()
     }
 
     ImGui::Begin(DETAIL_WINDOW_NAME);
+
+    bDetailFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
 
     if (!storage->GetBool(id)) {
         storage->SetBool(id, true);

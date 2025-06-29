@@ -10,14 +10,6 @@ public:
     inline DirectX::XMVECTOR GetCameraPosition() { return CameraPosition; }
     inline void SetCameraPosition(DirectX::XMVECTOR inCameraPosition) 
     { 
-        DirectX::XMFLOAT3 debugOut;
-        DirectX::XMStoreFloat3(&debugOut, inCameraPosition); 
-
-        std::cout << "CameraPosition: ("
-            << debugOut.x << ", "
-            << debugOut.y << ", "
-            << debugOut.z << ")\n";
-
         CameraPosition = inCameraPosition;
     }
 

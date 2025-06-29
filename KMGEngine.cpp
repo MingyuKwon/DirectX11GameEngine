@@ -5,6 +5,8 @@
 #include <KMGScene.h>
 #include <CommandSchedular.h>
 
+
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -13,6 +15,10 @@ void GetDeltaTime();
 void MoveCameraRealtime();
 
 std::atomic<float> deltaTime = 0;
+
+std::atomic<bool> bSceneFocused = false;
+std::atomic<bool> bContentFocused = false;
+std::atomic<bool> bDetailFocused = false;
 
 HINSTANCE hWindowInstance = nullptr;
 HWND hMainWnd = nullptr;
@@ -67,8 +73,11 @@ int main(int, char**)
         }
         GetDeltaTime();
 
-        MoveCameraRealtime();
-
+        if (bSceneFocused)
+        {
+            MoveCameraRealtime();
+        }
+        
         RotateCube();
         schedular->ExecuteMessage_InSchedular(currentScene);
         renderEngine->RenderScene(currentScene);
@@ -161,6 +170,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void MoveCameraRealtime()
 {
+   
     XMVECTOR moveVector = XMVectorZero();
 
     if (GetAsyncKeyState('A') & 0x8000)
