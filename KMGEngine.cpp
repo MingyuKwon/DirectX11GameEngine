@@ -161,29 +161,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void MoveCamera(WPARAM wParam)
 {
-    switch (wParam)
-    {
-    case 'A':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(-SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f, 0.0f)));
-        break;
-    case 'D':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(+SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f, 0.0f)));
-        break;
-    case 'W':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, 0.0f, +SCENE_EDIT_CAMERASPEED, 0.0f)));
-        break;
-    case 'S':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, 0.0f, -SCENE_EDIT_CAMERASPEED, 0.0f)));
-        break;
-    case 'Q':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, -SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
-        break;
-    case 'E':
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVectorSet(0.0f, +SCENE_EDIT_CAMERASPEED, 0.0f, 0.0f)));
-        break;
+    XMVECTOR moveVector = XMVectorZero();
 
-    }
+    if (wParam == 'A') moveVector = XMVectorAdd(moveVector, XMVectorSet(-1, 0.0f, 0.0f, 0.0f));
+    if (wParam == 'D') moveVector = XMVectorAdd(moveVector, XMVectorSet(+1, 0.0f, 0.0f, 0.0f));
+    if (wParam == 'W') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, 0.0f, +1, 0.0f));
+    if (wParam == 'S') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, 0.0f, -1, 0.0f));
+    if (wParam == 'Q') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, -1, 0.0f, 0.0f));
+    if (wParam == 'E') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, +1, 0.0f, 0.0f));
 
+    schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVector4Normalize(moveVector) * SCENE_EDIT_CAMERASPEED));
 }
 
 void GetDeltaTime()
