@@ -10,7 +10,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
 void GetDeltaTime();
-void MoveCamera(WPARAM wParam);
+void MoveCameraRealtime();
 
 std::atomic<float> deltaTime = 0;
 
@@ -65,8 +65,9 @@ int main(int, char**)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-
         GetDeltaTime();
+
+        MoveCameraRealtime();
 
         RotateCube();
         schedular->ExecuteMessage_InSchedular(currentScene);
@@ -130,7 +131,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
-        MoveCamera(wParam);
         break;
 
     case WM_SIZE:
@@ -159,18 +159,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-void MoveCamera(WPARAM wParam)
+void MoveCameraRealtime()
 {
     XMVECTOR moveVector = XMVectorZero();
 
-    if (wParam == 'A') moveVector = XMVectorAdd(moveVector, XMVectorSet(-1, 0.0f, 0.0f, 0.0f));
-    if (wParam == 'D') moveVector = XMVectorAdd(moveVector, XMVectorSet(+1, 0.0f, 0.0f, 0.0f));
-    if (wParam == 'W') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, 0.0f, +1, 0.0f));
-    if (wParam == 'S') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, 0.0f, -1, 0.0f));
-    if (wParam == 'Q') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, -1, 0.0f, 0.0f));
-    if (wParam == 'E') moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, +1, 0.0f, 0.0f));
+    if (GetAsyncKeyState('A') & 0x8000)
+        moveVector = XMVectorAdd(moveVector, XMVectorSet(-1, 0.0f, 0.0f, 0.0f));
+    if (GetAsyncKeyState('D') & 0x8000)
+        moveVector = XMVectorAdd(moveVector, XMVectorSet(+1, 0.0f, 0.0f, 0.0f));
+    if (GetAsyncKeyState('W') & 0x8000)
+        moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, 0.0f, +1, 0.0f));
+    if (GetAsyncKeyState('S') & 0x8000)
+        moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, 0.0f, -1, 0.0f));
+    if (GetAsyncKeyState('Q') & 0x8000)
+        moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, -1, 0.0f, 0.0f));
+    if (GetAsyncKeyState('E') & 0x8000)
+        moveVector = XMVectorAdd(moveVector, XMVectorSet(0.0f, +1, 0.0f, 0.0f));
 
-    schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(XMVector4Normalize(moveVector) * SCENE_EDIT_CAMERASPEED));
+    if (!XMVector3Equal(moveVector, XMVectorZero()))
+    {
+        XMVECTOR moveDir = XMVector3Normalize(moveVector);
+        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(
+            XMVectorScale(moveDir, SCENE_EDIT_CAMERASPEED)
+        ));
+    }
 }
 
 void GetDeltaTime()
