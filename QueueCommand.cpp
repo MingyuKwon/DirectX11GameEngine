@@ -37,9 +37,9 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, true);
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(DirectX::XMVECTOR forwardVector)
+	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(DirectX::XMMATRIX rotYaw, DirectX::XMMATRIX rotPitch)
 	{
-		return std::make_unique<SceneCommand_CameraForwardVectorUpdate>(forwardVector);
+		return std::make_unique<SceneCommand_CameraForwardVectorUpdate>(rotYaw, rotPitch);
 	}
 
 }
@@ -96,6 +96,11 @@ void SceneCommand_CameraForwardVectorUpdate::Execute(KMGScene*& scene)
 
 	KMGCamera& currentCamera = scene->GetCurrentCamera();
 
-	currentCamera.SetForwardVector(forwardVector);
+	XMVECTOR forward = currentCamera.GetForwardVector(); 
+	forward = XMVector3TransformNormal(forward, rotYaw);  
+	forward = XMVector3TransformNormal(forward, rotPitch); 
+	forward = XMVector3Normalize(forward);
+
+	currentCamera.SetForwardVector(forward);
 }
 

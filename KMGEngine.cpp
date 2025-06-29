@@ -13,6 +13,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
 void GetDeltaTime();
 void MoveCameraRealtime();
+void RotateCameraRealtime();
 
 std::atomic<float> deltaTime = 0;
 
@@ -76,6 +77,7 @@ int main(int, char**)
         if (bSceneFocused)
         {
             MoveCameraRealtime();
+            RotateCameraRealtime();
         }
         
         RotateCube();
@@ -170,7 +172,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void MoveCameraRealtime()
 {
-   
     XMVECTOR moveVector = XMVectorZero();
 
     if (GetAsyncKeyState('A') & 0x8000)
@@ -190,9 +191,35 @@ void MoveCameraRealtime()
     {
         XMVECTOR moveDir = XMVector3Normalize(moveVector);
         schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(
-            XMVectorScale(moveDir, SCENE_EDIT_CAMERASPEED)
+            XMVectorScale(moveDir, SCENE_EDIT_CAMERAMOVESPEED)
         ));
     }
+}
+
+void RotateCameraRealtime()
+{
+    static POINT prevMousePos = {0,0};
+
+    POINT currMousePos;
+    GetCursorPos(&currMousePos);
+
+    if ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0 &&
+        (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0)
+    {
+        int deltaX = currMousePos.x - prevMousePos.x;
+        int deltaY = currMousePos.y - prevMousePos.y;
+
+        XMMATRIX rotYaw = XMMatrixRotationY(deltaX * SCENE_EDIT_CAMERAROTATESPEED);
+        XMMATRIX rotPitch = XMMatrixRotationX(deltaY * SCENE_EDIT_CAMERAROTATESPEED);
+
+        schedular->PushCommand(KMGCommand::UpdateCameraForwardVector(
+            rotYaw, rotPitch
+        ));
+
+
+    }
+
+    prevMousePos = currMousePos;
 }
 
 void GetDeltaTime()
