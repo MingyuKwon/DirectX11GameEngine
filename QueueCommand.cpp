@@ -27,3 +27,15 @@ void SceneCommand_ChangeScene::Execute(KMGScene*& scene)
 
 	scene = this->scene;
 }
+
+void SceneCommand_UpdateActor::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+	
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		findActor->UpdateWorldMatrix(findActor->getWorldMatrix() * worldMatrix);
+	}
+}

@@ -10,6 +10,7 @@ enum class CommandMessageType : int
 	ERC_CHANGE_SCENE,
 	ERC_ADD_ACTOR,
 	ERC_REMOVE_ACTOR,
+	ERC_UPDATE_ACTOR,
 
 	ERC_MAX,
 };
@@ -55,4 +56,17 @@ struct SceneCommand_RemoveActor : public SceneCommandMessage
 
 private:
 	std::wstring actorName;
+};
+
+struct SceneCommand_UpdateActor : public SceneCommandMessage
+{
+	SceneCommand_UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix) : actorName(name), worldMatrix(worldMatrix){
+		type = CommandMessageType::ERC_UPDATE_ACTOR;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
 };

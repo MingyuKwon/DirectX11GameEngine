@@ -31,19 +31,10 @@ void RotateCube()
 {
     XMMATRIX RotateMatrix = XMMatrixRotationY(deltaTime);
 
-    if (currentScene)
+    if (shedular)
     {
-        KMGActor* actor = currentScene->GetActor(L"Actor1");
-        if (actor)
-        {
-            actor->UpdateWorldMatrix(actor->getWorldMatrix() * RotateMatrix);
-        }
-
-        actor = currentScene->GetActor(L"Actor2");
-        if (actor)
-        {
-            actor->UpdateWorldMatrix(actor->getWorldMatrix() * RotateMatrix);
-        }
+        shedular->PushCommand(make_unique<SceneCommand_UpdateActor>(L"Actor1", RotateMatrix));
+        shedular->PushCommand(make_unique<SceneCommand_UpdateActor>(L"Actor2", RotateMatrix));
     }
 }
 
@@ -114,28 +105,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         case VK_DELETE:
         {
-            if (currentScene)
+            if (shedular)
             {
-                currentScene->EraseActor(L"Actor1");
+                shedular->PushCommand(make_unique<SceneCommand_RemoveActor>(L"Actor1"));
+                shedular->PushCommand(make_unique<SceneCommand_RemoveActor>(L"Actor2"));
             }
 
             break;
         }
         case VK_SPACE:
         {
-            if (currentScene)
+            if (shedular)
             {
-                KMGActor* actor = currentScene->CreateActor(L"Actor1");
-                if (!actor)  std::cout << "Failed to Create Actor\n";
-            }
+                shedular->PushCommand(make_unique<SceneCommand_AddActor>(L"Actor1"));
+                shedular->PushCommand(make_unique<SceneCommand_AddActor>(L"Actor2"));
 
-            if (renderEngine)
-            {
-                KMGActor* actor = currentScene->CreateActor(L"Actor2");
-                if (actor)
-                {
-                    actor->UpdateWorldMatrix(XMMatrixTranslation(4.0f, 0.0f, 0.0f));
-                }
+                shedular->PushCommand(make_unique<SceneCommand_UpdateActor>(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
+
             }
 
             break;
