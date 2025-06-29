@@ -19,7 +19,7 @@ HMENU hMenu = nullptr;
 HMENU hFileMenu = nullptr;
 
 KMGRender* renderEngine = nullptr;
-CommandSchedular* shedular = nullptr;
+CommandSchedular* schedular = nullptr;
 
 KMGScene* currentScene = nullptr;
 
@@ -31,10 +31,10 @@ void RotateCube()
 {
     XMMATRIX RotateMatrix = XMMatrixRotationY(deltaTime);
 
-    if (shedular)
+    if (schedular)
     {
-        shedular->PushCommand(KMGCommand::UpdateActor(L"Actor1", RotateMatrix));
-        shedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", RotateMatrix));
+        schedular->PushCommand(KMGCommand::UpdateActor(L"Actor1", RotateMatrix));
+        schedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", RotateMatrix));
     }
 }
 
@@ -45,8 +45,8 @@ int main(int, char**)
     renderEngine = new KMGRender(hMainWnd);
     renderEngine->StartRenderEngine();
 
-    shedular = new CommandSchedular();
-    shedular->PushCommand(KMGCommand::ChangeScene(new KMGScene()));
+    schedular = new CommandSchedular();
+    schedular->PushCommand(KMGCommand::ChangeScene(new KMGScene()));
 
     MSG msg = {};
 
@@ -68,13 +68,13 @@ int main(int, char**)
         GetDeltaTime();
 
         RotateCube();
-        shedular->ExecuteMessage_InSchedular(currentScene);
+        schedular->ExecuteMessage_InSchedular(currentScene);
         renderEngine->RenderScene(currentScene);
     }
 
     renderEngine->StopRenderEngine();
     delete renderEngine;
-    delete shedular;
+    delete schedular;
     return 0;
 
 }
@@ -105,22 +105,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         case VK_DELETE:
         {
-            if (shedular)
+            if (schedular)
             {
-                shedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
-                shedular->PushCommand(KMGCommand::RemoveActor(L"Actor2"));
+                schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
+                schedular->PushCommand(KMGCommand::RemoveActor(L"Actor2"));
             }
 
             break;
         }
         case VK_SPACE:
         {
-            if (shedular)
+            if (schedular)
             {
-                shedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
-                shedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
+                schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
+                schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
 
-                shedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
+                schedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
 
             }
 

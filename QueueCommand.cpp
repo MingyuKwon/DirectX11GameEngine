@@ -2,6 +2,8 @@
 #include "KMGScene.h"
 #include <iostream>
 
+using namespace DirectX;
+
 void SceneCommand_AddActor::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
@@ -35,7 +37,16 @@ void SceneCommand_UpdateActor::Execute(KMGScene*& scene)
 
 	if (findActor)
 	{
-		findActor->UpdateWorldMatrix(findActor->getWorldMatrix() * worldMatrix);
+		XMMATRIX finalWorldMatrix = XMMatrixIdentity();
+
+		if (bRelative)
+		{
+			finalWorldMatrix = findActor->getWorldMatrix();
+		}
+
+		finalWorldMatrix = finalWorldMatrix * worldMatrix;
+
+		findActor->UpdateWorldMatrix(finalWorldMatrix);
 	}
 }
 
@@ -59,6 +70,6 @@ namespace KMGCommand
 
 	std::unique_ptr<SceneCommandMessage> UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix)
 	{
-		return std::make_unique<SceneCommand_UpdateActor>(name, worldMatrix);
+		return std::make_unique<SceneCommand_UpdateActor>(name, worldMatrix, true);
 	}
 }
