@@ -33,8 +33,8 @@ void RotateCube()
 
     if (shedular)
     {
-        shedular->PushCommand(make_unique<SceneCommand_UpdateActor>(L"Actor1", RotateMatrix));
-        shedular->PushCommand(make_unique<SceneCommand_UpdateActor>(L"Actor2", RotateMatrix));
+        shedular->PushCommand(KMGCommand::UpdateActor(L"Actor1", RotateMatrix));
+        shedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", RotateMatrix));
     }
 }
 
@@ -46,7 +46,7 @@ int main(int, char**)
     renderEngine->StartRenderEngine();
 
     shedular = new CommandSchedular();
-    shedular->PushCommand(make_unique<SceneCommand_ChangeScene>(new KMGScene()));
+    shedular->PushCommand(KMGCommand::ChangeScene(new KMGScene()));
 
     MSG msg = {};
 
@@ -107,8 +107,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             if (shedular)
             {
-                shedular->PushCommand(make_unique<SceneCommand_RemoveActor>(L"Actor1"));
-                shedular->PushCommand(make_unique<SceneCommand_RemoveActor>(L"Actor2"));
+                shedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
+                shedular->PushCommand(KMGCommand::RemoveActor(L"Actor2"));
             }
 
             break;
@@ -117,10 +117,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             if (shedular)
             {
-                shedular->PushCommand(make_unique<SceneCommand_AddActor>(L"Actor1"));
-                shedular->PushCommand(make_unique<SceneCommand_AddActor>(L"Actor2"));
+                shedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
+                shedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
 
-                shedular->PushCommand(make_unique<SceneCommand_UpdateActor>(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
+                shedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
 
             }
 

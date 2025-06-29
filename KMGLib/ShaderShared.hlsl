@@ -17,8 +17,6 @@ cbuffer cbChangeOnResize : register(b2)
     matrix Projection;
 };
 
-
-
 struct VS_INPUT
 {
     float4 Pos : POSITION;

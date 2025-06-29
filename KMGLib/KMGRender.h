@@ -71,8 +71,6 @@ private:
 	int InitD3D_IMGUI();
 	HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName);
 
-	void CheckRenderQueue();
-
 	void DrawScene(KMGScene* scene);
 	void DrawIMGUI_UI();
 

@@ -143,6 +143,7 @@
     <ClCompile Include="KMGLib\DirectX11Run.cpp" />
     <ClCompile Include="KMGLib\EngineData.cpp" />
     <ClCompile Include="KMGLib\KMGActor.cpp" />
+    <ClCompile Include="KMGLib\KMGCamera.cpp" />
     <ClCompile Include="KMGLib\KMGDataStructure.cpp" />
     <ClCompile Include="KMGLib\KMGRender.cpp" />
     <ClCompile Include="KMGLib\KMGScene.cpp" />
@@ -158,30 +159,13 @@
     <ClCompile Include="test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial05.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial06.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial07.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial2.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial4.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h" />
     <ClInclude Include="KMGLib\CommandSchedular.h" />
     <ClInclude Include="KMGLib\DirectX11Run.h" />
     <ClInclude Include="KMGLib\KMGActor.h" />
+    <ClInclude Include="KMGLib\KMGCamera.h" />
     <ClInclude Include="KMGLib\KMGDataStructure.h" />
     <ClInclude Include="KMGLib\KMGRender.h" />
     <ClInclude Include="KMGLib\KMGScene.h" />

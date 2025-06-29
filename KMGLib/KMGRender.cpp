@@ -179,15 +179,6 @@ HRESULT KMGRender::CreateConstBuffers()
     cbr.mProjection = Projection;
     pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cbr, 0, 0);
 
-    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
-
-    CBChangeOnPlayer cbp = {};
-    cbp.mView = XMMatrixTranspose(View);
-    pMainContext->UpdateSubresource(pCBChangeOnPlayer, 0, nullptr, &cbp, 0, 0);
-
 }
 
 void KMGRender::CreateRenderTarget()
@@ -354,8 +345,6 @@ void KMGRender::RenderScene(KMGScene* scene)
     LARGE_INTEGER frameStart;
     QueryPerformanceCounter(&frameStart);
 
-    CheckRenderQueue();
-
     if (resizeRequested.exchange(false))
     {
         CleanupRenderTarget();
@@ -397,11 +386,13 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     ////////////////////////////////////////////
     ///////////////////////////////////////////
-    XMVECTOR Eye = XMVectorSet(0.0f, 2.0f, -6.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMMATRIX View = XMMatrixLookAtLH(Eye, At, Up);
+    KMGCamera currentCamera = scene->GetCurrentCamera();
 
+    CBChangeOnPlayer cbp = {};
+    cbp.mView = XMMatrixTranspose(currentCamera.GetViewMatrix());
+    pMainContext->UpdateSubresource(pCBChangeOnPlayer, 0, nullptr, &cbp, 0, 0);
+
+    // 여기서 deferred로 렌더링 준비 작업을 액터의 개수만큼 멀티 스레드로 돌린다
     vector<thread> renderSettingThreads;
 
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
@@ -493,30 +484,6 @@ void KMGRender::DrawIMGUI_UI()
     Render_SceneWindow();
     Render_ContentWindow();
     Render_DetailWindow();
-}
-
-void KMGRender::CheckRenderQueue()
-{
-    // 긴 lock을 피하기 위해서 스냅샷을 사용
-    /*std::queue<RenderCommand> tempQueue;
-    {
-        std::lock_guard<std::mutex> lock(renderCommandMutex);
-        std::swap(tempQueue, renderCommandQueue);
-    }
-
-    while (!tempQueue.empty())
-    {
-        lock_guard<mutex> lock(renderCommandMutex);
-        RenderCommand frontCommand = tempQueue.front();
-        tempQueue.pop();
-
-        RenderCommandtype type = command.getType();
-        switch (type)
-        {
-
-        }
-
-    }*/
 }
 
 

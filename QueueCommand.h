@@ -4,6 +4,13 @@
 
 class KMGScene;
 
+struct SceneCommandMessage;
+struct SceneCommand_ChangeScene;
+struct SceneCommand_AddActor;
+struct SceneCommand_RemoveActor;
+struct SceneCommand_UpdateActor;
+
+
 enum class CommandMessageType : int
 {
 	ERC_NONE,
@@ -21,6 +28,15 @@ struct SceneCommandMessage
 	virtual void Execute(KMGScene*& scene) = 0;
 	virtual ~SceneCommandMessage() = default;
 };
+
+namespace KMGCommand
+{
+	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
+	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
+	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name);
+	std::unique_ptr<SceneCommandMessage> UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix);
+}
+
 
 struct SceneCommand_ChangeScene : public SceneCommandMessage
 {
@@ -58,6 +74,8 @@ private:
 	std::wstring actorName;
 };
 
+
+// 이거 나중에 확장하면서 즉시 세팅과 현시점기준으로 적용 2개의 버전으로 나누자
 struct SceneCommand_UpdateActor : public SceneCommandMessage
 {
 	SceneCommand_UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix) : actorName(name), worldMatrix(worldMatrix){
