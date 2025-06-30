@@ -194,10 +194,15 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
         }
 
         HRESULT hr = CreateDDSTextureFromFile(g_pMainDevice, this->textureFilePath.c_str(), nullptr, &pTextureSRV);
-        if (FAILED(hr)) this->textureFilePath = L"";
-
-        cout << "this->textureFilePath : " << this->textureFilePath.c_str() << "\n";
-
+        if (FAILED(hr))
+        {
+            wcout << "this->textureFilePath : " << this->textureFilePath << "  Failed \n";
+            this->textureFilePath = L"";
+        }
+        else
+        {
+            wcout << "this->textureFilePath : " << this->textureFilePath << "  Success \n" ;
+        }
     }
 
 }

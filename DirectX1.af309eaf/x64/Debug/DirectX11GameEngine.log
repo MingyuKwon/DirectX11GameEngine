@@ -8,7 +8,6 @@ D:\DirectX11GameEngine\KMGLib\KMGRender.h(62,61): warning C4244: '인수': 'doub
 D:\DirectX11GameEngine\KMGEngine.cpp(192,36): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
   CommandSchedular.cpp
   DirectX11Run.cpp
-  EngineData.cpp
   KMGActor.cpp
   KMGCamera.cpp
   KMGDataStructure.cpp

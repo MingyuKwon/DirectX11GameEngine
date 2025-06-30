@@ -3,5 +3,5 @@
 float4 PS(PS_INPUT input) : SV_Target
 {
     float4 texColor = txDiffuse.Sample(samLinear, input.Tex);
-    return texColor * input.Color; // 텍스처 * 버텍스 컬러 (곱셈 혼합)
+    return texColor;
 }
