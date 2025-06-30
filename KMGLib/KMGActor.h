@@ -1,6 +1,9 @@
 #pragma once
 #include <KMGDataStructure.h>
 
+extern std::vector<KMGVertex> cubeVertices;
+extern std::vector<int> cubeIndices;
+
 class KMGActor {
 
 public:
@@ -23,37 +26,19 @@ public:
     void Translate(float dx, float dy, float dz);    // 상대이동
     void Rotate(float dpitch, float dyaw, float droll); // 상대회전
 
-    const std::vector<KMGVertex>& getVertices();
-    const std::vector<int>& getIndices();
+    inline const std::vector<KMGMesh>& GetMeshes()
+    {
+        return meshes;
+    }
 
-    inline void SetMeshData(std::vector<KMGVertex>&& inVertices, std::vector<int>&& inIndices) 
+    inline void SetMeshData(std::vector<KMGMesh>&& inMeshes)
     { 
-        vertices = std::move(inVertices); 
-        indices = std::move(inIndices);
+        meshes = std::move(inMeshes);
         bShouldDrawResourceChange = true;
     }
 
 private:
     std::wstring name;
-    std::vector<KMGVertex> vertices = {
-        { {-1,1,-1},{},{1,0,0,1},{1,0} }, { {1,1,-1},{},{1,0,0,1},{0,0} },
-        { {1,1,1},{},{1,0,0,1},{0,1} }, { {-1,1,1},{},{1,0,0,1},{1,1} },
-        { {-1,-1,-1},{},{1,0,0,1},{0,0} }, { {1,-1,-1},{},{1,0,0,1},{1,0} },
-        { {1,-1,1},{},{1,0,0,1},{1,1} }, { {-1,-1,1},{},{1,0,0,1},{0,1} },
-        { {-1,-1,1},{},{1,0,0,1},{0,1} }, { {-1,-1,-1},{},{1,0,0,1},{1,1} },
-        { {-1,1,-1},{},{1,0,0,1},{1,0} }, { {-1,1,1},{},{1,0,0,1},{0,0} },
-        { {1,-1,1},{},{1,0,0,1},{1,1} }, { {1,-1,-1},{},{1,0,0,1},{0,1} },
-        { {1,1,-1},{},{1,0,0,1},{0,0} }, { {1,1,1},{},{1,0,0,1},{1,0} },
-        { {-1,-1,-1},{},{1,0,0,1},{0,1} }, { {1,-1,-1},{},{1,0,0,1},{1,1} },
-        { {1,1,-1},{},{1,0,0,1},{1,0} }, { {-1,1,-1},{},{1,0,0,1},{0,0} },
-        { {-1,-1,1},{},{1,0,0,1},{1,1} }, { {1,-1,1},{},{1,0,0,1},{0,1} },
-        { {1,1,1},{},{1,0,0,1},{0,0} }, { {-1,1,1},{},{1,0,0,1},{1,0} },
-    };
-
-    std::vector<int> indices = {
-    3,1,0, 2,1,3, 6,4,5, 7,4,6, 11,9,8, 10,9,11,
-    14,12,13, 15,12,14, 19,17,16, 18,17,19, 22,20,21, 23,20,22
-    };
-
+    std::vector<KMGMesh> meshes;  
     KMGTransform transform;
 };

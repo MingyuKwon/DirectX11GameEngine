@@ -7,4 +7,4 @@
 
 bool LoadModelToActor(const std::string& filePath, KMGActor& outActor);
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGVertex>& allVertices, std::vector<int>& allIndices);
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes);

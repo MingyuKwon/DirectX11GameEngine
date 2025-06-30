@@ -19,23 +19,20 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor)
         return false;
     }
 
-    std::vector<KMGVertex> allVertices;
-    std::vector<int> allIndices;
+    std::vector<KMGMesh> allMeshes;
 
-    Recursive_NodeProcess(scene->mRootNode, scene, allVertices, allIndices);
+    Recursive_NodeProcess(scene->mRootNode, scene, allMeshes);
 
-    outActor.SetMeshData(std::move(allVertices), std::move(allIndices));
+    outActor.SetMeshData(std::move(allMeshes));
     return true;
 }
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGVertex>& allVertices, std::vector<int>& allIndices)
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-        // 현재 메시의 시작점 오프셋
-        unsigned int indexOffset = static_cast<unsigned int>(allVertices.size());
+        KMGMesh currentMesh;
 
         // Vertices
         for (unsigned int v = 0; v < mesh->mNumVertices; ++v)
@@ -56,7 +53,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGVe
 
             vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-            allVertices.push_back(vertex);
+            currentMesh.vertices.push_back(vertex);
         }
 
         // Indices (with offset!)
@@ -65,14 +62,15 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGVe
             aiFace face = mesh->mFaces[f];
             for (unsigned int j = 0; j < face.mNumIndices; ++j)
             {
-                allIndices.push_back(face.mIndices[j] + indexOffset);
+                currentMesh.indices.push_back(face.mIndices[j]);
             }
         }
 
+        allMeshes.push_back(std::move(currentMesh));
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; ++i)
     {
-        Recursive_NodeProcess(node->mChildren[i], scene, allVertices, allIndices);
+        Recursive_NodeProcess(node->mChildren[i], scene, allMeshes);
     }
 }

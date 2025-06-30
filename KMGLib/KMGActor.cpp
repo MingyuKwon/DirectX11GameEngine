@@ -12,16 +12,6 @@ std::wstring KMGActor::GetName()
     return name;
 }
 
-const std::vector<KMGVertex>& KMGActor::getVertices()
-{
-    return vertices;
-}
-
-const std::vector<int>& KMGActor::getIndices()
-{
-    return indices;
-}
-
 DirectX::XMMATRIX KMGActor::getWorldMatrix()
 {
     return transform.GetWorldMatrix();

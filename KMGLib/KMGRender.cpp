@@ -383,7 +383,6 @@ void KMGRender::RenderScene(KMGScene* scene)
 void KMGRender::DrawScene(KMGScene* scene)
 {
     // 여기선 뷰 포트를 만들어서 적용시켜줘야 한다
-
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     pMainContext->ClearRenderTargetView(pSceneRTV, Colors::White);
 
@@ -395,7 +394,7 @@ void KMGRender::DrawScene(KMGScene* scene)
     cbp.mView = XMMatrixTranspose(currentCamera.GetViewMatrix());
     pMainContext->UpdateSubresource(pCBChangeOnPlayer, 0, nullptr, &cbp, 0, 0);
 
-    // 여기서 deferred로 렌더링 준비 작업을 액터의 개수만큼 멀티 스레드로 돌린다
+    // 여기서 deferred로 렌더링 준비 작업을 메시의 개수만큼 멀티 스레드로 돌린다
     vector<thread> renderSettingThreads;
 
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
@@ -404,15 +403,24 @@ void KMGRender::DrawScene(KMGScene* scene)
         KMGActor* actor = bucket.second.get();
         wstring actorName = actor->GetName();
 
-        auto emplaceResult = drawResources.emplace(actorName, DrawResource(actorName));
+        const vector<KMGMesh>& actorMeshes = actor->GetMeshes();
 
-        if (actor->bShouldDrawResourceChange)
+        for (int i=0; i< actorMeshes.size(); i++)
         {
-            actor->bShouldDrawResourceChange = false;
-            emplaceResult.first->second.UpdateBuffers(actor->getVertices(), actor->getIndices());
+            wstring meshName = actorName + L"___" + to_wstring(i);
+
+            auto emplaceResult = drawResources.emplace(meshName, DrawResource(meshName));
+
+            if (actor->bShouldDrawResourceChange)
+            {
+                emplaceResult.first->second.UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices);
+            }
+
+            emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
         }
 
-        emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+        actor->bShouldDrawResourceChange = false;
+
     }
 
     vector<wstring> erasedActorName;
@@ -422,7 +430,17 @@ void KMGRender::DrawScene(KMGScene* scene)
         DrawResource& resource = bucket.second;
         wstring resourceName = bucket.first;
 
-        if (actors.count(resourceName) == 0)
+        wstring actorName = resourceName;
+
+
+        // 리소스에서 액터이름을 뽑아내서 그 액터가 있는지 없는지 검사
+        size_t pos = resourceName.find(L"___");
+        if (pos != wstring::npos)
+        {
+            actorName = resourceName.substr(0, pos);
+        }
+
+        if (actors.count(actorName) == 0)
         {
             erasedActorName.push_back(resourceName);
             continue;
