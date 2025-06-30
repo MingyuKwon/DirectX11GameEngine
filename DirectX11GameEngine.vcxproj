@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir);$(SolutionDir)OuterLib;$(SolutionDir)KMGLib;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)assip;$(SolutionDir);$(SolutionDir)OuterLib;$(SolutionDir)KMGLib;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)KMGLib;$(SolutionDir)OuterLib;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -112,8 +112,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)DirectX11\Lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)assimp;$(SolutionDir)DirectX11\Lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;d3d11.lib;d3dx11d.lib;d3dx11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

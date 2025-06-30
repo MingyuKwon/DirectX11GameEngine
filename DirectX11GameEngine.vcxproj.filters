@@ -30,24 +30,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Tutorial\Tutorial1.cpp">
-      <Filter>소스 파일\Tutorial</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial2.cpp">
-      <Filter>소스 파일\Tutorial</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial4.cpp">
-      <Filter>소스 파일\Tutorial</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial05.cpp">
-      <Filter>소스 파일\Tutorial</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial06.cpp">
-      <Filter>소스 파일\Tutorial</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorial\Tutorial07.cpp">
-      <Filter>소스 파일\Tutorial</Filter>
-    </ClCompile>
     <ClCompile Include="KMGEngine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -105,6 +87,9 @@
     <ClCompile Include="KMGLib\CommandSchedular.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="KMGLib\KMGCamera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">
@@ -157,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="KMGLib\CommandSchedular.h">
       <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\KMGCamera.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
