@@ -35,14 +35,16 @@ using namespace std;
 using namespace DirectX;
 
 
-void RotateCube()
+void ChangeCubeTransform()
 {
-    XMMATRIX RotateMatrix = XMMatrixRotationY(deltaTime);
-
     if (schedular)
     {
-        schedular->PushCommand(KMGCommand::UpdateActor(L"Actor1", RotateMatrix));
-        schedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", RotateMatrix));
+        schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
+        schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
+
+        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(1, 2, 1, 0)));
+        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor2", XMVectorSet(2, 1, 1, 0)));
+
     }
 }
 
@@ -80,7 +82,7 @@ int main(int, char**)
             RotateCameraRealtime();
         }
         
-        //RotateCube();
+        ChangeCubeTransform();
         schedular->ExecuteMessage_InSchedular(currentScene);
         renderEngine->RenderScene(currentScene);
     }
@@ -134,7 +136,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
 
-                    schedular->PushCommand(KMGCommand::UpdateActor(L"Actor2", XMMatrixTranslation(4.0f, 0.0f, 0.0f)));
+                    schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor2", XMVectorSet(4.0f, 0.0f, 0.0f, 1.0f)));
 
                 }
 

@@ -8,7 +8,7 @@ struct SceneCommandMessage;
 struct SceneCommand_ChangeScene;
 struct SceneCommand_AddActor;
 struct SceneCommand_RemoveActor;
-struct SceneCommand_UpdateActor;
+struct SceneCommand_UpdateActorPosition;
 
 
 enum class CommandMessageType : int
@@ -38,7 +38,13 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name);
 
-	std::unique_ptr<SceneCommandMessage> UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix);
+	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
+	std::unique_ptr<SceneCommandMessage> UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
+
+	std::unique_ptr<SceneCommandMessage> RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation);
+	std::unique_ptr<SceneCommandMessage> UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation);
+
+	std::unique_ptr<SceneCommandMessage> UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale);
 
 	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition);
 	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition);
@@ -84,9 +90,9 @@ private:
 };
 
 
-struct SceneCommand_UpdateActor : public SceneCommandMessage
+struct SceneCommand_UpdateActorPosition : public SceneCommandMessage
 {
-	SceneCommand_UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix, bool bRelative) : actorName(name), worldMatrix(worldMatrix), bRelative(bRelative){
+	SceneCommand_UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position, bool bRelative) : actorName(name), position(position), bRelative(bRelative){
 		type = CommandMessageType::ERC_UPDATE_ACTOR;
 	}
 
@@ -94,11 +100,41 @@ struct SceneCommand_UpdateActor : public SceneCommandMessage
 
 private:
 	std::wstring actorName;
-	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
+	DirectX::XMVECTOR position;
 
 	// 이게 true이면 현재 값에 행렬을 추가로 곱하고, false이면 그냥 행렬 값을 그대로 대입한다
 	bool bRelative;
 };
+
+struct SceneCommand_UpdateActorRotation : public SceneCommandMessage
+{
+	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bRelative) : actorName(name), rotation(rotation), bRelative(bRelative) {
+		type = CommandMessageType::ERC_UPDATE_ACTOR;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	DirectX::XMVECTOR rotation;
+
+	// 이게 true이면 현재 값에 행렬을 추가로 곱하고, false이면 그냥 행렬 값을 그대로 대입한다
+	bool bRelative;
+};
+
+struct SceneCommand_UpdateActorScale : public SceneCommandMessage
+{
+	SceneCommand_UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale) : actorName(name), scale(scale) {
+		type = CommandMessageType::ERC_UPDATE_ACTOR;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	DirectX::XMVECTOR scale;
+};
+
 
 
 struct SceneCommand_CameraPositionUpdate : public SceneCommandMessage

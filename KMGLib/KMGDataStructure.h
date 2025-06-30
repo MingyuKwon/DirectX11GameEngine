@@ -22,6 +22,29 @@ struct KMGVertex
     DirectX::XMFLOAT2 Tex;
 };
 
+//--------------------------------------------------------------------------------------
+// 액터의 Transform을 저장하는 구조체
+//--------------------------------------------------------------------------------------
+struct KMGTransform {
+    
+    DirectX::XMMATRIX GetWorldMatrix() const {
+        
+        using namespace DirectX;
+        XMMATRIX S = XMMatrixScalingFromVector(scale);
+        XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(rotation);
+        XMMATRIX T = XMMatrixTranslationFromVector(position);
+
+        return S * R * T;
+    }
+
+    DirectX::XMVECTOR position = DirectX::XMVectorSet(0, 0, 0, 1);
+    DirectX::XMVECTOR rotation = DirectX::XMVectorSet(0, 0, 0, 0); // 이건 진짜 roatatrion이 아니라 yaw, pitch, roll 저장용의 벡터이다
+    DirectX::XMVECTOR scale = DirectX::XMVectorSet(1, 1, 1, 0);
+
+private:
+
+};
+
 struct CBChangeOnResize
 {
     DirectX::XMMATRIX mProjection;

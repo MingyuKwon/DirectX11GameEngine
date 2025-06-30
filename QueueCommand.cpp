@@ -21,9 +21,30 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_RemoveActor>(name);
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateActor(const std::wstring& name, DirectX::XMMATRIX worldMatrix)
+
+	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position)
 	{
-		return std::make_unique<SceneCommand_UpdateActor>(name, worldMatrix, true);
+		return std::make_unique<SceneCommand_UpdateActorPosition>(name, position, true);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position)
+	{
+		return std::make_unique<SceneCommand_UpdateActorPosition>(name, position, false);
+	}
+
+	std::unique_ptr<SceneCommandMessage> RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation)
+	{
+		return std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, true);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation)
+	{
+		return std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, false);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale)
+	{
+		return std::make_unique<SceneCommand_UpdateActorScale>(name, scale);
 	}
 
 
@@ -69,18 +90,6 @@ void SceneCommand_ChangeScene::Execute(KMGScene*& scene)
 	scene = this->scene;
 }
 
-void SceneCommand_UpdateActor::Execute(KMGScene*& scene)
-{
-	if (!scene) return;
-	
-	KMGActor* findActor = scene->GetActor(actorName);
-
-	if (findActor)
-	{
-		findActor->UpdateWorldMatrix(bRelative ? findActor->getWorldMatrix() * worldMatrix : worldMatrix);
-	}
-}
-
 void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
@@ -110,7 +119,7 @@ void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)
 		currentCamera.SetCameraPosition(cameraPosition);
 	}
 
-	
+
 }
 
 void SceneCommand_CameraForwardVectorUpdate::Execute(KMGScene*& scene)
@@ -133,3 +142,66 @@ void SceneCommand_CameraForwardVectorUpdate::Execute(KMGScene*& scene)
 	currentCamera.SetForwardVector(forward);
 }
 
+
+void SceneCommand_UpdateActorPosition::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+	
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		float dx = XMVectorGetX(position);
+		float dy = XMVectorGetY(position);
+		float dz = XMVectorGetZ(position);
+
+		if (bRelative)
+		{
+			findActor->Translate(dx, dy, dz);
+		}
+		else
+		{
+			findActor->SetPosition(dx, dy, dz);
+		}
+	}
+}
+
+void SceneCommand_UpdateActorRotation::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		float dx = XMVectorGetX(rotation);
+		float dy = XMVectorGetY(rotation);
+		float dz = XMVectorGetZ(rotation);
+
+		if (bRelative)
+		{
+			findActor->Rotate(dx, dy, dz);
+		}
+		else
+		{
+			findActor->SetRotation(dx, dy, dz);
+		}
+	}
+}
+
+void SceneCommand_UpdateActorScale::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		float dx = XMVectorGetX(scale);
+		float dy = XMVectorGetY(scale);
+		float dz = XMVectorGetZ(scale);
+
+		findActor->SetScale(dx, dy, dz);
+	}
+
+}
