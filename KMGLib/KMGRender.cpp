@@ -405,9 +405,13 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring actorName = actor->GetName();
 
         auto emplaceResult = drawResources.emplace(actorName, DrawResource(actorName));
-        if (emplaceResult.second) {
-            emplaceResult.first->second.CreateBuffers(actor->getVertices(), actor->getIndices());
+
+        if (actor->bShouldDrawResourceChange)
+        {
+            actor->bShouldDrawResourceChange = false;
+            emplaceResult.first->second.UpdateBuffers(actor->getVertices(), actor->getIndices());
         }
+
         emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
     }
 

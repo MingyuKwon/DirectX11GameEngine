@@ -6,6 +6,8 @@ class KMGActor {
 public:
     KMGActor(std::wstring name);
 
+    std::atomic<bool> bShouldDrawResourceChange = true;
+
     std::wstring GetName();
     DirectX::XMMATRIX getWorldMatrix();
 
@@ -23,6 +25,13 @@ public:
 
     const std::vector<KMGVertex>& getVertices();
     const std::vector<int>& getIndices();
+
+    inline void SetMeshData(std::vector<KMGVertex>&& inVertices, std::vector<int>&& inIndices) 
+    { 
+        vertices = std::move(inVertices); 
+        indices = std::move(inIndices);
+        bShouldDrawResourceChange = true;
+    }
 
 private:
     std::wstring name;

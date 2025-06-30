@@ -42,13 +42,7 @@
     <ClCompile Include="KMGLib\EngineData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="KMGLib\DirectX11Run.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="KMGLib\KMGActor.cpp">
-      <Filter>소스 파일\KMGLib</Filter>
-    </ClCompile>
-    <ClCompile Include="QueueCommand.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiExample.cpp">
@@ -87,8 +81,17 @@
     <ClCompile Include="KMGLib\CommandSchedular.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="KMGLib\QueueCommand.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\UseAssimp.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
     <ClCompile Include="KMGLib\KMGCamera.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\DirectX11Run.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,14 +104,8 @@
     <ClInclude Include="KMGLib\KMGRender.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
-    <ClInclude Include="KMGLib\DirectX11Run.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="KMGLib\KMGActor.h">
       <Filter>헤더 파일\KMGLib</Filter>
-    </ClInclude>
-    <ClInclude Include="QueueCommand.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="OuterLib\imconfig.h">
       <Filter>헤더 파일\OuterLib</Filter>
@@ -143,8 +140,17 @@
     <ClInclude Include="KMGLib\CommandSchedular.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
+    <ClInclude Include="KMGLib\QueueCommand.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\UseAssimp.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
     <ClInclude Include="KMGLib\KMGCamera.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\DirectX11Run.h">
+      <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

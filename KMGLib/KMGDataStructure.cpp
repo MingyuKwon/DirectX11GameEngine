@@ -86,18 +86,20 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
     return *this;
 }
 
-void DrawResource::CreateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices)
+void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices)
 {
     if (!g_pMainDevice) return;
+
     if (pVertexBuffer)
     {
-        cout << "vertexBuffer is already created. Create Buffer Failed\n";
-        return;
+        pVertexBuffer->Release();
+        pVertexBuffer = nullptr;
     }
+
     if (pIndexBuffer)
     {
-        cout << "indexBuffer is already created. Create Buffer Failed\n";
-        return;
+        pIndexBuffer->Release();
+        pIndexBuffer = nullptr;
     }
 
     ////////////////////////////////////////

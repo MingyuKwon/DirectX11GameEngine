@@ -1,5 +1,7 @@
 #include "QueueCommand.h"
 #include "KMGScene.h"
+#include <UseAssimp.h>
+
 #include <iostream>
 
 using namespace DirectX;
@@ -19,6 +21,11 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name)
 	{
 		return std::make_unique<SceneCommand_RemoveActor>(name);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateActorMesh(const std::wstring& name, const std::string& fileName)
+	{
+		return std::make_unique<SceneCommand_UpdateActorMesh>(name, fileName);
 	}
 
 
@@ -202,6 +209,19 @@ void SceneCommand_UpdateActorScale::Execute(KMGScene*& scene)
 		float dz = XMVectorGetZ(scale);
 
 		findActor->SetScale(dx, dy, dz);
+	}
+
+}
+
+void SceneCommand_UpdateActorMesh::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		LoadModelToActor(fileName, *findActor);
 	}
 
 }

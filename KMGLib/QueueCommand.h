@@ -37,6 +37,7 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name);
+	std::unique_ptr<SceneCommandMessage> UpdateActorMesh(const std::wstring& name, const std::string& fileName);
 
 	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
 	std::unique_ptr<SceneCommandMessage> UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
@@ -89,6 +90,18 @@ private:
 	std::wstring actorName;
 };
 
+struct SceneCommand_UpdateActorMesh : public SceneCommandMessage
+{
+	SceneCommand_UpdateActorMesh(const std::wstring& name, const std::string& fileName) : actorName(name), fileName(fileName){
+		type = CommandMessageType::ERC_UPDATE_ACTOR;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	std::string fileName;
+};
 
 struct SceneCommand_UpdateActorPosition : public SceneCommandMessage
 {

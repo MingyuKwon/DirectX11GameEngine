@@ -147,6 +147,8 @@
     <ClCompile Include="KMGLib\KMGDataStructure.cpp" />
     <ClCompile Include="KMGLib\KMGRender.cpp" />
     <ClCompile Include="KMGLib\KMGScene.cpp" />
+    <ClCompile Include="KMGLib\QueueCommand.cpp" />
+    <ClCompile Include="KMGLib\UseAssimp.cpp" />
     <ClCompile Include="OuterLib\DDSTextureLoader.cpp" />
     <ClCompile Include="OuterLib\imgui.cpp" />
     <ClCompile Include="OuterLib\imgui_demo.cpp" />
@@ -155,7 +157,6 @@
     <ClCompile Include="OuterLib\imgui_impl_win32.cpp" />
     <ClCompile Include="OuterLib\imgui_tables.cpp" />
     <ClCompile Include="OuterLib\imgui_widgets.cpp" />
-    <ClCompile Include="QueueCommand.cpp" />
     <ClCompile Include="test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -169,6 +170,8 @@
     <ClInclude Include="KMGLib\KMGDataStructure.h" />
     <ClInclude Include="KMGLib\KMGRender.h" />
     <ClInclude Include="KMGLib\KMGScene.h" />
+    <ClInclude Include="KMGLib\QueueCommand.h" />
+    <ClInclude Include="KMGLib\UseAssimp.h" />
     <ClInclude Include="OuterLib\DDSTextureLoader.h" />
     <ClInclude Include="OuterLib\imconfig.h" />
     <ClInclude Include="OuterLib\imgui.h" />
@@ -178,7 +181,6 @@
     <ClInclude Include="OuterLib\imstb_rectpack.h" />
     <ClInclude Include="OuterLib\imstb_textedit.h" />
     <ClInclude Include="OuterLib\imstb_truetype.h" />
-    <ClInclude Include="QueueCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="KMGLib\ShaderShared.hlsl">
