@@ -133,12 +133,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (schedular)
                 {
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::UpdateActorMesh(L"Actor1", "Resource\\testMesh.obj"));
-
-                    schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
-
-                    schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor2", XMVectorSet(4.0f, 0.0f, 0.0f, 1.0f)));
-
+                    schedular->PushCommand(KMGCommand::UpdateActorMesh(L"Actor1", "Resource\\testGirl.obj"));
                 }
 
                 break;

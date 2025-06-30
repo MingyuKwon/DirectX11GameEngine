@@ -34,41 +34,41 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGVe
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
+        // 현재 메시의 시작점 오프셋
+        unsigned int indexOffset = static_cast<unsigned int>(allVertices.size());
+
         // Vertices
         for (unsigned int v = 0; v < mesh->mNumVertices; ++v)
         {
             KMGVertex vertex;
 
-            // Position
             vertex.Pos = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
 
-            // Normal
             if (mesh->HasNormals())
                 vertex.Normal = { mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z };
             else
-                vertex.Normal = { 0.0f, 1.0f, 0.0f }; // fallback
+                vertex.Normal = { 0.0f, 1.0f, 0.0f };
 
-            // Texture Coordinates (use channel 0)
             if (mesh->HasTextureCoords(0))
                 vertex.Tex = { mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y };
             else
                 vertex.Tex = { 0.0f, 0.0f };
 
-            // Default Color (no vertex color in Assimp by default)
             vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
             allVertices.push_back(vertex);
         }
 
-        // Indices
+        // Indices (with offset!)
         for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
         {
             aiFace face = mesh->mFaces[f];
             for (unsigned int j = 0; j < face.mNumIndices; ++j)
             {
-                allIndices.push_back(face.mIndices[j]);
+                allIndices.push_back(face.mIndices[j] + indexOffset);
             }
         }
+
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; ++i)
