@@ -12,6 +12,8 @@
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
 
+#include <EngineData.h>
+
 extern ID3D11Device* g_pMainDevice;
 
 struct KMGVertex
@@ -25,7 +27,7 @@ struct KMGVertex
 struct KMGMesh {
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;
-    ID3D11ShaderResourceView* texture; 
+    std::wstring textureFilePath = DEFAULT_TEXTURE_FILEPATH;
 };
 
 //--------------------------------------------------------------------------------------
@@ -68,12 +70,19 @@ struct CBChangeOnActor
 //--------------------------------------------------------------------------------------
 struct DrawResource
 {
+    bool bInitialized = false;
+
     std::wstring name;
+    std::wstring textureFilePath;
+
     ID3D11Buffer* pVertexBuffer = nullptr;
     ID3D11Buffer* pIndexBuffer = nullptr;
     ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 
+    ID3D11ShaderResourceView* pTextureSRV = nullptr;
+
     int indexCount = 0;
+
 
     DrawResource(std::wstring name);
     virtual ~DrawResource();
@@ -84,7 +93,7 @@ struct DrawResource
     DrawResource(DrawResource&&) noexcept;
     DrawResource& operator=(DrawResource&&) noexcept;
 
-    void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices);
+    void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath);
     void UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix);
 
 private:
@@ -93,5 +102,5 @@ private:
         0.f, 0.f, 0.f, 0.f,
         0.f, 0.f, 0.f, 0.f,
         0.f, 0.f, 0.f, 0.f
-    );;
+    );
 };

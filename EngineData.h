@@ -15,3 +15,6 @@
 
 #define SCENE_EDIT_CAMERAMOVESPEED 0.1
 #define SCENE_EDIT_CAMERAROTATESPEED 0.0025f
+
+
+#define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\BOdy Skin Base Color.png"

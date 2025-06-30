@@ -15,14 +15,15 @@ extern std::atomic<bool> bDetailFocused;
 ID3D11Device* g_pMainDevice = nullptr;
 
 void RenderThread(
-    vector<ID3D11CommandList*>& DX11CommandLists, mutex& dx11CommandMutex,
+    std::vector<ID3D11CommandList*>& DX11CommandLists, std::mutex& dx11CommandMutex,
     ID3D11Device* pMainDevice,
     ID3D11VertexShader* pVertexShader,
     ID3D11PixelShader* pPixelShader,
     ID3D11InputLayout* pVertexLayout,
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
-    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangeOnActor,
+    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangesEveryFrame,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
+    ID3D11ShaderResourceView* pTextureSRV, ID3D11SamplerState* pSamplerState,
     int drawIndexCount,
     int textureWidth, int textureHeight);
 
@@ -143,6 +144,21 @@ bool KMGRender::CreateDeviceD3D()
     mainWindowWidth.store(desc.Width);
     mainWindowHeight.store(desc.Height);
     pBackBuffer->Release();
+
+
+    ///////////////////////////////
+    // 텍스처를 읽을 방법인 Sample을 하나만 우선 제작함
+    ///////////////////////////////
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    HRESULT hr = g_pMainDevice->CreateSamplerState(&sampDesc, &pSamplerState);
 
     CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
     CreateConstBuffers();
@@ -413,7 +429,7 @@ void KMGRender::DrawScene(KMGScene* scene)
 
             if (actor->bShouldDrawResourceChange)
             {
-                emplaceResult.first->second.UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices);
+                emplaceResult.first->second.UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices, actorMeshes[i].textureFilePath);
             }
 
             emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
@@ -456,6 +472,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                 pSceneRTV, pSceneDSV,
                 pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame,
                 resource.pVertexBuffer, resource.pIndexBuffer,
+                resource.pTextureSRV, pSamplerState,
                 resource.indexCount,
                 sceneWindowWidth, sceneWindowHeight
             );}

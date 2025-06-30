@@ -15,6 +15,7 @@ void RenderThread(
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangeOnActor,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
+    ID3D11ShaderResourceView* pTextureSRV, ID3D11SamplerState* pSamplerState,
     int drawIndexCount,
     int textureWidth, int textureHeight)
 {
@@ -51,6 +52,9 @@ void RenderThread(
 
     pDeferredContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
     pDeferredContext->IASetIndexBuffer(pIdexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    pDeferredContext->PSSetShaderResources(0, 1, &pTextureSRV);
+    pDeferredContext->PSSetSamplers(0, 1, &pSamplerState);
 
     pDeferredContext->DrawIndexed(drawIndexCount, 0, 0);
 

@@ -52,6 +52,8 @@ private:
 	ID3D11Buffer* pCBChangeOnResize = nullptr;
 	ID3D11Buffer* pCBChangeOnPlayer = nullptr;
 
+	ID3D11SamplerState* pSamplerState = nullptr;
+
 
 	std::atomic<int> mainWindowWidth = DEFAULT_WINDOW_WIDTH;
 	std::atomic<int> mainWindowHeight = DEFAULT_WINDOW_HEIGHT;

@@ -64,6 +64,13 @@ DrawResource::~DrawResource()
         pCBChangesEveryFrame->Release();
         pCBChangesEveryFrame = nullptr;
     }
+
+    if (pTextureSRV)
+    {
+        pTextureSRV->Release();
+        pTextureSRV = nullptr;
+
+    }
 }
 
 DrawResource::DrawResource(DrawResource&& resource) noexcept
@@ -72,6 +79,8 @@ DrawResource::DrawResource(DrawResource&& resource) noexcept
     swap(pVertexBuffer, resource.pVertexBuffer);
     swap(pIndexBuffer, resource.pIndexBuffer);
     swap(pCBChangesEveryFrame, resource.pCBChangesEveryFrame);
+    swap(pTextureSRV, resource.pTextureSRV);
+
 }
 
 DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
@@ -96,18 +105,40 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
             pCBChangesEveryFrame = nullptr;
         }
 
+        if (pTextureSRV)
+        {
+            pTextureSRV->Release();
+            pTextureSRV = nullptr;
+        }
+
         swap(pVertexBuffer, resource.pVertexBuffer);
         swap(pIndexBuffer, resource.pIndexBuffer);
         swap(pCBChangesEveryFrame, resource.pCBChangesEveryFrame);
-
+        swap(pTextureSRV, resource.pTextureSRV);
     }
 
     return *this;
 }
 
-void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices)
+void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath)
 {
     if (!g_pMainDevice) return;
+
+    if (!bInitialized)
+    {
+        bInitialized = true;
+
+        ////////////////////////////////////////
+        // 매 프레임 바뀌는 버퍼 생성
+        ////////////////////////////////////////
+        D3D11_BUFFER_DESC cbd = {};
+        cbd.Usage = D3D11_USAGE_DEFAULT;
+        cbd.ByteWidth = sizeof(CBChangeOnActor);
+        cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        cbd.CPUAccessFlags = 0;
+
+        g_pMainDevice->CreateBuffer(&cbd, nullptr, &pCBChangesEveryFrame);
+    }
 
     if (pVertexBuffer)
     {
@@ -149,22 +180,32 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
 
     indexCount = indices.size();
 
-
     ////////////////////////////////////////
-    // 매 프레임 바뀌는 버퍼 생성
+    // 주어진 경로에서 텍스처 가져와서 만들고 srv까지 만듦
     ////////////////////////////////////////
-    D3D11_BUFFER_DESC cbd = {};
-    cbd.Usage = D3D11_USAGE_DEFAULT;
-    cbd.ByteWidth = sizeof(CBChangeOnActor);
-    cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbd.CPUAccessFlags = 0;
+    if (this->textureFilePath != textureFilePath)
+    {
+        this->textureFilePath = textureFilePath;
 
-    g_pMainDevice->CreateBuffer(&cbd, nullptr, &pCBChangesEveryFrame);
+        if (pTextureSRV)
+        {
+            pTextureSRV->Release();
+            pTextureSRV = nullptr;
+        }
+
+        HRESULT hr = CreateDDSTextureFromFile(g_pMainDevice, this->textureFilePath.c_str(), nullptr, &pTextureSRV);
+        if (FAILED(hr)) this->textureFilePath = L"";
+
+        cout << "this->textureFilePath : " << this->textureFilePath.c_str() << "\n";
+
+    }
+
 }
 
 void DrawResource::UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, XMMATRIX WorldMatrix)
 {
     if (this->WorldMatrix == WorldMatrix) return;
+
 
     this->WorldMatrix = WorldMatrix;
 
