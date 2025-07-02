@@ -41,8 +41,8 @@ void ChangeCubeTransform()
 {
     if (schedular)
     {
-        schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
-        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(0.01f, 0.01f, 0.01f, 0)));
+        //schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
+        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(0.02f, 0.02f, 0.02f, 0)));
 
         //schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
 
@@ -124,7 +124,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             g_cameraMoveSpeed += -0.01f; 
 
         if (g_cameraMoveSpeed <= 0) g_cameraMoveSpeed = 0.01f;
-        if (g_cameraMoveSpeed >= 0.5) g_cameraMoveSpeed = 0.5f;
+        if (g_cameraMoveSpeed >= 0.2) g_cameraMoveSpeed = 0.2f;
 
         return 0;
     }

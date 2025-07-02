@@ -12,6 +12,10 @@ extern std::atomic<bool> bSceneFocused;
 extern std::atomic<bool> bContentFocused;
 extern std::atomic<bool> bDetailFocused;
 
+extern float g_cameraMoveSpeed;
+extern float g_cameraRotateSpeed;
+
+
 ID3D11Device* g_pMainDevice = nullptr;
 
 void RenderThread(
@@ -567,33 +571,66 @@ void KMGRender::Render_SceneWindow()
     ImVec2 imagePos = ImGui::GetItemRectMin();   
     ImVec2 imageSize = ImGui::GetItemRectSize(); 
 
+    ImVec2 bgPadding = ImVec2(8, 4);
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    ///////////////////////////////
+    // 이게 FPS 보여주는 텍스트 띄우기
+    //////////////////////////////
     static float showDeltaTime = deltaTime;
     if (deltaTime > 0.000001f) showDeltaTime = deltaTime;
 
     int framePerSecond = static_cast<int>(1 / showDeltaTime);
     string fpsStr = "FPS : " + to_string(framePerSecond);
-    const char* c_fpsStr = fpsStr.c_str();
+    const char* c_showStr = fpsStr.c_str();
 
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-    ImVec2 textSize = ImGui::CalcTextSize(c_fpsStr);
-    ImVec2 bgPadding = ImVec2(8, 4);
+    ImVec2 textSize = ImGui::CalcTextSize(c_showStr);
 
     ImVec2 textPos = ImVec2(
-        imagePos.x + imageSize.x - textSize.x + 20,
-        imagePos.y 
+        imagePos.x + imageSize.x - 8,
+        imagePos.y + 4
     );
+    textPos.x -= textSize.x;
 
     drawList->AddRectFilled(
-        ImVec2(textPos.x - textSize.x * 0.5f - bgPadding.x, textPos.y - bgPadding.y),
-        ImVec2(textPos.x + textSize.x * 0.5f + bgPadding.x, textPos.y + textSize.y + bgPadding.y),
+        ImVec2(textPos.x - bgPadding.x, textPos.y - bgPadding.y),
+        ImVec2(textPos.x + textSize.x + bgPadding.x, textPos.y + textSize.y + bgPadding.y),
         IM_COL32(0, 0, 0, 220)
     );
 
     drawList->AddText(
-        ImVec2(textPos.x - textSize.x * 0.5f, textPos.y),
+        textPos,
         framePerSecond > 40 ? IM_COL32(29, 219, 22, 255) : IM_COL32(255, 0, 0, 255),
-        c_fpsStr
+        c_showStr
     );
+
+    textPos.x += textSize.x;
+    textPos.y += (textSize.y + bgPadding.y);
+    ///////////////////////////////
+    // 이게 카메라 속도 보여주는 텍스트 띄우기
+    //////////////////////////////
+
+    int cameraSpeed = g_cameraMoveSpeed * 100;
+    string cameraSpeedStr = "Camera Speed : " + to_string(cameraSpeed);
+    c_showStr = cameraSpeedStr.c_str();
+    textSize = ImGui::CalcTextSize(c_showStr);
+
+    textPos.x -= textSize.x;
+
+    drawList->AddRectFilled(
+        ImVec2(textPos.x - bgPadding.x, textPos.y - bgPadding.y),
+        ImVec2(textPos.x + textSize.x + bgPadding.x, textPos.y + textSize.y + bgPadding.y),
+        IM_COL32(0, 20, 0, 220)
+    );
+
+    drawList->AddText(
+        textPos,
+        IM_COL32(255, 255, 255, 255),
+        c_showStr
+    );
+
+    textPos.x += textSize.x;
+    textPos.y += (textSize.y + bgPadding.y);
 
     ImGui::End();
 }
