@@ -21,6 +21,7 @@ std::wstring Utf8ToWstring(const std::string& str)
     int size_needed = MultiByteToWideChar(CP_UTF8, 0, fileName.c_str(), -1, nullptr, 0);
     std::wstring wstrTo(size_needed, 0);
     MultiByteToWideChar(CP_UTF8, 0, fileName.c_str(), -1, &wstrTo[0], size_needed);
+
     // null 문자 제거
     wstrTo.resize(size_needed - 1);
 
@@ -125,7 +126,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
            
         }
 
-        // Vertices
+        // 정점 버퍼
         for (unsigned int v = 0; v < mesh->mNumVertices; ++v)
         {
             KMGVertex vertex;
@@ -146,7 +147,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
             currentMesh.vertices.push_back(vertex);
         }
 
-        // Indices
+        // 인덱스 버퍼
         for (unsigned int f = 0; f < mesh->mNumFaces; ++f)
         {
             aiFace face = mesh->mFaces[f];

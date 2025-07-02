@@ -4,6 +4,7 @@
 #include <string>
 #include <KMGScene.h>
 #include <CommandSchedular.h>
+#include <algorithm>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -18,6 +19,9 @@ std::atomic<float> deltaTime = 0;
 std::atomic<bool> bSceneFocused = false;
 std::atomic<bool> bContentFocused = false;
 std::atomic<bool> bDetailFocused = false;
+
+float g_cameraMoveSpeed = SCENE_EDIT_CAMERAMOVESPEED;
+float g_cameraRotateSpeed = SCENE_EDIT_CAMERAROTATESPEED;
 
 HINSTANCE hWindowInstance = nullptr;
 HWND hMainWnd = nullptr;
@@ -111,6 +115,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
+    case WM_MOUSEWHEEL:
+    {
+        short delta = GET_WHEEL_DELTA_WPARAM(wParam); // +120 or -120
+        if (delta > 0)
+            g_cameraMoveSpeed += 0.01f; // 증가
+        else
+            g_cameraMoveSpeed += -0.01f; // 감소
+
+        if (g_cameraMoveSpeed <= 0) g_cameraMoveSpeed = 0.01f;
+        if (g_cameraMoveSpeed >= 0.5) g_cameraMoveSpeed = 0.5f;
+
+
+        std::wcout << L"[카메라 속도 변경] 현재 속도: " << g_cameraMoveSpeed << std::endl;
+        return 0;
+    }
+
     case WM_KEYDOWN:
 
         switch (wParam)
@@ -191,7 +211,7 @@ void MoveCameraRealtime()
     {
         XMVECTOR moveDir = XMVector3Normalize(moveVector);
         schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(
-            XMVectorScale(moveDir, SCENE_EDIT_CAMERAMOVESPEED)
+            XMVectorScale(moveDir, g_cameraMoveSpeed)
         ));
     }
 }
