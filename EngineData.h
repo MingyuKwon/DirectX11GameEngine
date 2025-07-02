@@ -16,5 +16,5 @@
 #define SCENE_EDIT_CAMERAMOVESPEED 0.1
 #define SCENE_EDIT_CAMERAROTATESPEED 0.0025f
 
-
+#define DEFAULT_TEXTURE_FOLDER L"Resource\\Texture\\"
 #define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\top color.png"
