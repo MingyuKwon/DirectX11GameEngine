@@ -1,12 +1,2 @@
-﻿  KMGEngine.cpp
-D:\DirectX11GameEngine\KMGLib\KMGRender.h(61,59): warning C4244: '인수': 'double'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'KMGEngine.cpp'을(를) 컴파일하는 중)
-  
-D:\DirectX11GameEngine\KMGLib\KMGRender.h(62,61): warning C4244: '인수': 'double'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'KMGEngine.cpp'을(를) 컴파일하는 중)
-  
-D:\DirectX11GameEngine\KMGEngine.cpp(23,25): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
-  UseAssimp.cpp
-D:\DirectX11GameEngine\KMGLib\UseAssimp.cpp(17,35): warning C4129: '/': 인식할 수 없는 문자 이스케이프 시퀀스입니다.
-  코드를 생성하고 있습니다...
+﻿  QueueCommand.cpp
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe

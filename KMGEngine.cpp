@@ -117,17 +117,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_MOUSEWHEEL:
     {
-        short delta = GET_WHEEL_DELTA_WPARAM(wParam); // +120 or -120
+        short delta = GET_WHEEL_DELTA_WPARAM(wParam); 
         if (delta > 0)
-            g_cameraMoveSpeed += 0.01f; // 증가
+            g_cameraMoveSpeed += 0.01f; 
         else
-            g_cameraMoveSpeed += -0.01f; // 감소
+            g_cameraMoveSpeed += -0.01f; 
 
         if (g_cameraMoveSpeed <= 0) g_cameraMoveSpeed = 0.01f;
         if (g_cameraMoveSpeed >= 0.5) g_cameraMoveSpeed = 0.5f;
 
-
-        std::wcout << L"[카메라 속도 변경] 현재 속도: " << g_cameraMoveSpeed << std::endl;
         return 0;
     }
 

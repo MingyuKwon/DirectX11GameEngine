@@ -217,11 +217,18 @@ void SceneCommand_UpdateActorMesh::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
-	KMGActor* findActor = scene->GetActor(actorName);
+	std::thread loadMeshThread([&]()
+		{
+			KMGActor* findActor = scene->GetActor(actorName);
 
-	if (findActor)
-	{
-		LoadModelToActor(fileName, *findActor);
-	}
+			if (findActor)
+			{
+				LoadModelToActor(fileName, *findActor);
+			}
+		});
+
+
+
+	loadMeshThread.join();
 
 }
