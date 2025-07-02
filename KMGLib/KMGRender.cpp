@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iostream>
 #include <KMGScene.h>
+#include <LoadingManager.h>
 
 using namespace std;
 using namespace DirectX;
@@ -422,6 +423,8 @@ void KMGRender::DrawScene(KMGScene* scene)
     // 여기서 deferred로 렌더링 준비 작업을 메시의 개수만큼 멀티 스레드로 돌린다
     vector<thread> renderSettingThreads;
 
+    bool bLightChanges = false;
+
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
     for (auto& bucket : actors)
     {
@@ -429,6 +432,13 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring actorName = actor->GetName();
 
         const vector<KMGMesh>& actorMeshes = actor->GetMeshes();
+
+        LoadingManager* loading = nullptr;
+        if (actor->bShouldDrawResourceChange)
+        {
+            loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
+            loading->SetTotalCount(actorMeshes.size());
+        }
 
         for (int i=0; i< actorMeshes.size(); i++)
         {
@@ -439,6 +449,7 @@ void KMGRender::DrawScene(KMGScene* scene)
             if (actor->bShouldDrawResourceChange)
             {
                 emplaceResult.first->second.UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices, actorMeshes[i].textureFilePath, actorMeshes[i].normalMapFilePath);
+                loading->PlusCurrentCount();
             }
 
             emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
@@ -446,6 +457,12 @@ void KMGRender::DrawScene(KMGScene* scene)
 
         actor->bShouldDrawResourceChange = false;
 
+        if (loading) delete loading;
+    }
+
+    if (bLightChanges)
+    {
+        pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
     }
 
     vector<wstring> erasedActorName;
@@ -497,6 +514,8 @@ void KMGRender::DrawScene(KMGScene* scene)
     {
         drawResources.erase(name);
     }
+
+
 
     int count = 0;
     for (auto cmd : DX11CommandLists) {
@@ -610,7 +629,7 @@ void KMGRender::Render_SceneWindow()
     );
 
     textPos.x += textSize.x;
-    textPos.y += (textSize.y + bgPadding.y);
+    textPos.y += (textSize.y + 2 * bgPadding.y);
     ///////////////////////////////
     // 이게 카메라 속도 보여주는 텍스트 띄우기
     //////////////////////////////

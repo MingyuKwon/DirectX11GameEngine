@@ -5,10 +5,21 @@ extern HINSTANCE hWindowInstance;
 
 LRESULT CALLBACK LoadingWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+enum class ELoadingType
+{
+	ELT_NONE,
+	ELT_IMPORT_MESH,
+	ELT_MAKE_GPU_DATA,
+	ELT_MAX,
+
+};
+
 class LoadingManager
 {
 public:
-	LoadingManager();
+	ELoadingType loadingType = ELoadingType::ELT_NONE;
+
+	LoadingManager(ELoadingType loadingType);
 	virtual ~LoadingManager();
 
 	void SetTotalCount(int count) { totalCount = count; }

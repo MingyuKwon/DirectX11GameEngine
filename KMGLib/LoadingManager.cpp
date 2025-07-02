@@ -23,16 +23,28 @@ LRESULT CALLBACK LoadingWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 
-		// 1. 배경 지우기 (흰색 또는 원하는 색)
 		RECT rect;
 		GetClientRect(hWnd, &rect);
 		HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255)); // 흰색
 		FillRect(hdc, &rect, hBrush);
 		DeleteObject(hBrush);
 
-		// 2. 텍스트 출력
+		std::wstring loadingExplain = L"Loading ";
+		switch (pThis->loadingType)
+		{
+		case ELoadingType::ELT_IMPORT_MESH:
+			loadingExplain = L"Loading Mesh... ";
+			break;
+		case ELoadingType::ELT_MAKE_GPU_DATA:
+			loadingExplain = L"Making GPU DATA... ";
+			break;
+
+		default:
+			break;
+		}
+
 		wchar_t buffer[100];
-		swprintf(buffer, 100, L"로딩 중... (%d / %d)", pThis->getCurrentCount(), pThis->getTotalCount());
+		swprintf(buffer, 100, L"%s... ( %d / %d )", loadingExplain.c_str(), pThis->getCurrentCount(), pThis->getTotalCount());
 		DrawTextW(hdc, buffer, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
 		EndPaint(hWnd, &ps);
@@ -43,7 +55,7 @@ LRESULT CALLBACK LoadingWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-LoadingManager::LoadingManager()
+LoadingManager::LoadingManager(ELoadingType loadingType) : loadingType(loadingType)
 {
 	StartLoading();
 }
@@ -85,9 +97,22 @@ void LoadingManager::LoadingLoop()
 	int x = (screenWidth - width) / 2;
 	int y = (screenHeight - height) / 2;
 
+	std::wstring loadingTitle = L"Loading...";
+	switch (loadingType)
+	{
+	case ELoadingType::ELT_IMPORT_MESH:
+		loadingTitle = L"Loading Mesh...";
+		break;
+	case ELoadingType::ELT_MAKE_GPU_DATA:
+		loadingTitle = L"Making GPU DATA...";
+		break;
+	default:
+		break;
+	}
+
 	// 창 생성
 	HWND hwnd = CreateWindowEx(
-		0, className, L"로딩 중입니다...",
+		0, className, loadingTitle.c_str(),
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
 		x, y, width, height,
 		nullptr, nullptr, GetModuleHandle(nullptr), this
