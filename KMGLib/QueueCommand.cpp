@@ -1,6 +1,7 @@
 #include "QueueCommand.h"
 #include "KMGScene.h"
 #include <UseAssimp.h>
+#include <LoadingManager.h>
 
 #include <iostream>
 
@@ -217,18 +218,20 @@ void SceneCommand_UpdateActorMesh::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
+	LoadingManager loading;
+	loading.StartLoading();
+
 	std::thread loadMeshThread([&]()
 		{
 			KMGActor* findActor = scene->GetActor(actorName);
 
 			if (findActor)
 			{
-				LoadModelToActor(fileName, *findActor);
+				LoadModelToActor(fileName, *findActor, loading);
 			}
 		});
 
-
-
 	loadMeshThread.join();
 
+	
 }

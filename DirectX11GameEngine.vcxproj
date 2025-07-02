@@ -147,6 +147,7 @@
     <ClCompile Include="KMGLib\KMGDataStructure.cpp" />
     <ClCompile Include="KMGLib\KMGRender.cpp" />
     <ClCompile Include="KMGLib\KMGScene.cpp" />
+    <ClCompile Include="KMGLib\LoadingManager.cpp" />
     <ClCompile Include="KMGLib\QueueCommand.cpp" />
     <ClCompile Include="KMGLib\UseAssimp.cpp" />
     <ClCompile Include="OuterLib\imgui.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="KMGLib\KMGDataStructure.h" />
     <ClInclude Include="KMGLib\KMGRender.h" />
     <ClInclude Include="KMGLib\KMGScene.h" />
+    <ClInclude Include="KMGLib\LoadingManager.h" />
     <ClInclude Include="KMGLib\QueueCommand.h" />
     <ClInclude Include="KMGLib\UseAssimp.h" />
     <ClInclude Include="OuterLib\imconfig.h" />

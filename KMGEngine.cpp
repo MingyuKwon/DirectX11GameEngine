@@ -117,16 +117,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_MOUSEWHEEL:
     {
-        short delta = GET_WHEEL_DELTA_WPARAM(wParam); 
+        if (!bSceneFocused) break;
+
+        short delta = GET_WHEEL_DELTA_WPARAM(wParam);
         if (delta > 0)
-            g_cameraMoveSpeed += 0.01f; 
+            g_cameraMoveSpeed += 0.01f;
         else
-            g_cameraMoveSpeed += -0.01f; 
+            g_cameraMoveSpeed += -0.01f;
 
         if (g_cameraMoveSpeed <= 0) g_cameraMoveSpeed = 0.01f;
         if (g_cameraMoveSpeed >= 0.2) g_cameraMoveSpeed = 0.2f;
 
-        return 0;
+        break;
     }
 
     case WM_KEYDOWN:

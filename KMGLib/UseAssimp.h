@@ -5,6 +5,8 @@
 #include <assimp/postprocess.h>
 #include "KMGActor.h"
 
-bool LoadModelToActor(const std::string& filePath, KMGActor& outActor);
+class LoadingManager;
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes);
+bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager& loadingManager);
+
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes, LoadingManager& loadingManager);

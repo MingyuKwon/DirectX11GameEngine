@@ -1,6 +1,8 @@
 
 #include <UseAssimp.h>
 #include <iostream>
+#include <LoadingManager.h>
+
 
 aiTextureType types[] = {
     aiTextureType_DIFFUSE,
@@ -28,8 +30,10 @@ std::wstring Utf8ToWstring(const std::string& str)
     return DEFAULT_TEXTURE_FOLDER + wstrTo;
 }
 
-bool LoadModelToActor(const std::string& filePath, KMGActor& outActor)
+bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager& loadingManager)
 {
+    std::cout << "Loading Mesh Start : \n";
+
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile(filePath,
@@ -47,13 +51,17 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor)
 
     std::vector<KMGMesh> allMeshes;
 
-    Recursive_NodeProcess(scene->mRootNode, scene, allMeshes);
+    loadingManager.SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
+
+    std::cout << "Total Mesh Count : " << scene->mNumMeshes << "\n";
+
+    Recursive_NodeProcess(scene->mRootNode, scene, allMeshes, loadingManager);
 
     outActor.SetMeshData(std::move(allMeshes));
     return true;
 }
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes)
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes, LoadingManager& loadingManager)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i)
     {
@@ -162,6 +170,9 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
 
     for (unsigned int i = 0; i < node->mNumChildren; ++i)
     {
-        Recursive_NodeProcess(node->mChildren[i], scene, allMeshes);
+        Recursive_NodeProcess(node->mChildren[i], scene, allMeshes, loadingManager);
     }
+
+    loadingManager.PlusCurrentCount();
+
 }
