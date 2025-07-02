@@ -24,7 +24,7 @@ void RenderThread(
     ID3D11PixelShader* pPixelShader,
     ID3D11InputLayout* pVertexLayout,
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
-    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangesEveryFrame,
+    ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangesEveryFrame, ID3D11Buffer* pCBLightArray,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
     ID3D11ShaderResourceView* pTextureSRV, ID3D11ShaderResourceView* pNormalMapSRV, ID3D11SamplerState* pSamplerState,
     int drawIndexCount,
@@ -184,22 +184,28 @@ HRESULT KMGRender::CreateConstBuffers()
     hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnResize);
     if (FAILED(hr)) return hr;
 
-    ///////////////////////////////
-    // 플레이어(카메라)가 변할 때마다 저장하는 버퍼 생성
-    ////////////////////////////////
-    bd.ByteWidth = sizeof(CBChangeOnPlayer);
-    hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnPlayer);
-    if (FAILED(hr)) return hr;
-    
-    float fovAngleY = XMConvertToRadians(45.0f); 
-    float aspectRatio = (float)sceneWindowWidth / (float)sceneWindowHeight; 
-    float nearZ = 0.1f;  
+    float fovAngleY = XMConvertToRadians(45.0f);
+    float aspectRatio = (float)sceneWindowWidth / (float)sceneWindowHeight;
+    float nearZ = 0.1f;
     float farZ = 100.0f;
     XMMATRIX Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
 
     CBChangeOnResize cbr = {};
     cbr.mProjection = Projection;
     pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cbr, 0, 0);
+
+    ///////////////////////////////
+    // 플레이어(카메라)가 변할 때마다 저장하는 버퍼 생성
+    ////////////////////////////////
+    bd.ByteWidth = sizeof(CBChangeOnPlayer);
+    hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnPlayer);
+    if (FAILED(hr)) return hr;
+
+    bd.ByteWidth = sizeof(CBLightArray);
+    hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBLightArray);
+    if (FAILED(hr)) return hr;
+
+    pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
 }
 
@@ -473,9 +479,9 @@ void KMGRender::DrawScene(KMGScene* scene)
                 pPixelShader,
                 pVertexLayout,
                 pSceneRTV, pSceneDSV,
-                pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame,
+                pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame, pCBLightArray,
                 resource.pVertexBuffer, resource.pIndexBuffer,
-                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState,
+                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState, 
                 resource.indexCount,
                 sceneWindowWidth, sceneWindowHeight
             );}

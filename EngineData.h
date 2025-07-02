@@ -1,6 +1,8 @@
 #pragma once
 #include <windows.h>
 
+#define MAX_LIGHTS 8
+
 #define ENGINE_NAME L"KMG Engine"
 
 #define SCENE_WINDOW_NAME "Scene Window"

@@ -51,6 +51,9 @@ private:
 
 	ID3D11Buffer* pCBChangeOnResize = nullptr;
 	ID3D11Buffer* pCBChangeOnPlayer = nullptr;
+	ID3D11Buffer* pCBLightArray = nullptr;
+
+	CBLightArray lightArray;
 
 	ID3D11SamplerState* pSamplerState = nullptr;
 

@@ -72,6 +72,12 @@ DrawResource::~DrawResource()
         pTextureSRV = nullptr;
 
     }
+
+    if (pNormalMapSRV)
+    {
+        pNormalMapSRV->Release();
+        pNormalMapSRV = nullptr;
+    }
 }
 
 DrawResource::DrawResource(DrawResource&& resource) noexcept
@@ -81,6 +87,7 @@ DrawResource::DrawResource(DrawResource&& resource) noexcept
     swap(pIndexBuffer, resource.pIndexBuffer);
     swap(pCBChangesEveryFrame, resource.pCBChangesEveryFrame);
     swap(pTextureSRV, resource.pTextureSRV);
+    swap(pNormalMapSRV, resource.pNormalMapSRV);
 
 }
 
@@ -112,10 +119,18 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
             pTextureSRV = nullptr;
         }
 
+        if (pNormalMapSRV)
+        {
+            pNormalMapSRV->Release();
+            pNormalMapSRV = nullptr;
+        }
+
         swap(pVertexBuffer, resource.pVertexBuffer);
         swap(pIndexBuffer, resource.pIndexBuffer);
         swap(pCBChangesEveryFrame, resource.pCBChangesEveryFrame);
         swap(pTextureSRV, resource.pTextureSRV);
+        swap(pNormalMapSRV, resource.pNormalMapSRV);
+
     }
 
     return *this;

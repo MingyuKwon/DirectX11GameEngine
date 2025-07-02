@@ -4,7 +4,6 @@
 
 float4 PS(PS_INPUT input) : SV_Target
 {
-    float3 lightDirWS = float3(0.0f, 0.0f, -1.0f);
 
     float4 baseColor = txDiffuse.Sample(samLinear, input.Tex);
     float4 normalSample = txNormal.Sample(samLinear, input.Tex);
@@ -22,7 +21,21 @@ float4 PS(PS_INPUT input) : SV_Target
     // 월드 노멀 결과
     float3 normalWS = normalize(mul(TBN, normalTS));
     
-    // diffuse 결과
-    float diffuse = saturate(dot(normalize(lightDirWS), normalWS));
-    return float4(baseColor.rgb * diffuse, baseColor.a);
+    float3 finalColor = float3(0, 0, 0);
+
+    for (int i = 0; i < lightCount; ++i)
+    {
+        Light l = lights[i];
+
+        float3 lightDir;
+        if (l.type == 0) // Directional
+            lightDir = -normalize(l.direction);
+        else
+            lightDir = normalize(l.position - input.Pos.xyz);
+
+        float NdotL = saturate(dot(normalWS, lightDir));
+        finalColor += l.color * l.intensity * NdotL;
+    }
+    
+    return float4(baseColor.rgb * finalColor, baseColor.a);
 }

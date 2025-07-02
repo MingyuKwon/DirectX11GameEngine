@@ -33,6 +33,24 @@ struct KMGMesh {
 
 };
 
+struct Light
+{
+    float type; // 0 = directional, 1 = point, 2 = spot
+
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT3 direction;
+    float range;
+
+    float intensity;
+    DirectX::XMFLOAT4 color;
+};
+
+struct CBLightArray
+{
+    Light lights[MAX_LIGHTS];
+    int lightCount = 0;
+};
+
 //--------------------------------------------------------------------------------------
 // 액터의 Transform을 저장하는 구조체
 //--------------------------------------------------------------------------------------
