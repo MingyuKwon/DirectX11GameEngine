@@ -43,6 +43,11 @@ LRESULT CALLBACK LoadingWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+LoadingManager::LoadingManager()
+{
+	StartLoading();
+}
+
 LoadingManager::~LoadingManager()
 {
 	loadingThread.join();
@@ -59,6 +64,7 @@ bool LoadingManager::StartLoading()
 
 	return true;
 }
+
 
 void LoadingManager::LoadingLoop()
 {

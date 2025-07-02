@@ -1,5 +1,6 @@
 
 Texture2D txDiffuse : register(t0);
+Texture2D txNormal : register(t1);
 SamplerState samLinear : register(s0);
 
 cbuffer cbChangeOnActor : register(b0)
@@ -23,7 +24,10 @@ struct VS_INPUT
     float4 Normal : NORMAL;
     float4 Color : COLOR;
     float2 Tex : TEXCOORD0;
+    float3 Tangent : TANGENT;
+    float3 Binormal : BINORMAL;
 };
+
 
 struct PS_INPUT
 {
@@ -31,4 +35,7 @@ struct PS_INPUT
     float4 Normal : NORMAL;
     float4 Color : COLOR;
     float2 Tex : TEXCOORD0;
+    float3 Tangent : TANGENT;
+    float3 Binormal : BINORMAL;
+
 };

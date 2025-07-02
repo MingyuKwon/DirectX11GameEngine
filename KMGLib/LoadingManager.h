@@ -8,9 +8,8 @@ LRESULT CALLBACK LoadingWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 class LoadingManager
 {
 public:
+	LoadingManager();
 	virtual ~LoadingManager();
-
-	bool StartLoading();
 
 	void SetTotalCount(int count) { totalCount = count; }
 	void PlusCurrentCount() { ++currentCount; }
@@ -20,6 +19,7 @@ public:
 
 private:
 	void LoadingLoop();
+	bool StartLoading();
 
 	std::atomic<int> totalCount = 100;
 	std::atomic<int> currentCount = 0;

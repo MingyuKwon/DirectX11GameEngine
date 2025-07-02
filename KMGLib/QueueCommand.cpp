@@ -219,7 +219,6 @@ void SceneCommand_UpdateActorMesh::Execute(KMGScene*& scene)
 	if (!scene) return;
 
 	LoadingManager loading;
-	loading.StartLoading();
 
 	std::thread loadMeshThread([&]()
 		{

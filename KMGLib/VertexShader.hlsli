@@ -8,5 +8,9 @@ PS_INPUT VS(VS_INPUT input)
     output.Pos = mul(output.Pos, View);
     output.Pos = mul(output.Pos, Projection);
     output.Tex = input.Tex;
+    output.Tangent = input.Tangent;
+    output.Binormal = input.Binormal;
+    output.Normal = input.Normal;
+    
     return output;
 }

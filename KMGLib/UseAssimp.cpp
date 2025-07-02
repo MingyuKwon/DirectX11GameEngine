@@ -39,8 +39,8 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     const aiScene* scene = importer.ReadFile(filePath,
         aiProcess_Triangulate |
         aiProcess_GenNormals |
+        aiProcess_CalcTangentSpace | 
         aiProcess_JoinIdenticalVertices |
-        aiProcess_CalcTangentSpace |
         aiProcess_ConvertToLeftHanded);
 
     if (!scene || !scene->mRootNode || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
@@ -52,8 +52,6 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     std::vector<KMGMesh> allMeshes;
 
     loadingManager.SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
-
-    std::cout << "Total Mesh Count : " << scene->mNumMeshes << "\n";
 
     Recursive_NodeProcess(scene->mRootNode, scene, allMeshes, loadingManager);
 
@@ -89,13 +87,14 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
                         case aiTextureType_DIFFUSE:
                         {
                             typeName = "DIFFUSE"; 
-                            currentMesh.textureFilePath = Utf8ToWstring(path.C_Str());
-
                             break;
                         }
                         case aiTextureType_NORMALS: 
                         {
                             typeName = "NORMALS";
+                            std::cout << "[Normal Map : " << typeName << "] " << path.C_Str() << std::endl;
+                            currentMesh.normalMapFilePath = Utf8ToWstring(path.C_Str());
+
                             break;
                         }
                         case aiTextureType_SPECULAR:
@@ -106,6 +105,8 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
                         case aiTextureType_HEIGHT:
                         {
                             typeName = "HEIGHT";
+                            std::cout << "[Normal Map : " << typeName << "] " << path.C_Str() << std::endl;
+                            currentMesh.normalMapFilePath = Utf8ToWstring(path.C_Str());
                             break;
                         }
                         case aiTextureType_EMISSIVE: 
@@ -122,7 +123,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
                         }
 
 
-                        std::cout << "[텍스처: " << typeName << "] " << path.C_Str() << std::endl;
+                        //currentMesh.textureFilePath = Utf8ToWstring(path.C_Str());
 
                     }
                     else
@@ -152,6 +153,27 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
 
             vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+            if (mesh->HasTangentsAndBitangents())
+            {
+                vertex.Tangent = {
+                    mesh->mTangents[v].x,
+                    mesh->mTangents[v].y,
+                    mesh->mTangents[v].z
+                };
+
+                vertex.Binormal = {
+                    mesh->mBitangents[v].x,
+                    mesh->mBitangents[v].y,
+                    mesh->mBitangents[v].z
+                };
+            }
+            else
+            {
+                vertex.Tangent = { 1.0f, 0.0f, 0.0f };   // 기본값
+                vertex.Binormal = { 0.0f, 0.0f, 1.0f };
+            }
+
+
             currentMesh.vertices.push_back(vertex);
         }
 
@@ -164,6 +186,8 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
                 currentMesh.indices.push_back(face.mIndices[j]);
             }
         }
+
+
 
         allMeshes.push_back(std::move(currentMesh));
     }

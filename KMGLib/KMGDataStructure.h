@@ -21,12 +21,16 @@ struct KMGVertex
     DirectX::XMFLOAT3 Normal;
     DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     DirectX::XMFLOAT2 Tex;
+    DirectX::XMFLOAT3 Tangent;
+    DirectX::XMFLOAT3 Binormal;
 };
 
 struct KMGMesh {
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;
     std::wstring textureFilePath = DEFAULT_TEXTURE_FILEPATH;
+    std::wstring normalMapFilePath = DEFAULT_TEXTURE_FILEPATH;
+
 };
 
 //--------------------------------------------------------------------------------------
@@ -73,12 +77,14 @@ struct DrawResource
 
     std::wstring name;
     std::wstring textureFilePath;
+    std::wstring normalMapFilePath;
 
     ID3D11Buffer* pVertexBuffer = nullptr;
     ID3D11Buffer* pIndexBuffer = nullptr;
     ID3D11Buffer* pCBChangesEveryFrame = nullptr;
 
     ID3D11ShaderResourceView* pTextureSRV = nullptr;
+    ID3D11ShaderResourceView* pNormalMapSRV = nullptr;
 
     int indexCount = 0;
 
@@ -92,7 +98,7 @@ struct DrawResource
     DrawResource(DrawResource&&) noexcept;
     DrawResource& operator=(DrawResource&&) noexcept;
 
-    void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath);
+    void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath, std::wstring normalMapFilePath);
     void UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix);
 
 private:

@@ -15,7 +15,6 @@ extern std::atomic<bool> bDetailFocused;
 extern float g_cameraMoveSpeed;
 extern float g_cameraRotateSpeed;
 
-
 ID3D11Device* g_pMainDevice = nullptr;
 
 void RenderThread(
@@ -27,7 +26,7 @@ void RenderThread(
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangesEveryFrame,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
-    ID3D11ShaderResourceView* pTextureSRV, ID3D11SamplerState* pSamplerState,
+    ID3D11ShaderResourceView* pTextureSRV, ID3D11ShaderResourceView* pNormalMapSRV, ID3D11SamplerState* pSamplerState,
     int drawIndexCount,
     int textureWidth, int textureHeight);
 
@@ -433,7 +432,7 @@ void KMGRender::DrawScene(KMGScene* scene)
 
             if (actor->bShouldDrawResourceChange)
             {
-                emplaceResult.first->second.UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices, actorMeshes[i].textureFilePath);
+                emplaceResult.first->second.UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices, actorMeshes[i].textureFilePath, actorMeshes[i].normalMapFilePath);
             }
 
             emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
@@ -476,7 +475,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                 pSceneRTV, pSceneDSV,
                 pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame,
                 resource.pVertexBuffer, resource.pIndexBuffer,
-                resource.pTextureSRV, pSamplerState,
+                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState,
                 resource.indexCount,
                 sceneWindowWidth, sceneWindowHeight
             );}
@@ -715,6 +714,9 @@ HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pix
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+
     };
     UINT numElements = ARRAYSIZE(layout);
 

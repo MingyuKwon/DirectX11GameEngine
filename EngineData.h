@@ -17,4 +17,5 @@
 #define SCENE_EDIT_CAMERAROTATESPEED 0.003f
 
 #define DEFAULT_TEXTURE_FOLDER L"Resource\\Texture\\"
-#define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\top color.png"
+#define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\QF1_Base_Color.png"
+#define DEFAULT_NORMAL_FILEPATH L"Resource\\Texture\\QF1_Normal.png"

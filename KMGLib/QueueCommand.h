@@ -10,7 +10,6 @@ struct SceneCommand_AddActor;
 struct SceneCommand_RemoveActor;
 struct SceneCommand_UpdateActorPosition;
 
-
 enum class CommandMessageType : int
 {
 	ERC_NONE,
