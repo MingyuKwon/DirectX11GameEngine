@@ -113,7 +113,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)assimp;$(SolutionDir)DirectX11\Lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc143-mtd.lib;d3d11.lib;d3dx11d.lib;d3dx11.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;d3d11.lib;d3dx11d.lib;d3dx11.lib;d3dcompiler.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,7 +149,6 @@
     <ClCompile Include="KMGLib\KMGScene.cpp" />
     <ClCompile Include="KMGLib\QueueCommand.cpp" />
     <ClCompile Include="KMGLib\UseAssimp.cpp" />
-    <ClCompile Include="OuterLib\DDSTextureLoader.cpp" />
     <ClCompile Include="OuterLib\imgui.cpp" />
     <ClCompile Include="OuterLib\imgui_demo.cpp" />
     <ClCompile Include="OuterLib\imgui_draw.cpp" />
@@ -157,6 +156,7 @@
     <ClCompile Include="OuterLib\imgui_impl_win32.cpp" />
     <ClCompile Include="OuterLib\imgui_tables.cpp" />
     <ClCompile Include="OuterLib\imgui_widgets.cpp" />
+    <ClCompile Include="OuterLib\TextureLoader.cpp" />
     <ClCompile Include="test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -172,7 +172,6 @@
     <ClInclude Include="KMGLib\KMGScene.h" />
     <ClInclude Include="KMGLib\QueueCommand.h" />
     <ClInclude Include="KMGLib\UseAssimp.h" />
-    <ClInclude Include="OuterLib\DDSTextureLoader.h" />
     <ClInclude Include="OuterLib\imconfig.h" />
     <ClInclude Include="OuterLib\imgui.h" />
     <ClInclude Include="OuterLib\imgui_impl_dx11.h" />
@@ -181,6 +180,7 @@
     <ClInclude Include="OuterLib\imstb_rectpack.h" />
     <ClInclude Include="OuterLib\imstb_textedit.h" />
     <ClInclude Include="OuterLib\imstb_truetype.h" />
+    <ClInclude Include="OuterLib\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="KMGLib\ShaderShared.hlsl">

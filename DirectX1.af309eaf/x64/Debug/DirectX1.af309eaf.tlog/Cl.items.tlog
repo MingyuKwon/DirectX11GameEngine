@@ -9,7 +9,6 @@ D:\DirectX11GameEngine\KMGLib\KMGRender.cpp;D:\DirectX11GameEngine\DirectX1.af30
 D:\DirectX11GameEngine\KMGLib\KMGScene.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\KMGScene.obj
 D:\DirectX11GameEngine\KMGLib\QueueCommand.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\QueueCommand.obj
 D:\DirectX11GameEngine\KMGLib\UseAssimp.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\UseAssimp.obj
-D:\DirectX11GameEngine\OuterLib\DDSTextureLoader.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DDSTextureLoader.obj
 D:\DirectX11GameEngine\OuterLib\imgui.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui.obj
 D:\DirectX11GameEngine\OuterLib\imgui_demo.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_demo.obj
 D:\DirectX11GameEngine\OuterLib\imgui_draw.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_draw.obj
@@ -17,3 +16,4 @@ D:\DirectX11GameEngine\OuterLib\imgui_impl_dx11.cpp;D:\DirectX11GameEngine\Direc
 D:\DirectX11GameEngine\OuterLib\imgui_impl_win32.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_impl_win32.obj
 D:\DirectX11GameEngine\OuterLib\imgui_tables.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_tables.obj
 D:\DirectX11GameEngine\OuterLib\imgui_widgets.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\imgui_widgets.obj
+D:\DirectX11GameEngine\OuterLib\TextureLoader.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\TextureLoader.obj

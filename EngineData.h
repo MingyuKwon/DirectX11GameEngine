@@ -17,4 +17,4 @@
 #define SCENE_EDIT_CAMERAROTATESPEED 0.0025f
 
 
-#define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\seafloor.dds"
+#define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\top color.png"

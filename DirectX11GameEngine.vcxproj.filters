@@ -33,9 +33,6 @@
     <ClCompile Include="KMGEngine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="OuterLib\DDSTextureLoader.cpp">
-      <Filter>소스 파일\OuterLib</Filter>
-    </ClCompile>
     <ClCompile Include="KMGLib\KMGRender.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
@@ -93,13 +90,13 @@
     <ClCompile Include="KMGLib\DirectX11Run.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="OuterLib\TextureLoader.cpp">
+      <Filter>소스 파일\OuterLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="OuterLib\DDSTextureLoader.h">
-      <Filter>헤더 파일\OuterLib</Filter>
     </ClInclude>
     <ClInclude Include="KMGLib\KMGRender.h">
       <Filter>헤더 파일\KMGLib</Filter>
@@ -151,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="KMGLib\DirectX11Run.h">
       <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="OuterLib\TextureLoader.h">
+      <Filter>헤더 파일\OuterLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

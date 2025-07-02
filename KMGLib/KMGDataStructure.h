@@ -10,7 +10,6 @@
 #include <d3d11_1.h>
 #include <d3dcompiler.h>
 #include <directxcolors.h>
-#include "DDSTextureLoader.h"
 
 #include <EngineData.h>
 

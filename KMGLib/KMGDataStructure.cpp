@@ -1,4 +1,5 @@
 #include <KMGDataStructure.h>
+#include <TextureLoader.h>
 #include <iostream>
 
 using namespace std;
@@ -193,7 +194,7 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
             pTextureSRV = nullptr;
         }
 
-        HRESULT hr = CreateDDSTextureFromFile(g_pMainDevice, this->textureFilePath.c_str(), nullptr, &pTextureSRV);
+        HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->textureFilePath.c_str(), &pTextureSRV);
         if (FAILED(hr))
         {
             wcout << "this->textureFilePath : " << this->textureFilePath << "  Failed \n";
