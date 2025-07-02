@@ -2,6 +2,15 @@
 #include <UseAssimp.h>
 #include <iostream>
 
+aiTextureType types[] = {
+    aiTextureType_DIFFUSE,
+    aiTextureType_NORMALS,
+    aiTextureType_SPECULAR,
+    aiTextureType_HEIGHT,
+    aiTextureType_EMISSIVE,
+    aiTextureType_OPACITY
+};
+
 std::wstring Utf8ToWstring(const std::string& str)
 {
     std::string fileName = str;
@@ -55,10 +64,63 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMe
         {
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-            aiString texturePath;
-            if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS)
+            for (aiTextureType type : types)
             {
-                currentMesh.textureFilePath = Utf8ToWstring(texturePath.C_Str());
+                unsigned int texCount = material->GetTextureCount(type);
+
+                for (unsigned int i = 0; i < texCount; ++i)
+                {
+
+                    aiString path;
+                    if (material->GetTexture(type, i, &path) == AI_SUCCESS)
+                    {
+                        std::string typeName;
+                        switch (type)
+                        {
+                        case aiTextureType_DIFFUSE:
+                        {
+                            typeName = "DIFFUSE"; 
+                            currentMesh.textureFilePath = Utf8ToWstring(path.C_Str());
+
+                            break;
+                        }
+                        case aiTextureType_NORMALS: 
+                        {
+                            typeName = "NORMALS";
+                            break;
+                        }
+                        case aiTextureType_SPECULAR:
+                        {
+                            typeName = "SPECULAR";
+                            break;
+                        }
+                        case aiTextureType_HEIGHT:
+                        {
+                            typeName = "HEIGHT";
+                            break;
+                        }
+                        case aiTextureType_EMISSIVE: 
+                        {
+                            typeName = "EMISSIVE";
+                            break;
+                        }
+                        case aiTextureType_OPACITY: 
+                        {
+                            typeName = "OPACITY";
+                            break;
+                        }
+                        default: typeName = "OTHER"; break;
+                        }
+
+
+                        std::cout << "[텍스처: " << typeName << "] " << path.C_Str() << std::endl;
+
+                    }
+                    else
+                    {
+                        std::cout << "[텍스처를 가져올 수 없음] " << path.C_Str() << "\n";
+                    }
+                }
             }
            
         }
