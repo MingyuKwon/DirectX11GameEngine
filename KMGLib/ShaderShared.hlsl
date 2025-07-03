@@ -20,27 +20,28 @@ cbuffer cbChangeOnResize : register(b2)
 };
 
 
-struct Light
+cbuffer Light : register(b3)
 {
     int type; // 0 = directional, 1 = point, 2 = spot
-    float3 _pad0;
-
-    float3 position;
-    float _pad1;
-
-    float3 direction;
     float range;
-
     float intensity;
-    float3 color;
+    float lightPad_1;
+    
+    float3 position;
+    // 여기 자동으로 4패딩
+    
+    float3 direction;
+    // 여기 자동으로 4패딩
+    
+    float4 color;
 };
 
-cbuffer cbLights : register(b3)
-{
-    Light lights[MAX_LIGHTS];
-    int lightCount;
-    float _pad0[3];
-}
+//cbuffer cbLights 
+//{
+//    Light lights[MAX_LIGHTS];
+//    int lightCount;
+//    float _pad0[3];
+//}
 
 
 struct VS_INPUT
@@ -49,8 +50,8 @@ struct VS_INPUT
     float4 Normal : NORMAL;
     float4 Color : COLOR;
     float2 Tex : TEXCOORD0;
-    float3 Tangent : TANGENT;
-    float3 Binormal : BINORMAL;
+    float4 Tangent : TANGENT;
+    float4 Binormal : BINORMAL;
 };
 
 

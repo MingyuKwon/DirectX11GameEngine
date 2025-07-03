@@ -54,6 +54,7 @@ private:
 	ID3D11Buffer* pCBLightArray = nullptr;
 
 	CBLightArray lightArray;
+	Light testLight;
 
 	ID3D11SamplerState* pSamplerState = nullptr;
 

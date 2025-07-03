@@ -202,11 +202,11 @@ HRESULT KMGRender::CreateConstBuffers()
     hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBChangeOnPlayer);
     if (FAILED(hr)) return hr;
 
-    bd.ByteWidth = sizeof(CBLightArray);
+    bd.ByteWidth = sizeof(Light);
     hr = g_pMainDevice->CreateBuffer(&bd, nullptr, &pCBLightArray);
     if (FAILED(hr)) return hr;
 
-    pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
+    pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &testLight, 0, 0);
 
 }
 
@@ -501,7 +501,7 @@ void KMGRender::DrawScene(KMGScene* scene)
     }
 
     std::cout << "lightArray.lightCount : " << lightArray.lightCount << " \n";
-    pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
+    pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &testLight, 0, 0);
 
     vector<wstring> erasedActorName;
 

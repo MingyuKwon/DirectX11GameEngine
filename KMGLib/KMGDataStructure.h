@@ -39,18 +39,17 @@ struct KMGStaticMesh {
 struct alignas(16) Light
 {
     int type = 0; // 0 = directional, 1 = point, 2 = spot
-    float _pad1[3];
+    float range = 100;
+    float intensity = 2;
+    float lightPad_1;
 
-    DirectX::XMFLOAT3 position;
-    float _pad2;
+    DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f);
+    float lightPad_2;
 
-    DirectX::XMFLOAT3 direction;
-    float range;
+    DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+    float lightPad_3;
 
-    float intensity;
-    float _pad3[3];
-
-    DirectX::XMFLOAT4 color;
+    DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
     void setToDefault()
     {
@@ -61,6 +60,7 @@ struct alignas(16) Light
         color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 };
+
 
 struct alignas(16) CBLightArray
 {

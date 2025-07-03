@@ -3,14 +3,19 @@
 PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT) 0;
-    output.Pos = input.Pos;
-    output.Pos = mul(input.Pos, World);
-    output.Pos = mul(output.Pos, View);
+
+    float4 worldPos = mul(input.Pos, World);
+    float4 worldNormal = normalize(mul(input.Normal, World));
+    float4 worldTangent = normalize(mul(input.Tangent, World));
+    float4 worldBinormal = normalize(mul(input.Binormal, World));
+
+    output.Pos = mul(worldPos, View);
     output.Pos = mul(output.Pos, Projection);
     output.Tex = input.Tex;
-    output.Tangent = input.Tangent;
-    output.Binormal = input.Binormal;
-    output.Normal = input.Normal;
-    
+
+    output.Normal = worldNormal;
+    output.Tangent = worldTangent;
+    output.Binormal = worldBinormal;
+
     return output;
 }
