@@ -440,8 +440,6 @@ void KMGRender::DrawScene(KMGScene* scene)
         {
             loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
             loading->SetTotalCount(actorMeshes.size());
-            std::cout << "ActorMesh Size :" << actorMeshes.size() << "\n";
-
             if (actorMeshes.size() == 0)
             {
                 wstring firstMeshName = actorName + L"___" + to_wstring(0);
