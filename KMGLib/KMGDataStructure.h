@@ -25,9 +25,9 @@ struct KMGVertex
     DirectX::XMFLOAT3 Binormal;
 };
 
-struct KMGMesh {
+struct KMGStaticMesh {
 
-    static KMGMesh CreateDefaultSphereMesh(float radius = 1.0f);
+    static KMGStaticMesh CreateDefaultSphereMesh(float radius = 1.0f);
 
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;

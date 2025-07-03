@@ -1,5 +1,6 @@
 #pragma once
 #include <KMGDataStructure.h>
+#include <KMGComponent.h>
 
 
 class KMGActor {
@@ -24,19 +25,23 @@ public:
     void Translate(float dx, float dy, float dz);    // 상대이동
     void Rotate(float dpitch, float dyaw, float droll); // 상대회전
 
-    inline const std::vector<KMGMesh>& GetMeshes()
+    inline const std::vector<KMGStaticMesh>* GetMeshes()
     {
-        return meshes;
+        if (meshes.size() == 0) return nullptr;
+
+        return &meshes;
     }
 
-    inline void SetMeshData(std::vector<KMGMesh>&& inMeshes)
+    inline void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes)
     { 
         meshes = std::move(inMeshes);
         bShouldDrawResourceChange = true;
     }
 
 private:
+    std::unordered_map<EComponentType, KMGComponent*> components;
+
     std::wstring name;
-    std::vector<KMGMesh> meshes;  
+    std::vector<KMGStaticMesh> meshes;  
     KMGTransform transform;
 };

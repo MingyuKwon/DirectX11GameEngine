@@ -37,5 +37,5 @@ float4 PS(PS_INPUT input) : SV_Target
         finalColor += l.color * l.intensity * NdotL;
     }
     
-    return float4(baseColor.rgb , baseColor.a);
+    return float4(baseColor.rgb * finalColor, baseColor.a);
 }

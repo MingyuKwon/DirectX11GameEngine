@@ -432,31 +432,39 @@ void KMGRender::DrawScene(KMGScene* scene)
         KMGActor* actor = bucket.second.get();
         wstring actorName = actor->GetName();
 
-        const vector<KMGMesh>& actorMeshes = actor->GetMeshes();
-
+        const vector<KMGStaticMesh>* actorMeshes = actor->GetMeshes();
         LoadingManager* loading = nullptr;
+
+        // 만약 정해진 메시가 없다면 그냥 기본 메시만 처리하고 나가기
+        if (actorMeshes == nullptr)
+        {
+            wstring firstMeshName = actorName + L"___" + to_wstring(0);
+
+            if (actor->bShouldDrawResourceChange)
+            {
+                drawResources.emplace(firstMeshName, DrawResource(firstMeshName));
+
+                KMGStaticMesh defulatMesh = KMGStaticMesh::CreateDefaultSphereMesh();
+                drawResources[firstMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
+            }
+
+            drawResources[firstMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+
+            actor->bShouldDrawResourceChange = false;
+
+            continue;
+        }
         
         if (actor->bShouldDrawResourceChange)
         {
             loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
-            loading->SetTotalCount(actorMeshes.size());
-            if (actorMeshes.size() == 0)
-            {
-                wstring firstMeshName = actorName + L"___" + to_wstring(0);
-                drawResources.emplace(firstMeshName, DrawResource(firstMeshName));
-
-                KMGMesh defulatMesh = KMGMesh::CreateDefaultSphereMesh();
-                drawResources[firstMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
-
-
-                drawResources[firstMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
-            }
-                
+            loading->SetTotalCount(actorMeshes->size());
         }
 
-        for (int i = 0; i < actorMeshes.size(); i++)
+        for (int i = 0; i < actorMeshes->size(); i++)
         {
             wstring meshName = actorName + L"___" + to_wstring(i);
+            const KMGStaticMesh& actorMesh = (*actorMeshes)[i];
 
             if (drawResources.count(meshName) == 0)
             {
@@ -465,7 +473,7 @@ void KMGRender::DrawScene(KMGScene* scene)
 
             if (actor->bShouldDrawResourceChange)
             {
-                drawResources[meshName].UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices, actorMeshes[i].textureFilePath, actorMeshes[i].normalMapFilePath);
+                drawResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
                 loading->PlusCurrentCount();
             }
 

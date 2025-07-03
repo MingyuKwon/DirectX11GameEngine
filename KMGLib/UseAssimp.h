@@ -9,4 +9,4 @@ class LoadingManager;
 
 bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager& loadingManager);
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes, LoadingManager& loadingManager);
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGStaticMesh>& allMeshes, LoadingManager& loadingManager);

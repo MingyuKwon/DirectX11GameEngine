@@ -5,8 +5,8 @@
 using namespace std;
 using namespace DirectX;
 
-KMGMesh KMGMesh::CreateDefaultSphereMesh(float radius) {
-    KMGMesh mesh;
+KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius) {
+    KMGStaticMesh mesh;
     mesh.vertices.clear();
     mesh.indices.clear();
 

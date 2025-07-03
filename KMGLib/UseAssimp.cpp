@@ -49,7 +49,7 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
         return false;
     }
 
-    std::vector<KMGMesh> allMeshes;
+    std::vector<KMGStaticMesh> allMeshes;
 
     loadingManager.SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
 
@@ -59,12 +59,12 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     return true;
 }
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGMesh>& allMeshes, LoadingManager& loadingManager)
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGStaticMesh>& allMeshes, LoadingManager& loadingManager)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        KMGMesh currentMesh;
+        KMGStaticMesh currentMesh;
 
         // 텍스처 경로 가져오기
         if (mesh->mMaterialIndex >= 0)
