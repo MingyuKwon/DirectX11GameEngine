@@ -56,7 +56,7 @@ struct alignas(16) Light
         position = DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f);
         direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
         range = 100;
-        intensity = 1;
+        intensity = 2;
         color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 };

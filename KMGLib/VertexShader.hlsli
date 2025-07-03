@@ -13,9 +13,14 @@ PS_INPUT VS(VS_INPUT input)
     output.Pos = mul(output.Pos, Projection);
     output.Tex = input.Tex;
 
-    output.Normal = worldNormal;
-    output.Tangent = worldTangent;
-    output.Binormal = worldBinormal;
+    output.Normal = input.Normal;
+    output.Tangent = input.Tangent;
+    output.Binormal = input.Binormal;
 
+    //output.Normal = worldNormal;
+    //output.Tangent = worldTangent;
+    //output.Binormal = worldBinormal;
+
+    
     return output;
 }

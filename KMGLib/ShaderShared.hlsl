@@ -61,7 +61,7 @@ struct PS_INPUT
     float4 Normal : NORMAL;
     float4 Color : COLOR;
     float2 Tex : TEXCOORD0;
-    float3 Tangent : TANGENT;
-    float3 Binormal : BINORMAL;
+    float4 Tangent : TANGENT;
+    float4 Binormal : BINORMAL;
 
 };
