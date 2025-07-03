@@ -36,15 +36,20 @@ struct KMGStaticMesh {
 
 };
 
-struct Light
+struct alignas(16) Light
 {
     int type = 0; // 0 = directional, 1 = point, 2 = spot
+    float _pad1[3];
 
     DirectX::XMFLOAT3 position;
+    float _pad2;
+
     DirectX::XMFLOAT3 direction;
     float range;
 
     float intensity;
+    float _pad3[3];
+
     DirectX::XMFLOAT4 color;
 
     void setToDefault()
@@ -57,11 +62,11 @@ struct Light
     }
 };
 
-struct CBLightArray
+struct alignas(16) CBLightArray
 {
     Light lights[MAX_LIGHTS];
     int lightCount = 0;
-    int padding[3] = { 0, 0, 0 };
+    float padding[3] = { 0, 0, 0 };
 
     void clear()
     {
@@ -77,7 +82,7 @@ struct CBLightArray
         if (lightCount == MAX_LIGHTS) return false;
 
         lights[lightCount] = light;
-        lightCount++;
+        ++lightCount;
 
         return true;
 

@@ -1,7 +1,5 @@
 #include "ShaderShared.hlsl"
 
-// 시험용 광원
-
 float4 PS(PS_INPUT input) : SV_Target
 {
 
@@ -18,7 +16,11 @@ float4 PS(PS_INPUT input) : SV_Target
         
     float3 normalWS = normalize(mul(TBN, normalTS));
     
-    float3 finalColor = float3(lightCount * 0.5, lightCount * 0.5, lightCount * 0.5);
+    float3 finalColor = float3(0, 0, 0);
+    
+    return float4(lightCount / 10.0, 0, 0, 1); // 값이 보이면 전달됨
+    
+    
 
     for (int i = 0; i < lightCount; ++i)
     {

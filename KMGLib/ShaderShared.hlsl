@@ -19,25 +19,29 @@ cbuffer cbChangeOnResize : register(b2)
     matrix Projection;
 };
 
+
 struct Light
 {
     int type; // 0 = directional, 1 = point, 2 = spot
+    float3 _pad0;
 
     float3 position;
+    float _pad1;
+
     float3 direction;
     float range;
 
     float intensity;
     float3 color;
-
 };
 
 cbuffer cbLights : register(b3)
 {
     Light lights[MAX_LIGHTS];
     int lightCount;
-    float3 pad; // 16바이트 정렬
+    float _pad0[3];
 }
+
 
 struct VS_INPUT
 {

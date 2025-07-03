@@ -46,7 +46,7 @@ void RenderThread(
     pDeferredContext->VSSetConstantBuffers(0, 1, &pCBChangeOnActor);
     pDeferredContext->VSSetConstantBuffers(1, 1, &pCBChangeOnPlayer);
     pDeferredContext->VSSetConstantBuffers(2, 1, &pCBChangeOnResize);
-    pDeferredContext->VSSetConstantBuffers(3, 1, &pCBLightArray);
+    pDeferredContext->PSSetConstantBuffers(3, 1, &pCBLightArray);
 
     UINT stride = sizeof(KMGVertex);
     UINT offset = 0;

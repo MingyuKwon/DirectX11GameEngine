@@ -423,8 +423,6 @@ void KMGRender::DrawScene(KMGScene* scene)
     // 여기서 deferred로 렌더링 준비 작업을 메시의 개수만큼 멀티 스레드로 돌린다
     vector<thread> renderSettingThreads;
 
-    bool bLightChanges = false;
-
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
     lightArray.clear();
 
@@ -441,7 +439,6 @@ void KMGRender::DrawScene(KMGScene* scene)
             if (lightComp)
             {
                 lightArray.AddLight(lightComp->GetLight());
-                std::cout << "Add Light\n";
             }
         }
 
@@ -503,6 +500,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
     }
 
+    std::cout << "lightArray.lightCount : " << lightArray.lightCount << " \n";
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
     vector<wstring> erasedActorName;
