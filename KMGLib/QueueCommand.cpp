@@ -16,17 +16,28 @@ namespace KMGCommand
 
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name)
 	{
-		return std::make_unique<SceneCommand_AddActor>(name);
+		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, true);
 	}
 
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name)
 	{
-		return std::make_unique<SceneCommand_RemoveActor>(name);
+		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, false);
 	}
 
 	std::unique_ptr<SceneCommandMessage> UpdateActorMesh(const std::wstring& name, const std::string& fileName)
 	{
 		return std::make_unique<SceneCommand_UpdateActorMesh>(name, fileName);
+	}
+
+
+	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name)
+	{
+		return std::make_unique<SceneCommand_Add_Remove_LightComponent>(name, true);
+	}
+
+	std::unique_ptr<SceneCommandMessage> RemoveLightComponent(const std::wstring& name)
+	{
+		return std::make_unique<SceneCommand_Add_Remove_LightComponent>(name, false);
 	}
 
 
@@ -73,20 +84,14 @@ namespace KMGCommand
 
 }
 
-void SceneCommand_AddActor::Execute(KMGScene*& scene)
+void SceneCommand_Add_Remove_Actor::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
 	scene->CreateActor(actorName);
 }
 
-void SceneCommand_RemoveActor::Execute(KMGScene*& scene)
-{
-	if (!scene) return;
 
-	scene->EraseActor(actorName);
-
-}
 void SceneCommand_ChangeScene::Execute(KMGScene*& scene)
 {
 	if (scene)
@@ -230,4 +235,30 @@ void SceneCommand_UpdateActorMesh::Execute(KMGScene*& scene)
 		loading.StopLoading();
 	}
 
+}
+
+void SceneCommand_Add_Remove_LightComponent::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		if (bAdd)
+		{
+			LightComponent* lightComponent = new LightComponent();
+			bool result = findActor->SetComponent(lightComponent);
+
+			if (!result) 
+			{
+				delete lightComponent;
+				lightComponent = nullptr;
+			}
+		}
+		else
+		{
+			findActor->RemoveComponent(EComponentType::ECT_LIGHT);
+		}
+	}
 }

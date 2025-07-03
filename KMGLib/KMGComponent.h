@@ -16,18 +16,22 @@ class KMGComponent {
 public:
 	KMGComponent() = default;
 	inline KMGComponent(EComponentType componentType) : componentType (componentType){}
+	EComponentType componentType = EComponentType::ECT_NONE;
+
+	virtual ~KMGComponent() = default; 
 
 protected:
 	KMGActor* owner = nullptr;
 
 private:
-	EComponentType componentType = EComponentType::ECT_NONE;
 };
 
 class LightComponent : public KMGComponent {
 public:
 	LightComponent() : KMGComponent(EComponentType::ECT_LIGHT){}
-	Light light;
+	inline Light GetLight() { return light; }
 
 private:
+	Light light;
+
 };

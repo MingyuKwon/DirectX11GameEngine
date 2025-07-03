@@ -21,7 +21,7 @@ cbuffer cbChangeOnResize : register(b2)
 
 struct Light
 {
-    float type; // 0 = directional, 1 = point, 2 = spot
+    int type; // 0 = directional, 1 = point, 2 = spot
 
     float3 position;
     float3 direction;

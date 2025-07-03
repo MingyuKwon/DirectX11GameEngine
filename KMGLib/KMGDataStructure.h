@@ -38,7 +38,7 @@ struct KMGStaticMesh {
 
 struct Light
 {
-    float type; // 0 = directional, 1 = point, 2 = spot
+    int type = 0; // 0 = directional, 1 = point, 2 = spot
 
     DirectX::XMFLOAT3 position;
     DirectX::XMFLOAT3 direction;
@@ -46,12 +46,42 @@ struct Light
 
     float intensity;
     DirectX::XMFLOAT4 color;
+
+    void setToDefault()
+    {
+        position = DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f);
+        direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+        range = 100;
+        intensity = 1;
+        color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    }
 };
 
 struct CBLightArray
 {
     Light lights[MAX_LIGHTS];
     int lightCount = 0;
+    int padding[3] = { 0, 0, 0 };
+
+    void clear()
+    {
+        lightCount = 0;
+        for (int i=0; i< MAX_LIGHTS; i++)
+        {
+            lights[i].setToDefault();
+        }
+    }
+
+    bool AddLight(Light light)
+    {
+        if (lightCount == MAX_LIGHTS) return false;
+
+        lights[lightCount] = light;
+        lightCount++;
+
+        return true;
+
+    }
 };
 
 //--------------------------------------------------------------------------------------

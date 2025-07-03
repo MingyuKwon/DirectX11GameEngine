@@ -1,6 +1,7 @@
 #pragma once
 #include <KMGDataStructure.h>
 #include <KMGComponent.h>
+#include <iostream>
 
 
 class KMGActor {
@@ -38,8 +39,36 @@ public:
         bShouldDrawResourceChange = true;
     }
 
+    inline KMGComponent* GetComponent(EComponentType type) {
+        if (components.count(type) == 0) return nullptr;
+
+        return components[type].get();
+    }
+
+    inline bool RemoveComponent(EComponentType type) {
+        if (components.count(type) == 0) return false;
+        components.erase(type);
+
+        return true;
+    }
+
+    inline bool SetComponent(KMGComponent* addComponent) {
+
+        if (addComponent == nullptr) return false;
+
+        if (components.count(addComponent->componentType) > 0)
+        {
+            std::cout << "There is already Component\n";
+            return false;
+        }
+
+        components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent) ;
+        return true;
+
+    }
+
 private:
-    std::unordered_map<EComponentType, KMGComponent*> components;
+    std::unordered_map<EComponentType, std::unique_ptr<KMGComponent>> components;
 
     std::wstring name;
     std::vector<KMGStaticMesh> meshes;  

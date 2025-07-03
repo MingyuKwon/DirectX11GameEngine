@@ -426,11 +426,24 @@ void KMGRender::DrawScene(KMGScene* scene)
     bool bLightChanges = false;
 
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
+    lightArray.clear();
 
     for (auto& bucket : actors)
     {
         KMGActor* actor = bucket.second.get();
         wstring actorName = actor->GetName();
+
+        // 빛 컴포넌트가 있는 지 확인함
+        KMGComponent* actorLightComp = actor->GetComponent(EComponentType::ECT_LIGHT);
+        if (actorLightComp)
+        {
+            LightComponent* lightComp = dynamic_cast<LightComponent*>(actorLightComp);
+            if (lightComp)
+            {
+                lightArray.AddLight(lightComp->GetLight());
+                std::cout << "Add Light\n";
+            }
+        }
 
         const vector<KMGStaticMesh>* actorMeshes = actor->GetMeshes();
         LoadingManager* loading = nullptr;
@@ -490,10 +503,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
     }
 
-    if (bLightChanges)
-    {
-        pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
-    }
+    pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
     vector<wstring> erasedActorName;
 

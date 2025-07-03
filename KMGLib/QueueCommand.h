@@ -6,7 +6,7 @@ class KMGScene;
 
 struct SceneCommandMessage;
 struct SceneCommand_ChangeScene;
-struct SceneCommand_AddActor;
+struct SceneCommand_Add_Remove_Actor;
 struct SceneCommand_RemoveActor;
 struct SceneCommand_UpdateActorPosition;
 
@@ -17,6 +17,9 @@ enum class CommandMessageType : int
 	ERC_ADD_ACTOR,
 	ERC_REMOVE_ACTOR,
 	ERC_UPDATE_ACTOR,
+
+	ERC_ADD_COMPONENT,
+	ERC_REMOVE_COMPONENT,
 
 	ERC_CAMERA_POSITION_UPDATE,
 	ERC_CAMERA_FORWARD_UPDATE,
@@ -37,6 +40,10 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> UpdateActorMesh(const std::wstring& name, const std::string& fileName);
+
+	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name);
+	std::unique_ptr<SceneCommandMessage> RemoveLightComponent(const std::wstring& name);
+
 
 	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
 	std::unique_ptr<SceneCommandMessage> UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
@@ -65,28 +72,17 @@ private:
 	KMGScene* scene;
 };
 
-struct SceneCommand_AddActor : public SceneCommandMessage
+struct SceneCommand_Add_Remove_Actor : public SceneCommandMessage
 {
-	SceneCommand_AddActor(const std::wstring& name) : actorName(name) {
-		type = CommandMessageType::ERC_ADD_ACTOR;
+	SceneCommand_Add_Remove_Actor(const std::wstring& name, bool bAdd) : actorName(name), bAdd(bAdd){
+		type = bAdd ? CommandMessageType::ERC_ADD_ACTOR : CommandMessageType::ERC_REMOVE_ACTOR;
 	}
 
 	void Execute(KMGScene*& scene) override;
 
 private:
 	std::wstring actorName;
-};
-
-struct SceneCommand_RemoveActor : public SceneCommandMessage
-{
-	SceneCommand_RemoveActor(const std::wstring& name) : actorName(name) {
-		type = CommandMessageType::ERC_REMOVE_ACTOR;
-	}
-
-	void Execute(KMGScene*& scene) override;
-
-private:
-	std::wstring actorName;
+	bool bAdd = true;
 };
 
 struct SceneCommand_UpdateActorMesh : public SceneCommandMessage
@@ -101,6 +97,22 @@ private:
 	std::wstring actorName;
 	std::string fileName;
 };
+
+struct SceneCommand_Add_Remove_LightComponent : public SceneCommandMessage
+{
+	SceneCommand_Add_Remove_LightComponent(const std::wstring& name, bool bAdd) : actorName(name), bAdd(bAdd) {
+		type = bAdd ? CommandMessageType::ERC_ADD_COMPONENT : CommandMessageType::ERC_REMOVE_COMPONENT;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	bool bAdd = true;
+};
+
+
+
 
 struct SceneCommand_UpdateActorPosition : public SceneCommandMessage
 {
