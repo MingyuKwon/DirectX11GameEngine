@@ -426,6 +426,7 @@ void KMGRender::DrawScene(KMGScene* scene)
     bool bLightChanges = false;
 
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
+
     for (auto& bucket : actors)
     {
         KMGActor* actor = bucket.second.get();
@@ -435,22 +436,24 @@ void KMGRender::DrawScene(KMGScene* scene)
 
         LoadingManager* loading = nullptr;
         
-
         if (actor->bShouldDrawResourceChange)
         {
             loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
             loading->SetTotalCount(actorMeshes.size());
+            std::cout << "ActorMesh Size :" << actorMeshes.size() << "\n";
 
-            if (actorMeshes.size() > 0) break;
+            if (actorMeshes.size() == 0)
+            {
+                wstring firstMeshName = actorName + L"___" + to_wstring(0);
+                drawResources.emplace(firstMeshName, DrawResource(firstMeshName));
+
+                KMGMesh defulatMesh = KMGMesh::CreateDefaultSphereMesh();
+                drawResources[firstMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
+
+
+                drawResources[firstMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+            }
                 
-            wstring firstMeshName = actorName + L"___" + to_wstring(0);
-            drawResources.emplace(firstMeshName, DrawResource(firstMeshName));
-
-            KMGMesh defulatMesh = KMGMesh::CreateDefaultSphereMesh();
-            drawResources[firstMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
-
-
-            drawResources[firstMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
         }
 
         for (int i = 0; i < actorMeshes.size(); i++)
@@ -535,7 +538,6 @@ void KMGRender::DrawScene(KMGScene* scene)
     {
         drawResources.erase(name);
     }
-
 
 
     int count = 0;
