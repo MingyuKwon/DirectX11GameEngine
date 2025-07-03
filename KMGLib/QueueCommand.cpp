@@ -219,12 +219,15 @@ void SceneCommand_UpdateActorMesh::Execute(KMGScene*& scene)
 	if (!scene) return;
 
 	LoadingManager loading(ELoadingType::ELT_IMPORT_MESH);
-
 	KMGActor* findActor = scene->GetActor(actorName);
 
 	if (findActor)
 	{
 		LoadModelToActor(fileName, *findActor, loading);
+	}
+	else
+	{
+		loading.StopLoading();
 	}
 
 }

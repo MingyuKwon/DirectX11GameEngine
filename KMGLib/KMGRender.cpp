@@ -443,17 +443,14 @@ void KMGRender::DrawScene(KMGScene* scene)
 
             if (actorMeshes.size() > 0) break;
                 
-            loading->SetTotalCount(1);
-
             wstring firstMeshName = actorName + L"___" + to_wstring(0);
             drawResources.emplace(firstMeshName, DrawResource(firstMeshName));
 
             KMGMesh defulatMesh = KMGMesh::CreateDefaultSphereMesh();
             drawResources[firstMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
-            loading->PlusCurrentCount();
+
 
             drawResources[firstMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
-
         }
 
         for (int i = 0; i < actorMeshes.size(); i++)
@@ -476,7 +473,12 @@ void KMGRender::DrawScene(KMGScene* scene)
         
         actor->bShouldDrawResourceChange = false;
 
-        if (loading) delete loading;
+        if (loading)
+        {
+            loading->StopLoading();
+            delete loading;
+            loading = nullptr;
+        }
     }
 
     if (bLightChanges)

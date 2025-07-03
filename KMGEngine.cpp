@@ -160,6 +160,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 break;
             }
+            case VK_END:
+            {
+                if (schedular)
+                {
+                    schedular->PushCommand(KMGCommand::UpdateActorMesh(L"Actor1", DEFAULT_MESHFILE));
+                }
+            }
         }
 
         break;

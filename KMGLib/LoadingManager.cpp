@@ -77,6 +77,12 @@ bool LoadingManager::StartLoading()
 	return true;
 }
 
+bool LoadingManager::StopLoading()
+{
+	SetTotalCount(0);
+	return true;
+}
+
 
 void LoadingManager::LoadingLoop()
 {

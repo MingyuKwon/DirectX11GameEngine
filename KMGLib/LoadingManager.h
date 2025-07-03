@@ -22,6 +22,8 @@ public:
 	LoadingManager(ELoadingType loadingType);
 	virtual ~LoadingManager();
 
+	bool StopLoading();
+
 	void SetTotalCount(int count) { totalCount = count; }
 	void PlusCurrentCount() { ++currentCount; }
 
