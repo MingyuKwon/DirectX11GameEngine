@@ -434,27 +434,46 @@ void KMGRender::DrawScene(KMGScene* scene)
         const vector<KMGMesh>& actorMeshes = actor->GetMeshes();
 
         LoadingManager* loading = nullptr;
+        
+
         if (actor->bShouldDrawResourceChange)
         {
             loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
             loading->SetTotalCount(actorMeshes.size());
+
+            if (actorMeshes.size() > 0) break;
+                
+            loading->SetTotalCount(1);
+
+            wstring firstMeshName = actorName + L"___" + to_wstring(0);
+            drawResources.emplace(firstMeshName, DrawResource(firstMeshName));
+
+            KMGMesh defulatMesh = KMGMesh::CreateDefaultSphereMesh();
+            drawResources[firstMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
+            loading->PlusCurrentCount();
+
+            drawResources[firstMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+
         }
 
-        for (int i=0; i< actorMeshes.size(); i++)
+        for (int i = 0; i < actorMeshes.size(); i++)
         {
             wstring meshName = actorName + L"___" + to_wstring(i);
 
-            auto emplaceResult = drawResources.emplace(meshName, DrawResource(meshName));
+            if (drawResources.count(meshName) == 0)
+            {
+                drawResources.emplace(meshName, DrawResource(meshName));
+            }
 
             if (actor->bShouldDrawResourceChange)
             {
-                emplaceResult.first->second.UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices, actorMeshes[i].textureFilePath, actorMeshes[i].normalMapFilePath);
+                drawResources[meshName].UpdateBuffers(actorMeshes[i].vertices, actorMeshes[i].indices, actorMeshes[i].textureFilePath, actorMeshes[i].normalMapFilePath);
                 loading->PlusCurrentCount();
             }
 
-            emplaceResult.first->second.UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+            drawResources[meshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
         }
-
+        
         actor->bShouldDrawResourceChange = false;
 
         if (loading) delete loading;

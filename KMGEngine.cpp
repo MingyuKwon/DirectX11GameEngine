@@ -155,7 +155,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (schedular)
                 {
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::UpdateActorMesh(L"Actor1", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj"));
+                    //schedular->PushCommand(KMGCommand::UpdateActorMesh(L"Actor1", DEFAULT_MESHFILE));
                 }
 
                 break;

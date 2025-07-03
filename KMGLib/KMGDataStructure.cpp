@@ -5,24 +5,59 @@
 using namespace std;
 using namespace DirectX;
 
-std::vector<KMGVertex> cubeVertices = {
-        { {-1,1,-1},{},{1,0,0,1},{1,0} }, { {1,1,-1},{},{1,0,0,1},{0,0} },
-        { {1,1,1},{},{1,0,0,1},{0,1} }, { {-1,1,1},{},{1,0,0,1},{1,1} },
-        { {-1,-1,-1},{},{1,0,0,1},{0,0} }, { {1,-1,-1},{},{1,0,0,1},{1,0} },
-        { {1,-1,1},{},{1,0,0,1},{1,1} }, { {-1,-1,1},{},{1,0,0,1},{0,1} },
-        { {-1,-1,1},{},{1,0,0,1},{0,1} }, { {-1,-1,-1},{},{1,0,0,1},{1,1} },
-        { {-1,1,-1},{},{1,0,0,1},{1,0} }, { {-1,1,1},{},{1,0,0,1},{0,0} },
-        { {1,-1,1},{},{1,0,0,1},{1,1} }, { {1,-1,-1},{},{1,0,0,1},{0,1} },
-        { {1,1,-1},{},{1,0,0,1},{0,0} }, { {1,1,1},{},{1,0,0,1},{1,0} },
-        { {-1,-1,-1},{},{1,0,0,1},{0,1} }, { {1,-1,-1},{},{1,0,0,1},{1,1} },
-        { {1,1,-1},{},{1,0,0,1},{1,0} }, { {-1,1,-1},{},{1,0,0,1},{0,0} },
-        { {-1,-1,1},{},{1,0,0,1},{1,1} }, { {1,-1,1},{},{1,0,0,1},{0,1} },
-        { {1,1,1},{},{1,0,0,1},{0,0} }, { {-1,1,1},{},{1,0,0,1},{1,0} },
-};
-std::vector<int> cubeIndices = {
-    3,1,0, 2,1,3, 6,4,5, 7,4,6, 11,9,8, 10,9,11,
-    14,12,13, 15,12,14, 19,17,16, 18,17,19, 22,20,21, 23,20,22
-};
+KMGMesh KMGMesh::CreateDefaultSphereMesh(float radius) {
+    KMGMesh mesh;
+    mesh.vertices.clear();
+    mesh.indices.clear();
+
+    const int SEGMENTS = 16;
+    const int RINGS = 8;
+    const float PI = 3.14159265359f;
+
+
+    for (int y = 0; y <= RINGS; ++y) {
+        float v = (float)y / RINGS;
+        float theta = v * PI;  // latitude (0 to pi)
+
+        for (int x = 0; x <= SEGMENTS; ++x) {
+            float u = (float)x / SEGMENTS;
+            float phi = u * 2.0f * PI;  // longitude (0 to 2pi)
+
+            float sinTheta = sinf(theta);
+            float cosTheta = cosf(theta);
+            float sinPhi = sinf(phi);
+            float cosPhi = cosf(phi);
+
+            float px = radius * sinTheta * cosPhi;
+            float py = radius * cosTheta;
+            float pz = radius * sinTheta * sinPhi;
+
+            KMGVertex vertex;
+            vertex.Pos = { px, py, pz };
+            vertex.Normal = { px / radius, py / radius, pz / radius }; // normalize
+            vertex.Tex = { u, 1.0f - v }; // Flip V for DirectX
+
+            mesh.vertices.push_back(vertex);
+        }
+    }
+
+    for (int y = 0; y < RINGS; ++y) {
+        for (int x = 0; x < SEGMENTS; ++x) {
+            int i0 = y * (SEGMENTS + 1) + x;
+            int i1 = i0 + SEGMENTS + 1;
+
+            mesh.indices.push_back(i0);
+            mesh.indices.push_back(i1);
+            mesh.indices.push_back(i0 + 1);
+
+            mesh.indices.push_back(i0 + 1);
+            mesh.indices.push_back(i1);
+            mesh.indices.push_back(i1 + 1);
+        }
+    }
+
+    return mesh;
+}
 
 inline bool operator==(const XMMATRIX& lhs, const XMMATRIX& rhs)
 {
@@ -40,6 +75,11 @@ inline bool operator==(const XMMATRIX& lhs, const XMMATRIX& rhs)
 inline bool operator!=(const XMMATRIX& lhs, const XMMATRIX& rhs)
 {
     return !(lhs == rhs);
+}
+
+DrawResource::DrawResource() : name(L"Default")
+{
+
 }
 
 DrawResource::DrawResource(std::wstring name) : name(name)

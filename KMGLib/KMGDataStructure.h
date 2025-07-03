@@ -26,6 +26,9 @@ struct KMGVertex
 };
 
 struct KMGMesh {
+
+    static KMGMesh CreateDefaultSphereMesh(float radius = 1.0f);
+
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;
     std::wstring textureFilePath = DEFAULT_TEXTURE_FILEPATH;
@@ -106,7 +109,7 @@ struct DrawResource
 
     int indexCount = 0;
 
-
+    DrawResource();
     DrawResource(std::wstring name);
     virtual ~DrawResource();
 

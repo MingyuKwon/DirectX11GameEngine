@@ -1,8 +1,6 @@
 #pragma once
 #include <KMGDataStructure.h>
 
-extern std::vector<KMGVertex> cubeVertices;
-extern std::vector<int> cubeIndices;
 
 class KMGActor {
 
