@@ -40,7 +40,6 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
         aiProcess_Triangulate |
         aiProcess_GenNormals |
         aiProcess_CalcTangentSpace | 
-        aiProcess_JoinIdenticalVertices |
         aiProcess_ConvertToLeftHanded);
 
     if (!scene || !scene->mRootNode || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
@@ -141,17 +140,18 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
             KMGVertex vertex;
             vertex.Pos = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
 
-            if (mesh->HasNormals())
-                vertex.Normal = { mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z };
-            else
-                vertex.Normal = { 0.0f, 1.0f, 0.0f };
-
             if (mesh->HasTextureCoords(0))
                 vertex.Tex = { mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y };
             else
                 vertex.Tex = { 0.0f, 0.0f };
 
             vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+            if (mesh->HasNormals())
+                vertex.Normal = { mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z };
+            else
+                vertex.Normal = { 0.0f, 1.0f, 0.0f };
+
 
             if (mesh->HasTangentsAndBitangents())
             {
@@ -166,6 +166,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
                     mesh->mBitangents[v].y,
                     mesh->mBitangents[v].z
                 };
+
             }
             else
             {

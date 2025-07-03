@@ -31,14 +31,12 @@ float4 PS(PS_INPUT input) : SV_Target
     );
     
     float3 T = normalize(input.Tangent);
-    float3 B = normalize(input.Binormal);
     float3 N = normalize(input.Normal);
+    float3 B = normalize(cross(N, T)); // handedness 곱해도 됨
 
-    return float4(T * 0.5f + 0.5f, 1.0f); // 0~1 범위로 시각화
-
-    //return float4(abs(T) ,1); // Tangent 확인용 (빨강 계열)
-    //return float4(abs(B), 1); // Binormal 확인용 (초록 계열)
-    return float4(abs(N), 1); // Normal 확인용 (파랑 계열)
+    return float4(0.5 * (T + 1), 1); 
+    return float4(0.5 * (B + 1), 1); 
+    return float4(0.5 * (N + 1), 1); 
 
         
     float3 normalWS = normalize(mul(TBN, normalTS));
