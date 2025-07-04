@@ -9,6 +9,7 @@ PS_INPUT VS(VS_INPUT input)
     float4 worldTangent = normalize(mul(input.Tangent, World));
     float4 worldBinormal = normalize(mul(input.Binormal, World));
 
+    output.worldPos = worldPos;
     output.Pos = mul(worldPos, View);
     output.Pos = mul(output.Pos, Projection);
     output.Tex = input.Tex;

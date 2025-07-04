@@ -29,7 +29,7 @@ private:
 class LightComponent : public KMGComponent {
 public:
 	LightComponent() : KMGComponent(EComponentType::ECT_LIGHT){}
-	inline Light GetLight() { return light; }
+	inline Light& GetLight() { return light; }
 
 private:
 	Light light;

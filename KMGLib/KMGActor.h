@@ -62,7 +62,18 @@ public:
             return false;
         }
 
-        components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent) ;
+        LightComponent* lightComp = dynamic_cast<LightComponent*>(addComponent);
+        if (lightComp)
+        {
+            Light& light = lightComp->GetLight();
+            XMStoreFloat3(&light.position, transform.position);
+
+            std::cout << "Set Positoin : " << light.position.x << " " << light.position.y << " " << light.position.z << "\n";
+        }
+
+        components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent);
+        
+
         return true;
 
     }

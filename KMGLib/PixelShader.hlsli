@@ -20,23 +20,21 @@ float4 PS(PS_INPUT input) : SV_Target
     for (int i = 0; i < lightCount; i++)
     {
         float3 lightDir = lights[i].direction;
-        
+                        
         if (lights[i].type == 0)
         {
             lightDir = -normalize(lights[i].direction);
         }
         else
         {
-            lightDir = normalize(lights[i].position - input.Pos.xyz);
+            lightDir = normalize(lights[i].position - input.worldPos.xyz);
         }
         
-        float NdotM = saturate(dot(normalWS, lights[i].direction));
-        float NdotL = saturate(dot(N, lights[i].direction));
+        float NdotM = saturate(dot(normalWS, lightDir));
+        float NdotL = saturate(dot(N, lightDir));
 
         finalColor += lights[i].color * lights[i].intensity * (NdotL + NdotM);
     }
-
-    
 
     return float4(baseColor.rgb * finalColor, baseColor.a);
 

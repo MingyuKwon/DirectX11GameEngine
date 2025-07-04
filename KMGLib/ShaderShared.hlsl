@@ -64,4 +64,5 @@ struct PS_INPUT
     float4 Tangent : TANGENT;
     float4 Binormal : BINORMAL;
 
+    float4 worldPos : WORLD_POSITION;
 };

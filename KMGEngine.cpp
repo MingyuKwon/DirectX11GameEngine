@@ -156,6 +156,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 {
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
                     schedular->PushCommand(KMGCommand::UpdateActorMesh(L"Actor1", DEFAULT_MESHFILE));
+
+                    schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
+                    schedular->PushCommand(KMGCommand::TranslateActor(L"Light1", XMVectorSet(3.0f, 0.0f, 0.0f, 0.0f)));
+
                 }
 
                 break;
@@ -164,7 +168,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::AddLightComponent(L"Actor1"));
+                    schedular->PushCommand(KMGCommand::AddLightComponent(L"Light1"));
                     
                 }
             }
