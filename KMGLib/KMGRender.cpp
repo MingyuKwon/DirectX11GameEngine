@@ -429,6 +429,7 @@ void KMGRender::DrawScene(KMGScene* scene)
     // 여기에 이름이 기록된 리소스들은 그리지 말고, 마지막에 지워져야함
     unordered_set<wstring> shouldEraseResourceName;
     unordered_set<wstring> shouldEraseActorName;
+    unordered_map<wstring, int> ActorMeshCount;
 
     for (auto& bucket : actors)
     {
@@ -452,6 +453,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         {
             StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
             actorMeshes = staticComp->GetMeshes();
+            ActorMeshCount[actorName] = actorMeshes->size();
         }
         
         LoadingManager* loading = nullptr;
@@ -527,12 +529,19 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring resourceName = bucket.first;
 
         wstring actorName = resourceName;
+        int meshIndex = -1;
 
         // 리소스에서 액터이름을 뽑아내서 그 액터가 있는지 없는지 검사
         size_t pos = resourceName.find(L"___");
         if (pos != wstring::npos)
         {
             actorName = resourceName.substr(0, pos);
+
+            wstring meshCountStr = resourceName.substr(pos+3);
+            if (meshCountStr != L"DEFAULT")
+            {
+                meshIndex = stoi(meshCountStr);
+            }
         }
 
         // 내가 그리고자 하는 액터가 사라졌다면 삭제할 목록에 추가 
@@ -556,6 +565,11 @@ void KMGRender::DrawScene(KMGScene* scene)
         {
             // 만약 지워야 하지 않는 경우에는 오히려, 이미 defualt가 그려져 있으면 그걸 지워야 한다
             shouldEraseResourceName.insert(DefaultMeshName);
+        }
+
+        if (ActorMeshCount.count(actorName) > 0 && ActorMeshCount[actorName] <= meshIndex)
+        {
+            shouldEraseResourceName.insert(resourceName);
         }
 
         // 삭제 해야 하는 리소스를 그릴 필요는 없으니 스킵
