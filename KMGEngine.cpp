@@ -144,9 +144,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    //schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
+                    //schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(L"Actor1"));
 
-                    schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(L"Actor1"));
+                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
+
 
                     //schedular->PushCommand(KMGCommand::RemoveActor(L"Light1"));
                     //schedular->PushCommand(KMGCommand::RemoveLightComponent(L"Light1"));
