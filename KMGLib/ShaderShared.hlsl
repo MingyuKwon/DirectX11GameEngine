@@ -20,7 +20,7 @@ cbuffer cbChangeOnResize : register(b2)
 };
 
 
-cbuffer Light : register(b3)
+struct Light 
 {
     int type; // 0 = directional, 1 = point, 2 = spot
     float range;
@@ -36,12 +36,12 @@ cbuffer Light : register(b3)
     float4 color;
 };
 
-//cbuffer cbLights 
-//{
-//    Light lights[MAX_LIGHTS];
-//    int lightCount;
-//    float _pad0[3];
-//}
+cbuffer cbLights : register(b3)
+{
+    Light lights[MAX_LIGHTS];
+    int lightCount;
+    float _pad0[3];
+}
 
 
 struct VS_INPUT
