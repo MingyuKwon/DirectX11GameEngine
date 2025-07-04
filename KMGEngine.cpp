@@ -186,6 +186,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", DEFAULT_MESHFILE));
 
                 }
+                break;
+            }
+            case VK_HOME:
+            {
+                if (schedular)
+                {
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj"));
+
+                }
+                break;
+
             }
         }
 
