@@ -19,14 +19,24 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, true);
 	}
 
+	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name)
+	{
+		return std::make_unique<SceneCommand_Add_Remove_StaticMeshComponent>(name, true);
+	}
+
+	std::unique_ptr<SceneCommandMessage> RemoveStaticMeshComponent(const std::wstring& name)
+	{
+		return std::make_unique<SceneCommand_Add_Remove_StaticMeshComponent>(name, false);
+	}
+
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name)
 	{
 		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, false);
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateActorMesh(const std::wstring& name, const std::string& fileName)
+	std::unique_ptr<SceneCommandMessage> UpdateStaticMesh(const std::wstring& name, const std::string& fileName)
 	{
-		return std::make_unique<SceneCommand_UpdateActorMesh>(name, fileName);
+		return std::make_unique<SceneCommand_UpdateStaticMesh>(name, fileName);
 	}
 
 
@@ -269,7 +279,33 @@ void SceneCommand_UpdateActorScale::Execute(KMGScene*& scene)
 
 }
 
-void SceneCommand_UpdateActorMesh::Execute(KMGScene*& scene)
+void SceneCommand_Add_Remove_StaticMeshComponent::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		if (bAdd)
+		{
+			StaticMeshComponent* staticComponent = new StaticMeshComponent();
+			bool result = findActor->SetComponent(staticComponent);
+
+			if (!result)
+			{
+				delete staticComponent;
+				staticComponent = nullptr;
+			}
+		}
+		else
+		{
+			findActor->RemoveComponent(EComponentType::ECT_STATICMESH);
+		}
+	}
+}
+
+void SceneCommand_UpdateStaticMesh::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
@@ -354,3 +390,5 @@ void SceneCommand_Update_LightComponent::Execute(KMGScene*& scene)
 		}
 	}
 }
+
+

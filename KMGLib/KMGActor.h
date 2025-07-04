@@ -27,19 +27,6 @@ public:
     void Translate(float dx, float dy, float dz);    // 상대이동
     void Rotate(float dpitch, float dyaw, float droll); // 상대회전
 
-    inline const std::vector<KMGStaticMesh>* GetMeshes()
-    {
-        if (meshes.size() == 0) return nullptr;
-
-        return &meshes;
-    }
-
-    inline void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes)
-    { 
-        meshes = std::move(inMeshes);
-        bShouldDrawResourceChange = true;
-    }
-
     template <typename T>
     inline T* GetComponent(EComponentType type) {
         if (components.count(type) == 0) return nullptr;
@@ -69,13 +56,11 @@ public:
         {
             Light& light = lightComp->GetLight();
             XMStoreFloat3(&light.position, transform.position);
-
-            std::cout << "Set Positoin : " << light.position.x << " " << light.position.y << " " << light.position.z << "\n";
         }
 
+        addComponent->SetOwner(this);
         components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent);
         
-
         return true;
 
     }
@@ -84,6 +69,5 @@ private:
     std::unordered_map<EComponentType, std::unique_ptr<KMGComponent>> components;
 
     std::wstring name;
-    std::vector<KMGStaticMesh> meshes;  
     KMGTransform transform;
 };

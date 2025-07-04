@@ -438,7 +438,13 @@ void KMGRender::DrawScene(KMGScene* scene)
             lightArray.AddLight(lightComp->GetLight());
         }
 
-        const vector<KMGStaticMesh>* actorMeshes = actor->GetMeshes();
+        const vector<KMGStaticMesh>* actorMeshes = nullptr;
+        StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+        if (staticComp)
+        {
+            actorMeshes = staticComp->GetMeshes();
+        }
+        
         LoadingManager* loading = nullptr;
 
         // 만약 정해진 메시가 없다면 그냥 기본 메시만 처리하고 나가기

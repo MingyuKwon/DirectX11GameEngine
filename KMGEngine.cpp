@@ -157,7 +157,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (schedular)
                 {
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::UpdateActorMesh(L"Actor1", DEFAULT_MESHFILE));
+                    schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor1"));
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", DEFAULT_MESHFILE));
 
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::TranslateActor(L"Light1", XMVectorSet(3.0f, 0.0f, 0.0f, 0.0f)));

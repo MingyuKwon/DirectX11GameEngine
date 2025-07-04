@@ -2,7 +2,7 @@
 #include <UseAssimp.h>
 #include <iostream>
 #include <LoadingManager.h>
-
+#include <KMGComponent.h>
 
 aiTextureType types[] = {
     aiTextureType_DIFFUSE,
@@ -54,7 +54,12 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
 
     Recursive_NodeProcess(scene->mRootNode, scene, allMeshes, loadingManager);
 
-    outActor.SetMeshData(std::move(allMeshes));
+    StaticMeshComponent* staticComp = outActor.GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+    if (staticComp)
+    {
+        staticComp->SetMeshData(std::move(allMeshes));
+    }
+    
     return true;
 }
 

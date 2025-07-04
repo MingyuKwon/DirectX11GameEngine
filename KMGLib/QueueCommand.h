@@ -46,8 +46,12 @@ namespace KMGCommand
 {
 	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
+
+	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name);
+	std::unique_ptr<SceneCommandMessage> RemoveStaticMeshComponent(const std::wstring& name);
+
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name);
-	std::unique_ptr<SceneCommandMessage> UpdateActorMesh(const std::wstring& name, const std::string& fileName);
+	std::unique_ptr<SceneCommandMessage> UpdateStaticMesh(const std::wstring& name, const std::string& fileName);
 
 	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveLightComponent(const std::wstring& name);
@@ -99,9 +103,22 @@ private:
 	bool bAdd = true;
 };
 
-struct SceneCommand_UpdateActorMesh : public SceneCommandMessage
+struct SceneCommand_Add_Remove_StaticMeshComponent : public SceneCommandMessage
 {
-	SceneCommand_UpdateActorMesh(const std::wstring& name, const std::string& fileName) : actorName(name), fileName(fileName){
+	SceneCommand_Add_Remove_StaticMeshComponent(const std::wstring& name, bool bAdd) : actorName(name), bAdd(bAdd) {
+		type = bAdd ? ECommandMessageType::ERC_ADD_COMPONENT : ECommandMessageType::ERC_REMOVE_COMPONENT;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	bool bAdd = true;
+};
+
+struct SceneCommand_UpdateStaticMesh : public SceneCommandMessage
+{
+	SceneCommand_UpdateStaticMesh(const std::wstring& name, const std::string& fileName) : actorName(name), fileName(fileName){
 		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 	}
 
@@ -111,6 +128,8 @@ private:
 	std::wstring actorName;
 	std::string fileName;
 };
+
+
 
 struct SceneCommand_Add_Remove_LightComponent : public SceneCommandMessage
 {
