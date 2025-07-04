@@ -41,6 +41,48 @@ namespace KMGCommand
 	}
 
 
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Type(const std::wstring& name, int type)
+	{
+		Light light;
+		light.type = type;
+
+		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_TYPE);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Range(const std::wstring& name, float range)
+	{
+		Light light;
+		light.range = range;
+
+		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_RANGE);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Intensity(const std::wstring& name, float intensity)
+	{
+		Light light;
+		light.intensity = intensity;
+
+		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_INTENSITY);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Direction(const std::wstring& name, DirectX::XMFLOAT3 direction)
+	{
+		Light light;
+		light.direction = direction;
+
+		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_DIRECTION);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Color(const std::wstring& name, DirectX::XMFLOAT4 color)
+	{
+		Light light;
+		light.color = color;
+
+		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_COLOR);
+	}
+
+
+
 	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position)
 	{
 		return std::make_unique<SceneCommand_UpdateActorPosition>(name, position, true);
@@ -267,6 +309,48 @@ void SceneCommand_Add_Remove_LightComponent::Execute(KMGScene*& scene)
 		else
 		{
 			findActor->RemoveComponent(EComponentType::ECT_LIGHT);
+		}
+	}
+}
+
+void SceneCommand_Update_LightComponent::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		LightComponent* comp = findActor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+		if (comp)
+		{
+			Light& compLight = comp->GetLight();
+
+			switch (type)
+			{
+			case ECommandMessageType::ERC_UPDATE_LIGHT_TYPE:
+				compLight.type = light.type;
+
+				break;
+			case ECommandMessageType::ERC_UPDATE_LIGHT_RANGE:
+				compLight.range = light.range;
+				break;
+			case ECommandMessageType::ERC_UPDATE_LIGHT_INTENSITY:
+				compLight.intensity = light.intensity;
+
+				break;
+			case ECommandMessageType::ERC_UPDATE_LIGHT_DIRECTION:
+				compLight.direction = light.direction;
+
+				break;
+			case ECommandMessageType::ERC_UPDATE_LIGHT_COLOR:
+				compLight.color = light.color;
+
+				break;
+			default:
+				break;
+			}
+
 		}
 	}
 }

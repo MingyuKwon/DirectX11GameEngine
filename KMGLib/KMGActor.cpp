@@ -21,10 +21,29 @@ DirectX::XMMATRIX KMGActor::getWorldMatrix()
     return transform.GetWorldMatrix();
 }
 
+void KMGActor::SetPosition(float x, float y, float z)
+{
+    transform.position = DirectX::XMVectorSet(x, y, z, 1);
+
+    LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+    if (lightComp)
+    {
+        Light& light = lightComp->GetLight();
+        XMStoreFloat3(&light.position, transform.position);
+    }
+}
+
 void KMGActor::Translate(float dx, float dy, float dz) {
     XMVECTOR pos = transform.position;
     XMVECTOR delta = XMVectorSet(dx, dy, dz, 0);
     transform.position = XMVectorAdd(pos, delta);
+
+    LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+    if (lightComp)
+    {
+        Light& light = lightComp->GetLight();
+        XMStoreFloat3(&light.position, transform.position);
+    }
 }
 
 void KMGActor::Rotate(float dpitch, float dyaw, float droll) {

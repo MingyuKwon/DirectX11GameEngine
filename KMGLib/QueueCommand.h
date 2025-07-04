@@ -10,7 +10,7 @@ struct SceneCommand_Add_Remove_Actor;
 struct SceneCommand_RemoveActor;
 struct SceneCommand_UpdateActorPosition;
 
-enum class CommandMessageType : int
+enum class ECommandMessageType : int
 {
 	ERC_NONE,
 	ERC_CHANGE_SCENE,
@@ -21,6 +21,14 @@ enum class CommandMessageType : int
 	ERC_ADD_COMPONENT,
 	ERC_REMOVE_COMPONENT,
 
+	ERC_UPDATE_LIGHT_TYPE,
+	ERC_UPDATE_LIGHT_RANGE,
+	ERC_UPDATE_LIGHT_INTENSITY,
+	ERC_UPDATE_LIGHT_DIRECTION,
+	ERC_UPDATE_LIGHT_COLOR,
+
+	ERC_UPDATE_COMPONENT,
+
 	ERC_CAMERA_POSITION_UPDATE,
 	ERC_CAMERA_FORWARD_UPDATE,
 
@@ -29,7 +37,7 @@ enum class CommandMessageType : int
 
 struct SceneCommandMessage
 {
-	CommandMessageType type = CommandMessageType::ERC_NONE;
+	ECommandMessageType type = ECommandMessageType::ERC_NONE;
 	virtual void Execute(KMGScene*& scene) = 0;
 	virtual ~SceneCommandMessage() = default;
 };
@@ -43,6 +51,12 @@ namespace KMGCommand
 
 	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveLightComponent(const std::wstring& name);
+
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Type(const std::wstring& name, int type);
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Range(const std::wstring& name, float range);
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Intensity(const std::wstring& name, float intensity);
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Direction(const std::wstring& name, DirectX::XMFLOAT3 direction);
+	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Color(const std::wstring& name, DirectX::XMFLOAT4 color);
 
 
 	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
@@ -63,7 +77,7 @@ namespace KMGCommand
 struct SceneCommand_ChangeScene : public SceneCommandMessage
 {
 	SceneCommand_ChangeScene(KMGScene* scene) : scene(scene) {
-		type = CommandMessageType::ERC_CHANGE_SCENE;
+		type = ECommandMessageType::ERC_CHANGE_SCENE;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -75,7 +89,7 @@ private:
 struct SceneCommand_Add_Remove_Actor : public SceneCommandMessage
 {
 	SceneCommand_Add_Remove_Actor(const std::wstring& name, bool bAdd) : actorName(name), bAdd(bAdd){
-		type = bAdd ? CommandMessageType::ERC_ADD_ACTOR : CommandMessageType::ERC_REMOVE_ACTOR;
+		type = bAdd ? ECommandMessageType::ERC_ADD_ACTOR : ECommandMessageType::ERC_REMOVE_ACTOR;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -88,7 +102,7 @@ private:
 struct SceneCommand_UpdateActorMesh : public SceneCommandMessage
 {
 	SceneCommand_UpdateActorMesh(const std::wstring& name, const std::string& fileName) : actorName(name), fileName(fileName){
-		type = CommandMessageType::ERC_UPDATE_ACTOR;
+		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -101,7 +115,7 @@ private:
 struct SceneCommand_Add_Remove_LightComponent : public SceneCommandMessage
 {
 	SceneCommand_Add_Remove_LightComponent(const std::wstring& name, bool bAdd) : actorName(name), bAdd(bAdd) {
-		type = bAdd ? CommandMessageType::ERC_ADD_COMPONENT : CommandMessageType::ERC_REMOVE_COMPONENT;
+		type = bAdd ? ECommandMessageType::ERC_ADD_COMPONENT : ECommandMessageType::ERC_REMOVE_COMPONENT;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -112,12 +126,25 @@ private:
 };
 
 
+struct SceneCommand_Update_LightComponent : public SceneCommandMessage
+{
+	SceneCommand_Update_LightComponent(const std::wstring& name, Light light, ECommandMessageType updateType) : actorName(name), light(light){
+		type = updateType;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	Light light;
+};
+
 
 
 struct SceneCommand_UpdateActorPosition : public SceneCommandMessage
 {
 	SceneCommand_UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position, bool bRelative) : actorName(name), position(position), bRelative(bRelative){
-		type = CommandMessageType::ERC_UPDATE_ACTOR;
+		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -133,7 +160,7 @@ private:
 struct SceneCommand_UpdateActorRotation : public SceneCommandMessage
 {
 	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bRelative) : actorName(name), rotation(rotation), bRelative(bRelative) {
-		type = CommandMessageType::ERC_UPDATE_ACTOR;
+		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -149,7 +176,7 @@ private:
 struct SceneCommand_UpdateActorScale : public SceneCommandMessage
 {
 	SceneCommand_UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale) : actorName(name), scale(scale) {
-		type = CommandMessageType::ERC_UPDATE_ACTOR;
+		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -164,7 +191,7 @@ private:
 struct SceneCommand_CameraPositionUpdate : public SceneCommandMessage
 {
 	SceneCommand_CameraPositionUpdate(const DirectX::XMVECTOR& CameraPosition, bool bRelative) : cameraPosition(CameraPosition), bRelative(bRelative){
-		type = CommandMessageType::ERC_CAMERA_POSITION_UPDATE;
+		type = ECommandMessageType::ERC_CAMERA_POSITION_UPDATE;
 	}
 
 	void Execute(KMGScene*& scene) override;
@@ -180,7 +207,7 @@ private:
 struct SceneCommand_CameraForwardVectorUpdate : public SceneCommandMessage
 {
 	SceneCommand_CameraForwardVectorUpdate(float yawAngle, float pitchAngle) : yawAngle(yawAngle), pitchAngle(pitchAngle){
-		type = CommandMessageType::ERC_CAMERA_FORWARD_UPDATE;
+		type = ECommandMessageType::ERC_CAMERA_FORWARD_UPDATE;
 	}
 
 	void Execute(KMGScene*& scene) override;

@@ -16,7 +16,7 @@ public:
     DirectX::XMMATRIX getWorldMatrix();
 
     inline DirectX::XMVECTOR GetPosition() const { return transform.position; }
-    inline void SetPosition(float x, float y, float z) { transform.position = DirectX::XMVectorSet(x, y, z, 1); }
+    void SetPosition(float x, float y, float z);
 
     inline DirectX::XMVECTOR GetRotation() const { return transform.rotation; }
     inline void SetRotation(float pitch, float yaw, float roll) { transform.rotation = DirectX::XMVectorSet(pitch, yaw, roll, 0); }
@@ -40,10 +40,11 @@ public:
         bShouldDrawResourceChange = true;
     }
 
-    inline KMGComponent* GetComponent(EComponentType type) {
+    template <typename T>
+    inline T* GetComponent(EComponentType type) {
         if (components.count(type) == 0) return nullptr;
 
-        return components[type].get();
+        return dynamic_cast<T*>(components[type].get()); 
     }
 
     inline bool RemoveComponent(EComponentType type) {

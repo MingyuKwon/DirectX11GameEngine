@@ -432,14 +432,10 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring actorName = actor->GetName();
 
         // 빛 컴포넌트가 있는 지 확인함
-        KMGComponent* actorLightComp = actor->GetComponent(EComponentType::ECT_LIGHT);
-        if (actorLightComp)
+        LightComponent* lightComp = actor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+        if (lightComp)
         {
-            LightComponent* lightComp = dynamic_cast<LightComponent*>(actorLightComp);
-            if (lightComp)
-            {
-                lightArray.AddLight(lightComp->GetLight());
-            }
+            lightArray.AddLight(lightComp->GetLight());
         }
 
         const vector<KMGStaticMesh>* actorMeshes = actor->GetMeshes();
