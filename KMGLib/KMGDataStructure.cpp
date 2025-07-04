@@ -10,6 +10,8 @@ KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius) {
     mesh.vertices.clear();
     mesh.indices.clear();
 
+    radius /= 2;
+
     const int SEGMENTS = 16;
     const int RINGS = 8;
     const float PI = 3.14159265359f;

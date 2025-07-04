@@ -8,6 +8,7 @@ class KMGActor {
 
 public:
     KMGActor(std::wstring name);
+    virtual ~KMGActor();
 
     std::atomic<bool> bShouldDrawResourceChange = true;
 

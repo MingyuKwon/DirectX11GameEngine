@@ -88,7 +88,15 @@ void SceneCommand_Add_Remove_Actor::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
-	scene->CreateActor(actorName);
+	if (bAdd)
+	{
+		scene->CreateActor(actorName);
+	}
+	else
+	{
+		scene->EraseActor(actorName);
+	}
+	
 }
 
 

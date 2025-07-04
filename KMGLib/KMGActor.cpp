@@ -7,6 +7,10 @@ KMGActor::KMGActor(std::wstring name) : name(name)
 {
 }
 
+KMGActor::~KMGActor()
+{
+}
+
 std::wstring KMGActor::GetName()
 {
     return name;

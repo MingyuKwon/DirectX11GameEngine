@@ -41,7 +41,7 @@ void ChangeCubeTransform()
 {
     if (schedular)
     {
-        //schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
+        schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
         //schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(0.02f, 0.02f, 0.02f, 0)));
 
         //schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
@@ -145,7 +145,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (schedular)
                 {
                     schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor2"));
+                    schedular->PushCommand(KMGCommand::RemoveActor(L"Light1"));
+
+                    schedular->PushCommand(KMGCommand::RemoveLightComponent(L"Light1"));
                 }
 
                 break;
@@ -160,6 +162,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::TranslateActor(L"Light1", XMVectorSet(3.0f, 0.0f, 0.0f, 0.0f)));
 
+                    schedular->PushCommand(KMGCommand::AddActor(L"Light2"));
+                    schedular->PushCommand(KMGCommand::TranslateActor(L"Light2", XMVectorSet(-3.0f, 0.0f, 0.0f, 0.0f)));
+
+
                 }
 
                 break;
@@ -169,7 +175,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (schedular)
                 {
                     schedular->PushCommand(KMGCommand::AddLightComponent(L"Light1"));
-                    
+                    schedular->PushCommand(KMGCommand::AddLightComponent(L"Light2"));
+
                 }
             }
         }
