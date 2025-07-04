@@ -60,6 +60,8 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
         staticComp->SetMeshData(std::move(allMeshes));
     }
     
+    std::cout << "Loading Mesh End : \n";
+
     return true;
 }
 
@@ -91,6 +93,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
                         case aiTextureType_DIFFUSE:
                         {
                             typeName = "DIFFUSE"; 
+                            currentMesh.textureFilePath = Utf8ToWstring(path.C_Str());
                             break;
                         }
                         case aiTextureType_NORMALS: 
@@ -126,8 +129,8 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
                         default: typeName = "OTHER"; break;
                         }
 
+                        //std::cout << "[Texture Type : " << typeName << "] " << path.C_Str() << std::endl;
 
-                        //currentMesh.textureFilePath = Utf8ToWstring(path.C_Str());
 
                     }
                     else
@@ -193,9 +196,11 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
             }
         }
 
-
+        
+        loadingManager.PlusCurrentCount();
 
         allMeshes.push_back(std::move(currentMesh));
+
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; ++i)
@@ -203,6 +208,5 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
         Recursive_NodeProcess(node->mChildren[i], scene, allMeshes, loadingManager);
     }
 
-    loadingManager.PlusCurrentCount();
 
 }

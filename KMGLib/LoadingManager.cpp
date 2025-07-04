@@ -62,6 +62,8 @@ LoadingManager::LoadingManager(ELoadingType loadingType) : loadingType(loadingTy
 
 LoadingManager::~LoadingManager()
 {
+	// Load 는 주로 메인 스레드에서 실행되는데
+	// 이거 때문에 currentCount가 ToTal과 같아지기 전에는 그냥 메인 스레드 자체가 멈춘다
 	loadingThread.join();
 }
 

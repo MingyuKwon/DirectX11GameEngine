@@ -47,7 +47,10 @@ void RenderThread(
     pDeferredContext->PSSetConstantBuffers(0, 1, &pCBChangeOnActor);
 
     pDeferredContext->VSSetConstantBuffers(1, 1, &pCBChangeOnPlayer);
+    pDeferredContext->PSSetConstantBuffers(1, 1, &pCBChangeOnPlayer);
+
     pDeferredContext->VSSetConstantBuffers(2, 1, &pCBChangeOnResize);
+    pDeferredContext->PSSetConstantBuffers(2, 1, &pCBChangeOnResize);
 
     pDeferredContext->PSSetConstantBuffers(3, 1, &pCBLightArray);
 

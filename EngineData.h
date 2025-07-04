@@ -22,5 +22,5 @@
 #define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\QF1_Base_Color.png"
 #define DEFAULT_NORMAL_FILEPATH L"Resource\\Texture\\QF1_Normal.png"
 
-#define DEFAULT_MESHFILE "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj"
-#define DEFAULT_LIGHTMESH "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj"
+#define DEFAULT_MESHFILE "Resource\\TankModel.obj"
+#define DEFAULT_LIGHTMESH "Resource\\TankModel.obj"

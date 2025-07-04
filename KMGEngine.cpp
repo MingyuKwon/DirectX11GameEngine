@@ -42,7 +42,7 @@ void ChangeCubeTransform()
     if (schedular)
     {
         schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
-        //schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(0.02f, 0.02f, 0.02f, 0)));
+        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(0.5f, 0.5f, 0.5f, 0)));
 
         //schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
 
@@ -160,8 +160,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (schedular)
                 {
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", DEFAULT_MESHFILE));
 
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::TranslateActor(L"Light1", XMVectorSet(3.0f, 0.0f, 0.0f, 0.0f)));
