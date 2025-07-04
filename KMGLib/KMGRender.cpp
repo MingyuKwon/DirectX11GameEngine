@@ -92,6 +92,13 @@ KMGRender::~KMGRender()
         pPixelShader_NoNormalMap = nullptr;
     }
 
+    if (pPixelShader_NoLight)
+    {
+        pPixelShader_NoLight->Release();
+        pPixelShader_NoLight = nullptr;
+    }
+
+
     if (pVertexLayout)
     {
         pVertexLayout->Release();
@@ -171,11 +178,12 @@ bool KMGRender::CreateDeviceD3D()
     HRESULT hr = g_pMainDevice->CreateSamplerState(&sampDesc, &pSamplerState);
 
     CompileVertexShader(L"KMGLib\\VertexShader.hlsli", pVertexShader_Default);
+
     CompilePixelShader(L"KMGLib\\PixelShader.hlsli", pPixelShader_Default);
-
     CompilePixelShader(L"KMGLib\\PixelShader_NoNormalMap.hlsli", pPixelShader_NoNormalMap);
+    CompilePixelShader(L"KMGLib\\PixelShader_NoLight.hlsli", pPixelShader_NoLight);
 
-
+    
     CreateConstBuffers();
     CreateRenderTarget();
 }
@@ -450,14 +458,14 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring actorName = actor->GetName();
 
         
-        int actorLightType = -1;
+        bool hasLightComp = false;
         // 빛 컴포넌트가 있는 지 확인함
         if (actor->HasComponent(EComponentType::ECT_LIGHT))
         {
             LightComponent* lightComp = actor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
             lightArray.AddLight(lightComp->GetLight());
 
-            actorLightType = lightComp->GetLight().type;
+            hasLightComp = true;
         }
 
         // 가져올 Mesh가 있는지 확인함
@@ -487,15 +495,14 @@ void KMGRender::DrawScene(KMGScene* scene)
                 drawResources[DefaultMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
             }
 
-            drawResources[DefaultMeshName].UpdateActorCB(pMainContext, actor->getWorldMatrix(), actorLightType);
+            drawResources[DefaultMeshName].bLightEffected = !hasLightComp;
+            drawResources[DefaultMeshName].UpdateActorCB(pMainContext, actor->getWorldMatrix());
 
             actor->bShouldDrawResourceChange = false;
 
             continue;
         }
 
-        
-        
         if (actor->bShouldDrawResourceChange)
         {
             loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
@@ -518,11 +525,10 @@ void KMGRender::DrawScene(KMGScene* scene)
                 loading->PlusCurrentCount();
             }
 
-            drawResources[meshName].UpdateActorCB(pMainContext, actor->getWorldMatrix(), actorLightType);
+            drawResources[meshName].bLightEffected = !hasLightComp;
+            drawResources[meshName].UpdateActorCB(pMainContext, actor->getWorldMatrix());
         }
 
-
-        
         actor->bShouldDrawResourceChange = false;
 
         if (loading)
@@ -584,16 +590,27 @@ void KMGRender::DrawScene(KMGScene* scene)
         {
             shouldEraseResourceName.insert(resourceName);
         }
-
+        
         // 삭제 해야 하는 리소스를 그릴 필요는 없으니 스킵
         if (shouldEraseResourceName.count(resourceName) > 0) continue;
 
-        renderSettingThreads.emplace_back([&] {
+        ID3D11PixelShader* pCurrentPixelShader = pPixelShader_Default;
+        if (resource.pNormalMapSRV == nullptr)
+        {
+            pCurrentPixelShader = pPixelShader_NoNormalMap;
+        }
+
+        if (!resource.bLightEffected)
+        {
+            pCurrentPixelShader = pPixelShader_NoLight;
+        }
+
+        renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
             RenderThread(
                 DX11CommandLists, dx11CommandMutex,
                 g_pMainDevice,
                 pVertexShader_Default,
-                resource.pNormalMapSRV != nullptr ? pPixelShader_Default : pPixelShader_NoNormalMap,
+                pCurrentPixelShader,
                 pVertexLayout,
                 pSceneRTV, pSceneDSV,
                 pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame, pCBLightArray,

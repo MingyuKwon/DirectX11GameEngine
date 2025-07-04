@@ -125,10 +125,6 @@ struct alignas(16) CBChangeOnPlayer
 struct alignas(16) CBChangeOnActor
 {
     DirectX::XMMATRIX mWorld;
-
-    // -1 : ºû ¾Æ´Ô, 0: Directional, 1 : Point
-    int lightType = -1;
-    int _pad1[3];
 };
 
 //--------------------------------------------------------------------------------------
@@ -137,6 +133,8 @@ struct alignas(16) CBChangeOnActor
 struct DrawResource
 {
     bool bInitialized = false;
+
+    bool bLightEffected = true;
 
     std::wstring name;
     std::wstring textureFilePath;
@@ -162,7 +160,7 @@ struct DrawResource
     DrawResource& operator=(DrawResource&&) noexcept;
 
     void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath, std::wstring normalMapFilePath);
-    void UpdateActorCB(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix, int lightType);
+    void UpdateActorCB(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix);
 
 private:
     DirectX::XMMATRIX WorldMatrix = DirectX::XMMATRIX(
