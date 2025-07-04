@@ -435,17 +435,22 @@ void KMGRender::DrawScene(KMGScene* scene)
         KMGActor* actor = bucket.second.get();
         wstring actorName = actor->GetName();
 
+        
+        int actorLightType = -1;
         // 빛 컴포넌트가 있는 지 확인함
-        LightComponent* lightComp = actor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
-        if (lightComp)
+        if (actor->HasComponent(EComponentType::ECT_LIGHT))
         {
+            LightComponent* lightComp = actor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
             lightArray.AddLight(lightComp->GetLight());
+
+            actorLightType = lightComp->GetLight().type;
         }
 
+        // 가져올 Mesh가 있는지 확인함
         const vector<KMGStaticMesh>* actorMeshes = nullptr;
-        StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
-        if (staticComp)
+        if (actor->HasComponent(EComponentType::ECT_STATICMESH))
         {
+            StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
             actorMeshes = staticComp->GetMeshes();
         }
         
@@ -467,7 +472,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                 drawResources[DefaultMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
             }
 
-            drawResources[DefaultMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+            drawResources[DefaultMeshName].UpdateActorCB(pMainContext, actor->getWorldMatrix(), actorLightType);
 
             actor->bShouldDrawResourceChange = false;
 
@@ -498,8 +503,10 @@ void KMGRender::DrawScene(KMGScene* scene)
                 loading->PlusCurrentCount();
             }
 
-            drawResources[meshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+            drawResources[meshName].UpdateActorCB(pMainContext, actor->getWorldMatrix(), actorLightType);
         }
+
+
         
         actor->bShouldDrawResourceChange = false;
 
@@ -511,7 +518,6 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
     }
 
-    std::cout << "lightArray.lightCount : " << lightArray.lightCount << " \n";
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
 

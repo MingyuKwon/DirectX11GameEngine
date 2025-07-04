@@ -7,6 +7,9 @@ SamplerState samLinear : register(s0);
 cbuffer cbChangeOnActor : register(b0)
 {
     matrix World;
+    
+    int lightType;
+    int _pad1[3];
 };
 
 cbuffer cbChangeOnPlayer : register(b1)

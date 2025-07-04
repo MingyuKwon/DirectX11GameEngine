@@ -27,6 +27,11 @@ public:
     void Translate(float dx, float dy, float dz);    // 상대이동
     void Rotate(float dpitch, float dyaw, float droll); // 상대회전
 
+    inline bool HasComponent(EComponentType type)
+    {
+        return components.count(type) != 0;
+    }
+
     template <typename T>
     inline T* GetComponent(EComponentType type) {
         if (components.count(type) == 0) return nullptr;

@@ -112,19 +112,23 @@ struct KMGTransform {
     DirectX::XMVECTOR scale = DirectX::XMVectorSet(1, 1, 1, 0);
 };
 
-struct CBChangeOnResize
+struct alignas(16) CBChangeOnResize
 {
     DirectX::XMMATRIX mProjection;
 };
 
-struct CBChangeOnPlayer
+struct alignas(16) CBChangeOnPlayer
 {
     DirectX::XMMATRIX mView;
 };
 
-struct CBChangeOnActor
+struct alignas(16) CBChangeOnActor
 {
     DirectX::XMMATRIX mWorld;
+
+    // -1 : ºû ¾Æ´Ô, 0: Directional, 1 : Point
+    int lightType = -1;
+    int _pad1[3];
 };
 
 //--------------------------------------------------------------------------------------
@@ -158,7 +162,7 @@ struct DrawResource
     DrawResource& operator=(DrawResource&&) noexcept;
 
     void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath, std::wstring normalMapFilePath);
-    void UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix);
+    void UpdateActorCB(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix, int lightType);
 
 private:
     DirectX::XMMATRIX WorldMatrix = DirectX::XMMATRIX(

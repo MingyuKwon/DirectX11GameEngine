@@ -3,6 +3,12 @@
 float4 PS(PS_INPUT input) : SV_Target
 {        
     float4 baseColor = txDiffuse.Sample(samLinear, input.Tex);
+    
+    if (lightType >= 0)
+    {
+        return baseColor * input.Color;
+    }
+    
     float4 normalSample = txNormal.Sample(samLinear, input.Tex);
     
     float3 normalTS = normalize(normalSample.rgb * 2.0f - 1.0f);

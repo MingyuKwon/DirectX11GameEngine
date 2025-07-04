@@ -44,8 +44,11 @@ void RenderThread(
     pDeferredContext->OMSetRenderTargets(1, &pRTV, pDSV);
 
     pDeferredContext->VSSetConstantBuffers(0, 1, &pCBChangeOnActor);
+    pDeferredContext->PSSetConstantBuffers(0, 1, &pCBChangeOnActor);
+
     pDeferredContext->VSSetConstantBuffers(1, 1, &pCBChangeOnPlayer);
     pDeferredContext->VSSetConstantBuffers(2, 1, &pCBChangeOnResize);
+
     pDeferredContext->PSSetConstantBuffers(3, 1, &pCBLightArray);
 
     UINT stride = sizeof(KMGVertex);

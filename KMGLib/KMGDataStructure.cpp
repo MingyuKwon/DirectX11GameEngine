@@ -290,7 +290,7 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
 
 }
 
-void DrawResource::UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, XMMATRIX WorldMatrix)
+void DrawResource::UpdateActorCB(ID3D11DeviceContext* pMainContext, XMMATRIX WorldMatrix, int lightType)
 {
     if (this->WorldMatrix == WorldMatrix) return;
 
@@ -299,6 +299,7 @@ void DrawResource::UpdateWorldMatrix(ID3D11DeviceContext* pMainContext, XMMATRIX
 
     CBChangeOnActor cb = {};
     cb.mWorld = XMMatrixTranspose(WorldMatrix);
+    cb.lightType = lightType;
 
     pMainContext->UpdateSubresource(pCBChangesEveryFrame, 0, nullptr, &cb, 0, 0);
 
