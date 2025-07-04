@@ -44,6 +44,7 @@ private:
 class StaticMeshComponent : public KMGComponent {
 public:
 	StaticMeshComponent() : KMGComponent(EComponentType::ECT_STATICMESH) {}
+	virtual ~StaticMeshComponent();
 
 	inline const std::vector<KMGStaticMesh>* GetMeshes()
 	{

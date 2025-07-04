@@ -36,8 +36,8 @@ public:
 
     inline bool RemoveComponent(EComponentType type) {
         if (components.count(type) == 0) return false;
-        components.erase(type);
 
+        components.erase(type);
         return true;
     }
 
@@ -63,6 +63,10 @@ public:
         
         return true;
 
+    }
+
+    inline bool HasMesh() {
+        return components.count(EComponentType::ECT_STATICMESH) > 0;
     }
 
 private:

@@ -144,10 +144,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::RemoveActor(L"Light1"));
+                    //schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
 
-                    schedular->PushCommand(KMGCommand::RemoveLightComponent(L"Light1"));
+                    schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(L"Actor1"));
+
+                    //schedular->PushCommand(KMGCommand::RemoveActor(L"Light1"));
+                    //schedular->PushCommand(KMGCommand::RemoveLightComponent(L"Light1"));
                 }
 
                 break;
@@ -178,8 +180,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light2", 1.2));
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0,0.5,0,1)));
+                    //schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light2", 1.2));
+                    //schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0,0.5,0,1)));
+
+                    schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor1"));
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", DEFAULT_MESHFILE));
+
                 }
             }
         }

@@ -426,6 +426,8 @@ void KMGRender::DrawScene(KMGScene* scene)
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
     lightArray.clear();
 
+    vector<wstring> erasedResourceName;
+
     for (auto& bucket : actors)
     {
         KMGActor* actor = bucket.second.get();
@@ -447,25 +449,27 @@ void KMGRender::DrawScene(KMGScene* scene)
         
         LoadingManager* loading = nullptr;
 
+        wstring DefaultMeshName = actorName + L"___DEFAULT";
+
         // 만약 정해진 메시가 없다면 그냥 기본 메시만 처리하고 나가기
         if (actorMeshes == nullptr)
         {
-            wstring firstMeshName = actorName + L"___" + to_wstring(0);
-
             if (actor->bShouldDrawResourceChange)
             {
-                drawResources.emplace(firstMeshName, DrawResource(firstMeshName));
+                drawResources.emplace(DefaultMeshName, DrawResource(DefaultMeshName));
 
                 KMGStaticMesh defulatMesh = KMGStaticMesh::CreateDefaultSphereMesh();
-                drawResources[firstMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
+                drawResources[DefaultMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
             }
 
-            drawResources[firstMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
+            drawResources[DefaultMeshName].UpdateWorldMatrix(pMainContext, actor->getWorldMatrix());
 
             actor->bShouldDrawResourceChange = false;
 
             continue;
         }
+
+        erasedResourceName.push_back(DefaultMeshName);
         
         if (actor->bShouldDrawResourceChange)
         {
@@ -505,7 +509,6 @@ void KMGRender::DrawScene(KMGScene* scene)
     std::cout << "lightArray.lightCount : " << lightArray.lightCount << " \n";
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
-    vector<wstring> erasedActorName;
 
     for (auto& bucket : drawResources)
     {
@@ -514,7 +517,6 @@ void KMGRender::DrawScene(KMGScene* scene)
 
         wstring actorName = resourceName;
 
-
         // 리소스에서 액터이름을 뽑아내서 그 액터가 있는지 없는지 검사
         size_t pos = resourceName.find(L"___");
         if (pos != wstring::npos)
@@ -522,9 +524,10 @@ void KMGRender::DrawScene(KMGScene* scene)
             actorName = resourceName.substr(0, pos);
         }
 
+        // 내가 그리고자 하는 액터가 사라졌다면 삭제할 목록에 추가 후에 건너 뛰기
         if (actors.count(actorName) == 0)
         {
-            erasedActorName.push_back(resourceName);
+            erasedResourceName.push_back(resourceName);
             continue;
         }
 
@@ -550,7 +553,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         t.join();
     }
 
-    for (wstring name : erasedActorName)
+    for (wstring name : erasedResourceName)
     {
         drawResources.erase(name);
     }
