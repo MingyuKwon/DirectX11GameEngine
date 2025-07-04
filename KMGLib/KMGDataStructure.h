@@ -35,7 +35,7 @@ struct KMGStaticMesh {
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;
     std::wstring textureFilePath = DEFAULT_TEXTURE_FILEPATH;
-    std::wstring normalMapFilePath = DEFAULT_TEXTURE_FILEPATH;
+    std::wstring normalMapFilePath = DEFAULT_NORMAL_FILEPATH;
 
 };
 

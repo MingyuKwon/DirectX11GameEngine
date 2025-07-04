@@ -164,12 +164,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::TranslateActor(L"Light1", XMVectorSet(3.0f, 0.0f, 0.0f, 0.0f)));
 
-                    schedular->PushCommand(KMGCommand::AddActor(L"Light2"));
-                    schedular->PushCommand(KMGCommand::TranslateActor(L"Light2", XMVectorSet(-3.0f, 0.0f, 0.0f, 0.0f)));
-
                     schedular->PushCommand(KMGCommand::AddLightComponent(L"Light1"));
-                    schedular->PushCommand(KMGCommand::AddLightComponent(L"Light2"));
-
 
                 }
 
@@ -179,11 +174,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    //schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light2", 1.2));
                     //schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0,0.5,0,1)));
 
                     schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor1"));
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", DEFAULT_MESHFILE));
+
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.5));
 
                 }
                 break;

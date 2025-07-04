@@ -276,16 +276,20 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
             pNormalMapSRV = nullptr;
         }
 
-        HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->normalMapFilePath.c_str(), &pNormalMapSRV);
-        if (FAILED(hr))
+        if (this->normalMapFilePath != DEFAULT_NORMAL_FILEPATH)
         {
-            wcout << "this->normalMapFilePath : " << this->normalMapFilePath << "  Failed \n";
-            this->normalMapFilePath = L"";
+            HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->normalMapFilePath.c_str(), &pNormalMapSRV);
+            if (FAILED(hr))
+            {
+                wcout << "this->normalMapFilePath : " << this->normalMapFilePath << "  Failed \n";
+                this->normalMapFilePath = L"";
+            }
+            else
+            {
+                wcout << "this->normalMapFilePath : " << this->normalMapFilePath << "  Success \n";
+            }
         }
-        else
-        {
-            wcout << "this->normalMapFilePath : " << this->normalMapFilePath << "  Success \n";
-        }
+
     }
 
 }

@@ -20,7 +20,7 @@
 
 #define DEFAULT_TEXTURE_FOLDER L"Resource\\Texture\\"
 #define DEFAULT_TEXTURE_FILEPATH L"Resource\\Texture\\QF1_Base_Color.png"
-#define DEFAULT_NORMAL_FILEPATH L"Resource\\Texture\\QF1_Normal.png"
+#define DEFAULT_NORMAL_FILEPATH L"NO normal Map"
 
 #define DEFAULT_MESHFILE "Resource\\TankModel.obj"
 #define DEFAULT_LIGHTMESH "Resource\\TankModel.obj"

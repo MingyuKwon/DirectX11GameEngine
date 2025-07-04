@@ -74,16 +74,22 @@ KMGRender::~KMGRender()
         pMainRTV = nullptr;
     }
 
-    if (pVertexShader)
+    if (pVertexShader_Default)
     {
-        pVertexShader->Release();
-        pVertexShader = nullptr;
+        pVertexShader_Default->Release();
+        pVertexShader_Default = nullptr;
     }
 
-    if (pPixelShader)
+    if (pPixelShader_Default)
     {
-        pPixelShader->Release();
-        pPixelShader = nullptr;
+        pPixelShader_Default->Release();
+        pPixelShader_Default = nullptr;
+    }
+
+    if (pPixelShader_NoNormalMap)
+    {
+        pPixelShader_NoNormalMap->Release();
+        pPixelShader_NoNormalMap = nullptr;
     }
 
     if (pVertexLayout)
@@ -164,7 +170,12 @@ bool KMGRender::CreateDeviceD3D()
 
     HRESULT hr = g_pMainDevice->CreateSamplerState(&sampDesc, &pSamplerState);
 
-    CompileShader(L"KMGLib\\VertexShader.hlsli", L"KMGLib\\PixelShader.hlsli");
+    CompileVertexShader(L"KMGLib\\VertexShader.hlsli", pVertexShader_Default);
+    CompilePixelShader(L"KMGLib\\PixelShader.hlsli", pPixelShader_Default);
+
+    CompilePixelShader(L"KMGLib\\PixelShader_NoNormalMap.hlsli", pPixelShader_NoNormalMap);
+
+
     CreateConstBuffers();
     CreateRenderTarget();
 }
@@ -355,6 +366,8 @@ int KMGRender::InitD3D_IMGUI()
 
     return 0;
 }
+
+
 
 void KMGRender::RenderScene(KMGScene* scene)
 {
@@ -579,8 +592,8 @@ void KMGRender::DrawScene(KMGScene* scene)
             RenderThread(
                 DX11CommandLists, dx11CommandMutex,
                 g_pMainDevice,
-                pVertexShader,
-                pPixelShader,
+                pVertexShader_Default,
+                resource.pNormalMapSRV != nullptr ? pPixelShader_Default : pPixelShader_NoNormalMap,
                 pVertexLayout,
                 pSceneRTV, pSceneDSV,
                 pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame, pCBLightArray,
@@ -801,7 +814,7 @@ void KMGRender::Render_DetailWindow()
     ImGui::End();
 }
 
-HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName)
+HRESULT KMGRender::CompileVertexShader(const WCHAR* vertexShaderName, ID3D11VertexShader*& pVertexShader)
 {
     ID3DBlob* pVSBlob = nullptr;
     HRESULT hr = CompileShaderFromFile(vertexShaderName, "VS", "vs_4_0", &pVSBlob);
@@ -836,8 +849,14 @@ HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pix
     pVSBlob->Release();
     if (FAILED(hr)) return hr;
 
+    return hr;
+}
+
+HRESULT KMGRender::CompilePixelShader(const WCHAR* pixelShaderName, ID3D11PixelShader*& pPixelShader)
+{
     ID3DBlob* pPSBlob = nullptr;
-    hr = CompileShaderFromFile(pixelShaderName, "PS", "ps_4_0", &pPSBlob);
+
+    HRESULT hr = CompileShaderFromFile(pixelShaderName, "PS", "ps_4_0", &pPSBlob);
     if (FAILED(hr))
     {
         MessageBox(nullptr,
@@ -850,4 +869,5 @@ HRESULT KMGRender::CompileShader(const WCHAR* vertexShaderName, const WCHAR* pix
     if (FAILED(hr)) return hr;
 
     return hr;
+
 }

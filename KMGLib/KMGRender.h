@@ -45,8 +45,11 @@ private:
 	ID3D11RenderTargetView* pSceneRTV = nullptr;
 	ID3D11ShaderResourceView* pSceneSRV = nullptr;
 
-	ID3D11VertexShader* pVertexShader = nullptr;
-	ID3D11PixelShader* pPixelShader = nullptr;
+	ID3D11VertexShader* pVertexShader_Default = nullptr;
+
+	ID3D11PixelShader* pPixelShader_Default = nullptr;
+	ID3D11PixelShader* pPixelShader_NoNormalMap = nullptr;
+
 	ID3D11InputLayout* pVertexLayout = nullptr;
 
 	ID3D11Buffer* pCBChangeOnResize = nullptr;
@@ -75,7 +78,8 @@ private:
 	HRESULT CreateConstBuffers();
 
 	int InitD3D_IMGUI();
-	HRESULT CompileShader(const WCHAR* vertexShaderName, const WCHAR* pixelShaderName);
+	HRESULT CompileVertexShader(const WCHAR* vertexShaderName, ID3D11VertexShader*& pVertexShader);
+	HRESULT CompilePixelShader(const WCHAR* pixelShaderName, ID3D11PixelShader*& pPixelShader);
 
 	void DrawScene(KMGScene* scene);
 	void DrawIMGUI_UI();

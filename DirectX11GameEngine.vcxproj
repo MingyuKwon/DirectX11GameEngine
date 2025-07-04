@@ -195,6 +195,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="KMGLib\PixelShader.hlsli" />
+    <None Include="KMGLib\PixelShader_NoNormalMap.hlsli" />
     <None Include="KMGLib\VertexShader.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
