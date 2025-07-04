@@ -40,13 +40,13 @@ struct alignas(16) Light
 {
     int type = 0; // 0 = directional, 1 = point, 2 = spot
     float range = 100;
-    float intensity = 2;
+    float intensity = 1;
     float lightPad_1;
 
     DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f);
     float lightPad_2;
 
-    DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+    DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f);
     float lightPad_3;
 
     DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -54,9 +54,9 @@ struct alignas(16) Light
     void setToDefault()
     {
         position = DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f);
-        direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+        direction = DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f);
         range = 100;
-        intensity = 2;
+        intensity = 1;
         color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 };
