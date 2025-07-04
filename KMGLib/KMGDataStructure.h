@@ -4,6 +4,8 @@
 #include <string>
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
+
 #include <atomic>
 #include <mutex>
 #include <memory>

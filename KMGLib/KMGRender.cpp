@@ -426,7 +426,9 @@ void KMGRender::DrawScene(KMGScene* scene)
     const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
     lightArray.clear();
 
-    vector<wstring> erasedResourceName;
+    // 여기에 이름이 기록된 리소스들은 그리지 말고, 마지막에 지워져야함
+    unordered_set<wstring> shouldEraseResourceName;
+    unordered_set<wstring> shouldEraseActorName;
 
     for (auto& bucket : actors)
     {
@@ -449,11 +451,14 @@ void KMGRender::DrawScene(KMGScene* scene)
         
         LoadingManager* loading = nullptr;
 
-        wstring DefaultMeshName = actorName + L"___DEFAULT";
 
         // 만약 정해진 메시가 없다면 그냥 기본 메시만 처리하고 나가기
         if (actorMeshes == nullptr)
         {
+            // 기본 메시를 처리하면 이미 만들어진 메시는 모두 지워야 함
+            shouldEraseActorName.insert(actorName);
+
+            wstring DefaultMeshName = actorName + L"___DEFAULT";
             if (actor->bShouldDrawResourceChange)
             {
                 drawResources.emplace(DefaultMeshName, DrawResource(DefaultMeshName));
@@ -469,7 +474,7 @@ void KMGRender::DrawScene(KMGScene* scene)
             continue;
         }
 
-        erasedResourceName.push_back(DefaultMeshName);
+        
         
         if (actor->bShouldDrawResourceChange)
         {
@@ -524,12 +529,31 @@ void KMGRender::DrawScene(KMGScene* scene)
             actorName = resourceName.substr(0, pos);
         }
 
-        // 내가 그리고자 하는 액터가 사라졌다면 삭제할 목록에 추가 후에 건너 뛰기
+        // 내가 그리고자 하는 액터가 사라졌다면 삭제할 목록에 추가 
         if (actors.count(actorName) == 0)
         {
-            erasedResourceName.push_back(resourceName);
-            continue;
+            shouldEraseResourceName.insert(resourceName);
         }
+
+        wstring DefaultMeshName = actorName + L"___DEFAULT";
+
+        // 내가 그리고자 하는 리소스가 지워야 하는 액터의 리소스라면
+        if (shouldEraseActorName.count(actorName) > 0)
+        {
+            // 만약 메시가 없는 경우에 땜빵으로 넣은 데이터는 지우면 안된다
+            if (DefaultMeshName != resourceName)
+            {
+                shouldEraseResourceName.insert(resourceName);
+            }
+        }
+        else
+        {
+            // 만약 지워야 하지 않는 경우에는 오히려, 이미 defualt가 그려져 있으면 그걸 지워야 한다
+            shouldEraseResourceName.insert(DefaultMeshName);
+        }
+
+        // 삭제 해야 하는 리소스를 그릴 필요는 없으니 스킵
+        if (shouldEraseResourceName.count(resourceName) > 0) continue;
 
         renderSettingThreads.emplace_back([&] {
             RenderThread(
@@ -553,7 +577,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         t.join();
     }
 
-    for (wstring name : erasedResourceName)
+    for (wstring name : shouldEraseResourceName)
     {
         drawResources.erase(name);
     }
