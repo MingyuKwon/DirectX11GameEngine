@@ -48,13 +48,13 @@ KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius) {
             int i0 = y * (SEGMENTS + 1) + x;
             int i1 = i0 + SEGMENTS + 1;
 
-            mesh.indices.push_back(i0);
-            mesh.indices.push_back(i1);
-            mesh.indices.push_back(i0 + 1);
+            mesh.indices.push_back(i0);       
+            mesh.indices.push_back(i0 + 1);   
+            mesh.indices.push_back(i1);       
 
             mesh.indices.push_back(i0 + 1);
-            mesh.indices.push_back(i1);
             mesh.indices.push_back(i1 + 1);
+            mesh.indices.push_back(i1);
         }
     }
 

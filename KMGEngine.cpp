@@ -177,7 +177,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light2", 1.5));
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light2", 1.2));
                     schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0,0.5,0,1)));
                 }
             }
