@@ -99,6 +99,9 @@
     <ClCompile Include="KMGLib\KMGComponent.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="OuterLib\KMGUtility.cpp">
+      <Filter>소스 파일\OuterLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">
@@ -164,6 +167,9 @@
     <ClInclude Include="KMGLib\KMGComponent.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
+    <ClInclude Include="OuterLib\KMGUtility.h">
+      <Filter>헤더 파일\OuterLib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="KMGLib\ShaderShared.hlsl">
@@ -177,5 +183,7 @@
     <None Include="KMGLib\PixelShader.hlsli">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="KMGLib\PixelShader_NoLight.hlsli" />
+    <None Include="KMGLib\PixelShader_NoNormalMap.hlsli" />
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
 #include <KMGScene.h>
 #include <LoadingManager.h>
 #include <CommandSchedular.h>
+#include <KMGUtility.h>
 
 using namespace std;
 using namespace DirectX;
@@ -213,7 +214,8 @@ HRESULT KMGRender::CreateConstBuffers()
     XMMATRIX Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
 
     CBChangeOnResize cbr = {};
-    cbr.mProjection = Projection;
+    currentCameraProjectionMatrix = Projection;
+    cbr.mProjection = currentCameraProjectionMatrix;
     pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cbr, 0, 0);
 
     ///////////////////////////////
@@ -440,7 +442,9 @@ void KMGRender::DrawScene(KMGScene* scene)
     KMGCamera currentCamera = scene->GetCurrentCamera();
 
     CBChangeOnPlayer cbp = {};
-    cbp.mView = XMMatrixTranspose(currentCamera.GetViewMatrix());
+    currentCameraViewMatrix = XMMatrixTranspose(currentCamera.GetViewMatrix());
+    cbp.mView = currentCameraViewMatrix;
+
     pMainContext->UpdateSubresource(pCBChangeOnPlayer, 0, nullptr, &cbp, 0, 0);
 
     // 여기서 deferred로 렌더링 준비 작업을 메시의 개수만큼 멀티 스레드로 돌린다
@@ -724,12 +728,15 @@ void KMGRender::Render_SceneWindow()
         if (localClick.x >= 0 && localClick.y >= 0 &&
             localClick.x < sceneWindowWidth && localClick.y < sceneWindowHeight) {
 
-            //handlePicking(localClick, sceneTexSize);
+            XMVECTOR rayDir = KMGUtility::GenerateCameraRayDirection(
+                localClick.x, localClick.y,
+                sceneWindowWidth, sceneWindowHeight,
+                currentCameraViewMatrix, currentCameraProjectionMatrix);
 
             // 여기서 스케큘러에게 줘야 한다
             if (schedular)
             {
-                schedular->PushCommand(KMGCommand::ClickScene(localClick.x, localClick.y, sceneWindowWidth, sceneWindowHeight));
+                schedular->PushCommand(KMGCommand::CameraRayTrace(rayDir));
             }
         }
     }

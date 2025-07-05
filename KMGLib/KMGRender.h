@@ -62,6 +62,9 @@ private:
 
 	ID3D11SamplerState* pSamplerState = nullptr;
 
+	DirectX::XMMATRIX currentCameraViewMatrix;
+	DirectX::XMMATRIX currentCameraProjectionMatrix;
+
 
 	std::atomic<int> mainWindowWidth = DEFAULT_WINDOW_WIDTH;
 	std::atomic<int> mainWindowHeight = DEFAULT_WINDOW_HEIGHT;

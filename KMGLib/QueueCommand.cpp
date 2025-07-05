@@ -19,9 +19,9 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, true);
 	}
 
-	std::unique_ptr<SceneCommandMessage> ClickScene(float clickX, float clickY, float screenWidth, float screenHeight)
+	std::unique_ptr<SceneCommandMessage> CameraRayTrace(DirectX::XMVECTOR inRayDirection)
 	{
-		return std::make_unique<SceneCommand_ClickScene>(clickX, clickY, screenWidth, screenHeight);
+		return std::make_unique<SceneCommand_RayTrace>(inRayDirection);
 	}
 
 	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name)
@@ -167,11 +167,16 @@ void SceneCommand_Add_Remove_Actor::Execute(KMGScene*& scene)
 
 }
 
-void SceneCommand_ClickScene::Execute(KMGScene*& scene)
+void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
-	std::cout << "Click Scene :" << clickX << " " << clickY << " \n";
+	XMFLOAT4 rayDir;
+	XMStoreFloat4(&rayDir, cameraRayDirection);
+
+	std::cout << "Ray Direction :" << rayDir.x << " " << rayDir.y << " " << rayDir.z << " \n";
+
+	XMVECTOR cameraOrigin = scene->GetCurrentCamera().GetCameraPosition();
 }
 
 void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)

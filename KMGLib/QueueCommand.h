@@ -15,7 +15,7 @@ enum class ECommandMessageType : int
 	ERC_NONE,
 	ERC_CHANGE_SCENE,
 
-	ERC_CLICK_SCENE,
+	ERC_RAY_TRACE,
 
 	ERC_ADD_ACTOR,
 	ERC_REMOVE_ACTOR,
@@ -50,7 +50,7 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
 
-	std::unique_ptr<SceneCommandMessage> ClickScene(float clickX, float clickY, float screenWidth, float screenHeight);
+	std::unique_ptr<SceneCommandMessage> CameraRayTrace(DirectX::XMVECTOR inRayDirection);
 
 	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveStaticMeshComponent(const std::wstring& name);
@@ -95,20 +95,16 @@ private:
 	KMGScene* scene;
 };
 
-struct SceneCommand_ClickScene : public SceneCommandMessage
+struct SceneCommand_RayTrace : public SceneCommandMessage
 {
-	SceneCommand_ClickScene(float clickX, float clickY, float screenWidth, float screenHeight) : clickX(clickX), clickY(clickY), screenWidth(screenWidth), screenHeight(screenHeight) {
-		type = ECommandMessageType::ERC_CLICK_SCENE;
+	SceneCommand_RayTrace(DirectX::XMVECTOR inRayDirection) : cameraRayDirection(inRayDirection){
+		type = ECommandMessageType::ERC_RAY_TRACE;
 	}
 
 	void Execute(KMGScene*& scene) override;
 
 private:
-	float clickX;
-	float clickY;
-	float screenWidth;
-	float screenHeight;
-
+	DirectX::XMVECTOR cameraRayDirection;
 };
 
 
