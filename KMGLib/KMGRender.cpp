@@ -437,6 +437,8 @@ void KMGRender::DrawScene(KMGScene* scene)
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     pMainContext->ClearRenderTargetView(pSceneRTV, Colors::White);
 
+    resourceManager.ClearShouldDrawActor();
+
     ////////////////////////////////////////////
     ///////////////////////////////////////////
     KMGCamera currentCamera = scene->GetCurrentCamera();
@@ -483,70 +485,19 @@ void KMGRender::DrawScene(KMGScene* scene)
             ActorMeshCount[actorName] = actorMeshes->size();
         }
         
-        LoadingManager* loading = nullptr;
-
-
-        // 만약 정해진 메시가 없다면 그냥 기본 메시만 처리하고 나가기
-        if (actorMeshes == nullptr)
-        {
-            // 기본 메시를 처리하면 이미 만들어진 메시는 모두 지워야 함
-            shouldEraseActorName.insert(actorName);
-
-            wstring DefaultMeshName = actorName + L"___DEFAULT";
-            if (actor->bShouldDrawResourceChange)
-            {
-                drawResources.emplace(DefaultMeshName, DrawResource(DefaultMeshName));
-
-                KMGStaticMesh defulatMesh = KMGStaticMesh::CreateDefaultSphereMesh();
-                drawResources[DefaultMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
-            }
-
-            drawResources[DefaultMeshName].bLightEffected = !hasLightComp;
-            drawResources[DefaultMeshName].UpdateActorCB(pMainContext, actor->getWorldMatrix());
-
-            actor->bShouldDrawResourceChange = false;
-
-            continue;
-        }
-
-        if (actor->bShouldDrawResourceChange)
-        {
-            loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
-            loading->SetTotalCount(actorMeshes->size());
-        }
-
-        for (int i = 0; i < actorMeshes->size(); i++)
-        {
-            wstring meshName = actorName + L"___" + to_wstring(i);
-            const KMGStaticMesh& actorMesh = (*actorMeshes)[i];
-
-            if (drawResources.count(meshName) == 0)
-            {
-                drawResources.emplace(meshName, DrawResource(meshName));
-            }
-
-            if (actor->bShouldDrawResourceChange)
-            {
-                drawResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
-                loading->PlusCurrentCount();
-            }
-
-            drawResources[meshName].bLightEffected = !hasLightComp;
-            drawResources[meshName].UpdateActorCB(pMainContext, actor->getWorldMatrix());
-        }
-
-        actor->bShouldDrawResourceChange = false;
-
-        if (loading)
-        {
-            loading->StopLoading();
-            delete loading;
-            loading = nullptr;
-        }
+        resourceManager.AddShouldDrawActor(
+            actor->bShouldDrawResourceChange,
+            actorName,
+            actorMeshes,
+            pMainContext,
+            hasLightComp,
+            actor->getWorldMatrix()
+        );
     }
 
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
+    std::unordered_map<std::wstring, DrawResource>& drawResources = resourceManager.GetDrawResources();
 
     for (auto& bucket : drawResources)
     {
@@ -554,51 +505,6 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring resourceName = bucket.first;
 
         wstring actorName = resourceName;
-        int meshIndex = -1;
-
-        // 리소스에서 액터이름을 뽑아내서 그 액터가 있는지 없는지 검사
-        size_t pos = resourceName.find(L"___");
-        if (pos != wstring::npos)
-        {
-            actorName = resourceName.substr(0, pos);
-
-            wstring meshCountStr = resourceName.substr(pos+3);
-            if (meshCountStr != L"DEFAULT")
-            {
-                meshIndex = stoi(meshCountStr);
-            }
-        }
-
-        // 내가 그리고자 하는 액터가 사라졌다면 삭제할 목록에 추가 
-        if (actors.count(actorName) == 0)
-        {
-            shouldEraseResourceName.insert(resourceName);
-        }
-
-        wstring DefaultMeshName = actorName + L"___DEFAULT";
-
-        // 내가 그리고자 하는 리소스가 지워야 하는 액터의 리소스라면
-        if (shouldEraseActorName.count(actorName) > 0)
-        {
-            // 만약 메시가 없는 경우에 땜빵으로 넣은 데이터는 지우면 안된다
-            if (DefaultMeshName != resourceName)
-            {
-                shouldEraseResourceName.insert(resourceName);
-            }
-        }
-        else
-        {
-            // 만약 지워야 하지 않는 경우에는 오히려, 이미 defualt가 그려져 있으면 그걸 지워야 한다
-            shouldEraseResourceName.insert(DefaultMeshName);
-        }
-
-        if (ActorMeshCount.count(actorName) > 0 && ActorMeshCount[actorName] <= meshIndex)
-        {
-            shouldEraseResourceName.insert(resourceName);
-        }
-        
-        // 삭제 해야 하는 리소스를 그릴 필요는 없으니 스킵
-        if (shouldEraseResourceName.count(resourceName) > 0) continue;
 
         ID3D11PixelShader* pCurrentPixelShader = pPixelShader_Default;
         if (resource.pNormalMapSRV == nullptr)
@@ -632,12 +538,6 @@ void KMGRender::DrawScene(KMGScene* scene)
     {
         t.join();
     }
-
-    for (wstring name : shouldEraseResourceName)
-    {
-        drawResources.erase(name);
-    }
-
 
     int count = 0;
     for (auto cmd : DX11CommandLists) {

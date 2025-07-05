@@ -8,6 +8,7 @@
 #include <imgui_impl_dx11.h>
 
 #include <KMGDataStructure.h>
+#include <DrawResourceManager.h>
 
 extern ID3D11Device* g_pMainDevice;
 class KMGScene;
@@ -96,8 +97,7 @@ private:
 	void Render_DetailWindow();
 
 	// 여기엔 메시 별로 DrawResource를 생성한다. 하나의 액터에 여러 메시가 있을 수 있고, 각각 actorName_0, actorName_1 이렇게 이름이 부여되고 저장될 예정
-	std::unordered_map<std::wstring, DrawResource> drawResources;
-
+	DrawResourceManager resourceManager;
 
 };
 

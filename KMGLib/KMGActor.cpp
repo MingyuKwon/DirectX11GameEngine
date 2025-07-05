@@ -57,8 +57,14 @@ float KMGActor::RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDi
 {
     if (HasMesh())
     {
+        XMMATRIX invWorld = XMMatrixInverse(nullptr, getWorldMatrix());
+
+        XMVECTOR localRayOrigin = XMVector3Transform(rayOrigin, invWorld);
+        XMVECTOR localRayDir = XMVector3TransformNormal(rayDir, invWorld);
+        localRayDir = XMVector3Normalize(localRayDir);
+
         StaticMeshComponent* meshComp = GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
-        float result = meshComp->CheckHitWithRay(rayOrigin, rayDir);
+        float result = meshComp->CheckHitWithRay(localRayOrigin, localRayDir);
 
         if (result >= 0) return result;
     }

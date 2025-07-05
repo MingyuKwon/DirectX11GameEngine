@@ -141,6 +141,7 @@
     </ClCompile>
     <ClCompile Include="KMGLib\CommandSchedular.cpp" />
     <ClCompile Include="KMGLib\DirectX11Run.cpp" />
+    <ClCompile Include="KMGLib\DrawResourceManager.cpp" />
     <ClCompile Include="KMGLib\EngineData.cpp" />
     <ClCompile Include="KMGLib\KMGActor.cpp" />
     <ClCompile Include="KMGLib\KMGCamera.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="EngineData.h" />
     <ClInclude Include="KMGLib\CommandSchedular.h" />
     <ClInclude Include="KMGLib\DirectX11Run.h" />
+    <ClInclude Include="KMGLib\DrawResourceManager.h" />
     <ClInclude Include="KMGLib\KMGActor.h" />
     <ClInclude Include="KMGLib\KMGCamera.h" />
     <ClInclude Include="KMGLib\KMGComponent.h" />
