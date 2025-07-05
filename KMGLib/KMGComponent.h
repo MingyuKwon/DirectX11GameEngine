@@ -1,5 +1,6 @@
 #pragma once
 #include <KMGDataStructure.h>
+#include <DirectXCollision.h> 
 
 class KMGActor;
 
@@ -55,7 +56,9 @@ public:
 
 	void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes);
 	
+	float CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir) const;
 private:
 	std::vector<KMGStaticMesh> meshes;
+	std::vector<DirectX::BoundingBox> boundingBoxs;
 
 };

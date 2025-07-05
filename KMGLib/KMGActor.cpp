@@ -51,3 +51,17 @@ void KMGActor::Rotate(float dpitch, float dyaw, float droll) {
     XMVECTOR delta = XMVectorSet(dpitch, dyaw, droll, 0);
     transform.rotation = XMVectorAdd(rot, delta);
 }
+
+
+float KMGActor::RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir)
+{
+    if (HasMesh())
+    {
+        StaticMeshComponent* meshComp = GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+        float result = meshComp->CheckHitWithRay(rayOrigin, rayDir);
+
+        if (result >= 0) return result;
+    }
+
+    return -1;
+}

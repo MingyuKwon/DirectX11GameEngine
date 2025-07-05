@@ -2,10 +2,12 @@
 #include "KMGScene.h"
 #include <UseAssimp.h>
 #include <LoadingManager.h>
+#include <KMGDataStructure.h>
 
 #include <iostream>
 
 using namespace DirectX;
+using namespace std;
 
 namespace KMGCommand
 {
@@ -174,9 +176,38 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	XMFLOAT4 rayDir;
 	XMStoreFloat4(&rayDir, cameraRayDirection);
 
-	std::cout << "Ray Direction :" << rayDir.x << " " << rayDir.y << " " << rayDir.z << " \n";
+	//std::cout << "Ray Direction :" << rayDir.x << " " << rayDir.y << " " << rayDir.z << " \n";
 
 	XMVECTOR cameraOrigin = scene->GetCurrentCamera().GetCameraPosition();
+
+	KMGActor* closestActor = nullptr;
+	float closestDistance = -1;
+
+	const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
+	for (auto& bucket : actors)
+	{
+		KMGActor* actor = bucket.second.get();
+
+		float result = actor->RayTraceHit(cameraOrigin, cameraRayDirection);
+		if (result >= 0)
+		{
+			if (closestActor == nullptr)
+			{
+				closestActor = actor;
+				closestDistance = result;
+			}
+			else
+			{
+				if(result < closestDistance) closestActor = actor;
+			}
+		}
+	}
+	
+	if (closestActor)
+	{
+		std::wcout << closestActor->GetName() << " \n";
+
+	}
 }
 
 void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)

@@ -74,6 +74,10 @@ public:
         return components.count(EComponentType::ECT_STATICMESH) > 0;
     }
 
+    // ray와 만나는 경우, 가장 짧은 거리를 반환하고, 못맞나면 -1을 반한합니다
+    float RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir);
+
+
 private:
     std::unordered_map<EComponentType, std::unique_ptr<KMGComponent>> components;
 
