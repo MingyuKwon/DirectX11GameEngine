@@ -19,6 +19,11 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, true);
 	}
 
+	std::unique_ptr<SceneCommandMessage> ClickScene(float clickX, float clickY, float screenWidth, float screenHeight)
+	{
+		return std::make_unique<SceneCommand_ClickScene>(clickX, clickY, screenWidth, screenHeight);
+	}
+
 	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name)
 	{
 		return std::make_unique<SceneCommand_Add_Remove_StaticMeshComponent>(name, true);
@@ -136,6 +141,17 @@ namespace KMGCommand
 
 }
 
+void SceneCommand_ChangeScene::Execute(KMGScene*& scene)
+{
+	if (scene)
+	{
+		delete scene;
+		scene = nullptr;
+	}
+
+	scene = this->scene;
+}
+
 void SceneCommand_Add_Remove_Actor::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
@@ -148,19 +164,14 @@ void SceneCommand_Add_Remove_Actor::Execute(KMGScene*& scene)
 	{
 		scene->EraseActor(actorName);
 	}
-	
+
 }
 
-
-void SceneCommand_ChangeScene::Execute(KMGScene*& scene)
+void SceneCommand_ClickScene::Execute(KMGScene*& scene)
 {
-	if (scene)
-	{
-		delete scene;
-		scene = nullptr;
-	}
+	if (!scene) return;
 
-	scene = this->scene;
+	std::cout << "Click Scene :" << clickX << " " << clickY << " \n";
 }
 
 void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)
@@ -390,5 +401,4 @@ void SceneCommand_Update_LightComponent::Execute(KMGScene*& scene)
 		}
 	}
 }
-
 

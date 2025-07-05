@@ -14,6 +14,9 @@ enum class ECommandMessageType : int
 {
 	ERC_NONE,
 	ERC_CHANGE_SCENE,
+
+	ERC_CLICK_SCENE,
+
 	ERC_ADD_ACTOR,
 	ERC_REMOVE_ACTOR,
 	ERC_UPDATE_ACTOR,
@@ -46,6 +49,8 @@ namespace KMGCommand
 {
 	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
+
+	std::unique_ptr<SceneCommandMessage> ClickScene(float clickX, float clickY, float screenWidth, float screenHeight);
 
 	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveStaticMeshComponent(const std::wstring& name);
@@ -89,6 +94,23 @@ struct SceneCommand_ChangeScene : public SceneCommandMessage
 private:
 	KMGScene* scene;
 };
+
+struct SceneCommand_ClickScene : public SceneCommandMessage
+{
+	SceneCommand_ClickScene(float clickX, float clickY, float screenWidth, float screenHeight) : clickX(clickX), clickY(clickY), screenWidth(screenWidth), screenHeight(screenHeight) {
+		type = ECommandMessageType::ERC_CLICK_SCENE;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	float clickX;
+	float clickY;
+	float screenWidth;
+	float screenHeight;
+
+};
+
 
 struct SceneCommand_Add_Remove_Actor : public SceneCommandMessage
 {

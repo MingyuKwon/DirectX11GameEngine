@@ -4,6 +4,7 @@
 #include <iostream>
 #include <KMGScene.h>
 #include <LoadingManager.h>
+#include <CommandSchedular.h>
 
 using namespace std;
 using namespace DirectX;
@@ -15,6 +16,7 @@ extern std::atomic<bool> bDetailFocused;
 
 extern float g_cameraMoveSpeed;
 extern float g_cameraRotateSpeed;
+extern CommandSchedular* schedular;
 
 ID3D11Device* g_pMainDevice = nullptr;
 
@@ -698,6 +700,7 @@ void KMGRender::Render_SceneWindow()
         storage->SetBool(id, true);
     }
 
+
     ImVec2 contentSize = ImGui::GetContentRegionAvail();
     if (sceneWindowWidth != contentSize.x || sceneWindowHeight != contentSize.y)
     {
@@ -707,6 +710,30 @@ void KMGRender::Render_SceneWindow()
     }
 
     ImGui::Image(pSceneSRV, ImVec2(sceneWindowWidth, sceneWindowHeight));
+
+    // 여기에서 화면의 어느 지점을 플레이어가 눌렀는지를 확인한다
+    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+        ImVec2 windowPos = ImGui::GetWindowPos();              
+        ImVec2 contentRegionMin = ImGui::GetWindowContentRegionMin(); 
+        ImVec2 texScreenPos = ImVec2(windowPos.x + contentRegionMin.x, windowPos.y + contentRegionMin.y);   
+
+        ImVec2 mousePos = ImGui::GetMousePos();
+
+        ImVec2 localClick = ImVec2(mousePos.x - texScreenPos.x, mousePos.y - texScreenPos.y);
+
+        if (localClick.x >= 0 && localClick.y >= 0 &&
+            localClick.x < sceneWindowWidth && localClick.y < sceneWindowHeight) {
+
+            //handlePicking(localClick, sceneTexSize);
+
+            // 여기서 스케큘러에게 줘야 한다
+            if (schedular)
+            {
+                schedular->PushCommand(KMGCommand::ClickScene(localClick.x, localClick.y, sceneWindowWidth, sceneWindowHeight));
+            }
+        }
+    }
+
 
     ImVec2 imagePos = ImGui::GetItemRectMin();   
     ImVec2 imageSize = ImGui::GetItemRectSize(); 
