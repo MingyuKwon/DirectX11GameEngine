@@ -18,6 +18,11 @@ PS_INPUT VS(VS_INPUT input)
     output.Tangent = worldTangent;
     output.Binormal = worldBinormal;
     
+    //output.Normal = input.Normal;
+    //output.Tangent = input.Tangent;
+    //output.Binormal = input.Binormal;
+
+    
     output.Color = input.Color;
 
     return output;

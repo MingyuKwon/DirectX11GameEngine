@@ -452,7 +452,7 @@ void KMGRender::DrawScene(KMGScene* scene)
     {
         KMGActor* actor = bucket.second.get();
         wstring actorName = actor->GetName();
-
+        XMMATRIX worldMat = actor->getWorldMatrix();
         
         XMFLOAT4 lightColor = XMFLOAT4(-1,-1,-1,-1);
         // 빛 컴포넌트가 있는 지 확인함
@@ -469,23 +469,28 @@ void KMGRender::DrawScene(KMGScene* scene)
         {
             StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
             actorMeshes = staticComp->GetMeshes();
-            ActorMeshCount[actorName] = actorMeshes->size();
 
-            if (actor->bShowBoundBox)
+            if (actorMeshes)
             {
-                const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
-                pBoxs = staticComp->GetBoundingBoxs();
-                if (pBoxs)
-                {
-                    const std::vector<DirectX::BoundingBox>& boxs = *pBoxs;
-                    for (int i = 0; i < boxs.size(); i++)
-                    {
-                        KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
-                        resourceManager.AddShouldDrawDebug(actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, actor->getWorldMatrix());
-                    }
+                ActorMeshCount[actorName] = actorMeshes->size();
 
+                if (actor->bShowBoundBox)
+                {
+                    const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
+                    pBoxs = staticComp->GetBoundingBoxs();
+                    if (pBoxs)
+                    {
+                        const std::vector<DirectX::BoundingBox>& boxs = *pBoxs;
+                        for (int i = 0; i < boxs.size(); i++)
+                        {
+                            KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
+                            resourceManager.AddShouldDrawDebug(actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, worldMat);
+                        }
+
+                    }
                 }
             }
+            
            
         }
         
@@ -495,11 +500,8 @@ void KMGRender::DrawScene(KMGScene* scene)
             actorMeshes,
             pMainContext,
             lightColor,
-            actor->getWorldMatrix()
+            worldMat
         );
-
-
-
     }
 
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);

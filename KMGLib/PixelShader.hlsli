@@ -10,7 +10,7 @@ float4 PS(PS_INPUT input) : SV_Target
     float3 T = normalize(input.Tangent);
     float3 B = normalize(input.Binormal);
     float3 N = normalize(input.Normal);
-
+    
     float3x3 TBN = float3x3(T, B, N);
 
     float3 normalWS = mul(normalTS, TBN);
@@ -35,7 +35,7 @@ float4 PS(PS_INPUT input) : SV_Target
 
         finalColor += lights[i].color * lights[i].intensity * (NdotL + NdotM);
     }
-
+    
     return float4(baseColor.rgb * finalColor, baseColor.a);
 
 }

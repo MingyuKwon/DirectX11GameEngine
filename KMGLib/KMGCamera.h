@@ -11,13 +11,6 @@ public:
     }
 
     inline DirectX::XMMATRIX GetViewMatrix() { return DirectX::XMMatrixLookAtLH(CameraPosition, DirectX::XMVectorAdd(CameraPosition, forwardVector), upVector); }
-    inline DirectX::XMMATRIX GetWorldMatrix() {
-        return DirectX::XMMATRIX(
-            rightVector,
-            upVector,
-            forwardVector,
-            DirectX::XMVECTOR());
-    }
 
     inline DirectX::XMVECTOR GetCameraPosition() { return CameraPosition; }
     inline void SetCameraPosition(DirectX::XMVECTOR inCameraPosition) 

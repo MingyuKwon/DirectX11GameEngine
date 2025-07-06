@@ -129,7 +129,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
                         default: typeName = "OTHER"; break;
                         }
 
-                        std::cout << "[Texture Type : " << typeName << "] " << path.C_Str() << std::endl;
+                        //std::cout << "[Texture Type : " << typeName << "] " << path.C_Str() << std::endl;
 
 
                     }
