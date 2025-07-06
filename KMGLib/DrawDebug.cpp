@@ -13,6 +13,15 @@ void DrawDebug::DrawLine(std::wstring name, DirectX::XMFLOAT3 start, DirectX::XM
 
 }
 
+void DrawDebug::DrawSphere(std::wstring name, DirectX::XMFLOAT3 origin, float radius, DirectX::XMFLOAT4 color, float time)
+{
+    KMGDebugMesh mesh = MakeDebugSphere(origin, radius, color);
+
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh, time));
+
+}
+
+
 void DrawDebug::DrawBoundingBox(std::wstring name, const DirectX::BoundingBox box, DirectX::XMFLOAT4 color)
 {
     KMGDebugMesh mesh = MakeDebugBoundingBox(box, color);
@@ -52,6 +61,68 @@ KMGDebugMesh DrawDebug::MakeDebugLine(DirectX::XMFLOAT3 start, DirectX::XMFLOAT3
 
     mesh.indices.push_back(0);
     mesh.indices.push_back(1);
+
+    return mesh;
+}
+
+KMGDebugMesh DrawDebug::MakeDebugSphere(DirectX::XMFLOAT3 origin, float radius, DirectX::XMFLOAT4 color)
+{
+    KMGDebugMesh mesh;
+
+    const int slices = 12;  // 경도 방향 분할
+    const int stacks = 6;   // 위도 방향 분할
+
+    auto AddLine = [&](DirectX::XMFLOAT3 a, DirectX::XMFLOAT3 b)
+        {
+            int baseIdx = static_cast<int>(mesh.vertices.size());
+
+            KMGVertex v0, v1;
+            v0.Pos = a;
+            v1.Pos = b;
+            v0.Color = v1.Color = color;
+
+            mesh.vertices.push_back(v0);
+            mesh.vertices.push_back(v1);
+
+            mesh.indices.push_back(baseIdx);
+            mesh.indices.push_back(baseIdx + 1);
+        };
+
+    // 위도(θ), 경도(φ) 순회
+    for (int i = 0; i <= stacks; ++i)
+    {
+        float theta1 = DirectX::XM_PI * i / stacks;
+        float theta2 = DirectX::XM_PI * (i + 1) / stacks;
+
+        for (int j = 0; j < slices; ++j)
+        {
+            float phi1 = DirectX::XM_2PI * j / slices;
+            float phi2 = DirectX::XM_2PI * (j + 1) / slices;
+
+            // 구면 좌표계 → 데카르트 좌표계
+            auto sphericalToCartesian = [&](float theta, float phi) -> DirectX::XMFLOAT3 {
+                float x = radius * sinf(theta) * cosf(phi) + origin.x;
+                float y = radius * cosf(theta) + origin.y;
+                float z = radius * sinf(theta) * sinf(phi) + origin.z;
+                return DirectX::XMFLOAT3(x, y, z);
+                };
+
+            // 위도선 (horizontal)
+            AddLine(
+                sphericalToCartesian(theta1, phi1),
+                sphericalToCartesian(theta1, phi2)
+            );
+
+            // 경도선 (vertical)
+            if (i < stacks)
+            {
+                AddLine(
+                    sphericalToCartesian(theta1, phi1),
+                    sphericalToCartesian(theta2, phi1)
+                );
+            }
+        }
+    }
 
     return mesh;
 }

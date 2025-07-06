@@ -1,4 +1,5 @@
 #include <KMGUtility.h>
+#include <DrawDebug.h>
 
 using namespace DirectX;
 
@@ -8,18 +9,38 @@ DirectX::XMVECTOR KMGUtility::GenerateCameraRayDirection(
     const DirectX::XMMATRIX& viewMatrix, 
     const DirectX::XMMATRIX& projectionMatrix)
 {
+    // NDC 변환
     float ndcX = (2.0f * clickX) / viewportWidth - 1.0f;
     float ndcY = 1.0f - (2.0f * clickY) / viewportHeight;
 
-    XMVECTOR rayClip = XMVectorSet(ndcX, ndcY, 1.0f, 1.0f);
+    // Near & Far Clip Space 점
+    DirectX::XMVECTOR rayClipNear = DirectX::XMVectorSet(ndcX, ndcY, 0.0f, 1.0f);
+    DirectX::XMVECTOR rayClipFar = DirectX::XMVectorSet(ndcX, ndcY, 1.0f, 1.0f);
 
-    XMMATRIX invProj = XMMatrixInverse(nullptr, projectionMatrix);
-    XMVECTOR rayEye = XMVector3Transform(rayClip, invProj);
-    rayEye = XMVectorSetZ(rayEye, 1.0f); // Make it a direction vector
+    // 역 변환
+    DirectX::XMMATRIX invProj = XMMatrixInverse(nullptr, projectionMatrix);
+    DirectX::XMMATRIX invView = XMMatrixInverse(nullptr, viewMatrix);
 
-    XMMATRIX invView = XMMatrixInverse(nullptr, viewMatrix);
-    XMVECTOR rayWorld = XMVector3TransformNormal(rayEye, invView);
-    rayWorld = XMVector3Normalize(rayWorld);
+    DirectX::XMVECTOR rayEyeNear = XMVector3TransformCoord(rayClipNear, invProj);
+    DirectX::XMVECTOR rayEyeFar = XMVector3TransformCoord(rayClipFar, invProj);
 
-    return rayWorld;
+    DirectX::XMVECTOR rayWorldNear = XMVector3TransformCoord(rayEyeNear, invView);
+    DirectX::XMVECTOR rayWorldFar = XMVector3TransformCoord(rayEyeFar, invView);
+
+
+    XMFLOAT3 start, end;
+    XMStoreFloat3(&start, rayWorldNear);
+    XMStoreFloat3(&end, rayWorldFar);
+
+    float delayTime = 2.f;
+    DrawDebug::DrawLine(L"TestLine", start, end, XMFLOAT4(0, 0, 0, 1), delayTime);
+
+    DrawDebug::DrawSphere(L"TestSphere", start, 0.3, XMFLOAT4(1, 0, 0, 1), delayTime);
+
+
+    // 방향 = Far - Near
+    DirectX::XMVECTOR rayDir = DirectX::XMVector3Normalize(rayWorldFar - rayWorldNear);
+
+    return rayDir;
+
 }

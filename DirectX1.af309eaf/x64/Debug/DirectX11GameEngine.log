@@ -1,2 +1,3 @@
-﻿  QueueCommand.cpp
+﻿  KMGUtility.cpp
+D:\DirectX11GameEngine\OuterLib\KMGUtility.cpp(38,49): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe

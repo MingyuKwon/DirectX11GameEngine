@@ -174,21 +174,23 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
-	XMFLOAT4 rayDir;
-	XMStoreFloat4(&rayDir, cameraRayDirection);
+	KMGCamera& currentCamera = scene->GetCurrentCamera();
+	XMVECTOR cameraOrigin = currentCamera.GetCameraPosition();
 
-	//std::cout << "Ray Direction :" << rayDir.x << " " << rayDir.y << " " << rayDir.z << " \n";
+	//cameraRayDirection = XMVector3TransformNormal(cameraRayDirection, currentCamera.GetWorldMatrix());
 
-	XMVECTOR cameraOrigin = scene->GetCurrentCamera().GetCameraPosition();
-	XMVECTOR rayDirVec = cameraRayDirection;
+	/// 테스트 용으로 그리기
+	XMVECTOR endVec = cameraOrigin + cameraRayDirection * 3;
 
-	XMVECTOR endVec = cameraOrigin + rayDirVec;
+	//XMFLOAT3 start, end;
+	//XMStoreFloat3(&start, cameraOrigin);
+	//XMStoreFloat3(&end, endVec);
 
-	XMFLOAT3 start, end;
-	XMStoreFloat3(&start, cameraOrigin);
-	XMStoreFloat3(&end, endVec);
+	//float delayTime = 2.f;
+	//DrawDebug::DrawLine(L"TestLine", start, end, XMFLOAT4(0, 0, 0, 1), delayTime);
 
-	DrawDebug::DrawLine(L"TestLine", start, end, XMFLOAT4(0, 0, 0, 1), 5);
+	//DrawDebug::DrawSphere(L"TestSphere", start, 0.3, XMFLOAT4(1,0,0,1), delayTime);
+	/// 테스트 용으로 그리기
 
 	KMGActor* closestActor = nullptr;
 	float closestDistance = -1;
