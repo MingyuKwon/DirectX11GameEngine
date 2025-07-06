@@ -5,16 +5,15 @@ using namespace std;
 using namespace DirectX;
 
 void DrawResourceManager::AddShouldDrawActor(
-    std::atomic<bool>& bUpdateReource,
+    std::atomic<bool>& bUpdateReource, 
     std::wstring actorName, 
-    const vector<KMGStaticMesh>* actorMeshes,
-    ID3D11DeviceContext* pMainContext,
-    bool hasLightComp,
-    DirectX::XMMATRIX worldMatrix
-)
+    const std::vector<KMGStaticMesh>* actorMeshes, 
+    ID3D11DeviceContext* pMainContext, 
+    XMFLOAT4 lightColor, 
+    DirectX::XMMATRIX worldMatrix)
 {
     shouldDrawActor[actorName] = (actorMeshes == nullptr) ? 0 : actorMeshes->size();
-    
+
     LoadingManager* loading = nullptr;
 
     if (bUpdateReource)
@@ -30,14 +29,15 @@ void DrawResourceManager::AddShouldDrawActor(
         {
             drawActorResources.emplace(DefaultMeshName, DrawResource(DefaultMeshName));
 
-            KMGStaticMesh defulatMesh = KMGStaticMesh::CreateDefaultSphereMesh();
-            drawActorResources[DefaultMeshName].UpdateBuffers(defulatMesh.vertices, defulatMesh.indices, defulatMesh.textureFilePath, defulatMesh.normalMapFilePath);
+            KMGStaticMesh newDefaultMesh = KMGStaticMesh::CreateDefaultSphereMesh(1.f, lightColor);
+            drawActorResources[DefaultMeshName].UpdateBuffers(newDefaultMesh.vertices, newDefaultMesh.indices, newDefaultMesh.textureFilePath, newDefaultMesh.normalMapFilePath);
         }
 
-        drawActorResources[DefaultMeshName].bLightEffected = !hasLightComp;
+        drawActorResources[DefaultMeshName].bLightEffected = lightColor.x < 0;
         drawActorResources[DefaultMeshName].UpdateActorCB(pMainContext, worldMatrix);
 
-    }else
+    }
+    else
     {
         for (int i = 0; i < actorMeshes->size(); i++)
         {
@@ -55,7 +55,7 @@ void DrawResourceManager::AddShouldDrawActor(
                 loading->PlusCurrentCount();
             }
 
-            drawActorResources[meshName].bLightEffected = !hasLightComp;
+            drawActorResources[meshName].bLightEffected = lightColor.x < 0;
             drawActorResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
         }
     }
@@ -69,6 +69,7 @@ void DrawResourceManager::AddShouldDrawActor(
         loading = nullptr;
     }
 }
+
 
 void DrawResourceManager::AddShouldDrawDebug(std::wstring meshName, const KMGDebugMesh& debugMesh, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
 {

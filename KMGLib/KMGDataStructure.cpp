@@ -5,7 +5,7 @@
 using namespace std;
 using namespace DirectX;
 
-KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius) {
+KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius, DirectX::XMFLOAT4 lightColor) {
     KMGStaticMesh mesh;
     mesh.vertices.clear();
     mesh.indices.clear();
@@ -38,6 +38,7 @@ KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius) {
             vertex.Pos = { px, py, pz };
             vertex.Normal = { px / radius, py / radius, pz / radius }; // normalize
             vertex.Tex = { u, 1.0f - v }; // Flip V for DirectX
+            vertex.Color = lightColor;
 
             mesh.vertices.push_back(vertex);
         }
@@ -257,7 +258,7 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
             if (FAILED(hr))
             {
                 wcout << "this->textureFilePath : " << this->textureFilePath << "  Failed \n";
-                this->textureFilePath = L"";
+                this->textureFilePath = DEFAULT_TEXTURE_FILEPATH;
             }
             else
             {
@@ -286,7 +287,7 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
             if (FAILED(hr))
             {
                 wcout << "this->normalMapFilePath : " << this->normalMapFilePath << "  Failed \n";
-                this->normalMapFilePath = L"";
+                this->normalMapFilePath = DEFAULT_NORMAL_FILEPATH;
             }
             else
             {

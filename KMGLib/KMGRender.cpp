@@ -467,14 +467,13 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring actorName = actor->GetName();
 
         
-        bool hasLightComp = false;
+        XMFLOAT4 lightColor = XMFLOAT4(-1,-1,-1,-1);
         // 빛 컴포넌트가 있는 지 확인함
         if (actor->HasComponent(EComponentType::ECT_LIGHT))
         {
             LightComponent* lightComp = actor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
             lightArray.AddLight(lightComp->GetLight());
-
-            hasLightComp = true;
+            lightColor = lightComp->GetLight().color;
         }
 
         // 가져올 Mesh가 있는지 확인함
@@ -491,7 +490,7 @@ void KMGRender::DrawScene(KMGScene* scene)
             actorName,
             actorMeshes,
             pMainContext,
-            hasLightComp,
+            lightColor,
             actor->getWorldMatrix()
         );
 

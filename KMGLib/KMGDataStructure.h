@@ -30,7 +30,7 @@ struct KMGVertex
 
 struct KMGStaticMesh {
 
-    static KMGStaticMesh CreateDefaultSphereMesh(float radius = 1.0f);
+    static KMGStaticMesh CreateDefaultSphereMesh(float radius = 1.0f, DirectX::XMFLOAT4 lightColor = DirectX::XMFLOAT4(1,1,0,1));
 
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;
@@ -58,7 +58,7 @@ struct alignas(16) Light
     DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
     float lightPad_3;
 
-    DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1.0f, 1.0f, 0.7f, 1.0f);
 
     void setToDefault()
     {

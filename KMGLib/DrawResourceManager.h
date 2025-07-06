@@ -11,7 +11,7 @@ public:
 		std::wstring actorName, 
 		const std::vector<KMGStaticMesh>* actorMeshes,
 		ID3D11DeviceContext* pMainContext,
-		bool hasLightComp,
+		DirectX::XMFLOAT4 lightColor,
 		DirectX::XMMATRIX worldMatrix
 
 	);
@@ -53,6 +53,4 @@ private:
 	/// 그리고 매 프레임마다 Add를 해서 count를 올리지 않으면 자동으로 0이되어서 사라지게 된다
 	/// </summary>
 	std::unordered_map<std::wstring, int> shouldDrawDebug;
-
-	KMGStaticMesh defaultMesh = KMGStaticMesh::CreateDefaultSphereMesh();
 };
