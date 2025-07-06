@@ -44,7 +44,7 @@ void ChangeCubeTransform()
 {
     if (schedular)
     {
-        //schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
+        schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
         float scale = 0.3f;
         schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(scale, scale, scale, 0)));
 
@@ -195,6 +195,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor1", XMVectorSet(4.0f, 0.0f, 0.0f, 0.0f)));
 
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
+                    schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor2", XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f)));
 
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Light1", XMVectorSet(2.0f, 0.0f, 0.0f, 0.0f)));
@@ -208,7 +209,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 2));
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.3));
 
                     schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor1"));
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj",L"Resource\\Texture\\centurion.dds"));
