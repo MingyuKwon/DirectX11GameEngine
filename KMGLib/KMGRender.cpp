@@ -328,7 +328,8 @@ void KMGRender::CreateRenderTarget()
 
     XMMATRIX Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
     CBChangeOnResize cb = {};
-    cb.mProjection = XMMatrixTranspose(Projection);
+    currentCameraProjectionMatrix = Projection;
+    cb.mProjection = XMMatrixTranspose(currentCameraProjectionMatrix);
     pMainContext->UpdateSubresource(pCBChangeOnResize, 0, nullptr, &cb, 0, 0);
 }
 
@@ -431,8 +432,8 @@ void KMGRender::DrawScene(KMGScene* scene)
     KMGCamera currentCamera = scene->GetCurrentCamera();
 
     CBChangeOnPlayer cbp = {};
-    currentCameraViewMatrix = XMMatrixTranspose(currentCamera.GetViewMatrix());
-    cbp.mView = currentCameraViewMatrix;
+    currentCameraViewMatrix = currentCamera.GetViewMatrix(); 
+    cbp.mView = XMMatrixTranspose(currentCameraViewMatrix);
 
     pMainContext->UpdateSubresource(pCBChangeOnPlayer, 0, nullptr, &cbp, 0, 0);
 

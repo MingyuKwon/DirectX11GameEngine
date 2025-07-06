@@ -1,6 +1,16 @@
 #include <KMGUtility.h>
 #include <DrawDebug.h>
+#include <windows.h> // OutputDebugString 사용
+#include <iostream>
 
+// 로그 출력 함수
+void PrintVector(const std::wstring& label, const DirectX::XMVECTOR& vec)
+{
+    DirectX::XMFLOAT3 f3;
+    XMStoreFloat3(&f3, vec);
+
+    std::wcout << label << L": (" << f3.x << L", " << f3.y << L", " << f3.z << L")\n";
+}
 using namespace DirectX;
 
 DirectX::XMVECTOR KMGUtility::GenerateCameraRayDirection(
@@ -24,19 +34,9 @@ DirectX::XMVECTOR KMGUtility::GenerateCameraRayDirection(
     DirectX::XMVECTOR rayEyeNear = XMVector3TransformCoord(rayClipNear, invProj);
     DirectX::XMVECTOR rayEyeFar = XMVector3TransformCoord(rayClipFar, invProj);
 
+
     DirectX::XMVECTOR rayWorldNear = XMVector3TransformCoord(rayEyeNear, invView);
     DirectX::XMVECTOR rayWorldFar = XMVector3TransformCoord(rayEyeFar, invView);
-
-
-    XMFLOAT3 start, end;
-    XMStoreFloat3(&start, rayWorldNear);
-    XMStoreFloat3(&end, rayWorldFar);
-
-    float delayTime = 2.f;
-    DrawDebug::DrawLine(L"TestLine", start, end, XMFLOAT4(0, 0, 0, 1), delayTime);
-
-    DrawDebug::DrawSphere(L"TestSphere", start, 0.3, XMFLOAT4(1, 0, 0, 1), delayTime);
-
 
     // 방향 = Far - Near
     DirectX::XMVECTOR rayDir = DirectX::XMVector3Normalize(rayWorldFar - rayWorldNear);
