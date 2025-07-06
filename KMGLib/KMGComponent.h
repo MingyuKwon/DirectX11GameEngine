@@ -54,6 +54,13 @@ public:
 		return &meshes;
 	}
 
+	inline const std::vector<DirectX::BoundingBox>* GetBoundingBoxs()
+	{
+		if (boundingBoxs.size() == 0) return nullptr;
+
+		return &boundingBoxs;
+	}
+
 	void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes);
 	
 	float CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir) const;

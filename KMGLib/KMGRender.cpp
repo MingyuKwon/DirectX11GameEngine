@@ -6,6 +6,7 @@
 #include <LoadingManager.h>
 #include <CommandSchedular.h>
 #include <KMGUtility.h>
+#include <DrawDebug.h>
 
 using namespace std;
 using namespace DirectX;
@@ -483,6 +484,23 @@ void KMGRender::DrawScene(KMGScene* scene)
             StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
             actorMeshes = staticComp->GetMeshes();
             ActorMeshCount[actorName] = actorMeshes->size();
+
+            if (actor->bShowBoundBox)
+            {
+                const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
+                pBoxs = staticComp->GetBoundingBoxs();
+                if (pBoxs)
+                {
+                    const std::vector<DirectX::BoundingBox>& boxs = *pBoxs;
+                    for (int i = 0; i < boxs.size(); i++)
+                    {
+                        KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
+                        resourceManager.AddShouldDrawDebug(actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, actor->getWorldMatrix());
+                    }
+
+                }
+            }
+           
         }
         
         resourceManager.AddShouldDrawActor(
@@ -494,9 +512,7 @@ void KMGRender::DrawScene(KMGScene* scene)
             actor->getWorldMatrix()
         );
 
-        // 여기서 추가로 resource가 디버그를 그려야 한다면 DrawResrouce에 추가한다
 
-        //resourceManager.AddShouldDrawDebug(meshName, mesh, pMainContext, worldMat);
 
     }
 
