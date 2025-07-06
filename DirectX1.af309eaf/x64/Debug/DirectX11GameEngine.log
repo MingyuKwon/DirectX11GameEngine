@@ -5,14 +5,10 @@ D:\DirectX11GameEngine\KMGLib\KMGRender.h(73,59): warning C4244: '인수': 'doub
 D:\DirectX11GameEngine\KMGLib\KMGRender.h(74,61): warning C4244: '인수': 'double'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'KMGEngine.cpp'을(를) 컴파일하는 중)
   
-D:\DirectX11GameEngine\KMGEngine.cpp(24,25): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
-  CommandSchedular.cpp
-  DirectX11Run.cpp
-  DrawDebug.cpp
-D:\DirectX11GameEngine\KMGLib\DrawDebug.cpp(124,34): warning C4267: '+=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\DrawDebug.cpp(128,34): warning C4267: '+=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  KMGActor.cpp
-  KMGComponent.cpp
+D:\DirectX11GameEngine\KMGEngine.cpp(25,25): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+  DrawResourceManager.cpp
+D:\DirectX11GameEngine\KMGLib\DrawResourceManager.cpp(15,47): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\DrawResourceManager.cpp(22,45): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   KMGRender.cpp
 D:\DirectX11GameEngine\KMGLib\KMGRender.h(73,59): warning C4244: '인수': 'double'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'KMGLib/KMGRender.cpp'을(를) 컴파일하는 중)
@@ -20,53 +16,51 @@ D:\DirectX11GameEngine\KMGLib\KMGRender.h(73,59): warning C4244: '인수': 'doub
 D:\DirectX11GameEngine\KMGLib\KMGRender.h(74,61): warning C4244: '인수': 'double'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'KMGLib/KMGRender.cpp'을(를) 컴파일하는 중)
   
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(486,58): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(658,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(659,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(661,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(661,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(662,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(662,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(678,43): warning C4244: '인수': 'float'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(679,44): warning C4244: '인수': 'float'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,54): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,54): warning C4244:         with
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,54): warning C4244:         [
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,54): warning C4244:             _Ty=int
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,54): warning C4244:         ]
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,36): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,36): warning C4244:         with
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,36): warning C4244:         [
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,36): warning C4244:             _Ty=int
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(683,36): warning C4244:         ]
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,35): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,35): warning C4244:         with
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,35): warning C4244:         [
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,35): warning C4244:             _Ty=int
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,35): warning C4244:         ]
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,17): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,17): warning C4244:         with
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,17): warning C4244:         [
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,17): warning C4244:             _Ty=int
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(700,17): warning C4244:         ]
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(754,21): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(785,24): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(787,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(788,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(790,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(790,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(791,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(791,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(812,24): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(815,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(818,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(818,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(819,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(819,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(471,58): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(645,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(646,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(648,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(648,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(649,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(649,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(665,43): warning C4244: '인수': 'float'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(666,44): warning C4244: '인수': 'float'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,54): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,54): warning C4244:         with
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,54): warning C4244:         [
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,54): warning C4244:             _Ty=int
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,54): warning C4244:         ]
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,36): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,36): warning C4244:         with
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,36): warning C4244:         [
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,36): warning C4244:             _Ty=int
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(670,36): warning C4244:         ]
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,35): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,35): warning C4244:         with
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,35): warning C4244:         [
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,35): warning C4244:             _Ty=int
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,35): warning C4244:         ]
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,17): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,17): warning C4244:         with
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,17): warning C4244:         [
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,17): warning C4244:             _Ty=int
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(687,17): warning C4244:         ]
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(741,21): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(772,24): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(774,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(775,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(777,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(777,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(778,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(778,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(799,24): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(802,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(805,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(805,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(806,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(806,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   KMGScene.cpp
   QueueCommand.cpp
-  UseAssimp.cpp
-D:\DirectX11GameEngine\KMGLib\UseAssimp.cpp(19,35): warning C4129: '/': 인식할 수 없는 문자 이스케이프 시퀀스입니다.
   코드를 생성하고 있습니다...
 D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(236,1): warning C4715: 'KMGRender::CreateConstBuffers': 모든 제어 경로에서 값을 반환하지는 않습니다.
 D:\DirectX11GameEngine\KMGLib\KMGRender.cpp(194,1): warning C4715: 'KMGRender::CreateDeviceD3D': 모든 제어 경로에서 값을 반환하지는 않습니다.

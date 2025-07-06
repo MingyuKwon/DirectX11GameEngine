@@ -442,6 +442,6 @@ void SceneCommand_DrawDebug::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 	
-	scene->AddDebugMesh(debugMeshName, mesh);
+	scene->AddDebugMesh(debugMeshName, mesh, time);
 
 }

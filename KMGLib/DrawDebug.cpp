@@ -5,11 +5,11 @@ using namespace DirectX;
 
 extern CommandSchedular* schedular;
 
-void DrawDebug::DrawLine(std::wstring name, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color, float thickness)
+void DrawDebug::DrawLine(std::wstring name, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color, float time)
 {
-    KMGDebugMesh mesh = MakeDebugLine(start, end, color, thickness);
+    KMGDebugMesh mesh = MakeDebugLine(start, end, color);
 
-    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh));
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh, time));
 
 }
 
@@ -38,7 +38,7 @@ void DrawDebug::DrawAxes(std::wstring name, DirectX::XMMATRIX worldMatrix, float
 
 
 
-KMGDebugMesh DrawDebug::MakeDebugLine(DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color, float thickness)
+KMGDebugMesh DrawDebug::MakeDebugLine(DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color)
 {
     KMGDebugMesh mesh;
 

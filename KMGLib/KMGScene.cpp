@@ -22,6 +22,25 @@ void KMGScene::EraseActor(const std::wstring& name)
     actors.erase(name);
 }
 
+void KMGScene::Tick(float deltaTime)
+{
+    std::vector<std::wstring> shouldErase;
+
+    for (auto& bucket : debugLifeTime)
+    {
+        bucket.second -= deltaTime;
+        if (bucket.second <= 0)
+        {
+            shouldErase.emplace_back(bucket.first);
+        }
+    }
+
+    for (std::wstring name : shouldErase)
+    {
+        debugLifeTime.erase(name);
+    }
+}
+
 KMGActor* KMGScene::GetActor(const std::wstring& name)
 {
     std::lock_guard<std::mutex> lock(actorMapLock);

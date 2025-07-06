@@ -13,16 +13,32 @@ public:
     KMGActor* CreateActor(const std::wstring& name);
     void EraseActor(const std::wstring& name);
 
-    inline void AddDebugMesh(std::wstring meshName, KMGDebugMesh mesh)
+    void Tick(float deltaTime);
+
+    inline void AddDebugMesh(std::wstring meshName, KMGDebugMesh mesh, float time)
     {
         debugMeshes[meshName] = mesh;
+
+        if (time > 0) debugLifeTime[meshName] = time;
     }
 
     // 이 함수는 얻고 나서 debugMesh 항목을 초기화 하므로 그리기 전에 한번만 호출해야 한다
     inline std::unordered_map<std::wstring, KMGDebugMesh> GetDebugMeshes()
     {
         std::unordered_map<std::wstring, KMGDebugMesh> temp = debugMeshes;
-        debugMeshes.clear();
+
+        for (auto it = debugMeshes.begin(); it != debugMeshes.end(); )
+        {
+            if (debugLifeTime.count(it->first) == 0)
+            {
+                it = debugMeshes.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
         return temp;
     }
 
@@ -38,6 +54,7 @@ private:
 
     // 여기엔 디버그 용으로 그리는 메시들만 넣어둔다
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshes;
+    std::unordered_map<std::wstring, float> debugLifeTime;
 
     KMGCamera currentCamera;
 };

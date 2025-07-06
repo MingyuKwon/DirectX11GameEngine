@@ -264,7 +264,7 @@ private:
 
 struct SceneCommand_DrawDebug : public SceneCommandMessage
 {
-	SceneCommand_DrawDebug(std::wstring debugMeshName, KMGDebugMesh mesh) : debugMeshName(debugMeshName), mesh(mesh) {
+	SceneCommand_DrawDebug(std::wstring debugMeshName, KMGDebugMesh mesh, float time = 0) : debugMeshName(debugMeshName), mesh(mesh), time(time){
 		type = ECommandMessageType::ERC_DRAW_DEBUG;
 	}
 
@@ -273,5 +273,5 @@ struct SceneCommand_DrawDebug : public SceneCommandMessage
 private:
 	std::wstring debugMeshName;
 	KMGDebugMesh mesh;
-
+	float time;
 };

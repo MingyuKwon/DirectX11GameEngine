@@ -393,14 +393,6 @@ void KMGRender::RenderScene(KMGScene* scene)
         return;
     }
 
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-
-    const double targetFrameTime = 1.0 / 120.0; // 기준을 60fps로 맞춤
-
-    LARGE_INTEGER frameStart;
-    QueryPerformanceCounter(&frameStart);
-
     if (resizeRequested.exchange(false))
     {
         CleanupRenderTarget();
@@ -423,14 +415,7 @@ void KMGRender::RenderScene(KMGScene* scene)
 
     pSwapChain->Present(0, 0);
 
-    LARGE_INTEGER frameEnd;
-    QueryPerformanceCounter(&frameEnd);
-    double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
-
-    double remainingTime = targetFrameTime - frameDuration;
-    if (remainingTime > 0.0) {
-        this_thread::sleep_for(chrono::duration<double>(remainingTime));
-    }
+    
 }
 
 void KMGRender::DrawScene(KMGScene* scene)
@@ -518,32 +503,6 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
-    std::unordered_map<std::wstring, DrawResource>& drawResources = resourceManager.GetDrawResources();
-
-    for (auto& bucket : drawResources)
-    {
-        DrawResource& resource = bucket.second;
-        wstring resourceName = bucket.first;
-
-        ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
-
-        renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
-            RenderThread(
-                DX11CommandLists, dx11CommandMutex,
-                g_pMainDevice,
-                resource.bDebug ? D3D10_PRIMITIVE_TOPOLOGY_LINELIST : D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-                pVertexShader_Default,
-                pCurrentPixelShader,
-                pVertexLayout,
-                pSceneRTV, pSceneDSV,
-                pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame, pCBLightArray,
-                resource.pVertexBuffer, resource.pIndexBuffer,
-                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState, 
-                resource.indexCount,
-                sceneWindowWidth, sceneWindowHeight
-            );}
-         );
-    }
 
     //여기에 최종으로 모인 scene의 Debug를 싹다 모아서 resource에 추가한다
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshed = scene->GetDebugMeshes();
@@ -583,6 +542,34 @@ void KMGRender::DrawScene(KMGScene* scene)
             ); }
         );
     }
+
+    std::unordered_map<std::wstring, DrawResource>& drawResources = resourceManager.GetDrawResources();
+
+    for (auto& bucket : drawResources)
+    {
+        DrawResource& resource = bucket.second;
+        wstring resourceName = bucket.first;
+
+        ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
+
+        renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
+            RenderThread(
+                DX11CommandLists, dx11CommandMutex,
+                g_pMainDevice,
+                resource.bDebug ? D3D10_PRIMITIVE_TOPOLOGY_LINELIST : D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+                pVertexShader_Default,
+                pCurrentPixelShader,
+                pVertexLayout,
+                pSceneRTV, pSceneDSV,
+                pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame, pCBLightArray,
+                resource.pVertexBuffer, resource.pIndexBuffer,
+                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState, 
+                resource.indexCount,
+                sceneWindowWidth, sceneWindowHeight
+            );}
+         );
+    }
+    
 
 
     for (auto& t : renderSettingThreads)

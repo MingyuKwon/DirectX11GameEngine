@@ -15,6 +15,7 @@ void GetDeltaTime();
 void MoveCameraRealtime();
 void RotateCameraRealtime();
 
+const double targetFrameTime = 1.0 / 120.0; // 기준을 60fps로 맞춤
 std::atomic<float> deltaTime = 0;
 
 std::atomic<bool> bSceneFocused = false;
@@ -37,13 +38,15 @@ KMGScene* currentScene = nullptr;
 using namespace std;
 using namespace DirectX;
 
+void GlobalTick(float deltaTime);
 
 void ChangeCubeTransform()
 {
     if (schedular)
     {
-        schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
-        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(0.5f, 0.5f, 0.5f, 0)));
+        //schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
+        float scale = 0.3f;
+        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(scale, scale, scale, 0)));
 
         //schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
 
@@ -60,12 +63,17 @@ int main(int, char**)
     schedular = new CommandSchedular();
     schedular->PushCommand(KMGCommand::ChangeScene(new KMGScene()));
 
-    MSG msg = {};
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
 
+    MSG msg = {};
     bool bRunning = true;
 
     while (bRunning)
     {
+        LARGE_INTEGER frameStart;
+        QueryPerformanceCounter(&frameStart);
+
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
@@ -76,31 +84,50 @@ int main(int, char**)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
         GetDeltaTime();
-
-        if (bSceneFocused)
-        {
-            MoveCameraRealtime();
-            RotateCameraRealtime();
-        }
-        
-        ChangeCubeTransform();
-
-        DrawDebug::DrawLine(L"DebugLine1", XMFLOAT3(0,0,0) , XMFLOAT3(0, 1, 0), XMFLOAT4(1,0,0,1), 1);
-        DrawDebug::DrawLine(L"DebugLine2", XMFLOAT3(0, 0, 0), XMFLOAT3(1, 0, 0), XMFLOAT4(0, 1, 0, 1));
-        DrawDebug::DrawLine(L"DebugLine3", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, -1), XMFLOAT4(0, 0, 1, 1));
-
+        GlobalTick(deltaTime);
         // 그리기 직전에 들어온 모든 명령 동기적으로 처리
         schedular->ExecuteMessage_InSchedular(currentScene);
 
         // 마지막으로 그리기
         renderEngine->RenderScene(currentScene);
+
+        LARGE_INTEGER frameEnd;
+        QueryPerformanceCounter(&frameEnd);
+        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
+
+        double remainingTime = targetFrameTime - frameDuration;
+        if (remainingTime > 0.0) {
+            this_thread::sleep_for(chrono::duration<double>(remainingTime));
+        }
     }
 
     renderEngine->StopRenderEngine();
     delete renderEngine;
     delete schedular;
     return 0;
+
+}
+
+void GlobalTick(float deltaTime)
+{
+    if (bSceneFocused)
+    {
+        MoveCameraRealtime();
+        RotateCameraRealtime();
+    }
+
+    ChangeCubeTransform();
+
+    if (currentScene)
+    {
+        currentScene->Tick(deltaTime);
+    }
+
+    DrawDebug::DrawLine(L"DebugLine1", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 1, 0), XMFLOAT4(1, 0, 0, 1), 1);
+    DrawDebug::DrawLine(L"DebugLine2", XMFLOAT3(0, 0, 0), XMFLOAT3(1, 0, 0), XMFLOAT4(0, 1, 0, 1));
+    DrawDebug::DrawLine(L"DebugLine3", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, -1), XMFLOAT4(0, 0, 1, 1));
 
 }
 

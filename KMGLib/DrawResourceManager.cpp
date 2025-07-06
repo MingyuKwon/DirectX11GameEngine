@@ -107,19 +107,16 @@ void DrawResourceManager::ArrangeActorResource()
         }
     }
 
-    unordered_set<wstring> shouldEraseResourceName;
-    for (const auto& bucket : drawActorResources)
+    for (auto it = drawActorResources.begin(); it != drawActorResources.end(); )
     {
-        wstring resourceName = bucket.first;
-        if (shouldDrawResourceName.count(resourceName) == 0)
+        if (shouldDrawResourceName.count(it->first) == 0)
         {
-            shouldEraseResourceName.insert(resourceName);
+            it = drawActorResources.erase(it);
         }
-    }
-
-    for (const std::wstring& name : shouldEraseResourceName)
-    {
-        drawActorResources.erase(name);
+        else
+        {
+            ++it;
+        }
     }
 }
 
