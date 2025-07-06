@@ -86,9 +86,9 @@ int main(int, char**)
         
         ChangeCubeTransform();
 
-        DrawDebug::DrawLine(L"DebugLine1", XMFLOAT3(0,0,0) , XMFLOAT3(0, 4, 0), XMFLOAT4(1,0,0,1));
-        DrawDebug::DrawLine(L"DebugLine2", XMFLOAT3(0, 0, 0), XMFLOAT3(4, 0, 0), XMFLOAT4(1, 0, 0, 1));
-        DrawDebug::DrawLine(L"DebugLine3", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 4), XMFLOAT4(1, 0, 0, 1));
+        DrawDebug::DrawLine(L"DebugLine1", XMFLOAT3(0,0,0) , XMFLOAT3(0, 1, 0), XMFLOAT4(1,0,0,1), 1);
+        DrawDebug::DrawLine(L"DebugLine2", XMFLOAT3(0, 0, 0), XMFLOAT3(1, 0, 0), XMFLOAT4(0, 1, 0, 1));
+        DrawDebug::DrawLine(L"DebugLine3", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, -1), XMFLOAT4(0, 0, 1, 1));
 
         // 그리기 직전에 들어온 모든 명령 동기적으로 처리
         schedular->ExecuteMessage_InSchedular(currentScene);
@@ -182,7 +182,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     //schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0,0.5,0,1)));
 
                     schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", DEFAULT_MESHFILE));
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj",L"Resource\\Texture\\centurion.dds"));
 
                     schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.5));
 
@@ -193,7 +193,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj"));
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj", L"Resource\\Texture\\QF1_Base_Color.png", L"Resource\\Texture\\QF1_Normal.png"));
 
                 }
                 break;

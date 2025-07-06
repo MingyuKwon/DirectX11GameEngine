@@ -41,9 +41,9 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, false);
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateStaticMesh(const std::wstring& name, const std::string& fileName)
+	std::unique_ptr<SceneCommandMessage> UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName, const std::wstring& normalMapName)
 	{
-		return std::make_unique<SceneCommand_UpdateStaticMesh>(name, fileName);
+		return std::make_unique<SceneCommand_UpdateStaticMesh>(name, fileName, textureName, normalMapName);
 	}
 
 
@@ -361,7 +361,7 @@ void SceneCommand_UpdateStaticMesh::Execute(KMGScene*& scene)
 
 	if (findActor)
 	{
-		LoadModelToActor(fileName, *findActor, loading);
+		LoadModelToActor(fileName, *findActor, loading, textureName, normalMapName);
 	}
 	else
 	{

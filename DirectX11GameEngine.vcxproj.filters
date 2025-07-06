@@ -195,7 +195,11 @@
     <None Include="KMGLib\PixelShader.hlsli">
       <Filter>리소스 파일</Filter>
     </None>
-    <None Include="KMGLib\PixelShader_NoLight.hlsli" />
-    <None Include="KMGLib\PixelShader_NoNormalMap.hlsli" />
+    <None Include="KMGLib\PixelShader_NoNormalMap.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="KMGLib\PixelShader_NoLight.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

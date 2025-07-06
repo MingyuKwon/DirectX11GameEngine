@@ -96,10 +96,10 @@ KMGRender::~KMGRender()
         pPixelShader_NoNormalMap = nullptr;
     }
 
-    if (pPixelShader_NoLight)
+    if (pPixelShader_OnlyColor)
     {
-        pPixelShader_NoLight->Release();
-        pPixelShader_NoLight = nullptr;
+        pPixelShader_OnlyColor->Release();
+        pPixelShader_OnlyColor = nullptr;
     }
 
 
@@ -185,7 +185,7 @@ bool KMGRender::CreateDeviceD3D()
 
     CompilePixelShader(L"KMGLib\\PixelShader.hlsli", pPixelShader_Default);
     CompilePixelShader(L"KMGLib\\PixelShader_NoNormalMap.hlsli", pPixelShader_NoNormalMap);
-    CompilePixelShader(L"KMGLib\\PixelShader_NoLight.hlsli", pPixelShader_NoLight);
+    CompilePixelShader(L"KMGLib\\PixelShader_NoLight.hlsli", pPixelShader_OnlyColor);
 
     
     CreateConstBuffers();
@@ -595,9 +595,9 @@ ID3D11PixelShader* KMGRender::SelectPixelShader(DrawResource& resource)
         pCurrentPixelShader = pPixelShader_NoNormalMap;
     }
 
-    if (!resource.bLightEffected)
+    if (!resource.bLightEffected || resource.bDebug)
     {
-        pCurrentPixelShader = pPixelShader_NoLight;
+        pCurrentPixelShader = pPixelShader_OnlyColor;
     }
 
     return pCurrentPixelShader;

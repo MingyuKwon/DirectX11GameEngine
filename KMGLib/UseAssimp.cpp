@@ -30,7 +30,7 @@ std::wstring Utf8ToWstring(const std::string& str)
     return DEFAULT_TEXTURE_FOLDER + wstrTo;
 }
 
-bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager& loadingManager)
+bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager& loadingManager, const std::wstring& textureName, const std::wstring& normalMapName)
 {
     std::cout << "Loading Mesh Start : \n";
 
@@ -52,7 +52,7 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
 
     loadingManager.SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
 
-    Recursive_NodeProcess(scene->mRootNode, scene, allMeshes, loadingManager);
+    Recursive_NodeProcess(scene->mRootNode, scene, allMeshes, loadingManager, textureName, normalMapName);
 
     StaticMeshComponent* staticComp = outActor.GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
     if (staticComp)
@@ -65,7 +65,7 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     return true;
 }
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGStaticMesh>& allMeshes, LoadingManager& loadingManager)
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGStaticMesh>& allMeshes, LoadingManager& loadingManager, const std::wstring& textureName, const std::wstring& normalMapName)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i)
     {
@@ -129,7 +129,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
                         default: typeName = "OTHER"; break;
                         }
 
-                        //std::cout << "[Texture Type : " << typeName << "] " << path.C_Str() << std::endl;
+                        std::cout << "[Texture Type : " << typeName << "] " << path.C_Str() << std::endl;
 
 
                     }
@@ -140,6 +140,16 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
                 }
             }
            
+        }
+
+        if (currentMesh.textureFilePath == DEFAULT_TEXTURE_FILEPATH)
+        {
+            currentMesh.textureFilePath = textureName;
+        }
+
+        if (currentMesh.normalMapFilePath == DEFAULT_NORMAL_FILEPATH)
+        {
+            currentMesh.normalMapFilePath = normalMapName;
         }
 
         // 정점 버퍼
@@ -205,7 +215,7 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
 
     for (unsigned int i = 0; i < node->mNumChildren; ++i)
     {
-        Recursive_NodeProcess(node->mChildren[i], scene, allMeshes, loadingManager);
+        Recursive_NodeProcess(node->mChildren[i], scene, allMeshes, loadingManager, textureName, normalMapName);
     }
 
 

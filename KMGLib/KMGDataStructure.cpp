@@ -251,7 +251,7 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
             pTextureSRV = nullptr;
         }
 
-        if (this->textureFilePath == DEFAULT_TEXTURE_FILEPATH)
+        if (this->textureFilePath != DEFAULT_TEXTURE_FILEPATH)
         {
             HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->textureFilePath.c_str(), &pTextureSRV);
             if (FAILED(hr))

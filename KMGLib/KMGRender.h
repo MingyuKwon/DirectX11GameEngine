@@ -50,7 +50,7 @@ private:
 
 	ID3D11PixelShader* pPixelShader_Default = nullptr;
 	ID3D11PixelShader* pPixelShader_NoNormalMap = nullptr;
-	ID3D11PixelShader* pPixelShader_NoLight = nullptr;
+	ID3D11PixelShader* pPixelShader_OnlyColor = nullptr;
 
 	ID3D11InputLayout* pVertexLayout = nullptr;
 
