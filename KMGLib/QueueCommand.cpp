@@ -3,6 +3,7 @@
 #include <UseAssimp.h>
 #include <LoadingManager.h>
 #include <KMGDataStructure.h>
+#include <DrawDebug.h>
 
 #include <iostream>
 
@@ -179,6 +180,15 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	//std::cout << "Ray Direction :" << rayDir.x << " " << rayDir.y << " " << rayDir.z << " \n";
 
 	XMVECTOR cameraOrigin = scene->GetCurrentCamera().GetCameraPosition();
+	XMVECTOR rayDirVec = cameraRayDirection;
+
+	XMVECTOR endVec = cameraOrigin + rayDirVec;
+
+	XMFLOAT3 start, end;
+	XMStoreFloat3(&start, cameraOrigin);
+	XMStoreFloat3(&end, endVec);
+
+	DrawDebug::DrawLine(L"TestLine", start, end, XMFLOAT4(0, 0, 0, 1), 5);
 
 	KMGActor* closestActor = nullptr;
 	float closestDistance = -1;
