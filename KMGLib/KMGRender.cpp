@@ -531,7 +531,6 @@ void KMGRender::DrawScene(KMGScene* scene)
     }
 
     //여기에 최종으로 모인 scene의 Debug를 싹다 모아서 resource에 추가한다
-    resourceManager.ClearShouldDrawDebug();
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshed = scene->GetDebugMeshes();
     for (const auto& bucket : debugMeshed)
     {

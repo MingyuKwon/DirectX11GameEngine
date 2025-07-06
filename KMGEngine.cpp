@@ -5,6 +5,7 @@
 #include <KMGScene.h>
 #include <CommandSchedular.h>
 #include <algorithm>
+#include <DrawDebug.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -84,6 +85,10 @@ int main(int, char**)
         }
         
         ChangeCubeTransform();
+
+        DrawDebug::DrawLine(L"DebugLine1", XMFLOAT3(0,0,0) , XMFLOAT3(0, 4, 0), XMFLOAT4(1,0,0,1));
+        DrawDebug::DrawLine(L"DebugLine2", XMFLOAT3(0, 0, 0), XMFLOAT3(4, 0, 0), XMFLOAT4(1, 0, 0, 1));
+        DrawDebug::DrawLine(L"DebugLine3", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 4), XMFLOAT4(1, 0, 0, 1));
 
         // 그리기 직전에 들어온 모든 명령 동기적으로 처리
         schedular->ExecuteMessage_InSchedular(currentScene);

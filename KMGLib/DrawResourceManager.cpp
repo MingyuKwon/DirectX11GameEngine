@@ -74,17 +74,18 @@ void DrawResourceManager::AddShouldDrawDebug(std::wstring meshName, const KMGDeb
 {
     if (shouldDrawDebug.count(meshName) == 0)
     {
-        shouldDrawDebug.insert(meshName);
         drawDebugResources.emplace(meshName, DrawResource(meshName));
         drawDebugResources[meshName].UpdateBuffers(debugMesh.vertices, debugMesh.indices, DEFAULT_TEXTURE_FILEPATH, DEFAULT_NORMAL_FILEPATH);
         drawDebugResources[meshName].bDebug = true;
     }
 
+    shouldDrawDebug[meshName]++;
+
     drawDebugResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
 
 }
 
-void DrawResourceManager::ArrangeResource()
+void DrawResourceManager::ArrangeActorResource()
 {
     unordered_set<wstring> shouldDrawResourceName;
 
@@ -119,14 +120,18 @@ void DrawResourceManager::ArrangeResource()
     {
         drawActorResources.erase(name);
     }
+}
 
-
-
+void DrawResourceManager::ArrangeDebugResource()
+{
+    // 여기서 먼저 쭉 둘러보면서 count가 0이면 죽을 차례라는 거다
     unordered_set<wstring> shouldEraseDebugName;
-    for (const auto& bucket : drawDebugResources)
+    for (const auto& bucket : shouldDrawDebug)
     {
         wstring resourceName = bucket.first;
-        if (shouldEraseDebugName.count(resourceName) == 0)
+        int count = bucket.second;
+
+        if (count == 0)
         {
             shouldEraseDebugName.insert(resourceName);
         }
@@ -135,5 +140,14 @@ void DrawResourceManager::ArrangeResource()
     for (const std::wstring& name : shouldEraseDebugName)
     {
         drawDebugResources.erase(name);
+        shouldDrawDebug.erase(name);
+    }
+
+    // 그리고 마지막으로 살아남은 놈들은 전부 -1씩 해준다
+    // 이러고 다음 틱에 +1을 받지 못하면 그놈은 다음 틱에서 죽는다
+    for (auto& bucket : shouldDrawDebug)
+    {
+        int& count = bucket.second;
+        --count;
     }
 }
