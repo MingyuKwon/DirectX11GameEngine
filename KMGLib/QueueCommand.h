@@ -35,6 +35,9 @@ enum class ECommandMessageType : int
 	ERC_CAMERA_POSITION_UPDATE,
 	ERC_CAMERA_FORWARD_UPDATE,
 
+	ERC_DRAW_DEBUG,
+
+
 	ERC_MAX,
 };
 
@@ -252,5 +255,19 @@ struct SceneCommand_CameraForwardVectorUpdate : public SceneCommandMessage
 private:
 	float yawAngle;
 	float pitchAngle;
+
+};
+
+struct SceneCommand_DrawDebug : public SceneCommandMessage
+{
+	SceneCommand_DrawDebug(std::wstring debugMeshName, KMGDebugMesh mesh) : debugMeshName(debugMeshName), mesh(mesh) {
+		type = ECommandMessageType::ERC_DRAW_DEBUG;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring debugMeshName;
+	KMGDebugMesh mesh;
 
 };

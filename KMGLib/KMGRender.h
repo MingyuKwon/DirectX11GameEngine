@@ -86,6 +86,8 @@ private:
 	HRESULT CompileVertexShader(const WCHAR* vertexShaderName, ID3D11VertexShader*& pVertexShader);
 	HRESULT CompilePixelShader(const WCHAR* pixelShaderName, ID3D11PixelShader*& pPixelShader);
 
+	ID3D11PixelShader* SelectPixelShader(DrawResource& resource);
+
 	void DrawScene(KMGScene* scene);
 	void DrawIMGUI_UI();
 

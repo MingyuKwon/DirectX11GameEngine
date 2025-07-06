@@ -438,3 +438,10 @@ void SceneCommand_Update_LightComponent::Execute(KMGScene*& scene)
 	}
 }
 
+void SceneCommand_DrawDebug::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+	
+	scene->AddDebugMesh(debugMeshName, mesh);
+
+}

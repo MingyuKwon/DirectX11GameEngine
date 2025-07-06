@@ -8,6 +8,7 @@
 void RenderThread(
     std::vector<ID3D11CommandList*>& DX11CommandLists, std::mutex& dx11CommandMutex,
     ID3D11Device* pMainDevice,
+    D3D_PRIMITIVE_TOPOLOGY topology,
     ID3D11VertexShader* pVertexShader,
     ID3D11PixelShader* pPixelShader,
     ID3D11InputLayout* pVertexLayout,

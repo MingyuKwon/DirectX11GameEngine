@@ -9,6 +9,7 @@ using namespace std;
 void RenderThread(
     vector<ID3D11CommandList*>& DX11CommandLists, mutex& dx11CommandMutex,
     ID3D11Device* pMainDevice, 
+    D3D_PRIMITIVE_TOPOLOGY topology,
     ID3D11VertexShader* pVertexShader,
     ID3D11PixelShader* pPixelShader,
     ID3D11InputLayout* pVertexLayout,
@@ -27,11 +28,13 @@ void RenderThread(
             << std::hex << hr << std::endl;
     }
 
-    pDeferredContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    
+    pDeferredContext->IASetPrimitiveTopology(topology);
     pDeferredContext->IASetInputLayout(pVertexLayout);
     pDeferredContext->VSSetShader(pVertexShader, nullptr, 0);
     pDeferredContext->PSSetShader(pPixelShader, nullptr, 0);
 
+  
     D3D11_VIEWPORT viewport = {};
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;

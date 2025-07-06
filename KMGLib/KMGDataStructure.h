@@ -39,6 +39,12 @@ struct KMGStaticMesh {
 
 };
 
+struct KMGDebugMesh {
+
+    std::vector<KMGVertex> vertices;
+    std::vector<int> indices;
+};
+
 struct alignas(16) Light
 {
     int type = 1; // 0 = directional, 1 = point, 2 = spot
@@ -133,7 +139,7 @@ struct alignas(16) CBChangeOnActor
 struct DrawResource
 {
     bool bInitialized = false;
-
+    bool bDebug = false;
     bool bLightEffected = true;
 
     std::wstring name;

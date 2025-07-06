@@ -24,6 +24,7 @@ ID3D11Device* g_pMainDevice = nullptr;
 void RenderThread(
     std::vector<ID3D11CommandList*>& DX11CommandLists, std::mutex& dx11CommandMutex,
     ID3D11Device* pMainDevice,
+    D3D_PRIMITIVE_TOPOLOGY topology,
     ID3D11VertexShader* pVertexShader,
     ID3D11PixelShader* pPixelShader,
     ID3D11InputLayout* pVertexLayout,
@@ -493,6 +494,11 @@ void KMGRender::DrawScene(KMGScene* scene)
             hasLightComp,
             actor->getWorldMatrix()
         );
+
+        // 여기서 추가로 resource가 디버그를 그려야 한다면 DrawResrouce에 추가한다
+
+        //resourceManager.AddShouldDrawDebug(meshName, mesh, pMainContext, worldMat);
+
     }
 
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
@@ -504,23 +510,13 @@ void KMGRender::DrawScene(KMGScene* scene)
         DrawResource& resource = bucket.second;
         wstring resourceName = bucket.first;
 
-        wstring actorName = resourceName;
-
-        ID3D11PixelShader* pCurrentPixelShader = pPixelShader_Default;
-        if (resource.pNormalMapSRV == nullptr)
-        {
-            pCurrentPixelShader = pPixelShader_NoNormalMap;
-        }
-
-        if (!resource.bLightEffected)
-        {
-            pCurrentPixelShader = pPixelShader_NoLight;
-        }
+        ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
 
         renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
             RenderThread(
                 DX11CommandLists, dx11CommandMutex,
                 g_pMainDevice,
+                resource.bDebug ? D3D10_PRIMITIVE_TOPOLOGY_LINELIST : D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
                 pVertexShader_Default,
                 pCurrentPixelShader,
                 pVertexLayout,
@@ -533,6 +529,47 @@ void KMGRender::DrawScene(KMGScene* scene)
             );}
          );
     }
+
+    //여기에 최종으로 모인 scene의 Debug를 싹다 모아서 resource에 추가한다
+    resourceManager.ClearShouldDrawDebug();
+    std::unordered_map<std::wstring, KMGDebugMesh> debugMeshed = scene->GetDebugMeshes();
+    for (const auto& bucket : debugMeshed)
+    {
+        // 디벅는 메시는 절대 안바뀐다
+        std::wstring meshName = bucket.first;
+        const KMGDebugMesh& mesh = bucket.second;
+        XMMATRIX worldMat = XMMatrixIdentity();
+
+        resourceManager.AddShouldDrawDebug(meshName, mesh, pMainContext, worldMat);
+    }
+
+    std::unordered_map<std::wstring, DrawResource>& drawDebugResources = resourceManager.GetDebugResources();
+
+    for (auto& bucket : drawDebugResources)
+    {
+        DrawResource& resource = bucket.second;
+        wstring resourceName = bucket.first;
+
+        ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
+
+        renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
+            RenderThread(
+                DX11CommandLists, dx11CommandMutex,
+                g_pMainDevice,
+                resource.bDebug ? D3D10_PRIMITIVE_TOPOLOGY_LINELIST : D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+                pVertexShader_Default,
+                pCurrentPixelShader,
+                pVertexLayout,
+                pSceneRTV, pSceneDSV,
+                pCBChangeOnResize, pCBChangeOnPlayer, resource.pCBChangesEveryFrame, pCBLightArray,
+                resource.pVertexBuffer, resource.pIndexBuffer,
+                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState,
+                resource.indexCount,
+                sceneWindowWidth, sceneWindowHeight
+            ); }
+        );
+    }
+
 
     for (auto& t : renderSettingThreads)
     {
@@ -549,6 +586,22 @@ void KMGRender::DrawScene(KMGScene* scene)
     //if(count > 0) cout << "DrawCommand " << count << "\n";
     
     DX11CommandLists.clear();
+}
+
+ID3D11PixelShader* KMGRender::SelectPixelShader(DrawResource& resource)
+{
+    ID3D11PixelShader* pCurrentPixelShader = pPixelShader_Default;
+    if (resource.pNormalMapSRV == nullptr)
+    {
+        pCurrentPixelShader = pPixelShader_NoNormalMap;
+    }
+
+    if (!resource.bLightEffected)
+    {
+        pCurrentPixelShader = pPixelShader_NoLight;
+    }
+
+    return pCurrentPixelShader;
 }
 
 void KMGRender::DrawIMGUI_UI()
@@ -822,3 +875,4 @@ HRESULT KMGRender::CompilePixelShader(const WCHAR* pixelShaderName, ID3D11PixelS
     return hr;
 
 }
+
