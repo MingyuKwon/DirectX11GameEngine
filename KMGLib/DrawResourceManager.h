@@ -17,6 +17,7 @@ public:
 	);
 
 	void AddShouldDrawDebug(
+		bool bUpdateResource,
 		std::wstring meshName,
 		const KMGDebugMesh& debugMesh,
 		ID3D11DeviceContext* pMainContext,
