@@ -44,6 +44,17 @@ public:
 
     KMGActor* GetActor(const std::wstring& name);
 
+    inline void SetFocusActor(std::wstring actorName)
+    {
+        if (actors.count(actorName) == 0) return;
+
+        for (auto& actor : actors)
+        {
+            actor.second->bShowBoundBox = actor.first == actorName;
+        }
+
+    }
+
     inline KMGCamera& GetCurrentCamera() { return currentCamera; }
    
     // 이 함수는 무조건 모든 actors 접근이 끝난 후에 렌더링 단계에만 불러야 한다

@@ -10,7 +10,7 @@ public:
     KMGActor(std::wstring name);
     virtual ~KMGActor();
 
-    std::atomic<bool> bShowBoundBox = true;
+    std::atomic<bool> bShowBoundBox = false;
 
     std::atomic<bool> bShouldDrawResourceChange = true;
 
