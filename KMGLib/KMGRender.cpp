@@ -12,7 +12,6 @@ using namespace std;
 using namespace DirectX;
 
 extern std::atomic<float> deltaTime;
-extern std::atomic<bool> bSceneFocused;
 extern std::atomic<bool> bContentFocused;
 extern std::atomic<bool> bDetailFocused;
 
@@ -631,140 +630,18 @@ void KMGRender::DrawIMGUI_UI()
 
     ImGui::PopStyleVar(2);
 
-    Render_SceneWindow();
+    sceneWindow.ShowSceneWindow(
+        mainWindowWidth, mainWindowHeight,
+        sceneWindowWidth, sceneWindowHeight,
+        resizeRequested, 
+        pSceneSRV,
+        currentCameraViewMatrix,
+        currentCameraProjectionMatrix
+    );
     Render_HierarchyWindow();
     Render_DetailWindow();
 }
 
-
-void KMGRender::Render_SceneWindow()
-{
-    ImGuiID id = ImGui::GetID(SCENE_WINDOW_NAME);
-    ImGuiStorage* storage = ImGui::GetStateStorage();
-    if (!storage->GetBool(id)) {
-        int WindowPosX = 0;
-        int WindowPosY = 0;
-
-        int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = mainWindowHeight;
-
-        ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
-        ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
-
-    }
-
-    ImGui::Begin(SCENE_WINDOW_NAME);
-
-    bSceneFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
-
-    if (!storage->GetBool(id)) {
-        storage->SetBool(id, true);
-    }
-
-
-    ImVec2 contentSize = ImGui::GetContentRegionAvail();
-    if (sceneWindowWidth != contentSize.x || sceneWindowHeight != contentSize.y)
-    {
-        sceneWindowWidth.store(contentSize.x);
-        sceneWindowHeight.store(contentSize.y);
-        resizeRequested.store(true);
-    }
-
-    ImGui::Image(pSceneSRV, ImVec2(sceneWindowWidth, sceneWindowHeight));
-
-    // 여기에서 화면의 어느 지점을 플레이어가 눌렀는지를 확인한다
-    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
-        ImVec2 windowPos = ImGui::GetWindowPos();              
-        ImVec2 contentRegionMin = ImGui::GetWindowContentRegionMin(); 
-        ImVec2 texScreenPos = ImVec2(windowPos.x + contentRegionMin.x, windowPos.y + contentRegionMin.y);   
-
-        ImVec2 mousePos = ImGui::GetMousePos();
-
-        ImVec2 localClick = ImVec2(mousePos.x - texScreenPos.x, mousePos.y - texScreenPos.y);
-
-        if (localClick.x >= 0 && localClick.y >= 0 &&
-            localClick.x < sceneWindowWidth && localClick.y < sceneWindowHeight) {
-
-            XMVECTOR rayDir = KMGUtility::GenerateCameraRayDirection(
-                localClick.x, localClick.y,
-                sceneWindowWidth, sceneWindowHeight,
-                currentCameraViewMatrix, currentCameraProjectionMatrix);
-
-            // 여기서 스케큘러에게 줘야 한다
-            if (schedular)
-            {
-                schedular->PushCommand(KMGCommand::CameraRayTrace(rayDir));
-            }
-        }
-    }
-
-
-    ImVec2 imagePos = ImGui::GetItemRectMin();   
-    ImVec2 imageSize = ImGui::GetItemRectSize(); 
-
-    ImVec2 bgPadding = ImVec2(8, 4);
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    ///////////////////////////////
-    // 이게 FPS 보여주는 텍스트 띄우기
-    //////////////////////////////
-    static float showDeltaTime = deltaTime;
-    if (deltaTime > 0.000001f) showDeltaTime = deltaTime;
-
-    int framePerSecond = static_cast<int>(1 / showDeltaTime);
-    string fpsStr = "FPS : " + to_string(framePerSecond);
-    const char* c_showStr = fpsStr.c_str();
-
-    ImVec2 textSize = ImGui::CalcTextSize(c_showStr);
-
-    ImVec2 textPos = ImVec2(
-        imagePos.x + imageSize.x - 8,
-        imagePos.y + 4
-    );
-    textPos.x -= textSize.x;
-
-    drawList->AddRectFilled(
-        ImVec2(textPos.x - bgPadding.x, textPos.y - bgPadding.y),
-        ImVec2(textPos.x + textSize.x + bgPadding.x, textPos.y + textSize.y + bgPadding.y),
-        IM_COL32(0, 0, 0, 220)
-    );
-
-    drawList->AddText(
-        textPos,
-        framePerSecond > 40 ? IM_COL32(29, 219, 22, 255) : IM_COL32(255, 0, 0, 255),
-        c_showStr
-    );
-
-    textPos.x += textSize.x;
-    textPos.y += (textSize.y + 2 * bgPadding.y);
-    ///////////////////////////////
-    // 이게 카메라 속도 보여주는 텍스트 띄우기
-    //////////////////////////////
-
-    int cameraSpeed = g_cameraMoveSpeed * 100;
-    string cameraSpeedStr = "Camera Speed : " + to_string(cameraSpeed);
-    c_showStr = cameraSpeedStr.c_str();
-    textSize = ImGui::CalcTextSize(c_showStr);
-
-    textPos.x -= textSize.x;
-
-    drawList->AddRectFilled(
-        ImVec2(textPos.x - bgPadding.x, textPos.y - bgPadding.y),
-        ImVec2(textPos.x + textSize.x + bgPadding.x, textPos.y + textSize.y + bgPadding.y),
-        IM_COL32(0, 20, 0, 220)
-    );
-
-    drawList->AddText(
-        textPos,
-        IM_COL32(255, 255, 255, 255),
-        c_showStr
-    );
-
-    textPos.x += textSize.x;
-    textPos.y += (textSize.y + bgPadding.y);
-
-    ImGui::End();
-}
 
 void KMGRender::Render_HierarchyWindow()
 {

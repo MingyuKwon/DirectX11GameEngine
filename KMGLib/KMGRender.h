@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <QueueCommand.h>
 
+#include <KMGSceneWindow.h>
+
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
@@ -32,6 +34,8 @@ public:
 
 	void RenderScene(KMGScene* scene); // «ŸΩ… ∑ª¥ı ∑Á«¡
 private:
+	KMGSceneWindow sceneWindow;
+
 	HWND hMainWnd = nullptr;
 
 	std::atomic<bool> bRunning = false;
@@ -94,7 +98,6 @@ private:
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
 
-	void Render_SceneWindow();
 	void Render_HierarchyWindow();
 	void Render_DetailWindow();
 
