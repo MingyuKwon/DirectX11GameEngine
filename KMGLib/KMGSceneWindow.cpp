@@ -42,7 +42,10 @@ void KMGSceneWindow::DrawSceneWindow(
 
     }
 
-    ImGui::Begin(SCENE_WINDOW_NAME);
+    ImGui::Begin(SCENE_WINDOW_NAME,
+        0,
+        ImGuiWindowFlags_NoMove 
+        );
 
     bSceneFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
 

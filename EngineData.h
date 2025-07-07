@@ -6,7 +6,7 @@
 #define ENGINE_NAME L"KMG Engine"
 
 #define SCENE_WINDOW_NAME "Scene Window"
-#define CONTENT_WINDOW_NAME "Hierarchy Window"
+#define HIERARCHY_WINDOW_NAME "Hierarchy Window"
 #define DETAIL_WINDOW_NAME "Detail Window"
 
 #define DEFAULT_WINDOW_WIDTH 1600

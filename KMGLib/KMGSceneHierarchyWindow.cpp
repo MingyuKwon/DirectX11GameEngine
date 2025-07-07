@@ -25,7 +25,7 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
     int mainWindowWidth, int mainWindowHeight
     )
 {
-    ImGuiID id = ImGui::GetID(CONTENT_WINDOW_NAME);
+    ImGuiID id = ImGui::GetID(HIERARCHY_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
         int WindowPosX = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
@@ -40,7 +40,11 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
 
     }
 
-    ImGui::Begin(CONTENT_WINDOW_NAME);
+    ImGui::Begin(HIERARCHY_WINDOW_NAME,
+        0,
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoResize
+    );
 
     bHierarchyFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
 
