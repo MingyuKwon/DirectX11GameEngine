@@ -46,6 +46,80 @@ void KMGDetailWindow::DrawDetailWindow(
         storage->SetBool(id, true);
     }
 
-    ImGui::Text("Hello");
+    //////////////////
+
+    if (ImGui::BeginChild("DetailWindowRegion", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar))
+    {
+        ImGuiStyle& style = ImGui::GetStyle();
+
+        static float position[3] = { 0.0f, 0.0f, 0.0f };
+        static float rotation[3] = { 0.0f, 0.0f, 0.0f };
+        static float scale[3] = { 1.0f, 1.0f, 1.0f };
+
+        float labelIndent = 25.0f;
+        float controlOffsetX = 140.0f;
+
+        style.ItemInnerSpacing.x = 15.0f;
+
+        ImGui::PushItemWidth(200);
+
+        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Dummy(ImVec2(0, 3)); // 간격
+
+            ImGui::SetCursorPosX(165);
+            ImGui::Text("x");
+
+            ImGui::SameLine(235);
+            ImGui::Text("y");
+
+            ImGui::SameLine(305);
+            ImGui::Text("z");
+
+            ImGui::Dummy(ImVec2(0, 3)); // 간격
+
+            // Position
+            ImGui::SetCursorPosX(labelIndent);
+            ImGui::Text("Position");
+            ImGui::SameLine(controlOffsetX);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.1f, 0.1f, 1.0f));
+            ImGui::DragFloat3("##Position", position, 1.0f, 0.0f, 0.0f, "%.1f");
+            ImGui::PopStyleColor();
+
+            // Rotation
+            ImGui::SetCursorPosX(labelIndent);
+            ImGui::Text("Rotation");
+            ImGui::SameLine(controlOffsetX);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.2f, 0.1f, 1.0f));
+            ImGui::DragFloat3("##Rotation", rotation, 1.0f, 0.0f, 360.0f, "%.1f");
+            ImGui::PopStyleColor();
+
+            // Scale
+            ImGui::SetCursorPosX(labelIndent);
+            ImGui::Text("Scale");
+            ImGui::SameLine(controlOffsetX);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.2f, 1.0f));
+            ImGui::DragFloat3("##Scale", scale, 0.1f, 0.1f, 10.0f, "%.1f");
+            ImGui::PopStyleColor();
+
+            ImGui::Dummy(ImVec2(0, 10)); // 간격
+
+
+        }
+
+        if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+
+        }
+
+    }
+
+    ImGui::PopItemWidth();
+
+    ImGui::EndChild();
+    ///////////////
+
+
+
     ImGui::End();
 }
