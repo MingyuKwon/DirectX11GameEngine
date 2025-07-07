@@ -45,6 +45,7 @@ void ChangeCubeTransform()
     if (schedular)
     {
         schedular->PushCommand(KMGCommand::RotateActor(L"Actor1", XMVectorSet(0, deltaTime, 0, 0)));
+
         float scale = 0.3f;
         schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(scale, scale, scale, 0)));
 
@@ -134,7 +135,9 @@ void GlobalTick(float deltaTime)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-        return true;
+    {
+
+    }
 
     switch (msg)
     {
@@ -198,9 +201,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor2", XMVectorSet(-3.0f, 0.0f, 0.0f, 0.0f)));
 
 
+
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Light1", XMVectorSet(2.0f, 0.0f, 0.0f, 0.0f)));
                     schedular->PushCommand(KMGCommand::AddLightComponent(L"Light1"));
+
+
+
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.1));
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0.95, 0.95, 0.95, 1)));
+
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj", L"Resource\\Texture\\centurion.dds"));
+
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor2", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj", L"Resource\\Texture\\QF1_Base_Color.png", L"Resource\\Texture\\QF1_Normal.png"));
 
                 }
 
@@ -224,7 +237,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj", L"Resource\\Texture\\QF1_Base_Color.png", L"Resource\\Texture\\QF1_Normal.png"));
+                    schedular->PushCommand(KMGCommand::AddActor(L"Actor3"));
+                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
+
                 }
                 break;
 

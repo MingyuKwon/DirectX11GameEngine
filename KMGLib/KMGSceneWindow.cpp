@@ -75,7 +75,7 @@ void KMGSceneWindow::CheckSceneClick(int sceneWindowWidth, int sceneWindowHeight
 )
 {
     // 여기에서 화면의 어느 지점을 플레이어가 눌렀는지를 확인한다
-    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+    if (bSceneFocused && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
         ImVec2 windowPos = ImGui::GetWindowPos();
         ImVec2 contentRegionMin = ImGui::GetWindowContentRegionMin();
         ImVec2 texScreenPos = ImVec2(windowPos.x + contentRegionMin.x, windowPos.y + contentRegionMin.y);

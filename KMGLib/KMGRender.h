@@ -20,6 +20,11 @@ class KMGScene;
 class KMGRender
 {
 public:
+	KMGSceneWindow sceneWindow;
+	KMGSceneHierarchyWindow hierarchyWindow;
+	KMGDetailWindow detailWindow;
+
+
 	KMGRender(HWND hMainWnd);
 	virtual ~KMGRender();
 
@@ -36,10 +41,6 @@ public:
 
 	void RenderScene(KMGScene* scene); // «ŸΩ… ∑ª¥ı ∑Á«¡
 private:
-	KMGSceneWindow sceneWindow;
-	KMGSceneHierarchyWindow hierarchyWindow;
-	KMGDetailWindow detailWindow;
-
 	HWND hMainWnd = nullptr;
 
 	std::atomic<bool> bRunning = false;

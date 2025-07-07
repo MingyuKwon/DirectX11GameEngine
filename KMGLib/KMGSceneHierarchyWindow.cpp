@@ -13,6 +13,13 @@ using namespace DirectX;
 using namespace std;
 
 extern std::atomic<bool> bHierarchyFocused;
+extern KMGScene* currentScene;
+
+void KMGSceneHierarchyWindow::SelectActor(std::wstring name)
+{
+    selectActorName = name;
+
+}
 
 void KMGSceneHierarchyWindow::DrawHierarchyWindow(
     int mainWindowWidth, int mainWindowHeight
@@ -25,7 +32,7 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
         int WindowPosY = 0;
 
 
-        int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowWidth = mainWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
         int WindowHeight = mainWindowHeight * HIERARCHY_DETAIL_HEIGHT_RATIO;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
@@ -41,7 +48,22 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
         storage->SetBool(id, true);
     }
 
-    ImGui::Text("Hello");
+    if (currentScene)
+    {
+        if (ImGui::BeginChild("ActorListRegion", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar))
+        {
+            const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
+            for (auto it = actors.begin(); it != actors.end(); it++)
+            {
+                std::wstring actorName = (*it).first;
+                std::string actorName_string(actorName.begin(), actorName.end());
+
+                ImGui::Selectable(actorName_string.c_str(), false);
+            }
+        }
+        ImGui::EndChild(); 
+    }
+
     ImGui::End();
 
 }
