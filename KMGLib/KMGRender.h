@@ -71,7 +71,7 @@ private:
 	std::atomic<int> mainWindowHeight = DEFAULT_WINDOW_HEIGHT;
 
 	std::atomic<int> sceneWindowWidth = DEFAULT_WINDOW_WIDTH * SCENE_DETAIL_WIDTH_RATIO;
-	std::atomic<int> sceneWindowHeight = DEFAULT_WINDOW_HEIGHT * SCENE_CONTENT_HEIGHT_RATIO;
+	std::atomic<int> sceneWindowHeight = DEFAULT_WINDOW_HEIGHT * HIERARCHY_DETAIL_HEIGHT_RATIO;
 
 	std::atomic<bool> resizeRequested = false;
 
@@ -95,7 +95,7 @@ private:
 	void CleanupRenderTarget();
 
 	void Render_SceneWindow();
-	void Render_ContentWindow();
+	void Render_HierarchyWindow();
 	void Render_DetailWindow();
 
 	// 여기엔 메시 별로 DrawResource를 생성한다. 하나의 액터에 여러 메시가 있을 수 있고, 각각 actorName_0, actorName_1 이렇게 이름이 부여되고 저장될 예정

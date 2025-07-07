@@ -632,7 +632,7 @@ void KMGRender::DrawIMGUI_UI()
     ImGui::PopStyleVar(2);
 
     Render_SceneWindow();
-    Render_ContentWindow();
+    Render_HierarchyWindow();
     Render_DetailWindow();
 }
 
@@ -646,7 +646,7 @@ void KMGRender::Render_SceneWindow()
         int WindowPosY = 0;
 
         int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+        int WindowHeight = mainWindowHeight;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -766,16 +766,17 @@ void KMGRender::Render_SceneWindow()
     ImGui::End();
 }
 
-void KMGRender::Render_ContentWindow()
+void KMGRender::Render_HierarchyWindow()
 {
     ImGuiID id = ImGui::GetID(CONTENT_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
-        int WindowPosX = 0;
-        int WindowPosY = mainWindowHeight * SCENE_CONTENT_HEIGHT_RATIO;
+        int WindowPosX = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
+        int WindowPosY = 0;
 
+        
         int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = mainWindowHeight * (1 - SCENE_CONTENT_HEIGHT_RATIO);
+        int WindowHeight = mainWindowHeight * HIERARCHY_DETAIL_HEIGHT_RATIO;
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
@@ -800,10 +801,10 @@ void KMGRender::Render_DetailWindow()
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
         int WindowPosX = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowPosY = 0;
+        int WindowPosY = mainWindowHeight * HIERARCHY_DETAIL_HEIGHT_RATIO;
 
         int WindowWidth = mainWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
-        int WindowHeight = mainWindowHeight;
+        int WindowHeight = mainWindowHeight * (1 - HIERARCHY_DETAIL_HEIGHT_RATIO);
 
         ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
         ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
