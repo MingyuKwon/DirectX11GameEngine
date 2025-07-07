@@ -87,11 +87,6 @@ void DrawResourceManager::ArrangeActorResource()
         wstring actorName = bucket.first;
         int actorMeshCount = bucket.second;
 
-        if (actorMeshCount == 0)
-        {
-            shouldDrawResourceName.insert(actorName + L"___DEFAULT");
-        }
-
         for (int i=0; i< actorMeshCount; i++)
         {
             wstring meshName = actorName + L"___" + to_wstring(i);

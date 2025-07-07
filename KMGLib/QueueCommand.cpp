@@ -393,6 +393,7 @@ void SceneCommand_Add_Remove_LightComponent::Execute(KMGScene*& scene)
 		if (bAdd)
 		{
 			LightComponent* lightComponent = new LightComponent();
+			
 			bool result = findActor->SetComponent(lightComponent);
 
 			if (!result) 
@@ -400,6 +401,9 @@ void SceneCommand_Add_Remove_LightComponent::Execute(KMGScene*& scene)
 				delete lightComponent;
 				lightComponent = nullptr;
 			}
+
+			lightComponent->SetLightColor(XMFLOAT4(0.8, 0.8, 0, 1));
+
 		}
 		else
 		{
@@ -419,27 +423,25 @@ void SceneCommand_Update_LightComponent::Execute(KMGScene*& scene)
 		LightComponent* comp = findActor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
 		if (comp)
 		{
-			Light& compLight = comp->GetLight();
-
 			switch (type)
 			{
 			case ECommandMessageType::ERC_UPDATE_LIGHT_TYPE:
-				compLight.type = light.type;
+				comp->SetLightType(light.type);
 
 				break;
 			case ECommandMessageType::ERC_UPDATE_LIGHT_RANGE:
-				compLight.range = light.range;
+				comp->SetLightRange(light.range);
 				break;
 			case ECommandMessageType::ERC_UPDATE_LIGHT_INTENSITY:
-				compLight.intensity = light.intensity;
+				comp->SetLightIntensity(light.intensity);
 
 				break;
 			case ECommandMessageType::ERC_UPDATE_LIGHT_DIRECTION:
-				compLight.direction = light.direction;
+				comp->SetLightDirection(light.direction);
 
 				break;
 			case ECommandMessageType::ERC_UPDATE_LIGHT_COLOR:
-				compLight.color = light.color;
+				comp->SetLightColor(light.color);
 
 				break;
 			default:

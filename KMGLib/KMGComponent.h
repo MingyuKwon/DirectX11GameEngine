@@ -37,6 +37,28 @@ public:
 	LightComponent() : KMGComponent(EComponentType::ECT_LIGHT){}
 	inline Light& GetLight() { return light; }
 
+	inline void SetLightType(int type)
+	{
+		light.type = type;
+	}
+
+	inline void SetLightRange(float range)
+	{
+		light.range = range;
+	}
+
+	inline void SetLightIntensity(float intensity)
+	{
+		light.intensity = intensity;
+	}
+
+	inline void SetLightDirection(DirectX::XMFLOAT3 direction)
+	{
+		light.direction = direction;
+	}
+
+	void SetLightColor(DirectX::XMFLOAT4 color);
+
 private:
 	Light light;
 
@@ -47,7 +69,7 @@ public:
 	StaticMeshComponent() : KMGComponent(EComponentType::ECT_STATICMESH) {}
 	virtual ~StaticMeshComponent();
 
-	inline const std::vector<KMGStaticMesh>* GetMeshes()
+	inline std::vector<KMGStaticMesh>* GetMeshes()
 	{
 		if (meshes.size() == 0) return nullptr;
 

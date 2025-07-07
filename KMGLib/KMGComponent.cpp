@@ -94,3 +94,28 @@ float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX:
 
 	return shortestDistance;
 }
+
+void LightComponent::SetLightColor(DirectX::XMFLOAT4 color)
+{
+	light.color = color;
+
+	if (owner && owner->HasComponent(EComponentType::ECT_STATICMESH))
+	{
+		std::cout << "SetLightColor Has Owner\n";
+
+		std::vector<KMGStaticMesh>* actorMeshes = nullptr;
+		StaticMeshComponent* staticComp = owner->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+		actorMeshes = staticComp->GetMeshes();
+		
+		for (auto& mesh : *actorMeshes)
+		{
+			for (auto& vertice : mesh.vertices)
+			{
+				vertice.Color = color;
+			}
+		}
+
+		owner->bShouldDrawResourceChange = true;
+
+	}
+}

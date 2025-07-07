@@ -210,7 +210,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    //schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.3));
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.1));
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0.95, 0.95,0.95,1)));
 
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj",L"Resource\\Texture\\centurion.dds"));
 
