@@ -1,51 +1,66 @@
 #include <DrawDebug.h>
 #include <CommandSchedular.h>
+#include <sstream>
 
 using namespace DirectX;
+using namespace std;
 
 extern CommandSchedular* schedular;
 
-void DrawDebug::DrawLine(std::wstring name, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color, float time)
+void DrawDebug::DrawLine(const char* file, int line, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color, float time)
 {
     KMGDebugMesh mesh = MakeDebugLine(start, end, color);
 
-    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh, time));
+    string str_name = "DEBUGLINE_" + string(file) + to_string(line);
+    std::wstring wstr_name(str_name.begin(), str_name.end());
+
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(wstr_name, mesh, time));
 
 }
 
-void DrawDebug::DrawSphere(std::wstring name, DirectX::XMFLOAT3 origin, float radius, DirectX::XMFLOAT4 color, float time)
+void DrawDebug::DrawSphere(const char* file, int line, DirectX::XMFLOAT3 origin, float radius, DirectX::XMFLOAT4 color, float time)
 {
     KMGDebugMesh mesh = MakeDebugSphere(origin, radius, color);
 
-    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh, time));
+    string str_name = "DEBUGSPHERE_" + string(file) + to_string(line);
+    std::wstring wstr_name(str_name.begin(), str_name.end());
+
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(wstr_name, mesh, time));
 
 }
 
 
-void DrawDebug::DrawBoundingBox(std::wstring name, const DirectX::BoundingBox box, DirectX::XMFLOAT4 color)
+void DrawDebug::DrawBoundingBox(const char* file, int line, const DirectX::BoundingBox box, DirectX::XMFLOAT4 color)
 {
     KMGDebugMesh mesh = MakeDebugBoundingBox(box, color);
 
-    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh));
+    string str_name = "DEBUGBOX_" + string(file) + to_string(line);
+    std::wstring wstr_name(str_name.begin(), str_name.end());
+
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(wstr_name, mesh));
 
 }
 
-void DrawDebug::DrawRay(std::wstring name, DirectX::XMFLOAT3 origin, DirectX::XMFLOAT3 direction, float length, DirectX::XMFLOAT4 color)
+void DrawDebug::DrawRay(const char* file, int line, DirectX::XMFLOAT3 origin, DirectX::XMFLOAT3 direction, float length, DirectX::XMFLOAT4 color)
 {
     KMGDebugMesh mesh = MakeDebugRay(origin, direction, length, color);
 
-    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh));
+    string str_name = "DEBUGRAY_" + string(file) + to_string(line);
+    std::wstring wstr_name(str_name.begin(), str_name.end());
+
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(wstr_name, mesh));
 
 }
 
-void DrawDebug::DrawAxes(std::wstring name, DirectX::XMMATRIX worldMatrix, float axisLength)
+void DrawDebug::DrawAxes(const char* file, int line, DirectX::XMMATRIX worldMatrix, float axisLength)
 {
     KMGDebugMesh mesh = MakeDebugAxes(worldMatrix, axisLength);
 
-    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(name, mesh));
+    string str_name = "DEBUGAXES_" + string(file) + to_string(line);
+    std::wstring wstr_name(str_name.begin(), str_name.end());
+
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(wstr_name, mesh));
 }
-
-
 
 KMGDebugMesh DrawDebug::MakeDebugLine(DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color)
 {

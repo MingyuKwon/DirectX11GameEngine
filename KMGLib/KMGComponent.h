@@ -63,7 +63,7 @@ public:
 
 	void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes);
 	
-	float CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir) const;
+	float CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, DirectX::XMVECTOR& hitPosLocal) const;
 private:
 	std::vector<KMGStaticMesh> meshes;
 	std::vector<DirectX::BoundingBox> boundingBoxs;

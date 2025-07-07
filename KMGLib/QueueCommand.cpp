@@ -185,8 +185,8 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	XMStoreFloat3(&end, endVec);
 
 	float delayTime = 2.f;
-	DrawDebug::DrawLine(L"TestLine", start, end, XMFLOAT4(0, 0, 0, 1), delayTime);
-	DrawDebug::DrawSphere(L"TestSphere", start, 0.3, XMFLOAT4(1,0,0,1), delayTime);
+	DRAW_DEBUG_LINE(start, end, XMFLOAT4(0, 0, 0, 1), delayTime);
+	DRAW_DEBUG_SPHERE(start, 0.3, XMFLOAT4(1, 0, 0, 1), delayTime);
 	/// 테스트 용으로 그리기
 
 	KMGActor* closestActor = nullptr;
@@ -207,14 +207,18 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 			}
 			else
 			{
-				if(result < closestDistance) closestActor = actor;
+				if (result < closestDistance)
+				{
+					closestDistance = result;
+					closestActor = actor;
+				}
 			}
 		}
 	}
 	
 	if (closestActor)
 	{
-		std::wcout << closestActor->GetName() << " \n";
+		std::wcout << L"SELECT " << closestActor->GetName() << " \n";
 
 	}
 }

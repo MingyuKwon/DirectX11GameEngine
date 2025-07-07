@@ -38,58 +38,32 @@ void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes)
 	}
 }
 
-float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir) const
+float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, XMVECTOR& hitPosLocal) const
 {
-	float shortestdistance = -1;
+	float shortestDistance = -1.0f;
+	XMVECTOR bestHitPos = XMVectorZero();
 
-    for (const BoundingBox& box : boundingBoxs)
-    {
-        float distance;
-        bool result = box.Intersects(rayOrigin, rayDir, distance);
+	for (const BoundingBox& box : boundingBoxs)
+	{
+		float distance;
+		bool result = box.Intersects(rayOrigin, rayDir, distance);
 
-        XMFLOAT3 minPoint = {
-            box.Center.x - box.Extents.x,
-            box.Center.y - box.Extents.y,
-            box.Center.z - box.Extents.z
-        };
+		if (result)
+		{
+			if (shortestDistance < 0 || distance < shortestDistance)
+			{
+				shortestDistance = distance;
 
-        XMFLOAT3 maxPoint = {
-            box.Center.x + box.Extents.x,
-            box.Center.y + box.Extents.y,
-            box.Center.z + box.Extents.z
-        };
+				// 현재 가장 가까운 충돌 지점 계산
+				bestHitPos = rayOrigin + rayDir * distance;
+			}
+		}
+	}
 
-        /*
-        std::wcout << L"[" << owner->GetName() << L"]\n";
-        std::wcout << L"  Box Min: (" << minPoint.x << L", " << minPoint.y << L", " << minPoint.z << L")\n";
-        std::wcout << L"  Box Max: (" << maxPoint.x << L", " << maxPoint.y << L", " << maxPoint.z << L")\n";
+	if (shortestDistance >= 0.0f)
+	{
+		hitPosLocal = bestHitPos;
+	}
 
-        std::wcout << L"  Ray Origin: ("
-            << XMVectorGetX(rayOrigin) << L", "
-            << XMVectorGetY(rayOrigin) << L", "
-            << XMVectorGetZ(rayOrigin) << L")\n";
-
-        std::wcout << L"  Ray Direction: ("
-            << XMVectorGetX(rayDir) << L", "
-            << XMVectorGetY(rayDir) << L", "
-            << XMVectorGetZ(rayDir) << L")\n";
-
-        std::wcout << L"  Intersects? " << (result ? L"YES" : L"NO")
-            << (result ? (L", Distance: " + std::to_wstring(distance)) : L"") << L"\n";
-        
-        */
-        if (result)
-        {
-            if (shortestdistance < 0)
-            {
-                shortestdistance = distance;
-            }
-            else
-            {
-                shortestdistance = min(shortestdistance, distance);
-            }
-        }
-    }
-	
-	return shortestdistance;
+	return shortestDistance;
 }

@@ -125,9 +125,9 @@ void GlobalTick(float deltaTime)
         currentScene->Tick(deltaTime);
     }
 
-    DrawDebug::DrawLine(L"DebugLine1", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 1, 0), XMFLOAT4(1, 0, 0, 1), 1);
-    DrawDebug::DrawLine(L"DebugLine2", XMFLOAT3(0, 0, 0), XMFLOAT3(1, 0, 0), XMFLOAT4(0, 1, 0, 1));
-    DrawDebug::DrawLine(L"DebugLine3", XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, -1), XMFLOAT4(0, 0, 1, 1));
+    DRAW_DEBUG_LINE(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 1, 0), XMFLOAT4(1, 0, 0, 1), 1);
+    DRAW_DEBUG_LINE(XMFLOAT3(0, 0, 0), XMFLOAT3(1, 0, 0), XMFLOAT4(0, 1, 0, 1), 1);
+    DRAW_DEBUG_LINE(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), XMFLOAT4(0, 0, 1, 1), 1);
 
 }
 
@@ -194,6 +194,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
                     schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor1", XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f)));
 
+                    schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
+                    schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor2", XMVectorSet(-3.0f, 0.0f, 0.0f, 0.0f)));
+
+
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Light1", XMVectorSet(2.0f, 0.0f, 0.0f, 0.0f)));
                     schedular->PushCommand(KMGCommand::AddLightComponent(L"Light1"));
@@ -211,6 +215,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor1"));
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj",L"Resource\\Texture\\centurion.dds"));
 
+                    schedular->PushCommand(KMGCommand::AddStaticMeshComponent(L"Actor2"));
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor2", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj", L"Resource\\Texture\\QF1_Base_Color.png", L"Resource\\Texture\\QF1_Normal.png"));
 
                 }
                 break;
