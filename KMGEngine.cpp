@@ -205,27 +205,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
                     schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Light1", XMVectorSet(2.0f, 0.0f, 0.0f, 0.0f)));
                     schedular->PushCommand(KMGCommand::AddLightComponent(L"Light1"));
-
-
-
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.1));
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0.95, 0.95, 0.95, 1)));
-
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj", L"Resource\\Texture\\centurion.dds"));
-
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor2", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj", L"Resource\\Texture\\QF1_Base_Color.png", L"Resource\\Texture\\QF1_Normal.png"));
-
                 }
 
                 break;
             }
-            case VK_END:
+            case VK_F1:
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.1));
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0.95, 0.95,0.95,1)));
-
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj",L"Resource\\Texture\\centurion.dds"));
 
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor2", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj", L"Resource\\Texture\\QF1_Base_Color.png", L"Resource\\Texture\\QF1_Normal.png"));
@@ -233,12 +220,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 }
                 break;
             }
-            case VK_HOME:
+            case VK_F2:
             {
                 if (schedular)
                 {
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.1));
+                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0.95, 0.95, 0.95, 1)));
+
                     schedular->PushCommand(KMGCommand::AddActor(L"Actor3"));
-                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
 
                 }
                 break;

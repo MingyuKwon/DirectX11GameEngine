@@ -10,6 +10,8 @@ KMGActor* KMGScene::CreateActor(const std::wstring& name)
     KMGActor* ptr = actor.get();
 
     actors[name] = std::move(actor);
+    actorNames.emplace(name.begin(), name.end());
+
     return ptr;
 }
 
@@ -20,6 +22,7 @@ void KMGScene::EraseActor(const std::wstring& name)
     if (actors.count(name) == 0) return;
 
     actors.erase(name);
+    actorNames.erase(std::string(name.begin(), name.end()));
 }
 
 void KMGScene::Tick(float deltaTime)
@@ -51,5 +54,7 @@ KMGActor* KMGScene::GetActor(const std::wstring& name)
 
 const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::getAllActors()
 {
+    std::lock_guard<std::mutex> lock(actorMapLock);
+
     return actors;
 }
