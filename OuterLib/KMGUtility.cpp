@@ -2,6 +2,8 @@
 #include <DrawDebug.h>
 #include <windows.h> // OutputDebugString 사용
 #include <iostream>
+#include <locale>
+#include <codecvt>
 
 // 로그 출력 함수
 void PrintVector(const std::wstring& label, const DirectX::XMVECTOR& vec)
@@ -43,4 +45,10 @@ DirectX::XMVECTOR KMGUtility::GenerateCameraRayDirection(
 
     return rayDir;
 
+}
+
+std::string KMGUtility::WStringToString(std::wstring wstr)
+{
+    static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.to_bytes(wstr);
 }

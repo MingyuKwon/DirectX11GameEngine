@@ -2,6 +2,7 @@
 #include <KMGDataStructure.h>
 #include <KMGComponent.h>
 #include <iostream>
+#include <KMGUtility.h>
 
 
 class KMGActor {
@@ -14,7 +15,11 @@ public:
 
     std::atomic<bool> bShouldDrawResourceChange = true;
 
-    std::wstring GetName();
+    inline std::wstring GetWstrName()
+    {
+        return name;
+    }
+
     DirectX::XMMATRIX getWorldMatrix();
 
     inline DirectX::XMVECTOR GetPosition() const { return transform.position; }

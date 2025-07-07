@@ -1,4 +1,5 @@
 #include "KMGScene.h"
+#include "KMGUtility.h"
 
 KMGActor* KMGScene::CreateActor(const std::wstring& name)
 {
@@ -10,7 +11,7 @@ KMGActor* KMGScene::CreateActor(const std::wstring& name)
     KMGActor* ptr = actor.get();
 
     actors[name] = std::move(actor);
-    actorNames.emplace(name.begin(), name.end());
+    actorNames.emplace(name);
 
     return ptr;
 }
@@ -22,7 +23,7 @@ void KMGScene::EraseActor(const std::wstring& name)
     if (actors.count(name) == 0) return;
 
     actors.erase(name);
-    actorNames.erase(std::string(name.begin(), name.end()));
+    actorNames.erase(name);
 }
 
 void KMGScene::Tick(float deltaTime)

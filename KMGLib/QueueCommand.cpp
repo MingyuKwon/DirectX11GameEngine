@@ -218,7 +218,7 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	
 	if (closestActor)
 	{
-		scene->SetFocusActor(closestActor->GetName());
+		scene->SetFocusActor(closestActor->GetWstrName());
 	}
 	else
 	{

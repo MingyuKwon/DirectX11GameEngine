@@ -44,13 +44,30 @@ public:
 
     KMGActor* GetActor(const std::wstring& name);
 
+    inline KMGActor* GetFocusActor() {
+        return focusActor;
+    }
+
     inline void SetFocusActor(std::wstring actorName)
     {
-        if (L"NONE" != actorName && actors.count(actorName) == 0) return;
+        if (L"NONE" != actorName && actors.count(actorName) == 0)
+        {
+            return;
+        }
 
         for (auto& actor : actors)
         {
+            if (actor.first == actorName)
+            {
+                focusActor = actor.second.get();
+            }
+            
             actor.second->bShowBoundBox = actor.first == actorName;
+        }
+
+        if (L"NONE" == actorName)
+        {
+            focusActor = nullptr;
         }
 
     }
@@ -59,17 +76,19 @@ public:
    
     // 이 함수는 무조건 모든 actors 접근이 끝난 후에 렌더링 단계에만 불러야 한다
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& getAllActors();
-    inline std::unordered_set<std::string>& GetActorNames() {
+    inline std::unordered_set<std::wstring>& GetActorNames() {
         return actorNames;
     }
 private:
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;
-    std::unordered_set<std::string> actorNames;
+    std::unordered_set<std::wstring> actorNames;
 
     // 여기엔 디버그 용으로 그리는 메시들만 넣어둔다
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshes;
     std::unordered_map<std::wstring, float> debugLifeTime;
+
+    KMGActor* focusActor = nullptr;
 
     KMGCamera currentCamera;
 };

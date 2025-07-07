@@ -17,10 +17,6 @@ KMGActor::~KMGActor()
 {
 }
 
-std::wstring KMGActor::GetName()
-{
-    return name;
-}
 
 DirectX::XMMATRIX KMGActor::getWorldMatrix()
 {

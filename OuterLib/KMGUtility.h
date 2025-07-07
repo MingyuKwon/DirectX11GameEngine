@@ -9,4 +9,5 @@ namespace KMGUtility {
         const DirectX::XMMATRIX& projectionMatrix
         );
 
+    std::string WStringToString(std::wstring wstr);
 }

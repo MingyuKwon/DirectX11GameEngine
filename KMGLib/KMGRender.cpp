@@ -448,7 +448,7 @@ void KMGRender::DrawScene(KMGScene* scene)
     for (auto& bucket : actors)
     {
         KMGActor* actor = bucket.second.get();
-        wstring actorName = actor->GetName();
+        wstring actorName = actor->GetWstrName();
         XMMATRIX worldMat = actor->getWorldMatrix();
         
         XMFLOAT4 lightColor = XMFLOAT4(-1,-1,-1,-1);

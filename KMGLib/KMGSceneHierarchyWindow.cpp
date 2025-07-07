@@ -53,10 +53,17 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
     {
         if (ImGui::BeginChild("ActorListRegion", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar))
         {
-            std::unordered_set<std::string>& actors = currentScene->GetActorNames();
-            for (const std::string& name : actors)
+            KMGActor* focusActor = currentScene->GetFocusActor();
+            std::unordered_set<std::wstring>& actors = currentScene->GetActorNames();
+            for (const std::wstring& name : actors)
             {
-                ImGui::Selectable(name.c_str(), false);
+                bool isSelected = (focusActor && focusActor->GetWstrName() == name);
+
+                string foucsActorStrName = KMGUtility::WStringToString(name);
+                if (ImGui::Selectable(foucsActorStrName.c_str(), isSelected)) {
+                    currentScene->SetFocusActor(name);
+                }
+                
             }
         }
         ImGui::EndChild(); 
