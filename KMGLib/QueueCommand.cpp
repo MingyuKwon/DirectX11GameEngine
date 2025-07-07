@@ -220,6 +220,10 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	{
 		scene->SetFocusActor(closestActor->GetName());
 	}
+	else
+	{
+		scene->SetFocusActor(L"NONE");
+	}
 }
 
 void SceneCommand_CameraPositionUpdate::Execute(KMGScene*& scene)
@@ -395,14 +399,13 @@ void SceneCommand_Add_Remove_LightComponent::Execute(KMGScene*& scene)
 			LightComponent* lightComponent = new LightComponent();
 			
 			bool result = findActor->SetComponent(lightComponent);
+			lightComponent->SetLightColor(XMFLOAT4(0.8, 0.8, 0, 1));
 
 			if (!result) 
 			{
 				delete lightComponent;
 				lightComponent = nullptr;
 			}
-
-			lightComponent->SetLightColor(XMFLOAT4(0.8, 0.8, 0, 1));
 
 		}
 		else

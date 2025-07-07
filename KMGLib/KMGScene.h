@@ -46,7 +46,7 @@ public:
 
     inline void SetFocusActor(std::wstring actorName)
     {
-        if (actors.count(actorName) == 0) return;
+        if (L"NONE" != actorName && actors.count(actorName) == 0) return;
 
         for (auto& actor : actors)
         {

@@ -73,8 +73,8 @@ float KMGActor::RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDi
         if (meshComp)
         {
             XMVECTOR hitPosLocal;
-            bool hit = meshComp->CheckHitWithRay(localRayOrigin, localRayDir, hitPosLocal);
-            if (hit)
+            float hit = meshComp->CheckHitWithRay(localRayOrigin, localRayDir, hitPosLocal);
+            if (hit >= 0)
             {
                 XMVECTOR hitPosWorld = XMVector3Transform(hitPosLocal, getWorldMatrix());
 
