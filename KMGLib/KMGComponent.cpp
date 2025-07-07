@@ -38,6 +38,33 @@ void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes)
 	}
 }
 
+void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh)
+{
+	meshes.clear();
+	meshes.push_back(std::move(inMesh));
+	boundingBoxs.clear();
+
+	for (KMGStaticMesh& mesh : meshes)
+	{
+		boundingBoxs.emplace_back();
+
+		std::vector<KMGVertex> vertices = mesh.vertices;
+		if (vertices.empty()) continue;
+
+		BoundingBox::CreateFromPoints(
+			boundingBoxs.back(),
+			vertices.size(),
+			&vertices[0].Pos,
+			sizeof(KMGVertex)
+		);
+	}
+
+	if (owner)
+	{
+		owner->bShouldDrawResourceChange = true;
+	}
+}
+
 float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, XMVECTOR& hitPosLocal) const
 {
 	float shortestDistance = -1.0f;

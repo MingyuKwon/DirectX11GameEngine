@@ -62,7 +62,8 @@ public:
 	}
 
 	void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes);
-	
+	void SetMeshData(KMGStaticMesh&& inMesh);
+
 	float CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, DirectX::XMVECTOR& hitPosLocal) const;
 private:
 	std::vector<KMGStaticMesh> meshes;

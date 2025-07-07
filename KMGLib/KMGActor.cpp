@@ -5,6 +5,12 @@ using namespace DirectX;
 
 KMGActor::KMGActor(std::wstring name) : name(name)
 {
+    StaticMeshComponent* staticComponent = new StaticMeshComponent();
+    KMGStaticMesh newDefaultMesh = KMGStaticMesh::CreateDefaultSphereMesh(1.f, XMFLOAT4(1,0,0,1));
+
+    staticComponent->SetMeshData(std::move(newDefaultMesh));
+
+    SetComponent(staticComponent);
 }
 
 KMGActor::~KMGActor()

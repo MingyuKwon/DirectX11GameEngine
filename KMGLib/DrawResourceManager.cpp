@@ -22,22 +22,7 @@ void DrawResourceManager::AddShouldDrawActor(
         loading->SetTotalCount((actorMeshes == nullptr) ? 1 : actorMeshes->size());
     }
 
-    if (actorMeshes == nullptr)
-    {
-        wstring DefaultMeshName = actorName + L"___DEFAULT";
-        if (bUpdateReource)
-        {
-            drawActorResources.emplace(DefaultMeshName, DrawResource(DefaultMeshName));
-
-            KMGStaticMesh newDefaultMesh = KMGStaticMesh::CreateDefaultSphereMesh(1.f, lightColor);
-            drawActorResources[DefaultMeshName].UpdateBuffers(newDefaultMesh.vertices, newDefaultMesh.indices, newDefaultMesh.textureFilePath, newDefaultMesh.normalMapFilePath);
-        }
-
-        drawActorResources[DefaultMeshName].bLightEffected = lightColor.x < 0;
-        drawActorResources[DefaultMeshName].UpdateActorCB(pMainContext, worldMatrix);
-
-    }
-    else
+    if (actorMeshes)
     {
         for (int i = 0; i < actorMeshes->size(); i++)
         {
