@@ -12,8 +12,6 @@ using namespace std;
 using namespace DirectX;
 
 extern std::atomic<float> deltaTime;
-extern std::atomic<bool> bContentFocused;
-extern std::atomic<bool> bDetailFocused;
 
 extern float g_cameraMoveSpeed;
 extern float g_cameraRotateSpeed;
@@ -630,7 +628,7 @@ void KMGRender::DrawIMGUI_UI()
 
     ImGui::PopStyleVar(2);
 
-    sceneWindow.ShowSceneWindow(
+    sceneWindow.DrawSceneWindow(
         mainWindowWidth, mainWindowHeight,
         sceneWindowWidth, sceneWindowHeight,
         resizeRequested, 
@@ -638,67 +636,12 @@ void KMGRender::DrawIMGUI_UI()
         currentCameraViewMatrix,
         currentCameraProjectionMatrix
     );
-    Render_HierarchyWindow();
-    Render_DetailWindow();
+
+    hierarchyWindow.DrawHierarchyWindow(mainWindowWidth, mainWindowHeight);
+
+    detailWindow.DrawDetailWindow(mainWindowWidth, mainWindowHeight);
 }
 
-
-void KMGRender::Render_HierarchyWindow()
-{
-    ImGuiID id = ImGui::GetID(CONTENT_WINDOW_NAME);
-    ImGuiStorage* storage = ImGui::GetStateStorage();
-    if (!storage->GetBool(id)) {
-        int WindowPosX = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowPosY = 0;
-
-        
-        int WindowWidth = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowHeight = mainWindowHeight * HIERARCHY_DETAIL_HEIGHT_RATIO;
-
-        ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
-        ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
-
-    }
-
-    ImGui::Begin(CONTENT_WINDOW_NAME);
-
-    bContentFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
-
-    if (!storage->GetBool(id)) {
-        storage->SetBool(id, true);
-    }
-
-    ImGui::Text("Hello");
-    ImGui::End();
-}
-
-void KMGRender::Render_DetailWindow()
-{
-    ImGuiID id = ImGui::GetID(DETAIL_WINDOW_NAME);
-    ImGuiStorage* storage = ImGui::GetStateStorage();
-    if (!storage->GetBool(id)) {
-        int WindowPosX = mainWindowWidth * SCENE_DETAIL_WIDTH_RATIO;
-        int WindowPosY = mainWindowHeight * HIERARCHY_DETAIL_HEIGHT_RATIO;
-
-        int WindowWidth = mainWindowWidth * (1 - SCENE_DETAIL_WIDTH_RATIO);
-        int WindowHeight = mainWindowHeight * (1 - HIERARCHY_DETAIL_HEIGHT_RATIO);
-
-        ImGui::SetNextWindowSize(ImVec2(WindowWidth, WindowHeight));
-        ImGui::SetNextWindowPos(ImVec2(WindowPosX, WindowPosY));
-
-    }
-
-    ImGui::Begin(DETAIL_WINDOW_NAME);
-
-    bDetailFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_RootAndChildWindows);
-
-    if (!storage->GetBool(id)) {
-        storage->SetBool(id, true);
-    }
-
-    ImGui::Text("Hello");
-    ImGui::End();
-}
 
 HRESULT KMGRender::CompileVertexShader(const WCHAR* vertexShaderName, ID3D11VertexShader*& pVertexShader)
 {

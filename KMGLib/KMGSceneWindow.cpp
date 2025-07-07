@@ -19,7 +19,7 @@ extern std::atomic<float> deltaTime;
 extern CommandSchedular* schedular;
 extern float g_cameraMoveSpeed;
 
-void KMGSceneWindow::ShowSceneWindow(
+void KMGSceneWindow::DrawSceneWindow(
     int mainWindowWidth, int mainWindowHeight,
     std::atomic<int>& sceneWindowWidth, std::atomic<int>& sceneWindowHeight,
     std::atomic<bool>& resizeRequested,

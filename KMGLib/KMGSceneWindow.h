@@ -4,7 +4,7 @@
 class KMGSceneWindow
 {
 public:
-	void ShowSceneWindow(
+	void DrawSceneWindow(
 		int mainWindowWidth, int mainWindowHeight,
 		std::atomic<int>& sceneWindowWidth, std::atomic<int>& sceneWindowHeight,
 		std::atomic<bool>& resizeRequested,

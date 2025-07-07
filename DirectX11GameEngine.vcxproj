@@ -148,11 +148,13 @@
     <ClCompile Include="KMGLib\KMGCamera.cpp" />
     <ClCompile Include="KMGLib\KMGComponent.cpp" />
     <ClCompile Include="KMGLib\KMGDataStructure.cpp" />
+    <ClCompile Include="KMGLib\KMGDetailWindow.cpp" />
     <ClCompile Include="KMGLib\KMGRender.cpp" />
     <ClCompile Include="KMGLib\KMGScene.cpp" />
     <ClCompile Include="KMGLib\KMGSceneWindow.cpp" />
     <ClCompile Include="KMGLib\LoadingManager.cpp" />
     <ClCompile Include="KMGLib\QueueCommand.cpp" />
+    <ClCompile Include="KMGLib\KMGSceneHierarchyWindow.cpp" />
     <ClCompile Include="KMGLib\UseAssimp.cpp" />
     <ClCompile Include="OuterLib\imgui.cpp" />
     <ClCompile Include="OuterLib\imgui_demo.cpp" />
@@ -177,11 +179,13 @@
     <ClInclude Include="KMGLib\KMGCamera.h" />
     <ClInclude Include="KMGLib\KMGComponent.h" />
     <ClInclude Include="KMGLib\KMGDataStructure.h" />
+    <ClInclude Include="KMGLib\KMGDetailWindow.h" />
     <ClInclude Include="KMGLib\KMGRender.h" />
     <ClInclude Include="KMGLib\KMGScene.h" />
     <ClInclude Include="KMGLib\KMGSceneWindow.h" />
     <ClInclude Include="KMGLib\LoadingManager.h" />
     <ClInclude Include="KMGLib\QueueCommand.h" />
+    <ClInclude Include="KMGLib\KMGSceneHierarchyWindow.h" />
     <ClInclude Include="KMGLib\UseAssimp.h" />
     <ClInclude Include="OuterLib\imconfig.h" />
     <ClInclude Include="OuterLib\imgui.h" />

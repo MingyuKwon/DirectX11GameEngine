@@ -4,6 +4,8 @@
 #include <QueueCommand.h>
 
 #include <KMGSceneWindow.h>
+#include <KMGSceneHierarchyWindow.h>
+#include <KMGDetailWindow.h>
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -35,6 +37,8 @@ public:
 	void RenderScene(KMGScene* scene); // 핵심 렌더 루프
 private:
 	KMGSceneWindow sceneWindow;
+	KMGSceneHierarchyWindow hierarchyWindow;
+	KMGDetailWindow detailWindow;
 
 	HWND hMainWnd = nullptr;
 
@@ -97,9 +101,6 @@ private:
 
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
-
-	void Render_HierarchyWindow();
-	void Render_DetailWindow();
 
 	// 여기엔 메시 별로 DrawResource를 생성한다. 하나의 액터에 여러 메시가 있을 수 있고, 각각 actorName_0, actorName_1 이렇게 이름이 부여되고 저장될 예정
 	DrawResourceManager resourceManager;

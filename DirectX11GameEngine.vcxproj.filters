@@ -111,6 +111,12 @@
     <ClCompile Include="KMGLib\KMGSceneWindow.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
+    <ClCompile Include="KMGLib\KMGSceneHierarchyWindow.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KMGLib\KMGDetailWindow.cpp">
+      <Filter>소스 파일\KMGLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h">
@@ -186,6 +192,12 @@
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
     <ClInclude Include="KMGLib\KMGSceneWindow.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\KMGSceneHierarchyWindow.h">
+      <Filter>헤더 파일\KMGLib</Filter>
+    </ClInclude>
+    <ClInclude Include="KMGLib\KMGDetailWindow.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
   </ItemGroup>

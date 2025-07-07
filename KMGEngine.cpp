@@ -19,7 +19,7 @@ const double targetFrameTime = 1.0 / 120.0; // 기준을 60fps로 맞춤
 std::atomic<float> deltaTime = 0;
 
 std::atomic<bool> bSceneFocused = false;
-std::atomic<bool> bContentFocused = false;
+std::atomic<bool> bHierarchyFocused = false;
 std::atomic<bool> bDetailFocused = false;
 
 float g_cameraMoveSpeed = SCENE_EDIT_CAMERAMOVESPEED;
