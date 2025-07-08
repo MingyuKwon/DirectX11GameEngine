@@ -160,7 +160,11 @@ void KMGDetailWindow::ShowTransform()
         ImGui::Text("Position");
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.1f, 0.1f, 1.0f));
-        ImGui::DragFloat3("##Position", position, 1.0f, 0.0f, 0.0f, "%.1f");
+        if (ImGui::DragFloat3("##Position", position, 0.2f, 0.0f, 0.0f, "%.1f"))
+        {
+            XMVECTOR changedPosition = XMVectorSet(position[0], position[1], position[2], 1);
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorPosition(currenFocusActor->GetWstrName(), changedPosition));
+        }
         ImGui::PopStyleColor();
 
         // Rotation
@@ -168,7 +172,13 @@ void KMGDetailWindow::ShowTransform()
         ImGui::Text("Rotation");
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.2f, 0.1f, 1.0f));
-        ImGui::DragFloat3("##Rotation", rotation, 1.0f, 0.0f, 360.0f, "%.1f");
+        
+        if (ImGui::DragFloat3("##Rotation", rotation, 1.0f, 0.0f, 360.0f, "%.1f"))
+        {
+            XMVECTOR changedRotation = XMVectorSet(rotation[0], rotation[1], rotation[2], 0);
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorPosition(currenFocusActor->GetWstrName(), changedRotation));
+        }
+
         ImGui::PopStyleColor();
 
         // Scale
@@ -176,7 +186,12 @@ void KMGDetailWindow::ShowTransform()
         ImGui::Text("Scale");
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.2f, 1.0f));
-        ImGui::DragFloat3("##Scale", scale, 0.1f, 0.1f, 10.0f, "%.1f");
+        if (ImGui::DragFloat3("##Scale", scale, 0.1f, 0.1f, 10.0f, "%.1f"))
+        {
+            XMVECTOR changedScale = XMVectorSet(scale[0], scale[1], scale[2], 0);
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorScale(currenFocusActor->GetWstrName(), changedScale));
+
+        }
         ImGui::PopStyleColor();
 
         ImGui::Dummy(ImVec2(0, 10)); // АЃАн
