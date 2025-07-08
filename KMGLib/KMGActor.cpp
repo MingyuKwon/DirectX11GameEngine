@@ -76,6 +76,39 @@ void KMGActor::Rotate(float dpitch, float dyaw, float droll) {
 }
 
 
+bool KMGActor::SetComponent(KMGComponent* addComponent)
+{
+    if (addComponent == nullptr) return false;
+
+    if (components.count(addComponent->componentType) > 0)
+    {
+        std::cout << "There is already Component\n";
+        return false;
+    }
+
+    addComponent->SetOwner(this);
+
+
+    StaticMeshComponent* staticComp = dynamic_cast<StaticMeshComponent*>(addComponent);
+    if (staticComp)
+    {
+        KMGStaticMesh newDefaultMesh = KMGStaticMesh::CreateDefaultSphereMesh(0.5f, XMFLOAT4(1, 0, 0, 1));
+        staticComp->SetMeshData(std::move(newDefaultMesh));
+    }
+
+    LightComponent* lightComp = dynamic_cast<LightComponent*>(addComponent);
+    if (lightComp)
+    {
+        Light& light = lightComp->GetLight();
+        XMStoreFloat3(&light.position, transform.position);
+    }
+
+
+    components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent);
+
+    return true;
+}
+
 float KMGActor::RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir)
 {
     if (HasMesh())

@@ -53,29 +53,7 @@ public:
         return true;
     }
 
-    inline bool SetComponent(KMGComponent* addComponent) {
-
-        if (addComponent == nullptr) return false;
-
-        if (components.count(addComponent->componentType) > 0)
-        {
-            std::cout << "There is already Component\n";
-            return false;
-        }
-
-        LightComponent* lightComp = dynamic_cast<LightComponent*>(addComponent);
-        if (lightComp)
-        {
-            Light& light = lightComp->GetLight();
-            XMStoreFloat3(&light.position, transform.position);
-        }
-
-        addComponent->SetOwner(this);
-        components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent);
-        
-        return true;
-
-    }
+    bool SetComponent(KMGComponent* addComponent);
 
     inline bool HasMesh() {
         return components.count(EComponentType::ECT_STATICMESH) > 0;

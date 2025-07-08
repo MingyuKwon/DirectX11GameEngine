@@ -140,11 +140,48 @@ void KMGDetailWindow::ShowStaticMesh()
         FIRST_IMGUI_TAB;
 
         static bool enabled = false;
-        
+
+        StaticMeshComponent* staticComp = nullptr;
+        if (currenFocusActor)
+        {
+            staticComp = currenFocusActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+        }
+        else
+        {
+            ImGui::BeginDisabled();
+        }
+
+        if (staticComp == nullptr)
+        {
+            enabled = false;
+        }
+        else
+        {
+            enabled = true;
+        }
+
+        bool beforeEnable = enabled;
+        ImGui::Checkbox("Enable StaticMesh Component", &enabled);
+        if (beforeEnable != enabled) // 이러면 버튼을 눌러서 변한거다
+        {
+            if (enabled)
+            {
+                // 이거면 light mesh를 추가하라는 것
+                if (schedular) schedular->PushCommand(KMGCommand::AddStaticMeshComponent(currenFocusActor->GetWstrName()));
+            }
+            else
+            {
+                // 이거면 light mesh를 제거 하라는 것
+                if (schedular) schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(currenFocusActor->GetWstrName()));
+            }
+        }
+
+        if (currenFocusActor == nullptr)
+            ImGui::EndDisabled();
+
         VERTICAL_SPACE(10);
 
-        if (!enabled)
-            return;
+        if (!enabled) return;
 
         static std::string meshPath = "mesh Path";
         static std::string texturePath = "texture Path";
@@ -238,18 +275,12 @@ void KMGDetailWindow::ShowLight()
             if (enabled)
             {
                 // 이거면 light mesh를 추가하라는 것
-                if (schedular)
-                {
-                    schedular->PushCommand(KMGCommand::AddLightComponent(currenFocusActor->GetWstrName()));
-                }
+                if (schedular) schedular->PushCommand(KMGCommand::AddLightComponent(currenFocusActor->GetWstrName()));
             }
             else
             {
                 // 이거면 light mesh를 제거 하라는 것
-                if (schedular)
-                {
-                    schedular->PushCommand(KMGCommand::RemoveLightComponent(currenFocusActor->GetWstrName()));
-                }
+                if (schedular) schedular->PushCommand(KMGCommand::RemoveLightComponent(currenFocusActor->GetWstrName()));
             }
         }
 
@@ -258,10 +289,8 @@ void KMGDetailWindow::ShowLight()
 
         VERTICAL_SPACE(10);
 
-        if (!enabled)
-            return;
+        if (!enabled) return;
 
-        VERTICAL_SPACE(5);
         FIRST_IMGUI_TAB;
         static int type = 0; // 0 = directional, 1 = point, 2 = spot
         ImGui::Text("Light Type");
