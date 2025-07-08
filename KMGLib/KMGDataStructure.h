@@ -55,7 +55,7 @@ struct alignas(16) Light
     DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
     float lightPad_2;
 
-    DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
+    DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f);
     float lightPad_3;
 
     DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1.0f, 1.0f, 0.7f, 1.0f);
@@ -111,6 +111,15 @@ struct KMGTransform {
         XMMATRIX T = XMMatrixTranslationFromVector(position);
 
         return S * R * T;
+    }
+
+    inline DirectX::XMVECTOR GetForwardVector()
+    {
+        DirectX::XMVECTOR forwardVector = DirectX::XMVectorSet(0, 0, 1, 0);
+
+        DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYawFromVector(rotation);
+
+        return DirectX::XMVector3TransformNormal(forwardVector, rotationMatrix);
     }
 
     DirectX::XMVECTOR position = DirectX::XMVectorSet(0, 0, 0, 1);

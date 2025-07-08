@@ -10,4 +10,6 @@ namespace KMGUtility {
         );
 
     std::string WStringToString(std::wstring wstr);
+    std::wstring OpenFileDialog();
+
 }

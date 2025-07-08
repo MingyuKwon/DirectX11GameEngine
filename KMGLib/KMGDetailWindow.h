@@ -12,5 +12,6 @@ private:
 
 	void ShowTransform();
 	void ShowStaticMesh();
+	void ShowLight();
 
 };

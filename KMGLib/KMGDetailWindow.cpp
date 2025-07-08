@@ -20,7 +20,6 @@ extern std::atomic<bool> bDetailFocused;
 
 void DrawClippedPathText(const std::string& path, float maxWidth);
 
-
 void KMGDetailWindow::DrawDetailWindow(
     int mainWindowWidth, int mainWindowHeight
 
@@ -63,7 +62,7 @@ void KMGDetailWindow::DrawDetailWindow(
 
         ShowTransform();
         ShowStaticMesh();
-        
+        ShowLight();
 
     }
 
@@ -132,6 +131,14 @@ void KMGDetailWindow::ShowStaticMesh()
 {
     if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        VERTICAL_SPACE(10);
+        FIRST_IMGUI_TAB;
+        static bool enabled = true;
+        ImGui::Checkbox("Enable StaticMesh Component", &enabled);
+
+        if (!enabled)
+            return;
+
         static std::string meshPath = "mesh Path";
         static std::string texturePath = "texture Path";
         static std::string normalMapPath = "normalMap Path";
@@ -150,6 +157,8 @@ void KMGDetailWindow::ShowStaticMesh()
 
         if (ImGui::Button("...##Mesh"))
         {
+            wstring fileName = KMGUtility::OpenFileDialog();
+            wcout << fileName << "\n";
         }
 
         VERTICAL_SPACE(5);
@@ -164,6 +173,8 @@ void KMGDetailWindow::ShowStaticMesh()
 
         if (ImGui::Button("...##Texture"))
         {
+            wstring fileName = KMGUtility::OpenFileDialog();
+            
         }
 
         VERTICAL_SPACE(5);
@@ -177,7 +188,24 @@ void KMGDetailWindow::ShowStaticMesh()
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
         if (ImGui::Button("...##NormalMap"))
         {
+            wstring fileName = KMGUtility::OpenFileDialog();
+
         }
+
+        VERTICAL_SPACE(10);
+
+    }
+}
+
+void KMGDetailWindow::ShowLight()
+{
+    if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        VERTICAL_SPACE(10);
+        FIRST_IMGUI_TAB;
+        static bool enabled = true;
+        ImGui::Checkbox("Enable Light Component", &enabled);
+
     }
 }
 

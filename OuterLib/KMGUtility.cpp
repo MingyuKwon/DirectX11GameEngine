@@ -52,3 +52,22 @@ std::string KMGUtility::WStringToString(std::wstring wstr)
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     return converter.to_bytes(wstr);
 }
+
+std::wstring KMGUtility::OpenFileDialog()
+{
+    wchar_t filename[MAX_PATH] = L"";
+
+    OPENFILENAMEW ofn = {};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFilter = L"All Files\0*.*\0Text Files\0*.txt\0";
+    ofn.lpstrFile = filename;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+
+    if (GetOpenFileNameW(&ofn))
+    {
+        return std::wstring(filename);
+    }
+
+    return L"";
+}
