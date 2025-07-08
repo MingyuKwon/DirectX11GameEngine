@@ -404,7 +404,7 @@ void KMGRender::RenderScene(KMGScene* scene)
 
     DrawScene(scene);
     // 이건 최종적인 UI를 그리는 것이므로 이 전에 그릴 텍스처가 다 준비되어 있어야 한다
-    DrawIMGUI_UI();
+    DrawIMGUI_UI(scene);
 
     ImGui::Render();
     pMainContext->OMSetRenderTargets(1, &pMainRTV, nullptr);
@@ -605,7 +605,7 @@ ID3D11PixelShader* KMGRender::SelectPixelShader(DrawResource& resource)
     return pCurrentPixelShader;
 }
 
-void KMGRender::DrawIMGUI_UI()
+void KMGRender::DrawIMGUI_UI(KMGScene* scene)
 {
     static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
@@ -639,7 +639,13 @@ void KMGRender::DrawIMGUI_UI()
 
     hierarchyWindow.DrawHierarchyWindow(mainWindowWidth, mainWindowHeight);
 
-    detailWindow.DrawDetailWindow(mainWindowWidth, mainWindowHeight);
+    KMGActor* focusActor = nullptr;
+    if (scene)
+    {
+        focusActor = scene->GetFocusActor();
+    }
+    detailWindow.DrawDetailWindow(focusActor ,mainWindowWidth, mainWindowHeight);
+
 }
 
 

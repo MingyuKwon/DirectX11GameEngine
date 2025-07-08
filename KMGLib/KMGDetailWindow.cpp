@@ -5,6 +5,8 @@
 #include <KMGUtility.h>
 #include <CommandSchedular.h>
 
+#include <KMGActor.h>
+
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
@@ -17,14 +19,17 @@ using namespace std;
 #define VERTICAL_SPACE(x)  ImGui::Dummy(ImVec2(0, x))
 
 extern std::atomic<bool> bDetailFocused;
+extern CommandSchedular* schedular;
 
 void DrawClippedPathText(const std::string& path, float maxWidth);
 
 void KMGDetailWindow::DrawDetailWindow(
+    KMGActor* focusActor,
     int mainWindowWidth, int mainWindowHeight
-
 )
 {
+    currenFocusActor = focusActor;
+
     ImGuiID id = ImGui::GetID(DETAIL_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
@@ -133,8 +138,9 @@ void KMGDetailWindow::ShowStaticMesh()
     {
         VERTICAL_SPACE(10);
         FIRST_IMGUI_TAB;
-        static bool enabled = true;
-        ImGui::Checkbox("Enable StaticMesh Component", &enabled);
+
+        static bool enabled = false;
+        
         VERTICAL_SPACE(10);
 
         if (!enabled)
@@ -203,15 +209,57 @@ void KMGDetailWindow::ShowLight()
     {
         VERTICAL_SPACE(10);
         FIRST_IMGUI_TAB;
-        static bool enabled = true;
+
+        static bool enabled = false;
+
+        LightComponent* lightComp = nullptr;
+        if (currenFocusActor)
+        {
+            lightComp = currenFocusActor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+        }
+        else
+        {
+            ImGui::BeginDisabled();
+        }
+           
+        if (lightComp == nullptr)
+        {
+            enabled = false;
+        }
+        else
+        {
+            enabled = true;
+        }
+        
+        bool beforeEnable = enabled;
         ImGui::Checkbox("Enable Light Component", &enabled);
+        if (beforeEnable != enabled) // 이러면 버튼을 눌러서 변한거다
+        {
+            if (enabled)
+            {
+                // 이거면 light mesh를 추가하라는 것
+                if (schedular)
+                {
+                    schedular->PushCommand(KMGCommand::AddLightComponent(currenFocusActor->GetWstrName()));
+                }
+            }
+            else
+            {
+                // 이거면 light mesh를 제거 하라는 것
+                if (schedular)
+                {
+                    schedular->PushCommand(KMGCommand::RemoveLightComponent(currenFocusActor->GetWstrName()));
+                }
+            }
+        }
+
+        if (currenFocusActor == nullptr)
+            ImGui::EndDisabled();
 
         VERTICAL_SPACE(10);
 
         if (!enabled)
             return;
-
-
 
         VERTICAL_SPACE(5);
         FIRST_IMGUI_TAB;

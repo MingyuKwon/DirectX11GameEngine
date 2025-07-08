@@ -98,7 +98,7 @@ private:
 	ID3D11PixelShader* SelectPixelShader(DrawResource& resource);
 
 	void DrawScene(KMGScene* scene);
-	void DrawIMGUI_UI();
+	void DrawIMGUI_UI(KMGScene* scene);
 
 	void CreateRenderTarget();
 	void CleanupRenderTarget();
