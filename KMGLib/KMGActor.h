@@ -24,9 +24,11 @@ public:
 
     inline DirectX::XMVECTOR GetPosition() const { return transform.position; }
     void SetPosition(float x, float y, float z);
+    void SetPosition(DirectX::XMVECTOR position);
 
     inline DirectX::XMVECTOR GetRotation() const { return transform.rotation; }
     void SetRotation(float pitch, float yaw, float roll);
+    void SetRotation(DirectX::XMVECTOR rotation);
 
     inline DirectX::XMVECTOR GetScale() const { return transform.scale; }
     inline void SetScale(float x, float y, float z) { transform.scale = DirectX::XMVectorSet(x, y, z, 0); }

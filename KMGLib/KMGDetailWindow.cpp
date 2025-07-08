@@ -65,6 +65,38 @@ void KMGDetailWindow::DrawDetailWindow(
 
         ImGui::PushItemWidth(200);
 
+        VERTICAL_SPACE(5);
+        FIRST_IMGUI_TAB;
+
+
+        std::string actorName = "NONE";
+
+        if (currenFocusActor)
+        {
+            actorName = KMGUtility::WStringToString(currenFocusActor->GetWstrName());
+        }
+
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        ImVec2 textSize = ImGui::CalcTextSize(actorName.c_str());
+        ImVec2 padding = ImVec2(6.0f, 4.0f);
+
+        ImGui::GetWindowDrawList()->AddRectFilled(
+            pos,
+            ImVec2(pos.x + textSize.x + padding.x * 2, pos.y + textSize.y + padding.y * 2),
+            IM_COL32(40, 100, 160, 200), // 파란 배경
+            4.0f
+        );
+
+        float fontHeight = ImGui::GetFontSize();
+        float verticalFix = (textSize.y - fontHeight) * 0.5f;
+        ImGui::SetCursorScreenPos(ImVec2(pos.x + padding.x, pos.y + padding.y - verticalFix));
+
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.9f, 1.0f), actorName.c_str());
+
+      
+
+        VERTICAL_SPACE(10);
+
         ShowTransform();
         ShowStaticMesh();
         ShowLight();
@@ -91,6 +123,8 @@ void KMGDetailWindow::ShowTransform()
 
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        if (currenFocusActor == nullptr) return;
+
         VERTICAL_SPACE(3);
         ImGui::SetCursorPosX(165);
         ImGui::Text("x");
@@ -136,6 +170,8 @@ void KMGDetailWindow::ShowStaticMesh()
 {
     if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        if (currenFocusActor == nullptr) return;
+
         VERTICAL_SPACE(10);
         FIRST_IMGUI_TAB;
 
@@ -145,10 +181,6 @@ void KMGDetailWindow::ShowStaticMesh()
         if (currenFocusActor)
         {
             staticComp = currenFocusActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
-        }
-        else
-        {
-            ImGui::BeginDisabled();
         }
 
         if (staticComp == nullptr)
@@ -175,9 +207,6 @@ void KMGDetailWindow::ShowStaticMesh()
                 if (schedular) schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(currenFocusActor->GetWstrName()));
             }
         }
-
-        if (currenFocusActor == nullptr)
-            ImGui::EndDisabled();
 
         VERTICAL_SPACE(10);
 
@@ -244,6 +273,8 @@ void KMGDetailWindow::ShowLight()
 {
     if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        if (currenFocusActor == nullptr) return;
+
         VERTICAL_SPACE(10);
         FIRST_IMGUI_TAB;
 
@@ -253,10 +284,6 @@ void KMGDetailWindow::ShowLight()
         if (currenFocusActor)
         {
             lightComp = currenFocusActor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
-        }
-        else
-        {
-            ImGui::BeginDisabled();
         }
            
         if (lightComp == nullptr)
@@ -283,9 +310,6 @@ void KMGDetailWindow::ShowLight()
                 if (schedular) schedular->PushCommand(KMGCommand::RemoveLightComponent(currenFocusActor->GetWstrName()));
             }
         }
-
-        if (currenFocusActor == nullptr)
-            ImGui::EndDisabled();
 
         VERTICAL_SPACE(10);
 

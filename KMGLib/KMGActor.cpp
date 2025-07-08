@@ -35,6 +35,16 @@ void KMGActor::SetPosition(float x, float y, float z)
     }
 }
 
+void KMGActor::SetPosition(DirectX::XMVECTOR position)
+{
+    float x, y, z;
+    x = XMVectorGetX(position);
+    y = XMVectorGetY(position);
+    z = XMVectorGetZ(position);
+
+    SetPosition(x,y,z);
+}
+
 void KMGActor::Translate(float dx, float dy, float dz) {
     XMVECTOR pos = transform.position;
     XMVECTOR delta = XMVectorSet(dx, dy, dz, 0);
@@ -58,6 +68,17 @@ void KMGActor::SetRotation(float pitch, float yaw, float roll)
         Light& light = lightComp->GetLight();
         XMStoreFloat3(&light.direction, transform.GetForwardVector());
     }
+}
+
+void KMGActor::SetRotation(DirectX::XMVECTOR rotation)
+{
+    float x, y, z;
+    x = XMVectorGetX(rotation);
+    y = XMVectorGetY(rotation);
+    z = XMVectorGetZ(rotation);
+
+    SetRotation(x, y, z);
+
 }
 
 
@@ -87,6 +108,7 @@ bool KMGActor::SetComponent(KMGComponent* addComponent)
     }
 
     addComponent->SetOwner(this);
+    components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent);
 
 
     StaticMeshComponent* staticComp = dynamic_cast<StaticMeshComponent*>(addComponent);
@@ -94,17 +116,23 @@ bool KMGActor::SetComponent(KMGComponent* addComponent)
     {
         KMGStaticMesh newDefaultMesh = KMGStaticMesh::CreateDefaultSphereMesh(0.5f, XMFLOAT4(1, 0, 0, 1));
         staticComp->SetMeshData(std::move(newDefaultMesh));
+
+        LightComponent* local_lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+        if (local_lightComp)
+        {
+            local_lightComp->SetLightColor(local_lightComp->GetLight().color);
+        }
+
     }
 
     LightComponent* lightComp = dynamic_cast<LightComponent*>(addComponent);
     if (lightComp)
     {
         Light& light = lightComp->GetLight();
-        XMStoreFloat3(&light.position, transform.position);
+        SetPosition(transform.position);
+        SetRotation(transform.rotation);
+
     }
-
-
-    components[addComponent->componentType] = std::unique_ptr<KMGComponent>(addComponent);
 
     return true;
 }
