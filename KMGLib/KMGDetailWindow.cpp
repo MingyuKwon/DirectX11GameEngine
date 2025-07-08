@@ -260,8 +260,8 @@ void KMGDetailWindow::ShowStaticMesh()
 
         if (ImGui::Button("...##Mesh"))
         {
-            wstring fileName = KMGUtility::OpenFileDialog();
-            wcout << fileName << L"\n";
+            wstring fileName = GetMeshFromFileExplorer();
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateStaticMesh(currenFocusActor->GetName(), KMGUtility::WStringToString(fileName)));
 
         }
         VERTICAL_SPACE(5);
@@ -308,8 +308,9 @@ void KMGDetailWindow::ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes)
             ImGui::SameLine();
             ImGui::SetCursorPosX(385);
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
+            std::string buttonId = "...##Texture" + std::to_string(i);
 
-            if (ImGui::Button("...##Texture"))
+            if (ImGui::Button(buttonId.c_str()))
             {
                 wstring fileName = GetTextureFromFileExplorer();
                 if (fileName != L"NONE")
@@ -350,13 +351,14 @@ void KMGDetailWindow::ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes)
             ImGui::SetCursorPosX(385);
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
 
-            if (ImGui::Button("...##NormalMapj"))
+            std::string buttonId = "...##NormalMapj" + std::to_string(i);
+
+            if (ImGui::Button(buttonId.c_str()))
             {
                 wstring fileName = GetTextureFromFileExplorer();
                 if (fileName != L"NONE")
                 {
                     if (schedular) schedular->PushCommand(KMGCommand::UpdateNormalMap(currenFocusActor->GetName(), data, fileName));
-
                 }
 
             }
@@ -374,6 +376,27 @@ wstring KMGDetailWindow::GetTextureFromFileExplorer()
 
     const std::vector<std::wstring> validExtensions = {
         L".png", L".jpg", L".jpeg", L".dds", L".tga", L".bmp", L".gif"
+    };
+
+    size_t dotPos = fileName.find_last_of(L'.');
+    if (dotPos == std::wstring::npos)
+        return L"NONE";
+
+    std::wstring ext = fileName.substr(dotPos);
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::towlower);
+
+    if (std::find(validExtensions.begin(), validExtensions.end(), ext) == validExtensions.end())
+        return L"NONE";
+
+    return fileName;
+}
+
+std::wstring KMGDetailWindow::GetMeshFromFileExplorer()
+{
+    std::wstring fileName = KMGUtility::OpenFileDialog();
+
+    const std::vector<std::wstring> validExtensions = {
+        L".obj", L".fbx", L".gltf", L".glb"
     };
 
     size_t dotPos = fileName.find_last_of(L'.');

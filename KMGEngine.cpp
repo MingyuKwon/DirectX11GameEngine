@@ -213,7 +213,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    //schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj",L"Resource\\Texture\\centurion.dds"));
+                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj",L"Resource\\Texture\\centurion.dds"));
 
                     schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor2", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj", L"Resource\\Texture\\QF1_Base_Color.png", L"Resource\\Texture\\QF1_Normal.png"));
 

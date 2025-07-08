@@ -22,5 +22,5 @@ private:
 
 	void ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes);
 	std::wstring GetTextureFromFileExplorer();
-
+	std::wstring GetMeshFromFileExplorer();
 };
