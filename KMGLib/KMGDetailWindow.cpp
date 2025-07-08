@@ -399,21 +399,30 @@ void KMGDetailWindow::ShowLight()
         int type = light.type;
         ImGui::Text("Light Type");
         ImGui::SameLine(150);
-        ImGui::Combo("##LightType", &type, "Directional\0Point\0Spot\0");
+        if (ImGui::Combo("##LightType", &type, "Directional\0Point\0Spot\0"))
+        {
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Type(currenFocusActor->GetWstrName(), type));
+        }
 
         VERTICAL_SPACE(5);
         FIRST_IMGUI_TAB(30);
         float range = light.range;
         ImGui::Text("Range");
         ImGui::SameLine(150);
-        ImGui::DragFloat("##LightRange", &range, 1.0f, 0.0f, 1000.0f);
+        if (ImGui::DragFloat("##LightRange", &range, 1.0f, 0.0f, 1000.0f))
+        {
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Range(currenFocusActor->GetWstrName(), range));
+        }
 
         VERTICAL_SPACE(5);
         FIRST_IMGUI_TAB(30);
         float intensity = light.intensity;
         ImGui::Text("Intensity");
         ImGui::SameLine(150);
-        ImGui::DragFloat("##LightIntensity", &intensity, 0.01f, 0.0f, 100.0f);
+        if (ImGui::DragFloat("##LightIntensity", &intensity, 0.01f, 0.0f, 100.0f))
+        {
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(currenFocusActor->GetWstrName(), intensity));
+        }
 
         VERTICAL_SPACE(5);
         FIRST_IMGUI_TAB(30);
@@ -424,7 +433,7 @@ void KMGDetailWindow::ShowLight()
         ImGui::SameLine(150);
         if (ImGui::ColorEdit4("##LightColor", colorArray))
         {
-            color = { colorArray[0], colorArray[1], colorArray[2], colorArray[3] };
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(currenFocusActor->GetWstrName(), { colorArray[0], colorArray[1], colorArray[2], colorArray[3] }));
         }
 
         VERTICAL_SPACE(10);
