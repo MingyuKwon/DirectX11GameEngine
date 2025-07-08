@@ -13,7 +13,7 @@
 using namespace DirectX;
 using namespace std;
 
-#define FIRST_IMGUI_TAB  ImGui::SetCursorPosX(25)
+#define FIRST_IMGUI_TAB  ImGui::SetCursorPosX(30)
 #define VERTICAL_SPACE(x)  ImGui::Dummy(ImVec2(0, x))
 
 extern std::atomic<bool> bDetailFocused;
@@ -135,6 +135,7 @@ void KMGDetailWindow::ShowStaticMesh()
         FIRST_IMGUI_TAB;
         static bool enabled = true;
         ImGui::Checkbox("Enable StaticMesh Component", &enabled);
+        VERTICAL_SPACE(10);
 
         if (!enabled)
             return;
@@ -145,14 +146,13 @@ void KMGDetailWindow::ShowStaticMesh()
 
         float buttonOffsetY = (ImGui::GetTextLineHeight() - ImGui::GetFrameHeight()) * 0.5f;
 
-        VERTICAL_SPACE(10);
         FIRST_IMGUI_TAB;
         ImGui::Text("Static Mesh :");
         ImGui::SameLine();
         ImGui::SetCursorPosX(150);
-        DrawClippedPathText(meshPath, 150.0f);
+        DrawClippedPathText(meshPath, 180.0f);
         ImGui::SameLine();
-        ImGui::SetCursorPosX(315);
+        ImGui::SetCursorPosX(345);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
 
         if (ImGui::Button("...##Mesh"))
@@ -166,9 +166,9 @@ void KMGDetailWindow::ShowStaticMesh()
         ImGui::Text("Texture:");
         ImGui::SameLine();
         ImGui::SetCursorPosX(150);
-        DrawClippedPathText(texturePath, 150.0f);
+        DrawClippedPathText(texturePath, 180.0f);
         ImGui::SameLine();
-        ImGui::SetCursorPosX(315);
+        ImGui::SetCursorPosX(345);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
 
         if (ImGui::Button("...##Texture"))
@@ -182,9 +182,9 @@ void KMGDetailWindow::ShowStaticMesh()
         ImGui::Text("NormalMap:");
         ImGui::SameLine();
         ImGui::SetCursorPosX(150);
-        DrawClippedPathText(normalMapPath, 150.0f);
+        DrawClippedPathText(normalMapPath, 180.0f);
         ImGui::SameLine();
-        ImGui::SetCursorPosX(315);
+        ImGui::SetCursorPosX(345);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
         if (ImGui::Button("...##NormalMap"))
         {
@@ -205,6 +205,48 @@ void KMGDetailWindow::ShowLight()
         FIRST_IMGUI_TAB;
         static bool enabled = true;
         ImGui::Checkbox("Enable Light Component", &enabled);
+
+        VERTICAL_SPACE(10);
+
+        if (!enabled)
+            return;
+
+
+
+        VERTICAL_SPACE(5);
+        FIRST_IMGUI_TAB;
+        static int type = 0; // 0 = directional, 1 = point, 2 = spot
+        ImGui::Text("Light Type");
+        ImGui::SameLine(150);
+        ImGui::Combo("##LightType", &type, "Directional\0Point\0Spot\0");
+
+        VERTICAL_SPACE(5);
+        FIRST_IMGUI_TAB;
+        static float range = 100.0f;
+        ImGui::Text("Range");
+        ImGui::SameLine(150);
+        ImGui::DragFloat("##LightRange", &range, 1.0f, 0.0f, 1000.0f);
+
+        VERTICAL_SPACE(5);
+        FIRST_IMGUI_TAB;
+        static float intensity = 1.0f;
+        ImGui::Text("Intensity");
+        ImGui::SameLine(150);
+        ImGui::DragFloat("##LightIntensity", &intensity, 0.01f, 0.0f, 100.0f);
+
+        VERTICAL_SPACE(5);
+        FIRST_IMGUI_TAB;
+        static DirectX::XMFLOAT4 color = { 1.0f, 1.0f, 0.7f, 1.0f };
+        float colorArray[4] = { color.x, color.y, color.z, color.w };
+
+        ImGui::Text("Color (RGBA)");
+        ImGui::SameLine(150);
+        if (ImGui::ColorEdit4("##LightColor", colorArray))
+        {
+            color = { colorArray[0], colorArray[1], colorArray[2], colorArray[3] };
+        }
+
+        VERTICAL_SPACE(10);
 
     }
 }

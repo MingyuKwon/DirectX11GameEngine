@@ -47,7 +47,7 @@ struct KMGDebugMesh {
 
 struct alignas(16) Light
 {
-    int type = 1; // 0 = directional, 1 = point, 2 = spot
+    int type = 0; // 0 = directional, 1 = point, 2 = spot
     float range = 100;
     float intensity = 1;
     float lightPad_1;
