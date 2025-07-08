@@ -37,6 +37,9 @@ struct KMGStaticMesh {
     std::wstring textureFilePath = DEFAULT_TEXTURE_FILEPATH;
     std::wstring normalMapFilePath = DEFAULT_NORMAL_FILEPATH;
 
+    std::atomic<bool> bShouldMeshChange = true;
+
+
 };
 
 struct KMGDebugMesh {
