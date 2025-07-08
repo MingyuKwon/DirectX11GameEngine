@@ -69,6 +69,9 @@ public:
 	StaticMeshComponent() : KMGComponent(EComponentType::ECT_STATICMESH) {}
 	virtual ~StaticMeshComponent();
 
+	std::string meshFileName = "Default Mesh";
+
+
 	inline std::vector<KMGStaticMesh>* GetMeshes()
 	{
 		if (meshes.size() == 0) return nullptr;
@@ -83,11 +86,12 @@ public:
 		return &boundingBoxs;
 	}
 
-	void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes);
-	void SetMeshData(KMGStaticMesh&& inMesh);
+	void SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std::string fileName = "Default Mesh");
+	void SetMeshData(KMGStaticMesh&& inMesh, std::string fileName = "Default Mesh");
 
 	float CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, DirectX::XMVECTOR& hitPosLocal) const;
 private:
+
 	std::vector<KMGStaticMesh> meshes;
 	std::vector<DirectX::BoundingBox> boundingBoxs;
 

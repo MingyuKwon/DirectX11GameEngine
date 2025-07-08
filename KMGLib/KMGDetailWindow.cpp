@@ -15,7 +15,7 @@
 using namespace DirectX;
 using namespace std;
 
-#define FIRST_IMGUI_TAB  ImGui::SetCursorPosX(30)
+#define FIRST_IMGUI_TAB(x)  ImGui::SetCursorPosX(x)
 #define VERTICAL_SPACE(x)  ImGui::Dummy(ImVec2(0, x))
 
 extern std::atomic<bool> bDetailFocused;
@@ -65,8 +65,13 @@ void KMGDetailWindow::DrawDetailWindow(
 
         
         ShowName();
+        VERTICAL_SPACE(5);
         ShowTransform();
+        VERTICAL_SPACE(5);
+
         ShowStaticMesh();
+        VERTICAL_SPACE(5);
+
         ShowLight();
 
     }
@@ -81,7 +86,7 @@ void KMGDetailWindow::DrawDetailWindow(
 void KMGDetailWindow::ShowName()
 {
     VERTICAL_SPACE(5);
-    FIRST_IMGUI_TAB;
+    FIRST_IMGUI_TAB(30);
 
     std::string actorName = "NONE";
 
@@ -111,8 +116,6 @@ void KMGDetailWindow::ShowName()
 
 void KMGDetailWindow::ShowTransform()
 {
-
-
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
     {
         float controlOffsetX = 140.0f;
@@ -136,8 +139,6 @@ void KMGDetailWindow::ShowTransform()
         rotation[1] = XMConvertToDegrees(XMVectorGetY(rotationVec));
         rotation[2] = XMConvertToDegrees(XMVectorGetZ(rotationVec));
 
-        
-
         scale[0] = XMVectorGetX(scaleVec);
         scale[1] = XMVectorGetY(scaleVec);
         scale[2] = XMVectorGetZ(scaleVec);
@@ -155,7 +156,7 @@ void KMGDetailWindow::ShowTransform()
         VERTICAL_SPACE(3);
 
         // Position
-        FIRST_IMGUI_TAB;
+        FIRST_IMGUI_TAB(30);
         ImGui::Text("Position");
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.1f, 0.1f, 1.0f));
@@ -163,7 +164,7 @@ void KMGDetailWindow::ShowTransform()
         ImGui::PopStyleColor();
 
         // Rotation
-        FIRST_IMGUI_TAB;
+        FIRST_IMGUI_TAB(30);
         ImGui::Text("Rotation");
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.2f, 0.1f, 1.0f));
@@ -171,7 +172,7 @@ void KMGDetailWindow::ShowTransform()
         ImGui::PopStyleColor();
 
         // Scale
-        FIRST_IMGUI_TAB;
+        FIRST_IMGUI_TAB(30);
         ImGui::Text("Scale");
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.2f, 1.0f));
@@ -191,7 +192,7 @@ void KMGDetailWindow::ShowStaticMesh()
         if (currenFocusActor == nullptr) return;
 
         VERTICAL_SPACE(10);
-        FIRST_IMGUI_TAB;
+        FIRST_IMGUI_TAB(30);
 
         static bool enabled = false;
 
@@ -201,14 +202,7 @@ void KMGDetailWindow::ShowStaticMesh()
             staticComp = currenFocusActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
         }
 
-        if (staticComp == nullptr)
-        {
-            enabled = false;
-        }
-        else
-        {
-            enabled = true;
-        }
+        enabled = staticComp != nullptr;
 
         bool beforeEnable = enabled;
         ImGui::Checkbox("Enable StaticMesh Component", &enabled);
@@ -226,23 +220,27 @@ void KMGDetailWindow::ShowStaticMesh()
             }
         }
 
-        VERTICAL_SPACE(10);
+        VERTICAL_SPACE(20);
 
         if (!enabled) return;
 
-        static std::string meshPath = "mesh Path";
-        static std::string texturePath = "texture Path";
-        static std::string normalMapPath = "normalMap Path";
+        staticComp = currenFocusActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+        if (staticComp == nullptr) return;
 
+        std::vector<KMGStaticMesh>* meshes = staticComp->GetMeshes();
+
+        static std::string meshPath = "mesh Path";
         float buttonOffsetY = (ImGui::GetTextLineHeight() - ImGui::GetFrameHeight()) * 0.5f;
 
-        FIRST_IMGUI_TAB;
+        FIRST_IMGUI_TAB(30);
         ImGui::Text("Static Mesh :");
         ImGui::SameLine();
         ImGui::SetCursorPosX(150);
-        DrawClippedPathText(meshPath, 180.0f);
+
+        meshPath = staticComp->meshFileName;
+        DrawClippedPathText(meshPath, 220.0f);
         ImGui::SameLine();
-        ImGui::SetCursorPosX(345);
+        ImGui::SetCursorPosX(385);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
 
         if (ImGui::Button("...##Mesh"))
@@ -250,42 +248,93 @@ void KMGDetailWindow::ShowStaticMesh()
             wstring fileName = KMGUtility::OpenFileDialog();
             wcout << fileName << "\n";
         }
-
         VERTICAL_SPACE(5);
-        FIRST_IMGUI_TAB;
-        ImGui::Text("Texture:");
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(150);
-        DrawClippedPathText(texturePath, 180.0f);
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(345);
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
 
-        if (ImGui::Button("...##Texture"))
-        {
-            wstring fileName = KMGUtility::OpenFileDialog();
-            
-        }
 
-        VERTICAL_SPACE(5);
-        FIRST_IMGUI_TAB;
-        ImGui::Text("NormalMap:");
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(150);
-        DrawClippedPathText(normalMapPath, 180.0f);
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(345);
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
-        if (ImGui::Button("...##NormalMap"))
-        {
-            wstring fileName = KMGUtility::OpenFileDialog();
+        ImGui::Indent(15.0f);
 
-        }
+        ShowTexture_Normal(meshes);
+
+        ImGui::Indent(-15.0f);
+
 
         VERTICAL_SPACE(10);
 
     }
 }
+
+void KMGDetailWindow::ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes)
+{
+    float buttonOffsetY = (ImGui::GetTextLineHeight() - ImGui::GetFrameHeight()) * 0.5f;
+
+    unordered_set<wstring> textureVecs;
+    unordered_set<wstring> normalVecs;
+
+    for (const KMGStaticMesh& mesh : *meshes)
+    {
+        textureVecs.insert(mesh.textureFilePath);
+        normalVecs.insert(mesh.normalMapFilePath);
+    }
+
+    if (ImGui::CollapsingHeader("Textures", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        int i = 1;
+        for (const wstring& data : textureVecs)
+        {
+            VERTICAL_SPACE(5);
+            FIRST_IMGUI_TAB(45);
+            string textureName = "Texture " + to_string(i) + " :";
+            ImGui::Text(textureName.c_str());
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(150);
+            std::string texturePath = KMGUtility::WStringToString(data);
+            DrawClippedPathText(texturePath, 220.0f);
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(385);
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
+
+            if (ImGui::Button("...##Texture"))
+            {
+                wstring fileName = KMGUtility::OpenFileDialog();
+
+            }
+            VERTICAL_SPACE(5);
+
+            ++i;
+        }
+    }
+
+    if (ImGui::CollapsingHeader("NormalMaps", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        int i = 1;
+        for (const wstring& data : normalVecs)
+        {
+            VERTICAL_SPACE(5);
+            FIRST_IMGUI_TAB(45);
+            string textureName = "NormalMap " + to_string(i) + " :";
+
+            ImGui::Text(textureName.c_str());
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(150);
+            std::string texturePath = KMGUtility::WStringToString(data);
+            DrawClippedPathText(texturePath, 220.0f);
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(385);
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + buttonOffsetY);
+
+            if (ImGui::Button("...##NormalMapj"))
+            {
+                wstring fileName = KMGUtility::OpenFileDialog();
+
+            }
+            VERTICAL_SPACE(5);
+
+            ++i;
+        }
+
+    }
+}
+
 
 void KMGDetailWindow::ShowLight()
 {
@@ -294,7 +343,7 @@ void KMGDetailWindow::ShowLight()
         if (currenFocusActor == nullptr) return;
 
         VERTICAL_SPACE(10);
-        FIRST_IMGUI_TAB;
+        FIRST_IMGUI_TAB(30);
 
         static bool enabled = false;
 
@@ -303,15 +352,8 @@ void KMGDetailWindow::ShowLight()
         {
             lightComp = currenFocusActor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
         }
-           
-        if (lightComp == nullptr)
-        {
-            enabled = false;
-        }
-        else
-        {
-            enabled = true;
-        }
+         
+        enabled = lightComp != nullptr;
         
         bool beforeEnable = enabled;
         ImGui::Checkbox("Enable Light Component", &enabled);
@@ -329,33 +371,38 @@ void KMGDetailWindow::ShowLight()
             }
         }
 
-        VERTICAL_SPACE(10);
+        VERTICAL_SPACE(20);
 
         if (!enabled) return;
 
-        FIRST_IMGUI_TAB;
-        static int type = 0; // 0 = directional, 1 = point, 2 = spot
+        lightComp = currenFocusActor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+        if (lightComp == nullptr) return;
+
+        Light& light = lightComp->GetLight();
+
+        FIRST_IMGUI_TAB(30);
+        int type = light.type;
         ImGui::Text("Light Type");
         ImGui::SameLine(150);
         ImGui::Combo("##LightType", &type, "Directional\0Point\0Spot\0");
 
         VERTICAL_SPACE(5);
-        FIRST_IMGUI_TAB;
-        static float range = 100.0f;
+        FIRST_IMGUI_TAB(30);
+        float range = light.range;
         ImGui::Text("Range");
         ImGui::SameLine(150);
         ImGui::DragFloat("##LightRange", &range, 1.0f, 0.0f, 1000.0f);
 
         VERTICAL_SPACE(5);
-        FIRST_IMGUI_TAB;
-        static float intensity = 1.0f;
+        FIRST_IMGUI_TAB(30);
+        float intensity = light.intensity;
         ImGui::Text("Intensity");
         ImGui::SameLine(150);
         ImGui::DragFloat("##LightIntensity", &intensity, 0.01f, 0.0f, 100.0f);
 
         VERTICAL_SPACE(5);
-        FIRST_IMGUI_TAB;
-        static DirectX::XMFLOAT4 color = { 1.0f, 1.0f, 0.7f, 1.0f };
+        FIRST_IMGUI_TAB(30);
+        DirectX::XMFLOAT4 color = light.color;
         float colorArray[4] = { color.x, color.y, color.z, color.w };
 
         ImGui::Text("Color (RGBA)");

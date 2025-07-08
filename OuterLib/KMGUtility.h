@@ -10,6 +10,8 @@ namespace KMGUtility {
         );
 
     std::string WStringToString(std::wstring wstr);
+    std::wstring StringToWString(const std::string& str);
+    
     std::wstring OpenFileDialog();
 
     inline float WrapAngleRad(float angle)

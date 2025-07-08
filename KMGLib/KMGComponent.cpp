@@ -12,8 +12,10 @@ StaticMeshComponent::~StaticMeshComponent()
 	}
 }
 
-void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes)
+void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std::string fileName)
 {
+	meshFileName = fileName;
+
 	meshes = std::move(inMeshes);
 	boundingBoxs.clear();
 
@@ -38,8 +40,10 @@ void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes)
 	}
 }
 
-void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh)
+void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh, std::string fileName)
 {
+	meshFileName = fileName;
+
 	meshes.clear();
 	meshes.push_back(std::move(inMesh));
 	boundingBoxs.clear();

@@ -20,4 +20,6 @@ private:
 	void ShowLight();
 
 
+	void ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes);
+
 };

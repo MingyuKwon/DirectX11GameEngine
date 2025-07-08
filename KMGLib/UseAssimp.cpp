@@ -57,7 +57,7 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     StaticMeshComponent* staticComp = outActor.GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
     if (staticComp)
     {
-        staticComp->SetMeshData(std::move(allMeshes));
+        staticComp->SetMeshData(std::move(allMeshes), filePath);
     }
     
     std::cout << "Loading Mesh End : \n";

@@ -53,6 +53,16 @@ std::string KMGUtility::WStringToString(std::wstring wstr)
     return converter.to_bytes(wstr);
 }
 
+std::wstring KMGUtility::StringToWString(const std::string& str)
+{
+    if (str.empty()) return {};
+
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+    std::wstring result(size_needed - 1, 0); // -1: null Á¦¿Ü
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], size_needed);
+    return result;
+}
+
 std::wstring KMGUtility::OpenFileDialog()
 {
     wchar_t filename[MAX_PATH] = L"";
