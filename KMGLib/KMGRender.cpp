@@ -481,7 +481,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                         for (int i = 0; i < boxs.size(); i++)
                         {
                             KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
-                            resourceManager.AddShouldDrawDebug(mesh.bShouldDebugChange, actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, worldMat);
+                            resourceManager.AddShouldDrawDebug(actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, worldMat);
                         }
 
                     }
@@ -512,7 +512,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         XMMATRIX worldMat = XMMatrixIdentity();
 
         // 사용자가 직접 추가하는 디버그 메시는 절대 안바뀐다
-        resourceManager.AddShouldDrawDebug(mesh.bShouldDebugChange, meshName, mesh, pMainContext, worldMat);
+        resourceManager.AddShouldDrawDebug(meshName, mesh, pMainContext, worldMat);
     }
 
     std::unordered_map<std::wstring, DrawResource>& drawDebugResources = resourceManager.GetDebugResources();

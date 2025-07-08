@@ -16,9 +16,8 @@ public:
 	);
 
 	void AddShouldDrawDebug(
-		bool& bUpdateResource,
 		std::wstring meshName,
-		const KMGDebugMesh& debugMesh,
+		KMGDebugMesh& debugMesh,
 		ID3D11DeviceContext* pMainContext,
 		DirectX::XMMATRIX worldMatrix
 

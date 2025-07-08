@@ -68,8 +68,7 @@ void DrawResourceManager::AddShouldDrawActor(
 
 
 void DrawResourceManager::AddShouldDrawDebug(
-    bool& bUpdateResource,
-    std::wstring meshName, const KMGDebugMesh& debugMesh, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
+    std::wstring meshName, KMGDebugMesh& debugMesh, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
 {
     if (shouldDrawDebug.count(meshName) == 0)
     {
@@ -80,14 +79,14 @@ void DrawResourceManager::AddShouldDrawDebug(
 
     shouldDrawDebug[meshName]++;
 
-    if (bUpdateResource)
+    if (debugMesh.bShouldDebugChange)
     {
         drawDebugResources[meshName].UpdateBuffers(debugMesh.vertices, debugMesh.indices, DEFAULT_TEXTURE_FILEPATH, DEFAULT_NORMAL_FILEPATH);
     }
 
     drawDebugResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
 
-    bUpdateResource = false;
+    debugMesh.bShouldDebugChange = false;
 }
 
 void DrawResourceManager::ArrangeActorResource()
