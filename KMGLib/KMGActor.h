@@ -13,8 +13,6 @@ public:
 
     std::atomic<bool> bShowBoundBox = false;
 
-    std::atomic<bool> bShouldDrawResourceChange = true;
-
     inline std::wstring GetWstrName()
     {
         return name;

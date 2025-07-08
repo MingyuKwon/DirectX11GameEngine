@@ -8,7 +8,7 @@ StaticMeshComponent::~StaticMeshComponent()
 {
 	if (owner)
 	{
-		owner->bShouldDrawResourceChange = true;
+
 	}
 }
 
@@ -32,12 +32,10 @@ void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std
 			&vertices[0].Pos,                     
 			sizeof(KMGVertex)                     
 		);
+
+		mesh.bShouldMeshChange = true;
 	}
 	
-	if (owner)
-	{
-		owner->bShouldDrawResourceChange = true;
-	}
 }
 
 void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh, std::string fileName)
@@ -61,11 +59,8 @@ void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh, std::string fileNa
 			&vertices[0].Pos,
 			sizeof(KMGVertex)
 		);
-	}
 
-	if (owner)
-	{
-		owner->bShouldDrawResourceChange = true;
+		mesh.bShouldMeshChange = true;
 	}
 }
 
@@ -115,9 +110,9 @@ void LightComponent::SetLightColor(DirectX::XMFLOAT4 color)
 			{
 				vertice.Color = color;
 			}
-		}
 
-		owner->bShouldDrawResourceChange = true;
+			mesh.bShouldMeshChange = true;
+		}
 
 	}
 }

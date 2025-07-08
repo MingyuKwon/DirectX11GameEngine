@@ -7,9 +7,8 @@ public:
 	inline void ClearShouldDrawActor() { shouldDrawActor.clear(); }
 
 	void AddShouldDrawActor(
-		std::atomic<bool>& bUpdateReource,
-		std::wstring actorName, 
-		const std::vector<KMGStaticMesh>* actorMeshes,
+		std::wstring actorName,
+		std::vector<KMGStaticMesh>* actorMeshes,
 		ID3D11DeviceContext* pMainContext,
 		DirectX::XMFLOAT4 lightColor,
 		DirectX::XMMATRIX worldMatrix
@@ -17,7 +16,7 @@ public:
 	);
 
 	void AddShouldDrawDebug(
-		bool bUpdateResource,
+		bool& bUpdateResource,
 		std::wstring meshName,
 		const KMGDebugMesh& debugMesh,
 		ID3D11DeviceContext* pMainContext,

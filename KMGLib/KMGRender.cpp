@@ -461,7 +461,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
 
         // 가져올 Mesh가 있는지 확인함
-        const vector<KMGStaticMesh>* actorMeshes = nullptr;
+        vector<KMGStaticMesh>* actorMeshes = nullptr;
         if (actor->HasComponent(EComponentType::ECT_STATICMESH))
         {
             StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
@@ -481,7 +481,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                         for (int i = 0; i < boxs.size(); i++)
                         {
                             KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
-                            resourceManager.AddShouldDrawDebug(actor->bShouldDrawResourceChange, actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, worldMat);
+                            resourceManager.AddShouldDrawDebug(mesh.bShouldDebugChange, actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, worldMat);
                         }
 
                     }
@@ -492,7 +492,6 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
         
         resourceManager.AddShouldDrawActor(
-            actor->bShouldDrawResourceChange,
             actorName,
             actorMeshes,
             pMainContext,
@@ -506,14 +505,14 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     //여기에 최종으로 모인 scene의 Debug를 싹다 모아서 resource에 추가한다
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshed = scene->GetDebugMeshes();
-    for (const auto& bucket : debugMeshed)
+    for (auto& bucket : debugMeshed)
     {
         std::wstring meshName = bucket.first;
-        const KMGDebugMesh& mesh = bucket.second;
+        KMGDebugMesh& mesh = bucket.second;
         XMMATRIX worldMat = XMMatrixIdentity();
 
         // 사용자가 직접 추가하는 디버그 메시는 절대 안바뀐다
-        resourceManager.AddShouldDrawDebug(false, meshName, mesh, pMainContext, worldMat);
+        resourceManager.AddShouldDrawDebug(mesh.bShouldDebugChange, meshName, mesh, pMainContext, worldMat);
     }
 
     std::unordered_map<std::wstring, DrawResource>& drawDebugResources = resourceManager.GetDebugResources();

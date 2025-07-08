@@ -5,9 +5,8 @@ using namespace std;
 using namespace DirectX;
 
 void DrawResourceManager::AddShouldDrawActor(
-    std::atomic<bool>& bUpdateReource, 
-    std::wstring actorName, 
-    const std::vector<KMGStaticMesh>* actorMeshes, 
+    std::wstring actorName,
+    std::vector<KMGStaticMesh>* actorMeshes, 
     ID3D11DeviceContext* pMainContext, 
     XMFLOAT4 lightColor, 
     DirectX::XMMATRIX worldMatrix)
@@ -15,11 +14,20 @@ void DrawResourceManager::AddShouldDrawActor(
     shouldDrawActor[actorName] = (actorMeshes == nullptr) ? 0 : actorMeshes->size();
 
     LoadingManager* loading = nullptr;
+    int shouldUpdateCount = 0;
 
-    if (bUpdateReource)
+    if (actorMeshes)
+    {
+        for (int i = 0; i < actorMeshes->size(); ++i)
+        {
+            if ((*actorMeshes)[i].bShouldMeshChange) ++shouldUpdateCount;
+        }
+    }
+
+    if (shouldUpdateCount > 0)
     {
         loading = new LoadingManager(ELoadingType::ELT_MAKE_GPU_DATA);
-        loading->SetTotalCount((actorMeshes == nullptr) ? 1 : actorMeshes->size());
+        loading->SetTotalCount(shouldUpdateCount);
     }
 
     if (actorMeshes)
@@ -27,25 +35,28 @@ void DrawResourceManager::AddShouldDrawActor(
         for (int i = 0; i < actorMeshes->size(); i++)
         {
             wstring meshName = actorName + L"___" + to_wstring(i);
-            const KMGStaticMesh& actorMesh = (*actorMeshes)[i];
+            KMGStaticMesh& actorMesh = (*actorMeshes)[i];
 
             if (drawActorResources.count(meshName) == 0)
             {
                 drawActorResources.emplace(meshName, DrawResource(meshName));
             }
 
-            if (bUpdateReource)
+            if (actorMesh.bShouldMeshChange)
             {
                 drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
-                loading->PlusCurrentCount();
+                if (loading)
+                {
+                    loading->PlusCurrentCount();
+                }
             }
 
             drawActorResources[meshName].bLightEffected = lightColor.x < 0;
             drawActorResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
+
+            actorMesh.bShouldMeshChange = false;
         }
     }
-
-    bUpdateReource = false;
 
     if (loading)
     {
@@ -57,7 +68,7 @@ void DrawResourceManager::AddShouldDrawActor(
 
 
 void DrawResourceManager::AddShouldDrawDebug(
-    bool bUpdateResource,
+    bool& bUpdateResource,
     std::wstring meshName, const KMGDebugMesh& debugMesh, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
 {
     if (shouldDrawDebug.count(meshName) == 0)
@@ -76,6 +87,7 @@ void DrawResourceManager::AddShouldDrawDebug(
 
     drawDebugResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
 
+    bUpdateResource = false;
 }
 
 void DrawResourceManager::ArrangeActorResource()
