@@ -261,7 +261,10 @@ void KMGDetailWindow::ShowStaticMesh()
         if (ImGui::Button("...##Mesh"))
         {
             wstring fileName = GetMeshFromFileExplorer();
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateStaticMesh(currenFocusActor->GetName(), KMGUtility::WStringToString(fileName)));
+            if (fileName != L"NONE")
+            {
+                if (schedular) schedular->PushCommand(KMGCommand::UpdateStaticMesh(currenFocusActor->GetName(), KMGUtility::WStringToString(fileName)));
+            }
 
         }
         VERTICAL_SPACE(5);

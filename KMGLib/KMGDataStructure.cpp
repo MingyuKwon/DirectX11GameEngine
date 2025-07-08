@@ -254,18 +254,29 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
 
         if (this->textureFilePath != DEFAULT_TEXTURE_FILEPATH)
         {
+            // 전체 경로 출력용
+            wchar_t fullPath[MAX_PATH];
+            DWORD len = GetFullPathNameW(this->textureFilePath.c_str(), MAX_PATH, fullPath, nullptr);
+            if (len > 0)
+            {
+                std::wcout << L"[Debug] Full Path: " << fullPath << std::endl;
+            }
+            else
+            {
+                std::wcout << L"[Warning] Failed to get full path for: " << this->textureFilePath << std::endl;
+            }
+
             HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->textureFilePath.c_str(), &pTextureSRV);
             if (FAILED(hr))
             {
-                wcout << "this->textureFilePath : " << this->textureFilePath << "  Failed \n";
+                std::wcout << L"this->textureFilePath : " << this->textureFilePath << L"  Failed \n";
                 this->textureFilePath = DEFAULT_TEXTURE_FILEPATH;
             }
             else
             {
-                wcout << "this->textureFilePath : " << this->textureFilePath << "  Success \n";
+                std::wcout << L"this->textureFilePath : " << this->textureFilePath << L"  Success \n";
             }
         }
-
     }
 
     ////////////////////////////////////////
