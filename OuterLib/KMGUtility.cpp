@@ -76,7 +76,7 @@ std::wstring KMGUtility::OpenFileDialog()
 
     if (GetOpenFileNameW(&ofn))
     {
-        return std::wstring(filename); 
+        return filename;
     }
 
     return L"";

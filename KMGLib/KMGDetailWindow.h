@@ -23,4 +23,7 @@ private:
 	void ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes);
 	std::wstring GetTextureFromFileExplorer();
 	std::wstring GetMeshFromFileExplorer();
+
+	void DrawClippedPathText(std::string path, float maxWidth);
+
 };

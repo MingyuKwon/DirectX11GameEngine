@@ -21,8 +21,6 @@ using namespace std;
 extern std::atomic<bool> bDetailFocused;
 extern CommandSchedular* schedular;
 
-void DrawClippedPathText(const std::string& path, float maxWidth);
-
 void KMGDetailWindow::DrawDetailWindow(
     KMGActor* focusActor,
     int mainWindowWidth, int mainWindowHeight
@@ -173,10 +171,10 @@ void KMGDetailWindow::ShowTransform()
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.2f, 0.1f, 1.0f));
         
-        if (ImGui::DragFloat3("##Rotation", rotation, 1.0f, 0.0f, 360.0f, "%.1f"))
+        if (ImGui::DragFloat3("##Rotation", rotation, 0.1f, 0.0f, 360.0f, "%.1f"))
         {
             XMVECTOR changedRotation = XMVectorSet(rotation[0], rotation[1], rotation[2], 0);
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorPosition(currenFocusActor->GetName(), changedRotation));
+            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorRotation(currenFocusActor->GetName(), changedRotation));
         }
 
         ImGui::PopStyleColor();
@@ -194,7 +192,7 @@ void KMGDetailWindow::ShowTransform()
         }
         ImGui::PopStyleColor();
 
-        ImGui::Dummy(ImVec2(0, 10)); // АЃАн
+        ImGui::Dummy(ImVec2(0, 10)); 
 
 
     }
@@ -506,7 +504,7 @@ void KMGDetailWindow::ShowLight()
     }
 }
 
-void DrawClippedPathText(const std::string& path, float maxWidth)
+void KMGDetailWindow::DrawClippedPathText(std::string path, float maxWidth)
 {
     const float paddingX = 6.0f;
     const float paddingY = 4.0f;
@@ -522,7 +520,10 @@ void DrawClippedPathText(const std::string& path, float maxWidth)
     ImVec2 clipMax = ImVec2(cursorPos.x + maxWidth, cursorPos.y + ImGui::GetTextLineHeight());
     ImGui::PushClipRect(clipMin, clipMax, true);
 
-    std::string displayedPath = path;
+    size_t lastSlash = path.find_last_of("/\\");
+    std::string fileNameOnly = (lastSlash != std::string::npos) ? path.substr(lastSlash + 1) : path;
+
+    std::string displayedPath = fileNameOnly;
     if (ImGui::CalcTextSize(displayedPath.c_str()).x > maxWidth) {
         while (!displayedPath.empty() &&
             ImGui::CalcTextSize((displayedPath + "...").c_str()).x > maxWidth) {

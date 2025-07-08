@@ -176,8 +176,6 @@ void KMGActor::UpdateTexture(std::wstring beforeTextureName, std::wstring textur
                 {
                     if (mesh.textureFilePath == beforeTextureName)
                     {
-                        std::wcout << "UpdateTexture " << beforeTextureName << " " << textureName << " \n";
-
                         mesh.textureFilePath = textureName;
                         mesh.bShouldMeshChange = true;
                     }
@@ -201,8 +199,6 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
                 {
                     if (mesh.normalMapFilePath == beforeTextureName)
                     {
-                        std::wcout << "UpdateNormalMap " << beforeTextureName << " " << textureName << " \n";
-
                         mesh.normalMapFilePath = textureName;
                         mesh.bShouldMeshChange = true;
                     }
