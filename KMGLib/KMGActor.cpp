@@ -161,3 +161,53 @@ float KMGActor::RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDi
 
     return -1;
 }
+
+void KMGActor::UpdateTexture(std::wstring beforeTextureName, std::wstring textureName)
+{
+    if (HasMesh())
+    {
+        StaticMeshComponent* staticMeshComp = GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+        if (staticMeshComp)
+        {
+            std::vector<KMGStaticMesh>* meshes = staticMeshComp->GetMeshes();
+            if (meshes)
+            {
+                for (KMGStaticMesh& mesh : *meshes)
+                {
+                    if (mesh.textureFilePath == beforeTextureName)
+                    {
+                        std::wcout << "UpdateTexture " << beforeTextureName << " " << textureName << " \n";
+
+                        mesh.textureFilePath = textureName;
+                        mesh.bShouldMeshChange = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring textureName)
+{
+    if (HasMesh())
+    {
+        StaticMeshComponent* staticMeshComp = GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+        if (staticMeshComp)
+        {
+            std::vector<KMGStaticMesh>* meshes = staticMeshComp->GetMeshes();
+            if (meshes)
+            {
+                for (KMGStaticMesh& mesh : *meshes)
+                {
+                    if (mesh.normalMapFilePath == beforeTextureName)
+                    {
+                        std::wcout << "UpdateNormalMap " << beforeTextureName << " " << textureName << " \n";
+
+                        mesh.normalMapFilePath = textureName;
+                        mesh.bShouldMeshChange = true;
+                    }
+                }
+            }
+        }
+    }
+}

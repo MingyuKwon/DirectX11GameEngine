@@ -61,6 +61,9 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName = DEFAULT_TEXTURE_FILEPATH, const std::wstring& normalMapName = DEFAULT_NORMAL_FILEPATH);
 
+	std::unique_ptr<SceneCommandMessage> UpdateTexture(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
+	std::unique_ptr<SceneCommandMessage> UpdateNormalMap(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
+
 	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name);
 	std::unique_ptr<SceneCommandMessage> RemoveLightComponent(const std::wstring& name);
 
@@ -154,7 +157,23 @@ private:
 	std::wstring normalMapName;
 };
 
+struct SceneCommand_UpdateTextureNormal : public SceneCommandMessage
+{
+	SceneCommand_UpdateTextureNormal(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName, bool bNormal)
+		: actorName(name), beforeTextureName(beforeTextureName), textureName(textureName), bNormal(bNormal)
+	{
+		type = ECommandMessageType::ERC_UPDATE_ACTOR;
+	}
 
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	std::wstring beforeTextureName;
+	std::wstring textureName;
+
+	bool bNormal = false;
+};
 
 struct SceneCommand_Add_Remove_LightComponent : public SceneCommandMessage
 {

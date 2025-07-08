@@ -7,36 +7,47 @@ HRESULT CreateSrvFromTexture(
     const wchar_t* filename,
     ID3D11ShaderResourceView** textureView)
 {
+
     // 1. WIC 팩토리 생성
     ComPtr<IWICImagingFactory> wicFactory;
     HRESULT hr = CoCreateInstance(
         CLSID_WICImagingFactory, nullptr,
         CLSCTX_INPROC_SERVER,
         IID_PPV_ARGS(&wicFactory));
-    if (FAILED(hr)) return hr;
+    if (FAILED(hr)) {
+        return hr;
+    }
 
     // 2. 이미지 디코더 생성
     ComPtr<IWICBitmapDecoder> decoder;
     hr = wicFactory->CreateDecoderFromFilename(
         filename, nullptr, GENERIC_READ,
         WICDecodeMetadataCacheOnLoad, &decoder);
-    if (FAILED(hr)) return hr;
+    if (FAILED(hr)) {
+        return hr;
+    }
 
     // 3. 첫 번째 프레임 추출
     ComPtr<IWICBitmapFrameDecode> frame;
     hr = decoder->GetFrame(0, &frame);
-    if (FAILED(hr)) return hr;
+    if (FAILED(hr)) {
+        return hr;
+    }
 
     // 4. 32비트 RGBA 포맷으로 변환
     ComPtr<IWICFormatConverter> converter;
     hr = wicFactory->CreateFormatConverter(&converter);
-    if (FAILED(hr)) return hr;
+    if (FAILED(hr)) {
+        return hr;
+    }
 
     hr = converter->Initialize(
         frame.Get(), GUID_WICPixelFormat32bppRGBA,
         WICBitmapDitherTypeNone, nullptr, 0.f,
         WICBitmapPaletteTypeCustom);
-    if (FAILED(hr)) return hr;
+    if (FAILED(hr)) {
+        return hr;
+    }
 
     // 5. 이미지 크기 얻기
     UINT width, height;
@@ -48,7 +59,9 @@ HRESULT CreateSrvFromTexture(
         nullptr, width * 4,
         static_cast<UINT>(imageData.size()),
         imageData.data());
-    if (FAILED(hr)) return hr;
+    if (FAILED(hr)) {
+        return hr;
+    }
 
     // 7. 텍스처 생성
     D3D11_TEXTURE2D_DESC texDesc = {};
@@ -67,7 +80,9 @@ HRESULT CreateSrvFromTexture(
 
     ComPtr<ID3D11Texture2D> texture;
     hr = device->CreateTexture2D(&texDesc, &initData, &texture);
-    if (FAILED(hr)) return hr;
+    if (FAILED(hr)) {
+        return hr;
+    }
 
     // 8. 셰이더 리소스 뷰 생성
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -76,5 +91,6 @@ HRESULT CreateSrvFromTexture(
     srvDesc.Texture2D.MipLevels = 1;
 
     hr = device->CreateShaderResourceView(texture.Get(), &srvDesc, textureView);
+
     return hr;
 }

@@ -61,7 +61,7 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
             std::unordered_set<std::wstring>& actors = currentScene->GetActorNames();
             for (const std::wstring& name : actors)
             {
-                bool isSelected = (focusActor && focusActor->GetWstrName() == name);
+                bool isSelected = (focusActor && focusActor->GetName() == name);
 
                 string foucsActorStrName = KMGUtility::WStringToString(name);
                 if (ImGui::Selectable(foucsActorStrName.c_str(), isSelected)) {

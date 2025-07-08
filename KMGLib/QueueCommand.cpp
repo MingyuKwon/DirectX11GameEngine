@@ -47,6 +47,15 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_UpdateStaticMesh>(name, fileName, textureName, normalMapName);
 	}
 
+	std::unique_ptr<SceneCommandMessage> UpdateTexture(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName)
+	{
+		return std::make_unique<SceneCommand_UpdateTextureNormal>(name, beforeTextureName, textureName, false);
+	}
+
+	std::unique_ptr<SceneCommandMessage> UpdateNormalMap(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName)
+	{
+		return std::make_unique<SceneCommand_UpdateTextureNormal>(name, beforeTextureName, textureName, true);
+	}
 
 	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name)
 	{
@@ -218,7 +227,7 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	
 	if (closestActor)
 	{
-		scene->SetFocusActor(closestActor->GetWstrName());
+		scene->SetFocusActor(closestActor->GetName());
 	}
 	else
 	{
@@ -386,6 +395,26 @@ void SceneCommand_UpdateStaticMesh::Execute(KMGScene*& scene)
 
 }
 
+void SceneCommand_UpdateTextureNormal::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		if (bNormal)
+		{
+			findActor->UpdateNormalMap(beforeTextureName, textureName);
+		}
+		else
+		{
+			findActor->UpdateTexture(beforeTextureName, textureName);
+		}
+	}
+}
+
+
 void SceneCommand_Add_Remove_LightComponent::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
@@ -462,3 +491,4 @@ void SceneCommand_DrawDebug::Execute(KMGScene*& scene)
 	scene->AddDebugMesh(debugMeshName, mesh, time);
 
 }
+

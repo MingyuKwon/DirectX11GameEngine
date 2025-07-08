@@ -32,7 +32,7 @@ std::wstring Utf8ToWstring(const std::string& str)
 
 bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager& loadingManager, const std::wstring& textureName, const std::wstring& normalMapName)
 {
-    std::cout << "Loading Mesh Start : \n";
+    std::wcout << L"Loading Mesh Start : " << filePath.c_str() <<" " << L"\n";
 
     Assimp::Importer importer;
 

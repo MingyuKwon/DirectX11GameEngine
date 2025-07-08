@@ -13,7 +13,7 @@ public:
 
     std::atomic<bool> bShowBoundBox = false;
 
-    inline std::wstring GetWstrName()
+    inline std::wstring GetName()
     {
         return name;
     }
@@ -61,6 +61,9 @@ public:
 
     // ray와 만나는 경우, 가장 짧은 거리를 반환하고, 못맞나면 -1을 반한합니다
     float RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir);
+
+    void UpdateTexture(std::wstring beforeTextureName, std::wstring textureName);
+    void UpdateNormalMap(std::wstring beforeTextureName, std::wstring textureName);
 
 
 private:
