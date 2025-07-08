@@ -12,4 +12,16 @@ namespace KMGUtility {
     std::string WStringToString(std::wstring wstr);
     std::wstring OpenFileDialog();
 
+    inline float WrapAngleRad(float angle)
+    {
+        const float twoPi = DirectX::XM_2PI;
+
+        if (angle < 0.0f)
+            angle += twoPi;
+        else if (angle > twoPi)
+            angle -= twoPi;
+
+        return angle;
+    }
+
 }

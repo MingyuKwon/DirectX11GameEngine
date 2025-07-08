@@ -56,8 +56,6 @@ void KMGDetailWindow::DrawDetailWindow(
         storage->SetBool(id, true);
     }
 
-    //////////////////
-
     if (ImGui::BeginChild("DetailWindowRegion", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar))
     {
         ImGuiStyle& style = ImGui::GetStyle();
@@ -65,38 +63,8 @@ void KMGDetailWindow::DrawDetailWindow(
 
         ImGui::PushItemWidth(200);
 
-        VERTICAL_SPACE(5);
-        FIRST_IMGUI_TAB;
-
-
-        std::string actorName = "NONE";
-
-        if (currenFocusActor)
-        {
-            actorName = KMGUtility::WStringToString(currenFocusActor->GetWstrName());
-        }
-
-        ImVec2 pos = ImGui::GetCursorScreenPos();
-        ImVec2 textSize = ImGui::CalcTextSize(actorName.c_str());
-        ImVec2 padding = ImVec2(6.0f, 4.0f);
-
-        ImGui::GetWindowDrawList()->AddRectFilled(
-            pos,
-            ImVec2(pos.x + textSize.x + padding.x * 2, pos.y + textSize.y + padding.y * 2),
-            IM_COL32(40, 100, 160, 200), // 파란 배경
-            4.0f
-        );
-
-        float fontHeight = ImGui::GetFontSize();
-        float verticalFix = (textSize.y - fontHeight) * 0.5f;
-        ImGui::SetCursorScreenPos(ImVec2(pos.x + padding.x, pos.y + padding.y - verticalFix));
-
-        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.9f, 1.0f), actorName.c_str());
-
-      
-
-        VERTICAL_SPACE(10);
-
+        
+        ShowName();
         ShowTransform();
         ShowStaticMesh();
         ShowLight();
@@ -106,24 +74,74 @@ void KMGDetailWindow::DrawDetailWindow(
     ImGui::PopItemWidth();
 
     ImGui::EndChild();
-    ///////////////
-
-
 
     ImGui::End();
 }
 
+void KMGDetailWindow::ShowName()
+{
+    VERTICAL_SPACE(5);
+    FIRST_IMGUI_TAB;
+
+    std::string actorName = "NONE";
+
+    if (currenFocusActor)
+    {
+        actorName = KMGUtility::WStringToString(currenFocusActor->GetWstrName());
+    }
+
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImVec2 textSize = ImGui::CalcTextSize(actorName.c_str());
+    ImVec2 padding = ImVec2(6.0f, 4.0f);
+
+    ImGui::GetWindowDrawList()->AddRectFilled(
+        pos,
+        ImVec2(pos.x + textSize.x + padding.x * 2, pos.y + textSize.y + padding.y * 2),
+        IM_COL32(40, 100, 160, 200), // 파란 배경
+        4.0f
+    );
+
+    float fontHeight = ImGui::GetFontSize();
+    float verticalFix = (textSize.y - fontHeight) * 0.5f;
+    ImGui::SetCursorScreenPos(ImVec2(pos.x + padding.x, pos.y + padding.y - verticalFix));
+
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.9f, 1.0f), actorName.c_str());
+    VERTICAL_SPACE(10);
+}
+
 void KMGDetailWindow::ShowTransform()
 {
-    static float position[3] = { 0.0f, 0.0f, 0.0f };
-    static float rotation[3] = { 0.0f, 0.0f, 0.0f };
-    static float scale[3] = { 1.0f, 1.0f, 1.0f };
 
-    float controlOffsetX = 140.0f;
 
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        float controlOffsetX = 140.0f;
+
+        static float position[3] = { 0.0f, 0.0f, 0.0f };
+        static float rotation[3] = { 0.0f, 0.0f, 0.0f };
+        static float scale[3] = { 1.0f, 1.0f, 1.0f };
+
+
         if (currenFocusActor == nullptr) return;
+
+        XMVECTOR positionVec = currenFocusActor->GetPosition();
+        XMVECTOR rotationVec = currenFocusActor->GetRotation();
+        XMVECTOR scaleVec = currenFocusActor->GetScale();
+
+        position[0] = XMVectorGetX(positionVec);
+        position[1] = XMVectorGetY(positionVec);
+        position[2] = XMVectorGetZ(positionVec);
+
+        rotation[0] = XMConvertToDegrees(XMVectorGetX(rotationVec));
+        rotation[1] = XMConvertToDegrees(XMVectorGetY(rotationVec));
+        rotation[2] = XMConvertToDegrees(XMVectorGetZ(rotationVec));
+
+        
+
+        scale[0] = XMVectorGetX(scaleVec);
+        scale[1] = XMVectorGetY(scaleVec);
+        scale[2] = XMVectorGetZ(scaleVec);
+
 
         VERTICAL_SPACE(3);
         ImGui::SetCursorPosX(165);
@@ -198,12 +216,12 @@ void KMGDetailWindow::ShowStaticMesh()
         {
             if (enabled)
             {
-                // 이거면 light mesh를 추가하라는 것
+                // 이거면 static mesh를 추가하라는 것
                 if (schedular) schedular->PushCommand(KMGCommand::AddStaticMeshComponent(currenFocusActor->GetWstrName()));
             }
             else
             {
-                // 이거면 light mesh를 제거 하라는 것
+                // 이거면 static mesh를 제거 하라는 것
                 if (schedular) schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(currenFocusActor->GetWstrName()));
             }
         }

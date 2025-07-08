@@ -14,6 +14,7 @@ public:
 private:
 	KMGActor* currenFocusActor = nullptr;
 
+	void ShowName();
 	void ShowTransform();
 	void ShowStaticMesh();
 	void ShowLight();

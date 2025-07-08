@@ -44,7 +44,7 @@ void ChangeCubeTransform()
 {
     if (schedular)
     {
-        schedular->PushCommand(KMGCommand::RotateActor(L"Light1", XMVectorSet(0, deltaTime, 0, 0)));
+        schedular->PushCommand(KMGCommand::RotateActor(L"Light1", XMVectorSet(0, -deltaTime, 0, 0)));
 
         float scale = 0.3f;
         schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(scale, scale, scale, 0)));
@@ -265,6 +265,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void MoveCameraRealtime()
 {
+    if ((GetAsyncKeyState(VK_RBUTTON) & 0x8000) == 0) return;
+
     XMVECTOR moveVector = XMVectorZero();
 
     if (GetAsyncKeyState('A') & 0x8000)
@@ -304,7 +306,6 @@ void RotateCameraRealtime()
         schedular->PushCommand(KMGCommand::UpdateCameraForwardVector(
             deltaX * SCENE_EDIT_CAMERAROTATESPEED, deltaY * SCENE_EDIT_CAMERAROTATESPEED
         ));
-
 
     }
 

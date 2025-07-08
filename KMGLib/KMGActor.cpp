@@ -58,18 +58,6 @@ void KMGActor::Translate(float dx, float dy, float dz) {
     }
 }
 
-void KMGActor::SetRotation(float pitch, float yaw, float roll)
-{
-    transform.rotation = DirectX::XMVectorSet(pitch, yaw, roll, 0);
-
-    LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
-    if (lightComp)
-    {
-        Light& light = lightComp->GetLight();
-        XMStoreFloat3(&light.direction, transform.GetForwardVector());
-    }
-}
-
 void KMGActor::SetRotation(DirectX::XMVECTOR rotation)
 {
     float x, y, z;
@@ -81,12 +69,13 @@ void KMGActor::SetRotation(DirectX::XMVECTOR rotation)
 
 }
 
+void KMGActor::SetRotation(float pitch, float yaw, float roll)
+{
+    pitch = KMGUtility::WrapAngleRad(pitch);
+    yaw = KMGUtility::WrapAngleRad(yaw);
+    roll = KMGUtility::WrapAngleRad(roll);
 
-
-void KMGActor::Rotate(float dpitch, float dyaw, float droll) {
-    XMVECTOR rot = transform.rotation;
-    XMVECTOR delta = XMVectorSet(dpitch, dyaw, droll, 0);
-    transform.rotation = XMVectorAdd(rot, delta);
+    transform.rotation = DirectX::XMVectorSet(pitch, yaw, roll, 0);
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
@@ -94,6 +83,14 @@ void KMGActor::Rotate(float dpitch, float dyaw, float droll) {
         Light& light = lightComp->GetLight();
         XMStoreFloat3(&light.direction, transform.GetForwardVector());
     }
+}
+
+
+void KMGActor::Rotate(float dpitch, float dyaw, float droll) {
+    XMVECTOR rot = transform.rotation;
+    XMVECTOR delta = XMVectorSet(dpitch, dyaw, droll, 0);
+
+    SetRotation(XMVectorAdd(rot, delta));
 }
 
 
