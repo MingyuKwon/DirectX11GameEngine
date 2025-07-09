@@ -17,6 +17,30 @@ void KMGScene::CreateAxis()
 
     LoadModelToActor("D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj", *axisActor, nullptr);
     
+    StaticMeshComponent* staticComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+
+    DirectX::XMFLOAT4 axisColors[3] =
+    {
+        DirectX::XMFLOAT4(0, 0, 1, 1.0f),
+        DirectX::XMFLOAT4(1, 0, 0, 1.0f),
+        DirectX::XMFLOAT4(0, 1, 0, 1.0f),
+
+    };
+
+    if (staticComp)
+    {
+        std::vector<KMGStaticMesh>* meshes = staticComp->GetMeshes();
+        for (int i=0; i<3; i++)
+        {
+            std::vector<KMGVertex>& axisMesh = (*meshes)[i+1].vertices;
+            for (KMGVertex& vertex : axisMesh)
+            {
+                vertex.Color = axisColors[i];
+            }
+        }
+    }
+
+
 }
 
 KMGActor* KMGScene::CreateActor(std::wstring name)

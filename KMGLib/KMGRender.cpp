@@ -525,7 +525,7 @@ void KMGRender::DrawScene(KMGScene* scene)
             actorID,
             actorMeshes,
             pMainContext,
-            DirectX::XMFLOAT4(-1, -1, -1, -1),
+            DirectX::XMFLOAT4(1, 1, 1, 1),
             axisActor->getWorldMatrix()
         );
     }
