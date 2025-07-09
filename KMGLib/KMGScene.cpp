@@ -68,7 +68,7 @@ void KMGScene::CreateAxis()
     axisActor = std::make_unique<KMGActor>(-1, L"System_Axis");
     axisActor->SetScale(0.1f, 0.1f, 0.1f);
 
-    LoadModelToActor("D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj", *axisActor, nullptr);
+    LoadModelToActor(DEFAULT_AXISMESH_PATH, *axisActor, nullptr);
     
 }
 
@@ -178,27 +178,6 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
         localRayDir = XMVector3Normalize(localRayDir);
 
         staicComp->AxisOnly_CheckHoverAxis(localRayOrigin, localRayDir, hoverMode);
-
-        switch (hoverMode)
-        {
-        case EHoverMode::EHM_NONE:
-            break;
-        case EHoverMode::EHM_X:
-            std::cout << "EHoverMode::EHM_X" << "\n";
-            break;
-        case EHoverMode::EHM_Y:
-            std::cout << "EHoverMode::EHM_Y" << "\n";
-
-            break;
-        case EHoverMode::EHM_Z:
-            std::cout << "EHoverMode::EHM_Z" << "\n";
-
-            break;
-        case EHoverMode::EHM_MAX:
-            break;
-        default:
-            break;
-        }
     }
 
 }

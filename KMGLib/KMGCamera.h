@@ -26,7 +26,7 @@ public:
     inline DirectX::XMVECTOR GetRightVector() { return rightVector; }
 
 private:
-    DirectX::XMVECTOR CameraPosition = DirectX::XMVectorSet(0.0f, 1.0f, -2.0f, 1.0f);
+    DirectX::XMVECTOR CameraPosition = DirectX::XMVectorSet(0.0f, 1.0f, -10.0f, 1.0f);
 
     DirectX::XMVECTOR forwardVector = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
     DirectX::XMVECTOR upVector = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);

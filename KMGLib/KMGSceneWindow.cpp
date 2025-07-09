@@ -103,15 +103,33 @@ void KMGSceneWindow::CheckSceneClick(
 
         currentScene->CheckHoverAxis(rayDir);
 
-        // 여기에서 화면의 어느 지점을 플레이어가 눌렀는지를 확인한다
-        if (bSceneFocused && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+        if (bSceneFocused && ImGui::IsMouseClicked(0))
+        {
+            EHoverMode hoverMode =currentScene->GetHoverMode();
 
-            // 여기서 스케큘러에게 줘야 한다
-            if (currentScene->GetSceneMode() == ESceneMode::ESM_SELECT)
+            switch (hoverMode)
             {
+            case EHoverMode::EHM_NONE:
+                break;
+            case EHoverMode::EHM_X:
+                break;
+            case EHoverMode::EHM_Y:
+                break;
+            case EHoverMode::EHM_Z:
+                break;
+            case EHoverMode::EHM_MAX:
+                break;
+            default:
+                break;
+            }
+
+            if (ImGui::IsItemHovered()) {
+
                 KMGCommand::CameraRayTrace_Select(rayDir);
             }
         }
+
+        
         
 
     }

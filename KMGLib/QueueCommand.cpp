@@ -309,7 +309,10 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	}
 	else
 	{
-		scene->SetFocusActor(L"NONE");
+		if (scene->GetHoverMode() == EHoverMode::EHM_NONE)
+		{
+			scene->SetFocusActor(L"NONE");
+		}
 	}
 }
 

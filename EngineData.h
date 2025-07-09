@@ -27,3 +27,6 @@
 
 #define DEFAULT_ACTOR_NAME L"Default_Actor_"
 
+
+#define DEFAULT_AXISMESH_PATH "D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj"
+

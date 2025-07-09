@@ -52,6 +52,11 @@ public:
         return axisActor.get();
     }
 
+    inline EHoverMode GetHoverMode() {
+        return hoverMode;
+    }
+
+
     inline KMGActor* GetFocusActor() {
         return focusActor;
     }
@@ -76,6 +81,7 @@ public:
         if (L"NONE" == actorName)
         {
             focusActor = nullptr;
+            SetSceneMode(ESceneMode::ESM_SELECT);
         }
 
     }
