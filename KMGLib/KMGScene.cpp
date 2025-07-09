@@ -2,6 +2,7 @@
 #include "KMGUtility.h"
 #include "UseAssimp.h"
 
+using namespace DirectX;
 
 KMGScene::KMGScene()
 {
@@ -109,5 +110,18 @@ const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::get
 
 void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
 {
+    DirectX::XMVECTOR cameraPosition = currentCamera.GetCameraPosition();
+
+    StaticMeshComponent* staicComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+    if (staicComp)
+    {
+        XMMATRIX invWorld = XMMatrixInverse(nullptr, axisActor->getWorldMatrix());
+
+        XMVECTOR localRayOrigin = XMVector3Transform(cameraPosition, invWorld);
+        XMVECTOR localRayDir = XMVector3TransformNormal(rayDir, invWorld);
+        localRayDir = XMVector3Normalize(localRayDir);
+
+        staicComp->AxisOnly_CheckHoverAxis(localRayOrigin, localRayDir, hoverMode);
+    }
 
 }

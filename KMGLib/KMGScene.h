@@ -7,29 +7,6 @@
 #include <memory>
 #include <KMGDataStructure.h>
 
-enum class ESceneMode
-{
-    ESM_NONE,
-
-    ESM_SELECT,
-    ESM_MOVE,
-    ESM_ROTATE,
-    ESM_SCALE,
-
-    ESM_MAX,
-};
-
-enum class EHoverMode
-{
-    EHM_NONE,
-
-    EHM_X,
-    EHM_Y,
-    EHM_Z,
-
-    EHM_MAX,
-};
-
 class KMGScene {
 public:
 

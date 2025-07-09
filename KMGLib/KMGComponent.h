@@ -90,6 +90,9 @@ public:
 	void SetMeshData(KMGStaticMesh&& inMesh, std::string fileName = "Default Mesh");
 
 	float CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, DirectX::XMVECTOR& hitPosLocal) const;
+
+	void AxisOnly_CheckHoverAxis(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, EHoverMode& hoverMode) const;
+
 private:
 
 	std::vector<KMGStaticMesh> meshes;

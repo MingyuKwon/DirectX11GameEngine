@@ -94,6 +94,21 @@ float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX:
 	return shortestDistance;
 }
 
+void StaticMeshComponent::AxisOnly_CheckHoverAxis(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, EHoverMode& hoverMode) const
+{
+	std::cout << "AxisOnly_CheckHoverAxis Start\n";
+	for (const BoundingBox& box : boundingBoxs)
+	{
+		float distance;
+		bool result = box.Intersects(rayOrigin, rayDir, distance);
+
+		std::cout << result << "\n";
+
+	}
+	std::cout << "AxisOnly_CheckHoverAxis End\n";
+
+}
+
 void LightComponent::SetLightColor(DirectX::XMFLOAT4 color)
 {
 	light.color = color;
