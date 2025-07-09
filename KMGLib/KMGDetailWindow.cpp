@@ -19,7 +19,6 @@ using namespace std;
 #define VERTICAL_SPACE(x)  ImGui::Dummy(ImVec2(0, x))
 
 extern std::atomic<bool> bDetailFocused;
-extern CommandSchedular* schedular;
 
 void KMGDetailWindow::DrawDetailWindow(
     KMGActor* focusActor,
@@ -161,7 +160,7 @@ void KMGDetailWindow::ShowTransform()
         if (ImGui::DragFloat3("##Position", position, 0.2f, 0.0f, 0.0f, "%.1f"))
         {
             XMVECTOR changedPosition = XMVectorSet(position[0], position[1], position[2], 1);
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorPosition(currenFocusActor->GetName(), changedPosition));
+            KMGCommand::UpdateActorPosition(currenFocusActor->GetName(), changedPosition);
         }
         ImGui::PopStyleColor();
 
@@ -179,7 +178,7 @@ void KMGDetailWindow::ShowTransform()
 
 
             XMVECTOR changedRotation = XMVectorSet(rotation[0], rotation[1], rotation[2], 0);
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorRotation(currenFocusActor->GetName(), changedRotation));
+            KMGCommand::UpdateActorRotation(currenFocusActor->GetName(), changedRotation);
         }
 
         ImGui::PopStyleColor();
@@ -189,10 +188,10 @@ void KMGDetailWindow::ShowTransform()
         ImGui::Text("Scale");
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.2f, 1.0f));
-        if (ImGui::DragFloat3("##Scale", scale, 0.1f, 0.1f, 10.0f, "%.1f"))
+        if (ImGui::DragFloat3("##Scale", scale, 0.1f, 0.01f, 10.0f, "%.2f"))
         {
             XMVECTOR changedScale = XMVectorSet(scale[0], scale[1], scale[2], 0);
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateActorScale(currenFocusActor->GetName(), changedScale));
+            KMGCommand::UpdateActorScale(currenFocusActor->GetName(), changedScale);
 
         }
         ImGui::PopStyleColor();
@@ -229,12 +228,12 @@ void KMGDetailWindow::ShowStaticMesh()
             if (enabled)
             {
                 // 이거면 static mesh를 추가하라는 것
-                if (schedular) schedular->PushCommand(KMGCommand::AddStaticMeshComponent(currenFocusActor->GetName()));
+                KMGCommand::AddStaticMeshComponent(currenFocusActor->GetName());
             }
             else
             {
                 // 이거면 static mesh를 제거 하라는 것
-                if (schedular) schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(currenFocusActor->GetName()));
+                KMGCommand::RemoveStaticMeshComponent(currenFocusActor->GetName());
             }
         }
 
@@ -266,7 +265,7 @@ void KMGDetailWindow::ShowStaticMesh()
             wstring fileName = GetMeshFromFileExplorer();
             if (fileName != L"NONE")
             {
-                if (schedular) schedular->PushCommand(KMGCommand::UpdateStaticMesh(currenFocusActor->GetName(), KMGUtility::WStringToString(fileName)));
+                KMGCommand::UpdateStaticMesh(currenFocusActor->GetName(), KMGUtility::WStringToString(fileName));
             }
 
         }
@@ -328,7 +327,7 @@ void KMGDetailWindow::ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes)
                         std::wcout << L"[Debug] Full Path: " << fullPath << std::endl;
                     }
 
-                    if (schedular) schedular->PushCommand(KMGCommand::UpdateTexture(currenFocusActor->GetName(), data, fileName));
+                    KMGCommand::UpdateTexture(currenFocusActor->GetName(), data, fileName);
 
                 }
 
@@ -364,7 +363,7 @@ void KMGDetailWindow::ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes)
                 wstring fileName = GetTextureFromFileExplorer();
                 if (fileName != L"NONE")
                 {
-                    if (schedular) schedular->PushCommand(KMGCommand::UpdateNormalMap(currenFocusActor->GetName(), data, fileName));
+                    KMGCommand::UpdateNormalMap(currenFocusActor->GetName(), data, fileName);
                 }
 
             }
@@ -445,12 +444,12 @@ void KMGDetailWindow::ShowLight()
             if (enabled)
             {
                 // 이거면 light mesh를 추가하라는 것
-                if (schedular) schedular->PushCommand(KMGCommand::AddLightComponent(currenFocusActor->GetName()));
+                KMGCommand::AddLightComponent(currenFocusActor->GetName());
             }
             else
             {
                 // 이거면 light mesh를 제거 하라는 것
-                if (schedular) schedular->PushCommand(KMGCommand::RemoveLightComponent(currenFocusActor->GetName()));
+                KMGCommand::RemoveLightComponent(currenFocusActor->GetName());
             }
         }
 
@@ -469,7 +468,7 @@ void KMGDetailWindow::ShowLight()
         ImGui::SameLine(150);
         if (ImGui::Combo("##LightType", &type, "Directional\0Point\0Spot\0"))
         {
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Type(currenFocusActor->GetName(), type));
+            KMGCommand::UpdateLightComponent_Type(currenFocusActor->GetName(), type);
         }
 
         VERTICAL_SPACE(5);
@@ -479,7 +478,7 @@ void KMGDetailWindow::ShowLight()
         ImGui::SameLine(150);
         if (ImGui::DragFloat("##LightRange", &range, 1.0f, 0.0f, 1000.0f))
         {
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Range(currenFocusActor->GetName(), range));
+            KMGCommand::UpdateLightComponent_Range(currenFocusActor->GetName(), range);
         }
 
         VERTICAL_SPACE(5);
@@ -489,7 +488,7 @@ void KMGDetailWindow::ShowLight()
         ImGui::SameLine(150);
         if (ImGui::DragFloat("##LightIntensity", &intensity, 0.01f, 0.0f, 100.0f))
         {
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(currenFocusActor->GetName(), intensity));
+            KMGCommand::UpdateLightComponent_Intensity(currenFocusActor->GetName(), intensity);
         }
 
         VERTICAL_SPACE(5);
@@ -501,7 +500,7 @@ void KMGDetailWindow::ShowLight()
         ImGui::SameLine(150);
         if (ImGui::ColorEdit4("##LightColor", colorArray))
         {
-            if (schedular) schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(currenFocusActor->GetName(), { colorArray[0], colorArray[1], colorArray[2], colorArray[3] }));
+            KMGCommand::UpdateLightComponent_Color(currenFocusActor->GetName(), { colorArray[0], colorArray[1], colorArray[2], colorArray[3] });
         }
 
         VERTICAL_SPACE(10);

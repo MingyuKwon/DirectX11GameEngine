@@ -44,10 +44,10 @@ void ChangeCubeTransform()
 {
     if (schedular)
     {
-        schedular->PushCommand(KMGCommand::RotateActor(L"Light1", XMVectorSet(0, -deltaTime, 0, 0)));
+        KMGCommand::RotateActor(L"Light1", XMVectorSet(0, -deltaTime, 0, 0));
 
         float scale = 0.3f;
-        schedular->PushCommand(KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(scale, scale, scale, 0)));
+        KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(scale, scale, scale, 0));
 
         //schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
 
@@ -62,7 +62,7 @@ int main(int, char**)
     renderEngine->StartRenderEngine();
 
     schedular = new CommandSchedular();
-    schedular->PushCommand(KMGCommand::ChangeScene(new KMGScene()));
+    KMGCommand::ChangeScene(new KMGScene());
 
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -179,13 +179,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    //schedular->PushCommand(KMGCommand::RemoveStaticMeshComponent(L"Actor1"));
 
-                    schedular->PushCommand(KMGCommand::RemoveActor(L"Actor1"));
-
-
-                    //schedular->PushCommand(KMGCommand::RemoveActor(L"Light1"));
-                    //schedular->PushCommand(KMGCommand::RemoveLightComponent(L"Light1"));
                 }
 
                 break;
@@ -194,17 +188,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::AddActor(L"Actor1"));
-                    schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor1", XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f)));
 
-                    schedular->PushCommand(KMGCommand::AddActor(L"Actor2"));
-                    schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Actor2", XMVectorSet(-3.0f, 0.0f, 0.0f, 0.0f)));
-
-
-
-                    schedular->PushCommand(KMGCommand::AddActor(L"Light1"));
-                    schedular->PushCommand(KMGCommand::UpdateActorPosition(L"Light1", XMVectorSet(2.0f, 0.0f, 0.0f, 0.0f)));
-                    schedular->PushCommand(KMGCommand::AddLightComponent(L"Light1"));
                 }
 
                 break;
@@ -213,9 +197,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor1", "Resource\\TankModel.obj"));
-
-                    schedular->PushCommand(KMGCommand::UpdateStaticMesh(L"Actor2", "Resource\\WW1_QF1_Pounder_PomPom_Cannon.obj"));
 
                 }
                 break;
@@ -224,10 +205,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (schedular)
                 {
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Intensity(L"Light1", 1.1));
-                    schedular->PushCommand(KMGCommand::UpdateLightComponent_Color(L"Light1", XMFLOAT4(0.95, 0.95, 0.95, 1)));
-
-                    schedular->PushCommand(KMGCommand::AddActor(L"Actor3"));
 
                 }
                 break;
@@ -285,9 +262,9 @@ void MoveCameraRealtime()
     if (!XMVector3Equal(moveVector, XMVectorZero()))
     {
         XMVECTOR moveDir = XMVector3Normalize(moveVector);
-        schedular->PushCommand(KMGCommand::UpdateCameraPosition_R(
+        KMGCommand::UpdateCameraPosition_R(
             XMVectorScale(moveDir, g_cameraMoveSpeed)
-        ));
+        );
     }
 }
 
@@ -303,9 +280,9 @@ void RotateCameraRealtime()
         int deltaX = currMousePos.x - prevMousePos.x;
         int deltaY = currMousePos.y - prevMousePos.y;
 
-        schedular->PushCommand(KMGCommand::UpdateCameraForwardVector(
+        KMGCommand::UpdateCameraForwardVector(
             deltaX * SCENE_EDIT_CAMERAROTATESPEED, deltaY * SCENE_EDIT_CAMERAROTATESPEED
-        ));
+        );
 
     }
 

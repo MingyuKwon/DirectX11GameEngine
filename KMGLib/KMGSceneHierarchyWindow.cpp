@@ -14,7 +14,6 @@ using namespace std;
 
 extern std::atomic<bool> bHierarchyFocused;
 extern KMGScene* currentScene;
-extern CommandSchedular* schedular;
 
 wstring renameActorName;
 
@@ -37,12 +36,7 @@ bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* curr
         if (ImGui::MenuItem("Delete Actor")) {
             if (focusActor)
             {
-                if (schedular)
-                {
-                    schedular->PushCommand(KMGCommand::RemoveActor(focusActor->GetName()));
-                }
-                
-
+                KMGCommand::RemoveActor(focusActor->GetName());
             }
         }
 
@@ -65,10 +59,7 @@ void KMGSceneHierarchyWindow::ShowContextWindow(KMGScene* currentScene, bool bSh
     if (bShow && ImGui::BeginPopupContextWindow())
     {
         if (ImGui::MenuItem("Create Actor")) {
-            if (schedular)
-            {
-                schedular->PushCommand(KMGCommand::AddActor());
-            }
+            KMGCommand::AddActor();
         }
         ImGui::EndPopup();
     }
@@ -137,10 +128,7 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
                             std::unordered_set<std::wstring>& actorNames = currentScene->GetActorNames();
                             if (actorNames.count(w_resultStr) == 0) // 만약 바꾸려는 이름이 이미 씬에 있어선 안된다
                             {
-                                if (schedular)
-                                {
-                                    schedular->PushCommand(KMGCommand::RenameActor(name, w_resultStr));
-                                }
+                                KMGCommand::RenameActor(name, w_resultStr);
                             }
                         }
 

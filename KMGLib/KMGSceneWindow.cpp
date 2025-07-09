@@ -16,7 +16,6 @@ using namespace std;
 
 extern std::atomic<bool> bSceneFocused;
 extern std::atomic<float> deltaTime;
-extern CommandSchedular* schedular;
 extern float g_cameraMoveSpeed;
 
 void KMGSceneWindow::DrawSceneWindow(
@@ -96,10 +95,7 @@ void KMGSceneWindow::CheckSceneClick(int sceneWindowWidth, int sceneWindowHeight
                 currentCameraViewMatrix, currentCameraProjectionMatrix);
 
             // 여기서 스케큘러에게 줘야 한다
-            if (schedular)
-            {
-                schedular->PushCommand(KMGCommand::CameraRayTrace(rayDir));
-            }
+            KMGCommand::CameraRayTrace(rayDir);
         }
     }
 }

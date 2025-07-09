@@ -4,156 +4,234 @@
 #include <LoadingManager.h>
 #include <KMGDataStructure.h>
 #include <DrawDebug.h>
+#include <CommandSchedular.h>
 
 #include <iostream>
 
 using namespace DirectX;
 using namespace std;
 
+extern CommandSchedular* schedular;
+
 namespace KMGCommand
 {
-	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene)
+	void ChangeScene(KMGScene* scene)
 	{
-		return std::make_unique<SceneCommand_ChangeScene>(scene);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_ChangeScene>(scene));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> AddActor(std::wstring name)
+	void AddActor(std::wstring name)
 	{
-		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, true);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Add_Remove_Actor>(name, true));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> RenameActor(const std::wstring& beforeName, const std::wstring& afterName)
+	void RenameActor(const std::wstring& beforeName, const std::wstring& afterName)
 	{
-		return std::make_unique<SceneCommand_Rename_Actor>(beforeName, afterName);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Rename_Actor>(beforeName, afterName));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> CameraRayTrace(DirectX::XMVECTOR inRayDirection)
+	void CameraRayTrace(DirectX::XMVECTOR inRayDirection)
 	{
-		return std::make_unique<SceneCommand_RayTrace>(inRayDirection);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_RayTrace>(inRayDirection));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name)
+	void AddStaticMeshComponent(const std::wstring& name)
 	{
-		return std::make_unique<SceneCommand_Add_Remove_StaticMeshComponent>(name, true);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Add_Remove_StaticMeshComponent>(name, true));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> RemoveStaticMeshComponent(const std::wstring& name)
+	void RemoveStaticMeshComponent(const std::wstring& name)
 	{
-		return std::make_unique<SceneCommand_Add_Remove_StaticMeshComponent>(name, false);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Add_Remove_StaticMeshComponent>(name, false));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name)
+	void RemoveActor(const std::wstring& name)
 	{
-		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, false);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Add_Remove_Actor>(name, false));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName, const std::wstring& normalMapName)
+	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName, const std::wstring& normalMapName)
 	{
-		return std::make_unique<SceneCommand_UpdateStaticMesh>(name, fileName, textureName, normalMapName);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_UpdateStaticMesh>(name, fileName, textureName, normalMapName));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateTexture(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName)
+	void UpdateTexture(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName)
 	{
-		return std::make_unique<SceneCommand_UpdateTextureNormal>(name, beforeTextureName, textureName, false);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_UpdateTextureNormal>(name, beforeTextureName, textureName, false));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateNormalMap(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName)
+	void UpdateNormalMap(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName)
 	{
-		return std::make_unique<SceneCommand_UpdateTextureNormal>(name, beforeTextureName, textureName, true);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_UpdateTextureNormal>(name, beforeTextureName, textureName, true));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name)
+	void AddLightComponent(const std::wstring& name)
 	{
-		return std::make_unique<SceneCommand_Add_Remove_LightComponent>(name, true);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Add_Remove_LightComponent>(name, true));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> RemoveLightComponent(const std::wstring& name)
+	void RemoveLightComponent(const std::wstring& name)
 	{
-		return std::make_unique<SceneCommand_Add_Remove_LightComponent>(name, false);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Add_Remove_LightComponent>(name, false));
+		}
 	}
 
 
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Type(const std::wstring& name, int type)
+	void UpdateLightComponent_Type(const std::wstring& name, int type)
 	{
 		Light light;
 		light.type = type;
 
-		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_TYPE);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_TYPE));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Range(const std::wstring& name, float range)
+	void UpdateLightComponent_Range(const std::wstring& name, float range)
 	{
 		Light light;
 		light.range = range;
 
-		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_RANGE);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_RANGE));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Intensity(const std::wstring& name, float intensity)
+	void UpdateLightComponent_Intensity(const std::wstring& name, float intensity)
 	{
 		Light light;
 		light.intensity = intensity;
 
-		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_INTENSITY);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_INTENSITY));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Direction(const std::wstring& name, DirectX::XMFLOAT3 direction)
+	void UpdateLightComponent_Direction(const std::wstring& name, DirectX::XMFLOAT3 direction)
 	{
 		Light light;
 		light.direction = direction;
 
-		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_DIRECTION);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_DIRECTION));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Color(const std::wstring& name, DirectX::XMFLOAT4 color)
+	void UpdateLightComponent_Color(const std::wstring& name, DirectX::XMFLOAT4 color)
 	{
 		Light light;
 		light.color = color;
 
-		return std::make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_COLOR);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_Update_LightComponent>(name, light, ECommandMessageType::ERC_UPDATE_LIGHT_COLOR));
+		}
 	}
 
 
 
-	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position)
+	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position)
 	{
-		return std::make_unique<SceneCommand_UpdateActorPosition>(name, position, true);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_UpdateActorPosition>(name, position, true));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position)
+	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position)
 	{
-		return std::make_unique<SceneCommand_UpdateActorPosition>(name, position, false);
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_UpdateActorPosition>(name, position, false));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation)
+	void RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation)
 	{
-		return std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, true);
+		if (schedular)
+		{
+			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, true));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation)
+	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation)
 	{
-		return std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, false);
+		if (schedular)
+		{
+			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, false));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale)
+	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale)
 	{
-		return std::make_unique<SceneCommand_UpdateActorScale>(name, scale);
+		if (schedular)
+		{
+			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorScale>(name, scale));
+		}
 	}
 
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition)
+	void UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition)
 	{
-		return std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, false);
+		if (schedular)
+		{
+			schedular->PushCommand(std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, false));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition)
+	void UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition)
 	{
-		return std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, true);
+		if (schedular)
+		{
+			schedular->PushCommand(std::make_unique<SceneCommand_CameraPositionUpdate>(CameraPosition, true));
+		}
 	}
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(float yawAngle, float pitchAngle)
+	void UpdateCameraForwardVector(float yawAngle, float pitchAngle)
 	{
-		return std::make_unique<SceneCommand_CameraForwardVectorUpdate>(yawAngle, pitchAngle);
+		if (schedular)
+		{
+			schedular->PushCommand(std::make_unique<SceneCommand_CameraForwardVectorUpdate>(yawAngle, pitchAngle));
+		}
 	}
 
 }

@@ -50,46 +50,44 @@ struct SceneCommandMessage
 
 namespace KMGCommand
 {
-	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
-	std::unique_ptr<SceneCommandMessage> AddActor(std::wstring name = DEFAULT_ACTOR_NAME);
+	void ChangeScene(KMGScene* scene);
+	void AddActor(std::wstring name = DEFAULT_ACTOR_NAME);
 
-	std::unique_ptr<SceneCommandMessage> RenameActor(const std::wstring& beforeName, const std::wstring& afterName);
+	void RenameActor(const std::wstring& beforeName, const std::wstring& afterName);
 
-	
+	void CameraRayTrace(DirectX::XMVECTOR inRayDirection);
 
-	std::unique_ptr<SceneCommandMessage> CameraRayTrace(DirectX::XMVECTOR inRayDirection);
+	void AddStaticMeshComponent(const std::wstring& name);
+	void RemoveStaticMeshComponent(const std::wstring& name);
 
-	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name);
-	std::unique_ptr<SceneCommandMessage> RemoveStaticMeshComponent(const std::wstring& name);
+	void RemoveActor(const std::wstring& name);
+	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName = DEFAULT_TEXTURE_FILEPATH, const std::wstring& normalMapName = DEFAULT_NORMAL_FILEPATH);
 
-	std::unique_ptr<SceneCommandMessage> RemoveActor(const std::wstring& name);
-	std::unique_ptr<SceneCommandMessage> UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName = DEFAULT_TEXTURE_FILEPATH, const std::wstring& normalMapName = DEFAULT_NORMAL_FILEPATH);
+	void UpdateTexture(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
+	void UpdateNormalMap(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
 
-	std::unique_ptr<SceneCommandMessage> UpdateTexture(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
-	std::unique_ptr<SceneCommandMessage> UpdateNormalMap(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
+	void AddLightComponent(const std::wstring& name);
+	void RemoveLightComponent(const std::wstring& name);
 
-	std::unique_ptr<SceneCommandMessage> AddLightComponent(const std::wstring& name);
-	std::unique_ptr<SceneCommandMessage> RemoveLightComponent(const std::wstring& name);
-
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Type(const std::wstring& name, int type);
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Range(const std::wstring& name, float range);
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Intensity(const std::wstring& name, float intensity);
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Direction(const std::wstring& name, DirectX::XMFLOAT3 direction);
-	std::unique_ptr<SceneCommandMessage> UpdateLightComponent_Color(const std::wstring& name, DirectX::XMFLOAT4 color);
+	void UpdateLightComponent_Type(const std::wstring& name, int type);
+	void UpdateLightComponent_Range(const std::wstring& name, float range);
+	void UpdateLightComponent_Intensity(const std::wstring& name, float intensity);
+	void UpdateLightComponent_Direction(const std::wstring& name, DirectX::XMFLOAT3 direction);
+	void UpdateLightComponent_Color(const std::wstring& name, DirectX::XMFLOAT4 color);
 
 
-	std::unique_ptr<SceneCommandMessage> TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
-	std::unique_ptr<SceneCommandMessage> UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
+	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
+	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
 
-	std::unique_ptr<SceneCommandMessage> RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation);
-	std::unique_ptr<SceneCommandMessage> UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation);
+	void RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation);
+	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation);
 
-	std::unique_ptr<SceneCommandMessage> UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale);
+	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale);
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition);
-	std::unique_ptr<SceneCommandMessage> UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition);
+	void UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition);
+	void UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition);
 
-	std::unique_ptr<SceneCommandMessage> UpdateCameraForwardVector(float yawAngle, float pitchAngle);
+	void UpdateCameraForwardVector(float yawAngle, float pitchAngle);
 }
 
 
