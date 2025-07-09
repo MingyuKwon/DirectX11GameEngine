@@ -1,6 +1,9 @@
 #pragma once
 #include <KMGDataStructure.h>
 
+class KMGActor;
+class KMGScene;
+
 class KMGSceneHierarchyWindow
 {
 public:
@@ -12,4 +15,8 @@ public:
 	);
 private:
 	std::wstring selectActorName;
+
+	void ShowContextItem(const char* str_id, KMGScene* currentScene, KMGActor* focusActor);
+	void ShowContextWindow(KMGScene* currentScene);
+
 };

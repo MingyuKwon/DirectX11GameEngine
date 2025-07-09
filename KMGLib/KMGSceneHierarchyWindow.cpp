@@ -21,6 +21,38 @@ void KMGSceneHierarchyWindow::SelectActor(std::wstring name)
 
 }
 
+void KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* currentScene, KMGActor* focusActor)
+{
+    if (ImGui::BeginPopupContextItem(str_id))
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5, 1, 1, 1));
+        ImGui::TextWrapped("%s", str_id); 
+        ImGui::PopStyleColor();
+
+        ImGui::Separator(); 
+        ImGui::Spacing();   
+
+        if (ImGui::MenuItem("Delete Actor")) {
+
+        }
+        if (ImGui::MenuItem("Rename Actor")) {
+
+        }
+        ImGui::EndPopup();
+    }
+}
+
+void KMGSceneHierarchyWindow::ShowContextWindow(KMGScene* currentScene)
+{
+    if (!ImGui::IsAnyItemHovered() && ImGui::BeginPopupContextWindow())
+    {
+        if (ImGui::MenuItem("Create Empty Actor")) {
+
+        }
+        ImGui::EndPopup();
+    }
+}
+
 void KMGSceneHierarchyWindow::DrawHierarchyWindow(
     int mainWindowWidth, int mainWindowHeight
     )
@@ -63,16 +95,25 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
             {
                 bool isSelected = (focusActor && focusActor->GetName() == name);
 
-                string foucsActorStrName = KMGUtility::WStringToString(name);
-                if (ImGui::Selectable(foucsActorStrName.c_str(), isSelected)) {
+                std::string focusActorStrName = KMGUtility::WStringToString(name);
+
+                if (ImGui::Selectable(focusActorStrName.c_str(), isSelected)) {
                     currentScene->SetFocusActor(name);
                 }
-                
+
+                ShowContextItem(focusActorStrName.c_str(), currentScene, focusActor);
             }
+
+            
         }
-        ImGui::EndChild(); 
+
+        ShowContextWindow(currentScene);
+
+        ImGui::EndChild();
     }
 
     ImGui::End();
 
 }
+
+
