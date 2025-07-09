@@ -90,6 +90,20 @@ void KMGSceneWindow::CheckSceneClick(
     ImVec2 texScreenPos = ImVec2(windowPos.x + contentRegionMin.x, windowPos.y + contentRegionMin.y);
 
     ImVec2 mousePos = ImGui::GetMousePos();
+    static ImVec2 prevMousePos = mousePos;
+
+    if (bSceneFocused && ImGui::IsMouseDown(0))
+    {
+        XMVECTOR deltaWorldVector = KMGUtility::GenerateScreenDeltaVector(
+            prevMousePos.x, prevMousePos.y,
+            mousePos.x, mousePos.y,
+            sceneWindowWidth, sceneWindowHeight,
+            currentCameraViewMatrix, currentCameraProjectionMatrix);
+
+
+        currentScene->GrabAxis(deltaWorldVector);
+    }
+
 
     ImVec2 localClick = ImVec2(mousePos.x - texScreenPos.x, mousePos.y - texScreenPos.y);
 
@@ -105,37 +119,13 @@ void KMGSceneWindow::CheckSceneClick(
 
         if (bSceneFocused && ImGui::IsMouseClicked(0))
         {
-            EHoverMode hoverMode =currentScene->GetHoverMode();
-
-            switch (hoverMode)
-            {
-            case EHoverMode::EHM_NONE:
-                break;
-            case EHoverMode::EHM_X:
-                break;
-            case EHoverMode::EHM_Y:
-                break;
-            case EHoverMode::EHM_Z:
-                break;
-            case EHoverMode::EHM_MAX:
-                break;
-            default:
-                break;
-            }
-
-            if (ImGui::IsItemHovered()) {
-
-                KMGCommand::CameraRayTrace_Select(rayDir);
-            }
+            KMGCommand::CameraRayTrace_Select(rayDir);
         }
-
-        
-        
 
     }
 
+    prevMousePos = mousePos;
 
-    
 }
 
 

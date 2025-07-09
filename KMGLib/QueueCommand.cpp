@@ -305,7 +305,11 @@ void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 	
 	if (closestActor)
 	{
-		scene->SetFocusActor(closestActor->GetName());
+		if (scene->GetSceneMode() == ESceneMode::ESM_SELECT)
+		{
+			scene->SetFocusActor(closestActor->GetName());
+
+		}
 	}
 	else
 	{

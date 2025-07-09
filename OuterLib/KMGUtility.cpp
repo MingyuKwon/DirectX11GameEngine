@@ -4,6 +4,7 @@
 #include <iostream>
 #include <locale>
 #include <codecvt>
+#include <DrawDebug.h> 
 
 // 로그 출력 함수
 void PrintVector(const std::wstring& label, const DirectX::XMVECTOR& vec)
@@ -45,6 +46,46 @@ DirectX::XMVECTOR KMGUtility::GenerateCameraRayDirection(
 
     return rayDir;
 
+}
+
+DirectX::XMVECTOR KMGUtility::GenerateScreenDeltaVector(
+    float prevMousePosX, float prevMousePosY,
+    float MousePosX, float MousePosY,
+    float viewportWidth, float viewportHeight,
+    const DirectX::XMMATRIX& viewMatrix,
+    const DirectX::XMMATRIX& projectionMatrix)
+{
+    // 1. 마우스 → NDC 좌표
+    float prevNdcX = (2.0f * prevMousePosX) / viewportWidth - 1.0f;
+    float prevNdcY = 1.0f - (2.0f * prevMousePosY) / viewportHeight;
+
+    float currNdcX = (2.0f * MousePosX) / viewportWidth - 1.0f;
+    float currNdcY = 1.0f - (2.0f * MousePosY) / viewportHeight;
+
+    // 2. Clip Space 좌표 (Z=0은 Near Plane)
+    DirectX::XMVECTOR clipPrev = DirectX::XMVectorSet(prevNdcX, prevNdcY, 0.0f, 1.0f);
+    DirectX::XMVECTOR clipCurr = DirectX::XMVectorSet(currNdcX, currNdcY, 0.0f, 1.0f);
+
+    // 3. 역투영 행렬
+    DirectX::XMMATRIX invProj = DirectX::XMMatrixInverse(nullptr, projectionMatrix);
+    DirectX::XMMATRIX invView = DirectX::XMMatrixInverse(nullptr, viewMatrix);
+
+    // 4. Clip → Eye → World
+    DirectX::XMVECTOR eyePrev = DirectX::XMVector3TransformCoord(clipPrev, invProj);
+    DirectX::XMVECTOR eyeCurr = DirectX::XMVector3TransformCoord(clipCurr, invProj);
+
+    DirectX::XMVECTOR worldPrev = DirectX::XMVector3TransformCoord(eyePrev, invView);
+    DirectX::XMVECTOR worldCurr = DirectX::XMVector3TransformCoord(eyeCurr, invView);
+
+    // 5. 이동 방향 (벡터 차)
+
+    XMFLOAT3 worldFloatPrev, worldFloat;
+    XMStoreFloat3(&worldFloatPrev, worldPrev);
+    XMStoreFloat3(&worldFloat, worldCurr);
+
+    DRAW_DEBUG_LINE(worldFloatPrev, worldFloat, XMFLOAT4(1,0,0,0), 0);
+
+    return worldCurr - worldPrev;
 }
 
 std::string KMGUtility::WStringToString(std::wstring wstr)

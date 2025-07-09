@@ -1,6 +1,7 @@
 #include "KMGScene.h"
 #include "KMGUtility.h"
 #include "UseAssimp.h"
+#include "QueueCommand.h"
 
 using namespace DirectX;
 
@@ -180,6 +181,40 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
         staicComp->AxisOnly_CheckHoverAxis(localRayOrigin, localRayDir, hoverMode);
     }
 
+}
+
+void KMGScene::GrabAxis(DirectX::XMVECTOR moveWorldDir)
+{
+    std::cout << "GrabAxis\n";
+
+    DirectX::XMVECTOR xAxis = XMVectorSet(1,0,0,1);
+    DirectX::XMVECTOR yAxis = XMVectorSet(0, 1, 0, 1);
+    DirectX::XMVECTOR zAxis = XMVectorSet(0, 0, 1, 1);
+    
+    float moveSpeed = 10;
+
+    DirectX::XMVECTOR dotXResult = DirectX::XMVector3Dot(xAxis, moveWorldDir) * moveSpeed;
+    DirectX::XMVECTOR dotYResult = DirectX::XMVector3Dot(yAxis, moveWorldDir) * moveSpeed;
+    DirectX::XMVECTOR dotZResult = DirectX::XMVector3Dot(zAxis, moveWorldDir) * moveSpeed;
+
+    if (focusActor == nullptr) return;
+
+    switch (hoverMode)
+    {
+    case EHoverMode::EHM_X:
+        KMGCommand::TranslateActor(focusActor->GetName(), dotXResult);
+        break;
+
+    case EHoverMode::EHM_Y:
+        KMGCommand::TranslateActor(focusActor->GetName(), dotYResult);
+
+        break;
+
+    case EHoverMode::EHM_Z:
+        KMGCommand::TranslateActor(focusActor->GetName(), dotZResult);
+
+        break;
+    }
 }
 
 

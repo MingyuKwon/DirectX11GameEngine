@@ -158,6 +158,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEWHEEL:
     {
         if (!bSceneFocused) break;
+        if ((GetAsyncKeyState(VK_RBUTTON) & 0x8000) == 0) break;
 
         short delta = GET_WHEEL_DELTA_WPARAM(wParam);
         if (delta > 0)
