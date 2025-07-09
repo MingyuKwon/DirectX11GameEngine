@@ -128,6 +128,7 @@ public:
     }
 
     void CheckHoverAxis(DirectX::XMVECTOR rayDir);
+    void ColorHoverAxis();
 
 private:
     int ActorCreateCount = 0;

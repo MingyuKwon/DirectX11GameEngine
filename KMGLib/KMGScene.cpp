@@ -9,6 +9,59 @@ KMGScene::KMGScene()
     CreateAxis();
 }
 
+void KMGScene::ColorHoverAxis()
+{
+    static EHoverMode prevHoverMode = EHoverMode::EHM_MAX;
+
+    if (prevHoverMode != hoverMode)
+    {
+        StaticMeshComponent* staticComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+
+        DirectX::XMFLOAT4 hoverAxisColors[3] =
+        {
+            DirectX::XMFLOAT4(0, 0, 1, 1.0f),
+            DirectX::XMFLOAT4(0, 1, 0, 1.0f),
+            DirectX::XMFLOAT4(1, 0, 0, 1.0f),
+
+        };
+
+        DirectX::XMFLOAT4 axisColors[3] =
+        {
+            DirectX::XMFLOAT4(0.6f, 0.6f, 0.9f, 1.0f),  
+            DirectX::XMFLOAT4(0.6f, 0.9f, 0.6f, 1.0f),  
+            DirectX::XMFLOAT4(0.9f, 0.6f, 0.6f, 1.0f),  
+        };
+
+
+        EHoverMode axisModes[3] =
+        {
+            EHoverMode::EHM_Y,
+            EHoverMode::EHM_Z,
+            EHoverMode::EHM_X,
+        };
+
+        if (staticComp)
+        {
+            std::vector<KMGStaticMesh>* meshes = staticComp->GetMeshes();
+            for (int i = 0; i < 3; i++)
+            {
+                (*meshes)[i + 1].bShouldMeshChange = true;
+
+                std::vector<KMGVertex>& axisMesh = (*meshes)[i + 1].vertices;
+                for (KMGVertex& vertex : axisMesh)
+                {
+                    vertex.Color = axisModes[i] == hoverMode ? hoverAxisColors[i] : axisColors[i];
+                }
+
+            }
+        }
+
+
+    }
+    
+    prevHoverMode = hoverMode;
+}
+
 void KMGScene::CreateAxis()
 {
     // 먼저 AxisActor 만들기
@@ -17,30 +70,6 @@ void KMGScene::CreateAxis()
 
     LoadModelToActor("D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj", *axisActor, nullptr);
     
-    StaticMeshComponent* staticComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
-
-    DirectX::XMFLOAT4 axisColors[3] =
-    {
-        DirectX::XMFLOAT4(0, 0, 1, 1.0f),
-        DirectX::XMFLOAT4(0, 1, 0, 1.0f),
-        DirectX::XMFLOAT4(1, 0, 0, 1.0f),
-
-    };
-
-    if (staticComp)
-    {
-        std::vector<KMGStaticMesh>* meshes = staticComp->GetMeshes();
-        for (int i=0; i<3; i++)
-        {
-            std::vector<KMGVertex>& axisMesh = (*meshes)[i+1].vertices;
-            for (KMGVertex& vertex : axisMesh)
-            {
-                vertex.Color = axisColors[i];
-            }
-        }
-    }
-
-
 }
 
 KMGActor* KMGScene::CreateActor(std::wstring name)
@@ -98,6 +127,9 @@ void KMGScene::Tick(float deltaTime)
     {
         debugLifeTime.erase(name);
     }
+
+    ColorHoverAxis();
+
 }
 
 KMGActor* KMGScene::GetActor(const std::wstring& name)
@@ -170,3 +202,5 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
     }
 
 }
+
+

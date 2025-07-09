@@ -20,7 +20,8 @@ void DrawResourceManager::AddShouldDrawActor(
     {
         for (int i = 0; i < actorMeshes->size(); ++i)
         {
-            if ((*actorMeshes)[i].bShouldMeshChange) ++shouldUpdateCount;
+            // -1인 경우에는 드래그용 axis이기 때문에 이거 일일히 보여주는 것은 오바이다
+            if (actorName != L"-1" && (*actorMeshes)[i].bShouldMeshChange) ++shouldUpdateCount;
         }
     }
 
