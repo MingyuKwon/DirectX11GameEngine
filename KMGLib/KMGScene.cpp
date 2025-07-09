@@ -1,5 +1,22 @@
 #include "KMGScene.h"
 #include "KMGUtility.h"
+#include "UseAssimp.h"
+
+
+KMGScene::KMGScene()
+{
+    CreateAxis();
+}
+
+void KMGScene::CreateAxis()
+{
+    // 먼저 AxisActor 만들기
+    axisActor = std::make_unique<KMGActor>(-1, L"System_Axis");
+    axisActor->SetScale(0.1f, 0.1f, 0.1f);
+
+    LoadModelToActor("D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj", *axisActor, nullptr);
+    
+}
 
 KMGActor* KMGScene::CreateActor(std::wstring name)
 {
@@ -88,4 +105,9 @@ const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::get
     std::lock_guard<std::mutex> lock(actorMapLock);
 
     return actors;
+}
+
+void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
+{
+
 }

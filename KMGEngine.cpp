@@ -64,10 +64,6 @@ int main(int, char**)
     schedular = new CommandSchedular();
     KMGCommand::ChangeScene(new KMGScene());
 
-    KMGCommand::AddActor(L"Axis");
-    KMGCommand::UpdateStaticMesh(L"Axis", "D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj");
-    KMGCommand::UpdateActorScale(L"Axis", XMVectorSet(0.1f, 0.1f, 0.1f, 0));
-
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
@@ -251,7 +247,6 @@ void MoveCameraRealtime()
 {
     if ((GetAsyncKeyState(VK_RBUTTON) & 0x8000) == 0) return;
     if (!currentScene) return;
-    if (currentScene->bGrabbing) return;
 
     XMVECTOR moveVector = XMVectorZero();
 
@@ -280,7 +275,6 @@ void MoveCameraRealtime()
 void RotateCameraRealtime()
 {
     if (!currentScene) return;
-    if (currentScene->bGrabbing) return;
 
     static POINT prevMousePos = {0,0};
 

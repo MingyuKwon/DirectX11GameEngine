@@ -55,7 +55,7 @@ namespace KMGCommand
 
 	void RenameActor(const std::wstring& beforeName, const std::wstring& afterName);
 
-	void CameraRayTrace(DirectX::XMVECTOR inRayDirection);
+	void CameraRayTrace_Select(DirectX::XMVECTOR inRayDirection);
 
 	void AddStaticMeshComponent(const std::wstring& name);
 	void RemoveStaticMeshComponent(const std::wstring& name);

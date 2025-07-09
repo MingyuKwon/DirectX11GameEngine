@@ -19,7 +19,9 @@ public:
 private:
 	void ShowSceneMode(KMGScene* currentScene);
 	void ShowFPS_CameraSpeed();
-	void CheckSceneClick(int sceneWindowWidth, int sceneWindowHeight,
+	void CheckSceneClick(
+		KMGScene* currentScene,
+		int sceneWindowWidth, int sceneWindowHeight,
 		DirectX::XMMATRIX currentCameraViewMatrix, DirectX::XMMATRIX currentCameraProjectionMatrix
 	);
 };

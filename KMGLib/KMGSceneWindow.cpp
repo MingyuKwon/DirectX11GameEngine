@@ -28,6 +28,8 @@ void KMGSceneWindow::DrawSceneWindow(
 
 )
 {
+    if (!currentScene) return;
+
     ImGuiID id = ImGui::GetID(SCENE_WINDOW_NAME);
     ImGuiStorage* storage = ImGui::GetStateStorage();
     if (!storage->GetBool(id)) {
@@ -64,6 +66,7 @@ void KMGSceneWindow::DrawSceneWindow(
     ImGui::Image(pSceneSRV, ImVec2(sceneWindowWidth, sceneWindowHeight));
 
     CheckSceneClick(
+        currentScene,
         sceneWindowWidth, sceneWindowHeight, 
         currentCameraViewMatrix, currentCameraProjectionMatrix
     );
@@ -74,10 +77,14 @@ void KMGSceneWindow::DrawSceneWindow(
     ImGui::End();
 }
 
-void KMGSceneWindow::CheckSceneClick(int sceneWindowWidth, int sceneWindowHeight,
+void KMGSceneWindow::CheckSceneClick(
+    KMGScene* currentScene,
+    int sceneWindowWidth, int sceneWindowHeight,
     DirectX::XMMATRIX currentCameraViewMatrix, DirectX::XMMATRIX currentCameraProjectionMatrix
 )
-{
+{ 
+    if (!currentScene) return;
+
     // 여기에서 화면의 어느 지점을 플레이어가 눌렀는지를 확인한다
     if (bSceneFocused && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
         ImVec2 windowPos = ImGui::GetWindowPos();
@@ -96,8 +103,14 @@ void KMGSceneWindow::CheckSceneClick(int sceneWindowWidth, int sceneWindowHeight
                 sceneWindowWidth, sceneWindowHeight,
                 currentCameraViewMatrix, currentCameraProjectionMatrix);
 
+            currentScene->CheckHoverAxis(rayDir);
+
             // 여기서 스케큘러에게 줘야 한다
-            KMGCommand::CameraRayTrace(rayDir);
+            if (currentScene->GetSceneMode() == ESceneMode::ESM_SELECT)
+            {
+                KMGCommand::CameraRayTrace_Select(rayDir);
+            }
+            
         }
     }
 }

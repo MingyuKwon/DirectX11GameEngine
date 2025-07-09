@@ -502,6 +502,34 @@ void KMGRender::DrawScene(KMGScene* scene)
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
 
+    // 여기서 Axis를 따로 그리도록 처리한다
+
+    /*
+    
+    
+    */
+
+    
+    KMGActor* axisActor = scene->GetAxisActor();
+    if (axisActor)
+    {
+        std::wstring actorID = std::to_wstring(axisActor->GetActorID());
+        vector<KMGStaticMesh>* actorMeshes = nullptr;
+        if (axisActor->HasComponent(EComponentType::ECT_STATICMESH))
+        {
+            StaticMeshComponent* staticComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+            actorMeshes = staticComp->GetMeshes();
+        }
+
+        resourceManager.AddShouldDrawActor(
+            actorID,
+            actorMeshes,
+            pMainContext,
+            DirectX::XMFLOAT4(-1, -1, -1, -1),
+            axisActor->getWorldMatrix()
+        );
+    }
+
     //여기에 최종으로 모인 scene의 Debug를 싹다 모아서 resource에 추가한다
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshed = scene->GetDebugMeshes();
     for (auto& bucket : debugMeshed)
@@ -549,6 +577,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         wstring resourceName = bucket.first;
 
         ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
+
 
         renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
             RenderThread(

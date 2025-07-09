@@ -34,6 +34,7 @@ void DrawResourceManager::AddShouldDrawActor(
     {
         for (int i = 0; i < actorMeshes->size(); i++)
         {
+
             wstring meshName = actorName + L"___" + to_wstring(i);
             KMGStaticMesh& actorMesh = (*actorMeshes)[i];
 
@@ -44,6 +45,7 @@ void DrawResourceManager::AddShouldDrawActor(
 
             if (actorMesh.bShouldMeshChange)
             {
+
                 drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
                 if (loading)
                 {
@@ -52,6 +54,7 @@ void DrawResourceManager::AddShouldDrawActor(
             }
 
             drawActorResources[meshName].bLightEffected = lightColor.x < 0;
+
             drawActorResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
 
             actorMesh.bShouldMeshChange = false;
@@ -70,6 +73,7 @@ void DrawResourceManager::AddShouldDrawActor(
 void DrawResourceManager::AddShouldDrawDebug(
     std::wstring meshName, KMGDebugMesh& debugMesh, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
 {
+
     if (shouldDrawDebug.count(meshName) == 0)
     {
         drawDebugResources.emplace(meshName, DrawResource(meshName));

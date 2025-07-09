@@ -17,12 +17,25 @@ enum class ESceneMode
     ESM_SCALE,
 
     ESM_MAX,
+};
 
+enum class EHoverMode
+{
+    EHM_NONE,
+
+    EHM_X,
+    EHM_Y,
+    EHM_Z,
+
+    EHM_MAX,
 };
 
 class KMGScene {
 public:
-    bool bGrabbing = false;
+
+    KMGScene();
+
+    void CreateAxis();
 
     KMGActor* CreateActor(std::wstring name);
     void EraseActor(const std::wstring& name);
@@ -57,6 +70,10 @@ public:
     }
 
     KMGActor* GetActor(const std::wstring& name);
+
+    inline KMGActor* GetAxisActor() {
+        return axisActor.get();
+    }
 
     inline KMGActor* GetFocusActor() {
         return focusActor;
@@ -133,10 +150,12 @@ public:
         }
     }
 
+    void CheckHoverAxis(DirectX::XMVECTOR rayDir);
+
 private:
     int ActorCreateCount = 0;
     ESceneMode sceneMode = ESceneMode::ESM_SELECT;
-
+    EHoverMode hoverMode = EHoverMode::EHM_NONE;
 
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;
@@ -146,6 +165,7 @@ private:
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshes;
     std::unordered_map<std::wstring, float> debugLifeTime;
 
+    std::unique_ptr<KMGActor> axisActor = nullptr;
     KMGActor* focusActor = nullptr;
 
     KMGCamera currentCamera;

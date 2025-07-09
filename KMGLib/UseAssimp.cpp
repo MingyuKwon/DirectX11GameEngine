@@ -31,7 +31,7 @@ std::wstring Utf8ToWstring(const std::string& str)
     return wstrTo;
 }
 
-bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager& loadingManager, const std::wstring& textureName, const std::wstring& normalMapName)
+bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager* loadingManager, const std::wstring& textureName, const std::wstring& normalMapName)
 {
     std::wcout << L"Loading Mesh Start : " << filePath.c_str() <<" " << L"\n";
 
@@ -51,7 +51,10 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
 
     std::vector<KMGStaticMesh> allMeshes;
 
-    loadingManager.SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
+    if (loadingManager)
+    {
+        loadingManager->SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
+    }
 
     auto lastSlash = filePath.find_last_of("\\/");
     std::string meshFolder = filePath.substr(0, lastSlash);
@@ -69,7 +72,7 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     return true;
 }
 
-void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGStaticMesh>& allMeshes, LoadingManager& loadingManager, std::string meshFolder)
+void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGStaticMesh>& allMeshes, LoadingManager* loadingManager, std::string meshFolder)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i)
     {
@@ -209,8 +212,10 @@ void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGSt
             }
         }
 
-        
-        loadingManager.PlusCurrentCount();
+        if (loadingManager)
+        {
+            loadingManager->PlusCurrentCount();
+        }
 
         allMeshes.push_back(std::move(currentMesh));
 

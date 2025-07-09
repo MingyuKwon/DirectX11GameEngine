@@ -39,7 +39,7 @@ namespace KMGCommand
 		}
 	}
 
-	void CameraRayTrace(DirectX::XMVECTOR inRayDirection)
+	void CameraRayTrace_Select(DirectX::XMVECTOR inRayDirection)
 	{
 		if (schedular)
 		{
@@ -464,7 +464,7 @@ void SceneCommand_UpdateStaticMesh::Execute(KMGScene*& scene)
 
 	if (findActor)
 	{
-		LoadModelToActor(fileName, *findActor, loading, textureName, normalMapName);
+		LoadModelToActor(fileName, *findActor, &loading, textureName, normalMapName);
 	}
 	else
 	{
