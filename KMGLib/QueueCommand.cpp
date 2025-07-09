@@ -22,6 +22,11 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, true);
 	}
 
+	std::unique_ptr<SceneCommandMessage> RenameActor(const std::wstring& beforeName, const std::wstring& afterName)
+	{
+		return std::make_unique<SceneCommand_Rename_Actor>(beforeName, afterName);
+	}
+
 	std::unique_ptr<SceneCommandMessage> CameraRayTrace(DirectX::XMVECTOR inRayDirection)
 	{
 		return std::make_unique<SceneCommand_RayTrace>(inRayDirection);
@@ -179,24 +184,19 @@ void SceneCommand_Add_Remove_Actor::Execute(KMGScene*& scene)
 
 }
 
+void SceneCommand_Rename_Actor::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	scene->RenameActor(beforeName, afterName);
+}
+
 void SceneCommand_RayTrace::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
 	KMGCamera& currentCamera = scene->GetCurrentCamera();
 	XMVECTOR cameraOrigin = currentCamera.GetCameraPosition();
-
-	/// 테스트 용으로 그리기
-	//XMVECTOR endVec = cameraOrigin + cameraRayDirection;
-
-	//XMFLOAT3 start, end;
-	//XMStoreFloat3(&start, cameraOrigin);
-	//XMStoreFloat3(&end, endVec);
-
-	//float delayTime = 2.f;
-	//DRAW_DEBUG_LINE(start, end, XMFLOAT4(0, 0, 0, 1), delayTime);
-	//DRAW_DEBUG_SPHERE(start, 0.3, XMFLOAT4(1, 0, 0, 1), delayTime);
-	/// 테스트 용으로 그리기
 
 	KMGActor* closestActor = nullptr;
 	float closestDistance = -1;
@@ -491,4 +491,5 @@ void SceneCommand_DrawDebug::Execute(KMGScene*& scene)
 	scene->AddDebugMesh(debugMeshName, mesh, time);
 
 }
+
 

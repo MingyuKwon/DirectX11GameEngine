@@ -35,9 +35,9 @@ bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* curr
         ImGui::Spacing();   
 
         if (ImGui::MenuItem("Delete Actor")) {
-            if (schedular)
+            if (focusActor)
             {
-                if (focusActor)
+                if (schedular)
                 {
                     schedular->PushCommand(KMGCommand::RemoveActor(focusActor->GetName()));
                 }
@@ -126,7 +126,21 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
 
                     if (ImGui::InputText(inputTextId.c_str(), renameBuffer, IM_ARRAYSIZE(renameBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
                     {
-                        cout << renameBuffer << "\n";
+                        string resultStr(renameBuffer);
+                        wstring w_resultStr = KMGUtility::StringToWString(resultStr);
+
+                        if (currentScene)
+                        {
+                            std::unordered_set<std::wstring>& actorNames = currentScene->GetActorNames();
+                            if (actorNames.count(w_resultStr) == 0) // 만약 바꾸려는 이름이 이미 씬에 있어선 안된다
+                            {
+                                if (schedular)
+                                {
+                                    schedular->PushCommand(KMGCommand::RenameActor(name, w_resultStr));
+                                }
+                            }
+                        }
+
                         renameActorName.clear();
                     }
 

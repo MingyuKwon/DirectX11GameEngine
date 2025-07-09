@@ -58,6 +58,23 @@ KMGActor* KMGScene::GetActor(const std::wstring& name)
     return nullptr;
 }
 
+void KMGScene::RenameActor(std::wstring beforeName, std::wstring aftername)
+{
+    std::lock_guard<std::mutex> lock(actorMapLock);
+
+    if (actors.count(beforeName) == 0) return;
+    if (actors.count(aftername) != 0) return;
+
+    actors[aftername] = std::move(actors[beforeName]);
+    actors.erase(beforeName);
+
+    actorNames.emplace(aftername);
+    actorNames.erase(beforeName);
+
+    actors[aftername]->SetName(aftername);
+
+}
+
 const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::getAllActors()
 {
     std::lock_guard<std::mutex> lock(actorMapLock);

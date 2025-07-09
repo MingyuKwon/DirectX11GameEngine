@@ -53,6 +53,10 @@ namespace KMGCommand
 	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
 	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
 
+	std::unique_ptr<SceneCommandMessage> RenameActor(const std::wstring& beforeName, const std::wstring& afterName);
+
+	
+
 	std::unique_ptr<SceneCommandMessage> CameraRayTrace(DirectX::XMVECTOR inRayDirection);
 
 	std::unique_ptr<SceneCommandMessage> AddStaticMeshComponent(const std::wstring& name);
@@ -113,6 +117,19 @@ private:
 	DirectX::XMVECTOR cameraRayDirection;
 };
 
+struct SceneCommand_Rename_Actor : public SceneCommandMessage
+{
+	SceneCommand_Rename_Actor(const std::wstring& beforeName, const std::wstring& afterName) : beforeName(beforeName), afterName(afterName) {
+		type = ECommandMessageType::ERC_UPDATE_ACTOR;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring beforeName;
+	std::wstring afterName;
+
+};
 
 struct SceneCommand_Add_Remove_Actor : public SceneCommandMessage
 {

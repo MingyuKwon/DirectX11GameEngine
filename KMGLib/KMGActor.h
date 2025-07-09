@@ -18,6 +18,11 @@ public:
         return name;
     }
 
+    inline void SetName(std::wstring inName)
+    {
+        name = inName;
+    }
+
     DirectX::XMMATRIX getWorldMatrix();
 
     inline DirectX::XMVECTOR GetPosition() const { return transform.position; }
