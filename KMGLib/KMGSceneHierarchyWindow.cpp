@@ -16,10 +16,11 @@ extern std::atomic<bool> bHierarchyFocused;
 extern KMGScene* currentScene;
 extern CommandSchedular* schedular;
 
+wstring renameActorName;
+
 void KMGSceneHierarchyWindow::SelectActor(std::wstring name)
 {
     selectActorName = name;
-
 }
 
 bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* currentScene, KMGActor* focusActor)
@@ -44,9 +45,13 @@ bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* curr
 
             }
         }
-        if (ImGui::MenuItem("Rename Actor")) {
 
+        if (ImGui::MenuItem("Rename Actor")) {
+            renameActorName = focusActor->GetName();
+            string str = KMGUtility::WStringToString(renameActorName);
+            strncpy_s(renameBuffer, str.c_str(), sizeof(renameBuffer));
         }
+
         ImGui::EndPopup();
 
         return true;
@@ -114,8 +119,28 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
 
                 std::string focusActorStrName = KMGUtility::WStringToString(name);
 
-                if (ImGui::Selectable(focusActorStrName.c_str(), isSelected)) {
-                    currentScene->SetFocusActor(name);
+                if (renameActorName == name)
+                {
+                    string inputTextId = "Enter to Change###";
+                    inputTextId += focusActorStrName;
+
+                    if (ImGui::InputText(inputTextId.c_str(), renameBuffer, IM_ARRAYSIZE(renameBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+                    {
+                        cout << renameBuffer << "\n";
+                        renameActorName.clear();
+                    }
+
+                    if (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) {
+                        if (!ImGui::IsItemHovered()) {
+                            renameActorName.clear(); 
+                        }
+                    }
+                }
+                else
+                {
+                    if (ImGui::Selectable(focusActorStrName.c_str(), isSelected)) {
+                        currentScene->SetFocusActor(name);
+                    }
                 }
 
                 if (ShowContextItem(focusActorStrName.c_str(), currentScene, focusActor))
@@ -123,8 +148,6 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
                     bItemShowed = true;
                 }
             }
-
-            
         }
 
         ShowContextWindow(currentScene, !bItemShowed);

@@ -14,6 +14,8 @@ public:
 		int mainWindowWidth, int mainWindowHeight
 	);
 private:
+	char renameBuffer[64] = "";
+	
 	std::wstring selectActorName;
 
 	bool ShowContextItem(const char* str_id, KMGScene* currentScene, KMGActor* focusActor);
