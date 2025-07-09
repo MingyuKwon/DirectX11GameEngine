@@ -64,8 +64,11 @@ void KMGSceneHierarchyWindow::ShowContextWindow(KMGScene* currentScene, bool bSh
 {
     if (bShow && ImGui::BeginPopupContextWindow())
     {
-        if (ImGui::MenuItem("Create Empty Actor")) {
-
+        if (ImGui::MenuItem("Create Actor")) {
+            if (schedular)
+            {
+                schedular->PushCommand(KMGCommand::AddActor());
+            }
         }
         ImGui::EndPopup();
     }

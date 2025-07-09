@@ -51,7 +51,7 @@ struct SceneCommandMessage
 namespace KMGCommand
 {
 	std::unique_ptr<SceneCommandMessage> ChangeScene(KMGScene* scene);
-	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name);
+	std::unique_ptr<SceneCommandMessage> AddActor(std::wstring name = DEFAULT_ACTOR_NAME);
 
 	std::unique_ptr<SceneCommandMessage> RenameActor(const std::wstring& beforeName, const std::wstring& afterName);
 

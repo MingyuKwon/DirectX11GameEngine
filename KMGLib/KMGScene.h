@@ -10,7 +10,7 @@
 class KMGScene {
 public:
     
-    KMGActor* CreateActor(const std::wstring& name);
+    KMGActor* CreateActor(std::wstring name);
     void EraseActor(const std::wstring& name);
 
     void Tick(float deltaTime);

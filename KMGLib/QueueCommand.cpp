@@ -17,7 +17,7 @@ namespace KMGCommand
 		return std::make_unique<SceneCommand_ChangeScene>(scene);
 	}
 
-	std::unique_ptr<SceneCommandMessage> AddActor(const std::wstring& name)
+	std::unique_ptr<SceneCommandMessage> AddActor(std::wstring name)
 	{
 		return std::make_unique<SceneCommand_Add_Remove_Actor>(name, true);
 	}

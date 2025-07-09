@@ -24,3 +24,6 @@
 
 #define DEFAULT_MESHFILE "Resource\\TankModel.obj"
 #define DEFAULT_LIGHTMESH "Resource\\TankModel.obj"
+
+#define DEFAULT_ACTOR_NAME L"Default_Actor_"
+

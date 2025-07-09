@@ -1,11 +1,17 @@
 #include "KMGScene.h"
 #include "KMGUtility.h"
 
-KMGActor* KMGScene::CreateActor(const std::wstring& name)
+KMGActor* KMGScene::CreateActor(std::wstring name)
 {
     std::lock_guard<std::mutex> lock(actorMapLock);
 
     if (actors.count(name) != 0) return nullptr;
+
+    // 이 경우에는 그냥 이름 안주고 만들라고 하는거다
+    if (DEFAULT_ACTOR_NAME == name)
+    {
+        name += std::to_wstring(ActorCreateCount);
+    }
 
     auto actor = std::make_unique<KMGActor>(ActorCreateCount, name);
     KMGActor* ptr = actor.get();
