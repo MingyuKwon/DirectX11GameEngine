@@ -171,8 +171,13 @@ void KMGDetailWindow::ShowTransform()
         ImGui::SameLine(controlOffsetX);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.2f, 0.1f, 1.0f));
         
-        if (ImGui::DragFloat3("##Rotation", rotation, 0.1f, 0.0f, 360.0f, "%.1f"))
+        if (ImGui::DragFloat3("##Rotation", rotation, 0.3f, 0.0f, 0.0f, "%.1f"))
         {
+            rotation[0] = XMConvertToRadians(rotation[0]);
+            rotation[1] = XMConvertToRadians(rotation[1]);
+            rotation[2] = XMConvertToRadians(rotation[2]);
+
+
             XMVECTOR changedRotation = XMVectorSet(rotation[0], rotation[1], rotation[2], 0);
             if (schedular) schedular->PushCommand(KMGCommand::UpdateActorRotation(currenFocusActor->GetName(), changedRotation));
         }
