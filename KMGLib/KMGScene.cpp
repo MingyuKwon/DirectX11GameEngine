@@ -7,11 +7,13 @@ KMGActor* KMGScene::CreateActor(const std::wstring& name)
 
     if (actors.count(name) != 0) return nullptr;
 
-    auto actor = std::make_unique<KMGActor>(name);
+    auto actor = std::make_unique<KMGActor>(ActorCreateCount, name);
     KMGActor* ptr = actor.get();
 
     actors[name] = std::move(actor);
     actorNames.emplace(name);
+
+    ActorCreateCount++;
 
     return ptr;
 }

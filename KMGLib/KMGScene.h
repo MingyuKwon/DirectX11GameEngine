@@ -82,6 +82,8 @@ public:
         return actorNames;
     }
 private:
+    int ActorCreateCount = 0;
+
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;
     std::unordered_set<std::wstring> actorNames;

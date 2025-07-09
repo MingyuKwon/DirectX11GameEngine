@@ -448,7 +448,7 @@ void KMGRender::DrawScene(KMGScene* scene)
     for (auto& bucket : actors)
     {
         KMGActor* actor = bucket.second.get();
-        wstring actorName = actor->GetName();
+        wstring actorID = to_wstring(actor->GetActorID());
         XMMATRIX worldMat = actor->getWorldMatrix();
         
         XMFLOAT4 lightColor = XMFLOAT4(-1,-1,-1,-1);
@@ -469,7 +469,7 @@ void KMGRender::DrawScene(KMGScene* scene)
 
             if (actorMeshes)
             {
-                ActorMeshCount[actorName] = actorMeshes->size();
+                ActorMeshCount[actorID] = actorMeshes->size();
 
                 if (actor->bShowBoundBox)
                 {
@@ -481,7 +481,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                         for (int i = 0; i < boxs.size(); i++)
                         {
                             KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
-                            resourceManager.AddShouldDrawDebug(actorName + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, worldMat);
+                            resourceManager.AddShouldDrawDebug(actorID + L"DEBUG_BOUNDBOX" + to_wstring(i), mesh, pMainContext, worldMat);
                         }
 
                     }
@@ -492,7 +492,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
         
         resourceManager.AddShouldDrawActor(
-            actorName,
+            actorID,
             actorMeshes,
             pMainContext,
             lightColor,

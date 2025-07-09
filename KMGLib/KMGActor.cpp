@@ -3,7 +3,7 @@
 
 using namespace DirectX;
 
-KMGActor::KMGActor(std::wstring name) : name(name)
+KMGActor::KMGActor(int ID, std::wstring name) : actorID(ID), name(name)
 {
     StaticMeshComponent* staticComponent = new StaticMeshComponent();
     KMGStaticMesh newDefaultMesh = KMGStaticMesh::CreateDefaultSphereMesh(0.5f, XMFLOAT4(1,0,0,1));

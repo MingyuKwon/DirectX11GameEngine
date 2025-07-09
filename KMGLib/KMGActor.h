@@ -8,7 +8,7 @@
 class KMGActor {
 
 public:
-    KMGActor(std::wstring name);
+    KMGActor(int ID, std::wstring name);
     virtual ~KMGActor();
 
     std::atomic<bool> bShowBoundBox = false;
@@ -16,6 +16,11 @@ public:
     inline std::wstring GetName()
     {
         return name;
+    }
+
+    inline int GetActorID()
+    {
+        return actorID;
     }
 
     inline void SetName(std::wstring inName)
@@ -76,4 +81,7 @@ private:
 
     std::wstring name;
     KMGTransform transform;
+
+    int actorID = 0;
+
 };
