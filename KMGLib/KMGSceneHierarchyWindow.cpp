@@ -14,6 +14,7 @@ using namespace std;
 
 extern std::atomic<bool> bHierarchyFocused;
 extern KMGScene* currentScene;
+extern CommandSchedular* schedular;
 
 void KMGSceneHierarchyWindow::SelectActor(std::wstring name)
 {
@@ -21,7 +22,7 @@ void KMGSceneHierarchyWindow::SelectActor(std::wstring name)
 
 }
 
-void KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* currentScene, KMGActor* focusActor)
+bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* currentScene, KMGActor* focusActor)
 {
     if (ImGui::BeginPopupContextItem(str_id))
     {
@@ -33,18 +34,30 @@ void KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* curr
         ImGui::Spacing();   
 
         if (ImGui::MenuItem("Delete Actor")) {
+            if (schedular)
+            {
+                if (focusActor)
+                {
+                    schedular->PushCommand(KMGCommand::RemoveActor(focusActor->GetName()));
+                }
+                
 
+            }
         }
         if (ImGui::MenuItem("Rename Actor")) {
 
         }
         ImGui::EndPopup();
+
+        return true;
     }
+
+    return false;
 }
 
-void KMGSceneHierarchyWindow::ShowContextWindow(KMGScene* currentScene)
+void KMGSceneHierarchyWindow::ShowContextWindow(KMGScene* currentScene, bool bShow)
 {
-    if (!ImGui::IsAnyItemHovered() && ImGui::BeginPopupContextWindow())
+    if (bShow && ImGui::BeginPopupContextWindow())
     {
         if (ImGui::MenuItem("Create Empty Actor")) {
 
@@ -87,10 +100,14 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
 
     if (currentScene)
     {
+        bool bItemShowed = false;
+
         if (ImGui::BeginChild("ActorListRegion", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar))
         {
             KMGActor* focusActor = currentScene->GetFocusActor();
             std::unordered_set<std::wstring>& actors = currentScene->GetActorNames();
+
+
             for (const std::wstring& name : actors)
             {
                 bool isSelected = (focusActor && focusActor->GetName() == name);
@@ -101,13 +118,16 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
                     currentScene->SetFocusActor(name);
                 }
 
-                ShowContextItem(focusActorStrName.c_str(), currentScene, focusActor);
+                if (ShowContextItem(focusActorStrName.c_str(), currentScene, focusActor))
+                {
+                    bItemShowed = true;
+                }
             }
 
             
         }
 
-        ShowContextWindow(currentScene);
+        ShowContextWindow(currentScene, !bItemShowed);
 
         ImGui::EndChild();
     }

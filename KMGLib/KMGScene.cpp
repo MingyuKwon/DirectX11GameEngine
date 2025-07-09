@@ -22,8 +22,13 @@ void KMGScene::EraseActor(const std::wstring& name)
 
     if (actors.count(name) == 0) return;
 
+    if (focusActor && focusActor->GetName() == name)
+    {
+        focusActor = nullptr;
+    }
     actors.erase(name);
     actorNames.erase(name);
+
 }
 
 void KMGScene::Tick(float deltaTime)
