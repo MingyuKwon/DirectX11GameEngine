@@ -627,6 +627,7 @@ void KMGRender::DrawIMGUI_UI(KMGScene* scene)
     ImGui::PopStyleVar(2);
 
     sceneWindow.DrawSceneWindow(
+        scene,
         mainWindowWidth, mainWindowHeight,
         sceneWindowWidth, sceneWindowHeight,
         resizeRequested, 

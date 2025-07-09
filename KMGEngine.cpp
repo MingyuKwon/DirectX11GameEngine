@@ -64,6 +64,10 @@ int main(int, char**)
     schedular = new CommandSchedular();
     KMGCommand::ChangeScene(new KMGScene());
 
+    KMGCommand::AddActor(L"Axis");
+    KMGCommand::UpdateStaticMesh(L"Axis", "D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj");
+    KMGCommand::UpdateActorScale(L"Axis", XMVectorSet(0.1f, 0.1f, 0.1f, 0));
+
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
@@ -139,6 +143,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     }
 
+    bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+
+
     switch (msg)
     {
     case WM_PAINT:
@@ -175,37 +182,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 PostQuitMessage(0);
                 break;
             }
-            case VK_DELETE:
+            case 'Q':
             {
-                if (schedular)
+                if (currentScene && !isRightMouseDown)
                 {
-
+                    currentScene->SetSceneMode(ESceneMode::ESM_SELECT);
                 }
 
                 break;
             }
-            case VK_SPACE:
+            case 'W':
             {
-                if (schedular)
+                if (currentScene && !isRightMouseDown)
                 {
-
+                    currentScene->SetSceneMode(ESceneMode::ESM_MOVE);
                 }
 
                 break;
             }
-            case VK_F1:
+            case 'E':
             {
-                if (schedular)
+                if (currentScene && !isRightMouseDown)
                 {
-
+                    currentScene->SetSceneMode(ESceneMode::ESM_ROTATE);
                 }
                 break;
             }
-            case VK_F2:
+            case 'R':
             {
-                if (schedular)
+                if (currentScene && !isRightMouseDown)
                 {
-
+                    currentScene->SetSceneMode(ESceneMode::ESM_SCALE);
                 }
                 break;
 
@@ -243,6 +250,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 void MoveCameraRealtime()
 {
     if ((GetAsyncKeyState(VK_RBUTTON) & 0x8000) == 0) return;
+    if (!currentScene) return;
+    if (currentScene->bGrabbing) return;
 
     XMVECTOR moveVector = XMVectorZero();
 
@@ -270,6 +279,9 @@ void MoveCameraRealtime()
 
 void RotateCameraRealtime()
 {
+    if (!currentScene) return;
+    if (currentScene->bGrabbing) return;
+
     static POINT prevMousePos = {0,0};
 
     POINT currMousePos;

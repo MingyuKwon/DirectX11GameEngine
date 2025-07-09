@@ -1,10 +1,14 @@
 #pragma once
 #include <KMGDataStructure.h>
 
+class KMGScene;
+
+
 class KMGSceneWindow
 {
 public:
 	void DrawSceneWindow(
+		KMGScene* currentScene,
 		int mainWindowWidth, int mainWindowHeight,
 		std::atomic<int>& sceneWindowWidth, std::atomic<int>& sceneWindowHeight,
 		std::atomic<bool>& resizeRequested,
@@ -13,6 +17,7 @@ public:
 	);
 
 private:
+	void ShowSceneMode(KMGScene* currentScene);
 	void ShowFPS_CameraSpeed();
 	void CheckSceneClick(int sceneWindowWidth, int sceneWindowHeight,
 		DirectX::XMMATRIX currentCameraViewMatrix, DirectX::XMMATRIX currentCameraProjectionMatrix

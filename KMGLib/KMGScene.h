@@ -7,9 +7,23 @@
 #include <memory>
 #include <KMGDataStructure.h>
 
+enum class ESceneMode
+{
+    ESM_NONE,
+
+    ESM_SELECT,
+    ESM_MOVE,
+    ESM_ROTATE,
+    ESM_SCALE,
+
+    ESM_MAX,
+
+};
+
 class KMGScene {
 public:
-    
+    bool bGrabbing = false;
+
     KMGActor* CreateActor(std::wstring name);
     void EraseActor(const std::wstring& name);
 
@@ -81,8 +95,48 @@ public:
     inline std::unordered_set<std::wstring>& GetActorNames() {
         return actorNames;
     }
+
+    inline ESceneMode GetSceneMode()
+    {
+        return sceneMode;
+    }
+
+    inline void SetSceneMode(ESceneMode mode)
+    {
+        sceneMode = mode;
+
+        switch (sceneMode)
+        {
+        case ESceneMode::ESM_NONE:
+            break;
+        case ESceneMode::ESM_SELECT:
+            std::cout << "ESM_SELECT\n";
+
+            break;
+        case ESceneMode::ESM_MOVE:
+            std::cout << "ESM_MOVE\n";
+
+            break;
+        case ESceneMode::ESM_ROTATE:
+            std::cout << "ESM_ROTATE\n";
+
+            break;
+        case ESceneMode::ESM_SCALE:
+            std::cout << "ESM_SCALE\n";
+
+            break;
+        case ESceneMode::ESM_MAX:
+
+            break;
+        default:
+            break;
+        }
+    }
+
 private:
     int ActorCreateCount = 0;
+    ESceneMode sceneMode = ESceneMode::ESM_SELECT;
+
 
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;

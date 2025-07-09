@@ -19,6 +19,7 @@ extern std::atomic<float> deltaTime;
 extern float g_cameraMoveSpeed;
 
 void KMGSceneWindow::DrawSceneWindow(
+    KMGScene* currentScene,
     int mainWindowWidth, int mainWindowHeight,
     std::atomic<int>& sceneWindowWidth, std::atomic<int>& sceneWindowHeight,
     std::atomic<bool>& resizeRequested,
@@ -68,6 +69,7 @@ void KMGSceneWindow::DrawSceneWindow(
     );
 
     ShowFPS_CameraSpeed();
+    ShowSceneMode(currentScene);
 
     ImGui::End();
 }
@@ -100,6 +102,50 @@ void KMGSceneWindow::CheckSceneClick(int sceneWindowWidth, int sceneWindowHeight
     }
 }
 
+
+void KMGSceneWindow::ShowSceneMode(KMGScene* currentScene)
+{
+    if (!currentScene) return;
+
+    struct SceneModeEntry {
+        ESceneMode mode;
+        const char* label;
+    };
+
+    SceneModeEntry modes[] = {
+        { ESceneMode::ESM_SELECT, "SELECT (Q)" },
+        { ESceneMode::ESM_MOVE,   "MOVE (W)"   },
+        { ESceneMode::ESM_ROTATE, "ROTATE (E)" },
+        { ESceneMode::ESM_SCALE,  "SCALE (R)"  }
+    };
+
+    ESceneMode currentMode = currentScene->GetSceneMode();
+
+    ImGui::SetCursorPos(ImVec2(15, 35)); 
+
+    for (int i = 0; i < IM_ARRAYSIZE(modes); ++i)
+    {
+        const auto& entry = modes[i];
+
+        if (entry.mode == currentMode)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.3f, 0.6f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.15f, 0.4f, 0.7f, 1.0f));
+        }
+
+        if (ImGui::Button(entry.label, ImVec2(80, 20))) {
+            currentScene->SetSceneMode(entry.mode);
+        }
+
+        if (entry.mode == currentMode) {
+            ImGui::PopStyleColor(2);
+        }
+
+        if (i < IM_ARRAYSIZE(modes) - 1) {
+            ImGui::SameLine();
+        }
+    }
+}
 
 void KMGSceneWindow::ShowFPS_CameraSpeed()
 {
