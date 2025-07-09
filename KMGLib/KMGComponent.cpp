@@ -96,16 +96,26 @@ float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX:
 
 void StaticMeshComponent::AxisOnly_CheckHoverAxis(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, EHoverMode& hoverMode) const
 {
-	std::cout << "AxisOnly_CheckHoverAxis Start\n";
-	for (const BoundingBox& box : boundingBoxs)
+	EHoverMode hoverModes[3] = {
+		EHoverMode::EHM_Y,
+		EHoverMode::EHM_Z,
+		EHoverMode::EHM_X,
+	};
+
+	hoverMode = EHoverMode::EHM_NONE;
+
+	for (int i=0; i<3; i++)
 	{
+		const BoundingBox& box = boundingBoxs[i+1];
+
 		float distance;
 		bool result = box.Intersects(rayOrigin, rayDir, distance);
 
-		std::cout << result << "\n";
-
+		if (result)
+		{
+			hoverMode = hoverModes[i];
+		}
 	}
-	std::cout << "AxisOnly_CheckHoverAxis End\n";
 
 }
 

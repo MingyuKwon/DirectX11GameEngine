@@ -22,8 +22,8 @@ void KMGScene::CreateAxis()
     DirectX::XMFLOAT4 axisColors[3] =
     {
         DirectX::XMFLOAT4(0, 0, 1, 1.0f),
-        DirectX::XMFLOAT4(1, 0, 0, 1.0f),
         DirectX::XMFLOAT4(0, 1, 0, 1.0f),
+        DirectX::XMFLOAT4(1, 0, 0, 1.0f),
 
     };
 
@@ -146,6 +146,27 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
         localRayDir = XMVector3Normalize(localRayDir);
 
         staicComp->AxisOnly_CheckHoverAxis(localRayOrigin, localRayDir, hoverMode);
+
+        switch (hoverMode)
+        {
+        case EHoverMode::EHM_NONE:
+            break;
+        case EHoverMode::EHM_X:
+            std::cout << "EHoverMode::EHM_X" << "\n";
+            break;
+        case EHoverMode::EHM_Y:
+            std::cout << "EHoverMode::EHM_Y" << "\n";
+
+            break;
+        case EHoverMode::EHM_Z:
+            std::cout << "EHoverMode::EHM_Z" << "\n";
+
+            break;
+        case EHoverMode::EHM_MAX:
+            break;
+        default:
+            break;
+        }
     }
 
 }

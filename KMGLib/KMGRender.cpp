@@ -501,14 +501,6 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
-
-    // 여기서 Axis를 따로 그리도록 처리한다
-
-    /*
-    
-    
-    */
-
     
     KMGActor* axisActor = scene->GetAxisActor();
     if (axisActor)
