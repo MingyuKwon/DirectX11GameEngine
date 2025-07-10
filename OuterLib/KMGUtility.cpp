@@ -48,44 +48,36 @@ DirectX::XMVECTOR KMGUtility::GenerateCameraRayDirection(
 
 }
 
-DirectX::XMVECTOR KMGUtility::GenerateScreenDeltaVector(
-    float prevMousePosX, float prevMousePosY,
-    float MousePosX, float MousePosY,
-    float viewportWidth, float viewportHeight,
-    const DirectX::XMMATRIX& viewMatrix,
-    const DirectX::XMMATRIX& projectionMatrix)
+DirectX::XMVECTOR KMGUtility::GenerateMoveDeltaVector(
+    DirectX::XMVECTOR rayDIr,
+    DirectX::XMVECTOR rayOrigin,
+    DirectX::XMVECTOR focusActorPosition,
+    DirectX::XMVECTOR normalVec,
+    DirectX::XMVECTOR aimVec)
 {
-    // 1. 마우스 → NDC 좌표
-    float prevNdcX = (2.0f * prevMousePosX) / viewportWidth - 1.0f;
-    float prevNdcY = 1.0f - (2.0f * prevMousePosY) / viewportHeight;
+    // 1. Ray-Plane 교차 계산
+    float denom = XMVectorGetX(DirectX::XMVector3Dot(rayDIr, normalVec));
 
-    float currNdcX = (2.0f * MousePosX) / viewportWidth - 1.0f;
-    float currNdcY = 1.0f - (2.0f * MousePosY) / viewportHeight;
+    if (fabs(denom) < 1e-6f)
+    {
+        // 평면과 거의 평행 → fallback: 이동 없음
+        return DirectX::XMVectorZero();
+    }
 
-    // 2. Clip Space 좌표 (Z=0은 Near Plane)
-    DirectX::XMVECTOR clipPrev = DirectX::XMVectorSet(prevNdcX, prevNdcY, 0.0f, 1.0f);
-    DirectX::XMVECTOR clipCurr = DirectX::XMVectorSet(currNdcX, currNdcY, 0.0f, 1.0f);
+    DirectX::XMVECTOR diff = focusActorPosition - rayOrigin;
+    float t = XMVectorGetX(DirectX::XMVector3Dot(diff, normalVec)) / denom;
+    DirectX::XMVECTOR hitPoint = rayOrigin + rayDIr * t;
 
-    // 3. 역투영 행렬
-    DirectX::XMMATRIX invProj = DirectX::XMMatrixInverse(nullptr, projectionMatrix);
-    DirectX::XMMATRIX invView = DirectX::XMMatrixInverse(nullptr, viewMatrix);
+    // 2. hitPoint에서 actor까지 벡터
+    DirectX::XMVECTOR delta = hitPoint - focusActorPosition;
 
-    // 4. Clip → Eye → World
-    DirectX::XMVECTOR eyePrev = DirectX::XMVector3TransformCoord(clipPrev, invProj);
-    DirectX::XMVECTOR eyeCurr = DirectX::XMVector3TransformCoord(clipCurr, invProj);
+    // 3. delta를 aimVec(예: X축)으로 투영
+    float projAmount = XMVectorGetX(DirectX::XMVector3Dot(delta, aimVec));
+    DirectX::XMVECTOR result = aimVec * projAmount;
 
-    DirectX::XMVECTOR worldPrev = DirectX::XMVector3TransformCoord(eyePrev, invView);
-    DirectX::XMVECTOR worldCurr = DirectX::XMVector3TransformCoord(eyeCurr, invView);
+    return result;
 
-    // 5. 이동 방향 (벡터 차)
 
-    XMFLOAT3 worldFloatPrev, worldFloat;
-    XMStoreFloat3(&worldFloatPrev, worldPrev);
-    XMStoreFloat3(&worldFloat, worldCurr);
-
-    DRAW_DEBUG_LINE(worldFloatPrev, worldFloat, XMFLOAT4(1,0,0,0), 0);
-
-    return worldCurr - worldPrev;
 }
 
 std::string KMGUtility::WStringToString(std::wstring wstr)

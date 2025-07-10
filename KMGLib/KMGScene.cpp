@@ -183,33 +183,32 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
 
 }
 
-void KMGScene::GrabAxis(DirectX::XMVECTOR moveWorldDir)
+void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir)
 {
-    DirectX::XMVECTOR axis;
-    
-
-    DirectX::XMVECTOR dotResult;
-
-    DirectX::XMVECTOR cameraForward = currentCamera.GetForwardVector();
-
     if (focusActor == nullptr) return;
+
+    DirectX::XMVECTOR rayOrigin = currentCamera.GetCameraPosition();
+    DirectX::XMVECTOR focusActorPosition = focusActor->GetPosition();
+
+    DirectX::XMVECTOR normalVec;
+    DirectX::XMVECTOR aimVec;
 
     switch (hoverMode)
     {
     case EHoverMode::EHM_X:
-        axis = XMVectorSet(1, 0, 0, 1);
-        dotResult = DirectX::XMVector3Dot(axis, moveWorldDir);
+        normalVec = XMVectorSet(0, 0, 1, 0);
+        aimVec = XMVectorSet(1, 0, 0, 0);
         break;
 
     case EHoverMode::EHM_Y:
-        axis = XMVectorSet(0, 1, 0, 1);
-        dotResult = DirectX::XMVector3Dot(axis, moveWorldDir);
+        normalVec = XMVectorSet(0, 0, 1, 0);
+        aimVec = XMVectorSet(0, 1, 0, 0);
 
         break;
 
     case EHoverMode::EHM_Z:
-        axis = XMVectorSet(0, 0, 1, 1);
-        dotResult = DirectX::XMVector3Dot(axis, moveWorldDir);
+        normalVec = XMVectorSet(1, 0, 0, 0);
+        aimVec = XMVectorSet(0, 0, 1, 0);
 
         break;
 
@@ -217,18 +216,17 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR moveWorldDir)
         return;
     }
 
-    float moveSpeed = 1000;
-    float alignment = fabs(XMVectorGetX(XMVector3Dot(axis, cameraForward)));
-    float correctionFactor = 0.1f;
 
-    if (alignment >= 0.9f)
-    {
-        correctionFactor += (alignment - 0.9f) * 15.0f; // 매우 급격히 상승
-    }
-    // 여기서 축 이동 경로가 카메라 정면 벡터와 수직이면 이동거리가 달라지기에 그걸 보정하는 거다
+    DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
+        rayDir,
+        rayOrigin,
+        focusActorPosition,
+        normalVec,
+        aimVec
+    );
 
-    std::cout << alignment << "alignment\n";
-    KMGCommand::TranslateActor(focusActor->GetName(), dotResult * axis * moveSpeed * correctionFactor);
+    std::cout  << "alignment\n";
+    KMGCommand::TranslateActor(focusActor->GetName(), moveVec );
 
 }
 

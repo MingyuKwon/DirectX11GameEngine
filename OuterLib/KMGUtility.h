@@ -9,13 +9,13 @@ namespace KMGUtility {
         const DirectX::XMMATRIX& projectionMatrix
         );
 
-    DirectX::XMVECTOR GenerateScreenDeltaVector(
-        float prevMousePosX, float prevMousePosY,
-        float MousePosX, float MousePosY,
-        float viewportWidth, float viewportHeight,
-        const DirectX::XMMATRIX& viewMatrix,
-        const DirectX::XMMATRIX& projectionMatrix
-    );
+    DirectX::XMVECTOR GenerateMoveDeltaVector(
+        DirectX::XMVECTOR rayDIr,
+        DirectX::XMVECTOR rayOrigin,
+        DirectX::XMVECTOR focusActorPosition,
+        DirectX::XMVECTOR normalVec,
+        DirectX::XMVECTOR aimVec
+        );
 
     std::string WStringToString(std::wstring wstr);
     std::wstring StringToWString(const std::string& str);

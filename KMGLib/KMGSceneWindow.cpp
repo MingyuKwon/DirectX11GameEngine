@@ -92,28 +92,24 @@ void KMGSceneWindow::CheckSceneClick(
     ImVec2 mousePos = ImGui::GetMousePos();
     static ImVec2 prevMousePos = mousePos;
 
+    ImVec2 localClick = ImVec2(mousePos.x - texScreenPos.x, mousePos.y - texScreenPos.y);
+
+    XMVECTOR rayDir = KMGUtility::GenerateCameraRayDirection(
+        localClick.x, localClick.y,
+        sceneWindowWidth, sceneWindowHeight,
+        currentCameraViewMatrix, currentCameraProjectionMatrix);
+
+
     if (bSceneFocused && ImGui::IsMouseDown(0))
     {
-        XMVECTOR deltaWorldVector = KMGUtility::GenerateScreenDeltaVector(
-            prevMousePos.x, prevMousePos.y,
-            mousePos.x, mousePos.y,
-            sceneWindowWidth, sceneWindowHeight,
-            currentCameraViewMatrix, currentCameraProjectionMatrix);
-
-
-        currentScene->GrabAxis(deltaWorldVector);
+        currentScene->GrabAxis(rayDir);
     }
 
 
-    ImVec2 localClick = ImVec2(mousePos.x - texScreenPos.x, mousePos.y - texScreenPos.y);
 
     if (localClick.x >= 0 && localClick.y >= 0 &&
         localClick.x < sceneWindowWidth && localClick.y < sceneWindowHeight) {
 
-        XMVECTOR rayDir = KMGUtility::GenerateCameraRayDirection(
-            localClick.x, localClick.y,
-            sceneWindowWidth, sceneWindowHeight,
-            currentCameraViewMatrix, currentCameraProjectionMatrix);
 
         currentScene->CheckHoverAxis(rayDir);
 

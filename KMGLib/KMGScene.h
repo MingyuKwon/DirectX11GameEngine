@@ -134,7 +134,7 @@ public:
     }
 
     void CheckHoverAxis(DirectX::XMVECTOR rayDir);
-    void GrabAxis(DirectX::XMVECTOR moveWorldDir);
+    void GrabAxis(DirectX::XMVECTOR rayDir);
 
     void ColorHoverAxis();
 
