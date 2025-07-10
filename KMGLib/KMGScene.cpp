@@ -217,13 +217,17 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR moveWorldDir)
         return;
     }
 
-    float moveSpeed = 100;
+    float moveSpeed = 1000;
     float alignment = fabs(XMVectorGetX(XMVector3Dot(axis, cameraForward)));
-    float correctionFactor = logf(1.0f + alignment * 100);
+    float correctionFactor = 0.1f;
 
+    if (alignment >= 0.9f)
+    {
+        correctionFactor += (alignment - 0.9f) * 15.0f; // 매우 급격히 상승
+    }
     // 여기서 축 이동 경로가 카메라 정면 벡터와 수직이면 이동거리가 달라지기에 그걸 보정하는 거다
 
-    std::cout << correctionFactor << "GrabAxis\n";
+    std::cout << alignment << "alignment\n";
     KMGCommand::TranslateActor(focusActor->GetName(), dotResult * axis * moveSpeed * correctionFactor);
 
 }

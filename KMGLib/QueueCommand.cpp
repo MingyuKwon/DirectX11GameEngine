@@ -393,6 +393,8 @@ void SceneCommand_UpdateActorPosition::Execute(KMGScene*& scene)
 		{
 			findActor->SetPosition(dx, dy, dz);
 		}
+
+		scene->GetAxisActor()->SetPosition(findActor->GetPosition());
 	}
 }
 
