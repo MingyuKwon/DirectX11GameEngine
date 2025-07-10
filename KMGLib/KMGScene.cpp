@@ -186,7 +186,7 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
 void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
 {
     static bool bInitialized = false;
-    static DirectX::XMVECTOR prevVec = XMVectorSet(0,0,0,0);
+    static DirectX::XMVECTOR prevPosition = XMVectorSet(0,0,0,0);
 
     if (focusActor == nullptr || !bTrigger)
     {
@@ -233,17 +233,24 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
         aimVec
     );
 
+    DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
+
     if (bInitialized)
     {
-        std::cout << "alignment\n";
-        KMGCommand::TranslateActor(focusActor->GetName(), moveVec - prevVec);
+        DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
+        XMFLOAT3 coutFloat;
+        XMStoreFloat3(&coutFloat,gapVector);
+
+        std::cout << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+        KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
     }
     else
     {
         bInitialized = true;
     }
 
-    prevVec = moveVec;
+    prevPosition = pointPosition;
 }
 
 
