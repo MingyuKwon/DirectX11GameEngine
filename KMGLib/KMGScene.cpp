@@ -185,36 +185,47 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
 
 void KMGScene::GrabAxis(DirectX::XMVECTOR moveWorldDir)
 {
-    std::cout << "GrabAxis\n";
-
-    DirectX::XMVECTOR xAxis = XMVectorSet(1,0,0,1);
-    DirectX::XMVECTOR yAxis = XMVectorSet(0, 1, 0, 1);
-    DirectX::XMVECTOR zAxis = XMVectorSet(0, 0, 1, 1);
+    DirectX::XMVECTOR axis;
     
-    float moveSpeed = 10;
 
-    DirectX::XMVECTOR dotXResult = DirectX::XMVector3Dot(xAxis, moveWorldDir) * moveSpeed;
-    DirectX::XMVECTOR dotYResult = DirectX::XMVector3Dot(yAxis, moveWorldDir) * moveSpeed;
-    DirectX::XMVECTOR dotZResult = DirectX::XMVector3Dot(zAxis, moveWorldDir) * moveSpeed;
+    DirectX::XMVECTOR dotResult;
+
+    DirectX::XMVECTOR cameraForward = currentCamera.GetForwardVector();
 
     if (focusActor == nullptr) return;
 
     switch (hoverMode)
     {
     case EHoverMode::EHM_X:
-        KMGCommand::TranslateActor(focusActor->GetName(), dotXResult);
+        axis = XMVectorSet(1, 0, 0, 1);
+        dotResult = DirectX::XMVector3Dot(axis, moveWorldDir);
         break;
 
     case EHoverMode::EHM_Y:
-        KMGCommand::TranslateActor(focusActor->GetName(), dotYResult);
+        axis = XMVectorSet(0, 1, 0, 1);
+        dotResult = DirectX::XMVector3Dot(axis, moveWorldDir);
 
         break;
 
     case EHoverMode::EHM_Z:
-        KMGCommand::TranslateActor(focusActor->GetName(), dotZResult);
+        axis = XMVectorSet(0, 0, 1, 1);
+        dotResult = DirectX::XMVector3Dot(axis, moveWorldDir);
 
         break;
+
+    default:
+        return;
     }
+
+    float moveSpeed = 100;
+    float alignment = fabs(XMVectorGetX(XMVector3Dot(axis, cameraForward)));
+    float correctionFactor = logf(1.0f + alignment * 100);
+
+    // 여기서 축 이동 경로가 카메라 정면 벡터와 수직이면 이동거리가 달라지기에 그걸 보정하는 거다
+
+    std::cout << correctionFactor << "GrabAxis\n";
+    KMGCommand::TranslateActor(focusActor->GetName(), dotResult * axis * moveSpeed * correctionFactor);
+
 }
 
 
