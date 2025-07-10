@@ -183,9 +183,16 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
 
 }
 
-void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir)
+void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
 {
-    if (focusActor == nullptr) return;
+    static bool bInitialized = false;
+    static DirectX::XMVECTOR prevVec = XMVectorSet(0,0,0,0);
+
+    if (focusActor == nullptr || !bTrigger)
+    {
+        bInitialized = false;
+        return;
+    }
 
     DirectX::XMVECTOR rayOrigin = currentCamera.GetCameraPosition();
     DirectX::XMVECTOR focusActorPosition = focusActor->GetPosition();
@@ -213,6 +220,7 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir)
         break;
 
     default:
+        bInitialized = false;
         return;
     }
 
@@ -225,9 +233,17 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir)
         aimVec
     );
 
-    std::cout  << "alignment\n";
-    KMGCommand::TranslateActor(focusActor->GetName(), moveVec );
+    if (bInitialized)
+    {
+        std::cout << "alignment\n";
+        KMGCommand::TranslateActor(focusActor->GetName(), moveVec - prevVec);
+    }
+    else
+    {
+        bInitialized = true;
+    }
 
+    prevVec = moveVec;
 }
 
 

@@ -100,12 +100,8 @@ void KMGSceneWindow::CheckSceneClick(
         currentCameraViewMatrix, currentCameraProjectionMatrix);
 
 
-    if (bSceneFocused && ImGui::IsMouseDown(0))
-    {
-        currentScene->GrabAxis(rayDir);
-    }
-
-
+    bool currentGrabbing = bSceneFocused && ImGui::IsMouseDown(0);
+    currentScene->GrabAxis(rayDir, currentGrabbing);
 
     if (localClick.x >= 0 && localClick.y >= 0 &&
         localClick.x < sceneWindowWidth && localClick.y < sceneWindowHeight) {

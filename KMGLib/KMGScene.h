@@ -134,7 +134,7 @@ public:
     }
 
     void CheckHoverAxis(DirectX::XMVECTOR rayDir);
-    void GrabAxis(DirectX::XMVECTOR rayDir);
+    void GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger);
 
     void ColorHoverAxis();
 
