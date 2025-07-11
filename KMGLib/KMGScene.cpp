@@ -238,8 +238,6 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     case EHoverMode::EHM_Z:
         normalVec = XMVectorSet(1, 0, 0, 0);
         aimVec = XMVectorSet(0, 0, 1, 0);
-
-        
         break;
 
     default:
@@ -270,7 +268,14 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
             gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
         }
         XMStoreFloat3(&coutFloat, gapVector);
-        std::cout << "gapVector : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+        if (coutFloat.x + coutFloat.y + coutFloat.z < 0)
+        {
+            std::cout << "gapVector : " << "-" << " \n";
+        }
+        else
+        {
+            std::cout << "gapVector : " << "+" << " \n";
+        }
 
 
         switch (sceneMode)
@@ -300,6 +305,49 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     }
 
     prevPosition = pointPosition;
+}
+
+void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
+{
+    static DirectX::XMVECTOR prevPosition = XMVectorSet(0, 0, 0, 0);
+
+    DirectX::XMVECTOR normalVec;
+    DirectX::XMVECTOR aimVec;
+
+    switch (hoverMode)
+    {
+    case EHoverMode::EHM_X:
+        normalVec = XMVectorSet(0, 0, 1, 0);
+        aimVec = XMVectorSet(1, 0, 0, 0);
+        break;
+
+    case EHoverMode::EHM_Y:
+        normalVec = XMVectorSet(0, 0, 1, 0);
+        aimVec = XMVectorSet(0, 1, 0, 0);
+
+        break;
+
+    case EHoverMode::EHM_Z:
+        normalVec = XMVectorSet(1, 0, 0, 0);
+        aimVec = XMVectorSet(0, 0, 1, 0);
+        break;
+
+    default:
+        bInitialized = false;
+        return;
+    }
+
+
+    prevPosition = pointPosition;
+
+}
+
+void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
+{
+}
+
+void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
+{
 }
 
 

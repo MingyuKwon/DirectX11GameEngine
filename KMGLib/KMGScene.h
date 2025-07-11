@@ -138,6 +138,11 @@ public:
     void CheckHoverAxis(DirectX::XMVECTOR rayDir);
     void GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger);
 
+    void TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition);
+    void RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition);
+    void ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition);
+
+
     void ColorHoverAxis();
 
 private:
