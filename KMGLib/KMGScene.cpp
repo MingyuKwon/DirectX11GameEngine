@@ -84,7 +84,15 @@ void KMGScene::ChangeAxisTransform()
     axisActor->SetVisibility(true);
 
     axisActor->SetPosition(focusActor->GetPosition());
-    axisActor->SetRotation(focusActor->GetRotation());
+
+    if (sceneMode == ESceneMode::ESM_ROTATE)
+    {
+        axisActor->SetRotation(focusActor->GetRotation());
+    }
+    else
+    {
+        axisActor->SetRotation(XMVectorSet(0,0,0,0));
+    }
 }
 
 KMGActor* KMGScene::CreateActor(std::wstring name)
