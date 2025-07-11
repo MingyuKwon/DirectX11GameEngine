@@ -219,6 +219,33 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     DirectX::XMVECTOR rayOrigin = currentCamera.GetCameraPosition();
     DirectX::XMVECTOR focusActorPosition = focusActor->GetPosition();
 
+
+    switch (sceneMode)
+    {
+    case ESceneMode::ESM_NONE:
+        break;
+    case ESceneMode::ESM_SELECT:
+        break;
+    case ESceneMode::ESM_MOVE:
+        TranslateAxis(rayDir, rayOrigin, focusActorPosition, bInitialized);
+        break;
+    case ESceneMode::ESM_ROTATE:
+        //KMGCommand::RotateActor(focusActor->GetName(), gapVector);
+        break;
+    case ESceneMode::ESM_SCALE:
+       // KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * 0.2);
+        break;
+    case ESceneMode::ESM_MAX:
+        break;
+    default:
+        break;
+    }
+
+    bInitialized = true;
+
+    return;
+
+
     DirectX::XMVECTOR normalVec;
     DirectX::XMVECTOR aimVec;
 
@@ -307,7 +334,7 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     prevPosition = pointPosition;
 }
 
-void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
+void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
 {
     static DirectX::XMVECTOR prevPosition = XMVectorSet(0, 0, 0, 0);
 
@@ -333,10 +360,24 @@ void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrig
         break;
 
     default:
-        bInitialized = false;
         return;
     }
 
+    DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
+        rayDir,
+        rayOrigin,
+        focusActorPosition,
+        normalVec,
+        aimVec
+    );
+
+    DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
+
+    if (bInitialized)
+    {
+        DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
+        KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
+    }
 
     prevPosition = pointPosition;
 
