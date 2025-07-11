@@ -230,7 +230,7 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
         TranslateAxis(rayDir, rayOrigin, focusActorPosition, bInitialized);
         break;
     case ESceneMode::ESM_ROTATE:
-        //KMGCommand::RotateActor(focusActor->GetName(), gapVector);
+        RotateAxis(rayDir, rayOrigin, focusActorPosition, bInitialized);
         break;
     case ESceneMode::ESM_SCALE:
        // KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * 0.2);
@@ -383,11 +383,71 @@ void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrig
 
 }
 
-void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
+void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
 {
+    static DirectX::XMVECTOR prevPosition = XMVectorSet(0, 0, 0, 0);
+
+    DirectX::XMVECTOR normalVec;
+    DirectX::XMVECTOR aimVec;
+
+    switch (hoverMode)
+    {
+    case EHoverMode::EHM_X:
+        normalVec = XMVectorSet(0, 0, 1, 0);
+        aimVec = XMVectorSet(1, 0, 0, 0);
+        break;
+
+    case EHoverMode::EHM_Y:
+        normalVec = XMVectorSet(0, 0, 1, 0);
+        aimVec = XMVectorSet(0, 1, 0, 0);
+
+        break;
+
+    case EHoverMode::EHM_Z:
+        normalVec = XMVectorSet(1, 0, 0, 0);
+        aimVec = XMVectorSet(0, 0, 1, 0);
+        break;
+
+    default:
+        return;
+    }
+
+    DirectX::XMMATRIX focusWorldMat = focusActor->getWorldMatrix();
+
+    normalVec = XMVector3TransformNormal(normalVec, focusWorldMat);
+    aimVec = XMVector3TransformNormal(aimVec, focusWorldMat);
+
+
+    DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
+        rayDir,
+        rayOrigin,
+        focusActorPosition,
+        normalVec,
+        aimVec
+    );
+
+    DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
+    
+    if (bInitialized)
+    {
+        DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
+        // 실제 월드의 z 양의 방향과 axis의 z의 양의 방향이 반대여서 보정
+        gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
+
+        DirectX::XMMATRIX inv_focusWorldMat = XMMatrixInverse(nullptr, focusWorldMat);
+        gapVector = XMVector3TransformNormal(gapVector, inv_focusWorldMat);
+
+        XMFLOAT3 coutFloat;
+        XMStoreFloat3(&coutFloat, gapVector);
+        std::cout << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+    }
+
+    prevPosition = pointPosition;
+
+
 }
 
-void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOriginm, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
+void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
 {
 }
 
