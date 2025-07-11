@@ -28,6 +28,31 @@ public:
         name = inName;
     }
 
+    inline void SetVisibility(bool bVisible)
+    {
+        this->bVisible = bVisible;
+
+        if (this->bVisible)
+        {
+            StaticMeshComponent* staticComponent = GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+            std::vector<KMGStaticMesh>* meshes = staticComponent->GetMeshes();
+
+            if (meshes)
+            {
+                for (KMGStaticMesh& mesh : *meshes)
+                {
+                    mesh.bShouldMeshChange = true;
+                }
+            }
+        }
+        
+    }
+
+    inline bool IsVisible()
+    {
+        return bVisible;
+    }
+
     DirectX::XMMATRIX getWorldMatrix();
 
     inline DirectX::XMVECTOR GetPosition() const { return transform.position; }
@@ -81,6 +106,8 @@ private:
 
     std::wstring name;
     KMGTransform transform;
+
+    bool bVisible = true;
 
     int actorID = 0;
 

@@ -77,10 +77,14 @@ void KMGScene::ChangeAxisTransform()
 {
     if (focusActor == nullptr)
     {
+        axisActor->SetVisibility(false);
         return;
     }
 
+    axisActor->SetVisibility(true);
+
     axisActor->SetPosition(focusActor->GetPosition());
+    axisActor->SetRotation(focusActor->GetRotation());
 }
 
 KMGActor* KMGScene::CreateActor(std::wstring name)

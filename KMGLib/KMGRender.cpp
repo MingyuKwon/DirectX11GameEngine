@@ -503,7 +503,7 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     
     KMGActor* axisActor = scene->GetAxisActor();
-    if (axisActor)
+    if (axisActor && axisActor->IsVisible())
     {
         std::wstring actorID = std::to_wstring(axisActor->GetActorID());
         vector<KMGStaticMesh>* actorMeshes = nullptr;
