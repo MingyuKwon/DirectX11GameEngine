@@ -378,7 +378,6 @@ void SceneCommand_UpdateActorPosition::Execute(KMGScene*& scene)
 	if (!scene) return;
 	
 	KMGActor* findActor = scene->GetActor(actorName);
-	KMGActor* focusActor = scene->GetFocusActor();
 
 	if (findActor)
 	{
@@ -394,12 +393,6 @@ void SceneCommand_UpdateActorPosition::Execute(KMGScene*& scene)
 		{
 			findActor->SetPosition(dx, dy, dz);
 		}
-
-		if (focusActor && findActor->GetActorID() == focusActor->GetActorID())
-		{
-			scene->GetAxisActor()->SetPosition(findActor->GetPosition());
-		}
-
 		
 	}
 }

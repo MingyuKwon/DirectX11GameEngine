@@ -13,6 +13,7 @@ public:
     KMGScene();
 
     void CreateAxis();
+    void ChangeAxisTransform();
 
     KMGActor* CreateActor(std::wstring name);
     void EraseActor(const std::wstring& name);

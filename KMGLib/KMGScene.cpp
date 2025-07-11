@@ -73,6 +73,16 @@ void KMGScene::CreateAxis()
     
 }
 
+void KMGScene::ChangeAxisTransform()
+{
+    if (focusActor == nullptr)
+    {
+        return;
+    }
+
+    axisActor->SetPosition(focusActor->GetPosition());
+}
+
 KMGActor* KMGScene::CreateActor(std::wstring name)
 {
     std::lock_guard<std::mutex> lock(actorMapLock);
@@ -130,7 +140,7 @@ void KMGScene::Tick(float deltaTime)
     }
 
     ColorHoverAxis();
-
+    ChangeAxisTransform();
 }
 
 KMGActor* KMGScene::GetActor(const std::wstring& name)
