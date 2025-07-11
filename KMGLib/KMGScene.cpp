@@ -251,8 +251,6 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
         std::cout << "gapVector : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
 
-
-
         switch (sceneMode)
         {
         case ESceneMode::ESM_NONE:
@@ -263,7 +261,7 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
             KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
             break;
         case ESceneMode::ESM_ROTATE:
-            KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
+            KMGCommand::RotateActor(focusActor->GetName(), gapVector);
             break;
         case ESceneMode::ESM_SCALE:
             KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * 0.2);
