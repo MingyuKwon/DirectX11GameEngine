@@ -106,8 +106,11 @@ void KMGSceneWindow::CheckSceneClick(
     if (localClick.x >= 0 && localClick.y >= 0 &&
         localClick.x < sceneWindowWidth && localClick.y < sceneWindowHeight) {
 
-
-        currentScene->CheckHoverAxis(rayDir);
+        if (!currentGrabbing)
+        {
+            currentScene->CheckHoverAxis(rayDir);
+        }
+        
 
         if (bSceneFocused && ImGui::IsMouseClicked(0))
         {

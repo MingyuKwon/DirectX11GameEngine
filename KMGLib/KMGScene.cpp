@@ -238,12 +238,32 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     if (bInitialized)
     {
         DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
+        gapVector *= 1.1f;
         XMFLOAT3 coutFloat;
         XMStoreFloat3(&coutFloat,gapVector);
 
         std::cout << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
-        KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
+        switch (sceneMode)
+        {
+        case ESceneMode::ESM_NONE:
+            break;
+        case ESceneMode::ESM_SELECT:
+            break;
+        case ESceneMode::ESM_MOVE:
+            KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
+            break;
+        case ESceneMode::ESM_ROTATE:
+            KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
+            break;
+        case ESceneMode::ESM_SCALE:
+            KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
+            break;
+        case ESceneMode::ESM_MAX:
+            break;
+        default:
+            break;
+        }
     }
     else
     {

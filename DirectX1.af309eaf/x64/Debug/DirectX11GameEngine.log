@@ -1,2 +1,24 @@
 ﻿  KMGScene.cpp
+  KMGSceneWindow.cpp
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(39,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(42,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(42,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(43,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(43,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(61,43): warning C4244: '인수': 'float'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(62,44): warning C4244: '인수': 'float'에서 'const int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,54): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,54): warning C4244:         with
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,54): warning C4244:         [
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,54): warning C4244:             _Ty=int
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,54): warning C4244:         ]
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,36): warning C4244: '인수': '_Ty'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,36): warning C4244:         with
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,36): warning C4244:         [
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,36): warning C4244:             _Ty=int
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(66,36): warning C4244:         ]
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(99,27): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(99,9): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\DirectX11GameEngine\KMGLib\KMGSceneWindow.cpp(216,21): warning C4244: '초기화 중': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  코드를 생성하고 있습니다...
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe
