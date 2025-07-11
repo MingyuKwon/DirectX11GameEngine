@@ -219,7 +219,6 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     DirectX::XMVECTOR rayOrigin = currentCamera.GetCameraPosition();
     DirectX::XMVECTOR focusActorPosition = focusActor->GetPosition();
 
-
     switch (sceneMode)
     {
     case ESceneMode::ESM_NONE:
@@ -242,96 +241,6 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     }
 
     bInitialized = true;
-
-    return;
-
-
-    DirectX::XMVECTOR normalVec;
-    DirectX::XMVECTOR aimVec;
-
-    switch (hoverMode)
-    {
-    case EHoverMode::EHM_X:
-        normalVec = XMVectorSet(0, 0, 1, 0);
-        aimVec = XMVectorSet(1, 0, 0, 0);
-        break;
-
-    case EHoverMode::EHM_Y:
-        normalVec = XMVectorSet(0, 0, 1, 0);
-        aimVec = XMVectorSet(0, 1, 0, 0);
-
-        break;
-
-    case EHoverMode::EHM_Z:
-        normalVec = XMVectorSet(1, 0, 0, 0);
-        aimVec = XMVectorSet(0, 0, 1, 0);
-        break;
-
-    default:
-        bInitialized = false;
-        return;
-    }
-
-
-    DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
-        rayDir,
-        rayOrigin,
-        focusActorPosition,
-        normalVec,
-        aimVec
-    );
-
-    DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
-
-    if (bInitialized)
-    {
-        DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
-        XMFLOAT3 coutFloat;
-        XMStoreFloat3(&coutFloat, prevPosition);
-
-        // 이거 왼손 좌표계에서 scale은 방향이 안맞더라
-        if (sceneMode == ESceneMode::ESM_SCALE)
-        {
-            gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
-        }
-        XMStoreFloat3(&coutFloat, gapVector);
-        if (coutFloat.x + coutFloat.y + coutFloat.z < 0)
-        {
-            std::cout << "gapVector : " << "-" << " \n";
-        }
-        else
-        {
-            std::cout << "gapVector : " << "+" << " \n";
-        }
-
-
-        switch (sceneMode)
-        {
-        case ESceneMode::ESM_NONE:
-            break;
-        case ESceneMode::ESM_SELECT:
-            break;
-        case ESceneMode::ESM_MOVE:
-            KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
-            break;
-        case ESceneMode::ESM_ROTATE:
-            KMGCommand::RotateActor(focusActor->GetName(), gapVector);
-            break;
-        case ESceneMode::ESM_SCALE:
-            KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * 0.2);
-            break;
-        case ESceneMode::ESM_MAX:
-            break;
-        default:
-            break;
-        }
-    }
-    else
-    {
-        bInitialized = true;
-    }
-
-    prevPosition = pointPosition;
 }
 
 void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
