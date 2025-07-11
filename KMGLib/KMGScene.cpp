@@ -217,6 +217,7 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
         normalVec = XMVectorSet(1, 0, 0, 0);
         aimVec = XMVectorSet(0, 0, 1, 0);
 
+        
         break;
 
     default:
@@ -238,11 +239,19 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     if (bInitialized)
     {
         DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
-        gapVector *= 1.1f;
         XMFLOAT3 coutFloat;
-        XMStoreFloat3(&coutFloat,gapVector);
+        XMStoreFloat3(&coutFloat, prevPosition);
 
-        std::cout << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+        // 이거 왼손 좌표계에서 scale은 방향이 안맞더라
+        if (sceneMode == ESceneMode::ESM_SCALE)
+        {
+            gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
+        }
+        XMStoreFloat3(&coutFloat, gapVector);
+        std::cout << "gapVector : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+
+
 
         switch (sceneMode)
         {
@@ -257,7 +266,7 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
             KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
             break;
         case ESceneMode::ESM_SCALE:
-            KMGCommand::TranslateActor(focusActor->GetName(), gapVector);
+            KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * 0.2);
             break;
         case ESceneMode::ESM_MAX:
             break;
