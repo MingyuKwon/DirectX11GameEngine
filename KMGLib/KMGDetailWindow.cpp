@@ -128,6 +128,9 @@ void KMGDetailWindow::ShowTransform()
         XMVECTOR rotationVec = currenFocusActor->GetRotation();
         XMVECTOR scaleVec = currenFocusActor->GetScale();
 
+        rotationVec = KMGUtility::QuaternionToEulerXYZ(currenFocusActor->GetRotation());
+
+
         position[0] = XMVectorGetX(positionVec);
         position[1] = XMVectorGetY(positionVec);
         position[2] = XMVectorGetZ(positionVec);
@@ -178,6 +181,7 @@ void KMGDetailWindow::ShowTransform()
 
 
             XMVECTOR changedRotation = XMVectorSet(rotation[0], rotation[1], rotation[2], 0);
+            changedRotation = KMGUtility::EulerXYZToQuaternion(changedRotation);
             KMGCommand::UpdateActorRotation(currenFocusActor->GetName(), changedRotation);
         }
 
