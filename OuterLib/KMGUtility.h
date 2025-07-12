@@ -9,13 +9,12 @@ namespace KMGUtility {
         const DirectX::XMMATRIX& projectionMatrix
         );
 
+
     DirectX::XMVECTOR GenerateMoveDeltaVector(
-        DirectX::XMVECTOR rayDIr,
+        DirectX::XMVECTOR rayDir,
         DirectX::XMVECTOR rayOrigin,
         DirectX::XMVECTOR focusActorPosition,
-        DirectX::XMVECTOR normalVec,
-        DirectX::XMVECTOR aimVec
-        );
+        DirectX::XMVECTOR aimVec);
 
     DirectX::XMVECTOR QuaternionToEulerXYZ(DirectX::XMVECTOR q);
     DirectX::XMVECTOR EulerXYZToQuaternion(DirectX::XMVECTOR euler);

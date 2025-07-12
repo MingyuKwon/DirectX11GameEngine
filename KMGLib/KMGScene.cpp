@@ -247,24 +247,20 @@ void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrig
 {
     static DirectX::XMVECTOR prevPosition = XMVectorSet(0, 0, 0, 0);
 
-    DirectX::XMVECTOR normalVec;
     DirectX::XMVECTOR aimVec;
 
     switch (hoverMode)
     {
     case EHoverMode::EHM_X:
-        normalVec = XMVectorSet(0, 0, 1, 0);
         aimVec = XMVectorSet(1, 0, 0, 0);
         break;
 
     case EHoverMode::EHM_Y:
-        normalVec = XMVectorSet(0, 0, 1, 0);
         aimVec = XMVectorSet(0, 1, 0, 0);
 
         break;
 
     case EHoverMode::EHM_Z:
-        normalVec = XMVectorSet(1, 0, 0, 0);
         aimVec = XMVectorSet(0, 0, 1, 0);
         break;
 
@@ -276,7 +272,6 @@ void KMGScene::TranslateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrig
         rayDir,
         rayOrigin,
         focusActorPosition,
-        normalVec,
         aimVec
     );
 
@@ -296,24 +291,20 @@ void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin,
 {
     static DirectX::XMVECTOR prevPosition = XMVectorSet(0, 0, 0, 0);
 
-    DirectX::XMVECTOR normalVec;
     DirectX::XMVECTOR aimVec;
 
     switch (hoverMode)
     {
     case EHoverMode::EHM_X:
-        normalVec = XMVectorSet(0, 0, 1, 0);
         aimVec = XMVectorSet(1, 0, 0, 0);
         break;
 
     case EHoverMode::EHM_Y:
-        normalVec = XMVectorSet(0, 0, 1, 0);
         aimVec = XMVectorSet(0, 1, 0, 0);
 
         break;
 
     case EHoverMode::EHM_Z:
-        normalVec = XMVectorSet(1, 0, 0, 0);
         aimVec = XMVectorSet(0, 0, 1, 0);
         break;
 
@@ -323,20 +314,34 @@ void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin,
 
     DirectX::XMMATRIX focusWorldMat = focusActor->getWorldMatrix();
 
-    normalVec = XMVector3TransformNormal(normalVec, focusWorldMat);
     aimVec = XMVector3TransformNormal(aimVec, focusWorldMat);
-
-    normalVec = XMVector3Normalize(normalVec);
     aimVec = XMVector3Normalize(aimVec);
 
+    std::cout << " ============================== \n";
 
     DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
         rayDir,
         rayOrigin,
         focusActorPosition,
-        normalVec,
         aimVec
     );
+
+    XMFLOAT3 coutFloat;
+    XMStoreFloat3(&coutFloat, rayDir);
+    std::cout << "rayDir : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+    XMStoreFloat3(&coutFloat, rayOrigin);
+    std::cout << "rayOrigin : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+    XMStoreFloat3(&coutFloat, focusActorPosition);
+    std::cout << "focusActorPosition : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+    XMStoreFloat3(&coutFloat, aimVec);
+    std::cout << "aimVec : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+    XMStoreFloat3(&coutFloat, moveVec);
+    std::cout << "moveVec : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
 
     DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
     
@@ -344,42 +349,44 @@ void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin,
     {
         DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
 
-        float radian = XMVectorGetX(XMVector3Length(gapVector));
-        gapVector = XMVector3Normalize(gapVector);
+        if (!XMVector3Equal(gapVector, XMVectorZero()))
+        {
 
+            float radian = XMVectorGetX(XMVector3Length(gapVector));
+            gapVector = XMVector3Normalize(gapVector);
 
+            XMStoreFloat3(&coutFloat, gapVector);
+            std::cout << "gapVector : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
-        KMGCommand::RotateActor(focusActor->GetName(), gapVector, radian * 0.3f);
+            gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
+
+            KMGCommand::RotateActor(focusActor->GetName(), gapVector, radian * 0.5f);
+
+        }
 
     }
 
     prevPosition = pointPosition;
-
-
 }
 
 void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR focusActorPosition, bool bInitialized)
 {
     static DirectX::XMVECTOR prevPosition = XMVectorSet(0, 0, 0, 0);
 
-    DirectX::XMVECTOR normalVec;
     DirectX::XMVECTOR aimVec;
 
     switch (hoverMode)
     {
     case EHoverMode::EHM_X:
-        normalVec = XMVectorSet(0, 0, 1, 0);
         aimVec = XMVectorSet(1, 0, 0, 0);
         break;
 
     case EHoverMode::EHM_Y:
-        normalVec = XMVectorSet(0, 0, 1, 0);
         aimVec = XMVectorSet(0, 1, 0, 0);
 
         break;
 
     case EHoverMode::EHM_Z:
-        normalVec = XMVectorSet(1, 0, 0, 0);
         aimVec = XMVectorSet(0, 0, 1, 0);
         break;
 
@@ -390,33 +397,15 @@ void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, 
     DirectX::XMMATRIX focusWorldMat = focusActor->getWorldMatrix();
     DirectX::XMMATRIX inv_focusWorldMat = XMMatrixInverse(nullptr, focusWorldMat);
 
-    std::cout <<"=========================== \n";
-
-    XMFLOAT3 coutFloat;
-    XMStoreFloat3(&coutFloat, aimVec);
-    std::cout << "aimVec Before : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
-
-    normalVec = XMVector3TransformNormal(normalVec, focusWorldMat);
     aimVec = XMVector3TransformNormal(aimVec, focusWorldMat);
-
-    normalVec = XMVector3Normalize(normalVec);
     aimVec = XMVector3Normalize(aimVec);
-
-
-    XMStoreFloat3(&coutFloat, aimVec);
-    std::cout << "aimVec After : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
     DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
         rayDir,
         rayOrigin,
         focusActorPosition,
-        normalVec,
         aimVec
     );
-
-    XMStoreFloat3(&coutFloat, moveVec);
-    std::cout << "moveVec : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
-
 
     DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
 
@@ -427,18 +416,12 @@ void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, 
 
         if (!XMVector3Equal(gapVector, XMVectorZero()))
         {
-            XMStoreFloat3(&coutFloat, gapVector);
-            std::cout << "gapVector Before: " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
-
             float radian = XMVectorGetX(XMVector3Length(gapVector));
 
             gapVector = XMVector3TransformNormal(gapVector, inv_focusWorldMat);
             gapVector = XMVector3Normalize(gapVector);
 
-            XMStoreFloat3(&coutFloat, gapVector);
-            std::cout << "gapVector After: " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
-
-             gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
+            gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
 
             KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * radian * 0.1);
 

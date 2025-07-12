@@ -49,35 +49,40 @@ DirectX::XMVECTOR KMGUtility::GenerateCameraRayDirection(
 }
 
 DirectX::XMVECTOR KMGUtility::GenerateMoveDeltaVector(
-    DirectX::XMVECTOR rayDIr,
+    DirectX::XMVECTOR rayDir,
     DirectX::XMVECTOR rayOrigin,
     DirectX::XMVECTOR focusActorPosition,
-    DirectX::XMVECTOR normalVec,
     DirectX::XMVECTOR aimVec)
 {
-    // 1. Ray-Plane 교차 계산
-    float denom = XMVectorGetX(DirectX::XMVector3Dot(rayDIr, normalVec));
+    // 1. 평면 법선 구하기
+    XMVECTOR directionVec = focusActorPosition - rayOrigin;
 
+    // aimVec에 정사영
+    XMVECTOR proj = XMVector3Dot(directionVec, aimVec) * aimVec;
+
+    // 수직 성분만 추출하여 법선 생성
+    XMVECTOR normal = XMVector3Normalize(directionVec - proj);
+
+    // 2. Ray-Plane 교차 계산
+    float denom = XMVectorGetX(XMVector3Dot(rayDir, normal));
     if (fabs(denom) < 1e-6f)
     {
-        // 평면과 거의 평행 → fallback: 이동 없음
-        return DirectX::XMVectorZero();
+        // 광선이 평면과 거의 평행
+        return XMVectorZero();
     }
 
-    DirectX::XMVECTOR diff = focusActorPosition - rayOrigin;
-    float t = XMVectorGetX(DirectX::XMVector3Dot(diff, normalVec)) / denom;
-    DirectX::XMVECTOR hitPoint = rayOrigin + rayDIr * t;
+    XMVECTOR diff = focusActorPosition - rayOrigin;
+    float t = XMVectorGetX(XMVector3Dot(diff, normal)) / denom;
+    XMVECTOR hitPoint = rayOrigin + rayDir * t;
 
-    // 2. hitPoint에서 actor까지 벡터
-    DirectX::XMVECTOR delta = hitPoint - focusActorPosition;
+    // 3. 이동 벡터 계산 (focusActor → hitPoint)
+    XMVECTOR delta = hitPoint - focusActorPosition;
 
-    // 3. delta를 aimVec(예: X축)으로 투영
-    float projAmount = XMVectorGetX(DirectX::XMVector3Dot(delta, aimVec));
-    DirectX::XMVECTOR result = aimVec * projAmount;
+    // delta를 aimVec에 투영
+    float projAmount = XMVectorGetX(XMVector3Dot(delta, aimVec));
+    XMVECTOR result = aimVec * projAmount;
 
     return result;
-
-
 }
 
 DirectX::XMVECTOR KMGUtility::QuaternionToEulerXYZ(DirectX::XMVECTOR q)
