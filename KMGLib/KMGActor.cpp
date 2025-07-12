@@ -65,7 +65,7 @@ void KMGActor::Translate(float dx, float dy, float dz) {
 /// <param name="rotation"></param>
 void KMGActor::SetRotation(DirectX::XMVECTOR rotation)
 {
-    transform.rotation_Quaternion = rotation;
+    transform.rotation_Quaternion = XMQuaternionNormalize(rotation);
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
@@ -80,9 +80,44 @@ void KMGActor::SetRotation(DirectX::XMVECTOR rotation)
 /// 내부적으로는 쿼터니언을 계산을 전부 해야 한다
 /// </summary>
 /// <param name="rotation"></param>
-void KMGActor::Rotate(DirectX::XMVECTOR rotation) {
+void KMGActor::Rotate(DirectX::XMVECTOR worldAxis, float radian) {
 
-    DirectX::XMVECTOR resultQuat = DirectX::XMQuaternionMultiply(rotation, transform.rotation_Quaternion);
+    XMFLOAT3 coutFloat;
+    XMStoreFloat3(&coutFloat, worldAxis);
+    //std::cout << "WorldRotate : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+
+    XMMATRIX deltaRotMat = XMMatrixRotationAxis(worldAxis, radian);
+    XMMATRIX currentRotMat = XMMatrixRotationQuaternion(transform.rotation_Quaternion);
+
+    // 월드 기준 회전 먼저, 현재 회전 나중
+    XMMATRIX resultMat = deltaRotMat * currentRotMat;
+
+    XMVECTOR resultQuat = XMQuaternionRotationMatrix(resultMat);
+
+
+    // 기준 축 벡터들
+    XMVECTOR right = XMVectorSet(1, 0, 0, 0);   // 로컬 X축
+    XMVECTOR up = XMVectorSet(0, 1, 0, 0);   // 로컬 Y축
+    XMVECTOR forward = XMVectorSet(0, 0, 1, 0); // 로컬 Z축
+
+    // 회전 행렬 적용
+    XMVECTOR worldRight = XMVector3TransformNormal(right, resultMat);
+    XMVECTOR worldUp = XMVector3TransformNormal(up, resultMat);
+    XMVECTOR worldForward = XMVector3TransformNormal(forward, resultMat);
+
+    // 출력
+    XMFLOAT3 outVec;
+
+    XMStoreFloat3(&outVec, worldRight);
+    std::cout << "[결과] Right  → (" << outVec.x << ", " << outVec.y << ", " << outVec.z << ")\n";
+
+    XMStoreFloat3(&outVec, worldUp);
+    std::cout << "[결과] Up     → (" << outVec.x << ", " << outVec.y << ", " << outVec.z << ")\n";
+
+    XMStoreFloat3(&outVec, worldForward);
+    std::cout << "[결과] Forward→ (" << outVec.x << ", " << outVec.y << ", " << outVec.z << ")\n";
+
 
     SetRotation(resultQuat);
 }

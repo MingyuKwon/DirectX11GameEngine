@@ -237,15 +237,23 @@ private:
 
 struct SceneCommand_UpdateActorRotation : public SceneCommandMessage
 {
-	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR quatRotation, bool bRelative) : actorName(name), quatRotation(quatRotation), bRelative(bRelative) {
+	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR quatRotation) : actorName(name), quatRotation(quatRotation){
 		type = ECommandMessageType::ERC_UPDATE_ACTOR;
+		bRelative = false;
+	}
+
+	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR aixsVector, float radian) : actorName(name), aixsVector(aixsVector), radian(radian) {
+		type = ECommandMessageType::ERC_UPDATE_ACTOR;
+		bRelative = true;
 	}
 
 	void Execute(KMGScene*& scene) override;
 
 private:
 	std::wstring actorName;
-	DirectX::XMVECTOR quatRotation;
+	DirectX::XMVECTOR quatRotation = DirectX::XMQuaternionIdentity();
+	DirectX::XMVECTOR aixsVector = XMVectorSet(1,0,0,0);
+	float radian = 0;
 
 	// 이게 true이면 현재 값에 행렬을 추가로 곱하고, false이면 그냥 행렬 값을 그대로 대입한다
 	bool bRelative;

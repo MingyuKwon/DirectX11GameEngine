@@ -68,7 +68,7 @@ public:
     inline void SetScale(float x, float y, float z) { transform.scale = DirectX::XMVectorSet(x, y, z, 0); }
 
     void Translate(float dx, float dy, float dz);    // 상대이동
-    void Rotate(DirectX::XMVECTOR rotation); // 상대회전
+    void Rotate(DirectX::XMVECTOR worldAxis, float radian); // 상대회전
 
     inline bool HasComponent(EComponentType type)
     {
