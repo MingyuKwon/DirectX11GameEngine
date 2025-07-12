@@ -92,11 +92,6 @@ void KMGScene::ChangeAxisTransform()
     else
     {
         axisActor->SetRotation(focusActor->GetRotation());
-
-        XMFLOAT3 coutFloat;
-        XMStoreFloat3(&coutFloat, focusActor->GetRotation());
-        std::cout << "focusActor->GetRotation()" << " " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
-
     }
 }
 
@@ -348,12 +343,13 @@ void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin,
     if (bInitialized)
     {
         DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
-        // 실제 월드의 z 양의 방향과 axis의 z의 양의 방향이 반대여서 보정
-        gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
 
         float radian = XMVectorGetX(XMVector3Length(gapVector));
         gapVector = XMVector3Normalize(gapVector);
-        KMGCommand::RotateActor(focusActor->GetName(), gapVector, radian * 0.1f);
+
+
+
+        KMGCommand::RotateActor(focusActor->GetName(), gapVector, radian * 0.3f);
 
     }
 
@@ -392,12 +388,23 @@ void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, 
     }
 
     DirectX::XMMATRIX focusWorldMat = focusActor->getWorldMatrix();
+    DirectX::XMMATRIX inv_focusWorldMat = XMMatrixInverse(nullptr, focusWorldMat);
+
+    std::cout <<"=========================== \n";
+
+    XMFLOAT3 coutFloat;
+    XMStoreFloat3(&coutFloat, aimVec);
+    std::cout << "aimVec Before : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
     normalVec = XMVector3TransformNormal(normalVec, focusWorldMat);
     aimVec = XMVector3TransformNormal(aimVec, focusWorldMat);
 
     normalVec = XMVector3Normalize(normalVec);
     aimVec = XMVector3Normalize(aimVec);
+
+
+    XMStoreFloat3(&coutFloat, aimVec);
+    std::cout << "aimVec After : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
     DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
         rayDir,
@@ -407,9 +414,8 @@ void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, 
         aimVec
     );
 
-    XMFLOAT3 coutFloat;
-    XMStoreFloat3(&coutFloat, aimVec);
-    std::cout << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+    XMStoreFloat3(&coutFloat, moveVec);
+    std::cout << "moveVec : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
 
     DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
@@ -418,14 +424,27 @@ void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, 
     if (bInitialized)
     {
         DirectX::XMVECTOR gapVector = pointPosition - prevPosition;
-        // 실제 월드의 z 양의 방향과 axis의 z의 양의 방향이 반대여서 보정
-        gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
 
-        DirectX::XMMATRIX inv_focusWorldMat = XMMatrixInverse(nullptr, focusWorldMat);
-        gapVector = XMVector3TransformNormal(gapVector, inv_focusWorldMat);
+        if (!XMVector3Equal(gapVector, XMVectorZero()))
+        {
+            XMStoreFloat3(&coutFloat, gapVector);
+            std::cout << "gapVector Before: " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+            float radian = XMVectorGetX(XMVector3Length(gapVector));
+
+            gapVector = XMVector3TransformNormal(gapVector, inv_focusWorldMat);
+            gapVector = XMVector3Normalize(gapVector);
+
+            XMStoreFloat3(&coutFloat, gapVector);
+            std::cout << "gapVector After: " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
+
+             gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
+
+            KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * radian * 0.1);
+
+        }
 
 
-        KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * 0.2);
     }
 
     prevPosition = pointPosition;
