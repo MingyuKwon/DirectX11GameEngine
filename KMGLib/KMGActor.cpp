@@ -86,7 +86,6 @@ void KMGActor::Rotate(DirectX::XMVECTOR worldAxis, float radian) {
     XMStoreFloat3(&coutFloat, worldAxis);
     //std::cout << "WorldRotate : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
 
-
     XMMATRIX deltaRotMat = XMMatrixRotationAxis(worldAxis, radian);
     XMMATRIX currentRotMat = XMMatrixRotationQuaternion(transform.rotation_Quaternion);
 

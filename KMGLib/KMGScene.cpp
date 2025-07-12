@@ -88,11 +88,11 @@ void KMGScene::ChangeAxisTransform()
     if (sceneMode == ESceneMode::ESM_MOVE)
     {
         axisActor->SetRotation(XMVectorSet(0, 0, 0, 0));
+
     }
     else
     {
         axisActor->SetRotation(focusActor->GetRotation());
-
 
     }
 }
@@ -302,12 +302,20 @@ void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin,
     default: return;
     }
 
-    // moveVec °è»ê
-    XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
-        rayDir, rayOrigin, focusActorPosition, cachedWorldAxis
+    DirectX::XMMATRIX focusWorldMat = focusActor->getWorldMatrix();
+    DirectX::XMMATRIX inv_focusWorldMat = XMMatrixInverse(nullptr, focusWorldMat);
+
+    cachedWorldAxis = XMVector3TransformNormal(cachedWorldAxis, focusWorldMat);
+    cachedWorldAxis = XMVector3Normalize(cachedWorldAxis);
+
+    DirectX::XMVECTOR moveVec = KMGUtility::GenerateMoveDeltaVector(
+        rayDir,
+        rayOrigin,
+        focusActorPosition,
+        cachedWorldAxis
     );
 
-    XMVECTOR pointPosition = focusActorPosition + moveVec;
+    DirectX::XMVECTOR pointPosition = focusActorPosition + moveVec;
 
     if (bInitialized)
     {
@@ -323,6 +331,8 @@ void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin,
 
             if (fabs(radian) > 0.0001f)
             {
+                cachedWorldAxis = XMVector3TransformNormal(cachedWorldAxis, inv_focusWorldMat);
+
                 KMGCommand::RotateActor(focusActor->GetName(), cachedWorldAxis, radian * 0.5f);
             }
         }
@@ -388,7 +398,7 @@ void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, 
 
             gapVector = XMVectorSetZ(gapVector, -XMVectorGetZ(gapVector));
 
-            KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * radian * 0.1);
+            KMGCommand::UpdateActorScale(focusActor->GetName(), focusActor->GetScale() + gapVector * radian * 0.2);
 
         }
 
