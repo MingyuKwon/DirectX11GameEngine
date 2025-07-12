@@ -58,24 +58,14 @@ void KMGActor::Translate(float dx, float dy, float dz) {
     }
 }
 
+/// <summary>
+/// 이거 기준이 쿼터니언이다
+/// 내부적으로는 쿼터니언을 계산을 전부 해야 한다
+/// </summary>
+/// <param name="rotation"></param>
 void KMGActor::SetRotation(DirectX::XMVECTOR rotation)
 {
-    float x, y, z;
-    x = XMVectorGetX(rotation);
-    y = XMVectorGetY(rotation);
-    z = XMVectorGetZ(rotation);
-
-    SetRotation(x, y, z);
-
-}
-
-void KMGActor::SetRotation(float pitch, float yaw, float roll)
-{
-    pitch = KMGUtility::WrapAngleRad(pitch);
-    yaw = KMGUtility::WrapAngleRad(yaw);
-    roll = KMGUtility::WrapAngleRad(roll);
-
-    transform.rotation = DirectX::XMVectorSet(pitch, yaw, roll, 0);
+    transform.rotation_Quaternion = rotation;
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
@@ -85,12 +75,16 @@ void KMGActor::SetRotation(float pitch, float yaw, float roll)
     }
 }
 
+/// <summary>
+/// 이거 기준이 쿼터니언이다
+/// 내부적으로는 쿼터니언을 계산을 전부 해야 한다
+/// </summary>
+/// <param name="rotation"></param>
+void KMGActor::Rotate(DirectX::XMVECTOR rotation) {
 
-void KMGActor::Rotate(float dpitch, float dyaw, float droll) {
-    XMVECTOR rot = transform.rotation;
-    XMVECTOR delta = XMVectorSet(dpitch, dyaw, droll, 0);
+    DirectX::XMVECTOR resultQuat = DirectX::XMQuaternionMultiply(rotation, transform.rotation_Quaternion);
 
-    SetRotation(XMVectorAdd(rot, delta));
+    SetRotation(resultQuat);
 }
 
 
@@ -127,7 +121,7 @@ bool KMGActor::SetComponent(KMGComponent* addComponent)
     {
         Light& light = lightComp->GetLight();
         SetPosition(transform.position);
-        SetRotation(transform.rotation);
+        SetRotation(GetRotation());
 
     }
 

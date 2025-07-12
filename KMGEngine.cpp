@@ -44,12 +44,6 @@ void ChangeCubeTransform()
 {
     if (schedular)
     {
-        KMGCommand::RotateActor(L"Light1", XMVectorSet(0, -deltaTime, 0, 0));
-
-        //float scale = 0.3f;
-        //KMGCommand::UpdateActorScale(L"Actor1", XMVectorSet(scale, scale, scale, 0));
-
-        //schedular->PushCommand(KMGCommand::RotateActor(L"Actor2", XMVectorSet(0, deltaTime, 0, 0)));
 
     }
 }

@@ -80,6 +80,47 @@ DirectX::XMVECTOR KMGUtility::GenerateMoveDeltaVector(
 
 }
 
+DirectX::XMVECTOR KMGUtility::QuaternionToEulerXYZ(DirectX::XMVECTOR q)
+{
+    // 쿼터니언 → 회전 행렬
+    XMMATRIX rot = XMMatrixRotationQuaternion(q);
+
+    // 회전 행렬에서 요소 추출
+    float r11 = rot.r[0].m128_f32[0]; // m00
+    float r21 = rot.r[1].m128_f32[0]; // m10
+    float r31 = rot.r[2].m128_f32[0]; // m20
+    float r32 = rot.r[2].m128_f32[1]; // m21
+    float r33 = rot.r[2].m128_f32[2]; // m22
+
+    // 회전 순서: Y (yaw), X (pitch), Z (roll)
+    float yaw = asinf(-r31);               // Y축 회전
+    float pitch = atan2f(r32, r33);          // X축 회전
+    float roll = atan2f(r21, r11);          // Z축 회전
+
+    return XMVectorSet(pitch, yaw, roll, 0.0f); // 출력: X (pitch), Y (yaw), Z (roll)
+}
+
+DirectX::XMVECTOR KMGUtility::EulerXYZToQuaternion(DirectX::XMVECTOR euler)
+{
+    // euler = (pitch, yaw, roll, 0)
+    float pitch = XMVectorGetX(euler); // X축 회전
+    float yaw = XMVectorGetY(euler); // Y축 회전
+    float roll = XMVectorGetZ(euler); // Z축 회전
+
+    // 각 축 회전에 대한 쿼터니언 생성
+    XMVECTOR qYaw = XMQuaternionRotationAxis(XMVectorSet(0, 1, 0, 0), yaw);   // Y
+    XMVECTOR qPitch = XMQuaternionRotationAxis(XMVectorSet(1, 0, 0, 0), pitch); // X
+    XMVECTOR qRoll = XMQuaternionRotationAxis(XMVectorSet(0, 0, 1, 0), roll);  // Z
+
+    // 회전 순서: Y → X → Z 이므로 곱셈 순서 주의
+    // 최종 회전 쿼터니언 = qRoll * qPitch * qYaw
+    // 오른쪽부터 먼저 적용됨
+    XMVECTOR q = XMQuaternionMultiply(qRoll, XMQuaternionMultiply(qPitch, qYaw));
+
+    // 정규화하여 반환
+    return XMQuaternionNormalize(q);
+}
+
 std::string KMGUtility::WStringToString(std::wstring wstr)
 {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;

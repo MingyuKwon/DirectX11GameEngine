@@ -59,15 +59,16 @@ public:
     void SetPosition(float x, float y, float z);
     void SetPosition(DirectX::XMVECTOR position);
 
-    inline DirectX::XMVECTOR GetRotation() const { return transform.rotation; }
-    void SetRotation(float pitch, float yaw, float roll);
+    inline DirectX::XMVECTOR GetRotation() const { 
+        return transform.rotation_Quaternion;
+    }
     void SetRotation(DirectX::XMVECTOR rotation);
 
     inline DirectX::XMVECTOR GetScale() const { return transform.scale; }
     inline void SetScale(float x, float y, float z) { transform.scale = DirectX::XMVectorSet(x, y, z, 0); }
 
     void Translate(float dx, float dy, float dz);    // 상대이동
-    void Rotate(float dpitch, float dyaw, float droll); // 상대회전
+    void Rotate(DirectX::XMVECTOR rotation); // 상대회전
 
     inline bool HasComponent(EComponentType type)
     {

@@ -16,6 +16,8 @@
 #include <iostream>
 #include <EngineData.h>
 
+using namespace DirectX;
+
 extern ID3D11Device* g_pMainDevice;
 
 enum class ESceneMode
@@ -132,9 +134,8 @@ struct KMGTransform {
     
     DirectX::XMMATRIX GetWorldMatrix() const {
         
-        using namespace DirectX;
         XMMATRIX S = XMMatrixScalingFromVector(scale);
-        XMMATRIX R = XMMatrixRotationRollPitchYawFromVector(rotation);
+        XMMATRIX R = XMMatrixRotationQuaternion(rotation_Quaternion);
         XMMATRIX T = XMMatrixTranslationFromVector(position);
 
         return S * R * T;
@@ -144,13 +145,14 @@ struct KMGTransform {
     {
         DirectX::XMVECTOR forwardVector = DirectX::XMVectorSet(0, 0, 1, 0);
 
-        DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYawFromVector(rotation);
+        DirectX::XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(rotation_Quaternion);
 
         return DirectX::XMVector3TransformNormal(forwardVector, rotationMatrix);
     }
 
     DirectX::XMVECTOR position = DirectX::XMVectorSet(0, 0, 0, 1);
-    DirectX::XMVECTOR rotation = DirectX::XMVectorSet(0, 0, 0, 0); // 이건 진짜 roatatrion이 아니라 yaw, pitch, roll 저장용의 벡터이다
+    DirectX::XMVECTOR rotation_Quaternion = DirectX::XMQuaternionIdentity();
+
     DirectX::XMVECTOR scale = DirectX::XMVectorSet(1, 1, 1, 0);
 };
 

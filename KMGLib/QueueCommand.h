@@ -79,7 +79,7 @@ namespace KMGCommand
 	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
 	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
 
-	void RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation);
+	void RotateActor(const std::wstring& name, DirectX::XMVECTOR aixsVector, float radian);
 	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation);
 
 	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale);
@@ -237,7 +237,7 @@ private:
 
 struct SceneCommand_UpdateActorRotation : public SceneCommandMessage
 {
-	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bRelative) : actorName(name), rotation(rotation), bRelative(bRelative) {
+	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR quatRotation, bool bRelative) : actorName(name), quatRotation(quatRotation), bRelative(bRelative) {
 		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 	}
 
@@ -245,7 +245,7 @@ struct SceneCommand_UpdateActorRotation : public SceneCommandMessage
 
 private:
 	std::wstring actorName;
-	DirectX::XMVECTOR rotation;
+	DirectX::XMVECTOR quatRotation;
 
 	// 이게 true이면 현재 값에 행렬을 추가로 곱하고, false이면 그냥 행렬 값을 그대로 대입한다
 	bool bRelative;

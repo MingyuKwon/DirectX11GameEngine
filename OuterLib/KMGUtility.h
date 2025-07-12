@@ -17,6 +17,10 @@ namespace KMGUtility {
         DirectX::XMVECTOR aimVec
         );
 
+    DirectX::XMVECTOR QuaternionToEulerXYZ(DirectX::XMVECTOR q);
+    DirectX::XMVECTOR EulerXYZToQuaternion(DirectX::XMVECTOR euler);
+
+
     std::string WStringToString(std::wstring wstr);
     std::wstring StringToWString(const std::string& str);
     

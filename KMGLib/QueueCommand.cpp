@@ -185,11 +185,16 @@ namespace KMGCommand
 		}
 	}
 
-	void RotateActor(const std::wstring& name, DirectX::XMVECTOR rotation)
+	void RotateActor(const std::wstring& name, DirectX::XMVECTOR aixsVector, float radian)
 	{
+		if (XMVector3Equal(aixsVector, DirectX::XMVectorZero())) return;
+
+		XMVECTOR axis = XMVector3Normalize(aixsVector);
+		XMVECTOR rotationQuat = XMQuaternionRotationAxis(axis, radian);
+
 		if (schedular)
 		{
-			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, true));
+			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, rotationQuat, true));
 		}
 	}
 
@@ -405,17 +410,17 @@ void SceneCommand_UpdateActorRotation::Execute(KMGScene*& scene)
 
 	if (findActor)
 	{
-		float dx = XMVectorGetX(rotation);
-		float dy = XMVectorGetY(rotation);
-		float dz = XMVectorGetZ(rotation);
+		float dx = XMVectorGetX(quatRotation);
+		float dy = XMVectorGetY(quatRotation);
+		float dz = XMVectorGetZ(quatRotation);
 
 		if (bRelative)
 		{
-			findActor->Rotate(dx, dy, dz);
+			findActor->Rotate(quatRotation);
 		}
 		else
 		{
-			findActor->SetRotation(dx, dy, dz);
+			findActor->SetRotation(quatRotation);
 		}
 	}
 }
