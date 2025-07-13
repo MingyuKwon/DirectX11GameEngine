@@ -108,10 +108,6 @@ void KMGActor::SetRotation_Q(DirectX::XMVECTOR rotation)
 /// <param name="rotation"></param>
 void KMGActor::Rotate(DirectX::XMVECTOR worldAxis, float radian) {
 
-    XMFLOAT3 coutFloat;
-    XMStoreFloat3(&coutFloat, worldAxis);
-    //std::cout << "WorldRotate : " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " \n";
-
     XMMATRIX deltaRotMat = XMMatrixRotationAxis(worldAxis, radian);
     XMMATRIX currentRotMat = XMMatrixRotationQuaternion(transform.rotation_Quaternion);
 
@@ -120,29 +116,13 @@ void KMGActor::Rotate(DirectX::XMVECTOR worldAxis, float radian) {
 
     XMVECTOR resultQuat = XMQuaternionRotationMatrix(resultMat);
 
+    XMVECTOR right = XMVectorSet(1, 0, 0, 0);   
+    XMVECTOR up = XMVectorSet(0, 1, 0, 0);  
+    XMVECTOR forward = XMVectorSet(0, 0, 1, 0); 
 
-    // 기준 축 벡터들
-    XMVECTOR right = XMVectorSet(1, 0, 0, 0);   // 로컬 X축
-    XMVECTOR up = XMVectorSet(0, 1, 0, 0);   // 로컬 Y축
-    XMVECTOR forward = XMVectorSet(0, 0, 1, 0); // 로컬 Z축
-
-    // 회전 행렬 적용
     XMVECTOR worldRight = XMVector3TransformNormal(right, resultMat);
     XMVECTOR worldUp = XMVector3TransformNormal(up, resultMat);
     XMVECTOR worldForward = XMVector3TransformNormal(forward, resultMat);
-
-    // 출력
-    XMFLOAT3 outVec;
-
-    XMStoreFloat3(&outVec, worldRight);
-    std::cout << "[결과] Right  → (" << outVec.x << ", " << outVec.y << ", " << outVec.z << ")\n";
-
-    XMStoreFloat3(&outVec, worldUp);
-    std::cout << "[결과] Up     → (" << outVec.x << ", " << outVec.y << ", " << outVec.z << ")\n";
-
-    XMStoreFloat3(&outVec, worldForward);
-    std::cout << "[결과] Forward→ (" << outVec.x << ", " << outVec.y << ", " << outVec.z << ")\n";
-
 
     SetRotation_Q(resultQuat);
 }

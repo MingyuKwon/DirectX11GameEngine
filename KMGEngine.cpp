@@ -180,7 +180,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'Q':
             {
-                if (currentScene && currentScene->GetFocusActor() && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown)
                 {
                     currentScene->SetSceneMode(ESceneMode::ESM_SELECT);
                 }
@@ -189,7 +189,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'W':
             {
-                if (currentScene && currentScene->GetFocusActor() && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown)
                 {
                     currentScene->SetSceneMode(ESceneMode::ESM_MOVE);
                 }
@@ -198,7 +198,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'E':
             {
-                if (currentScene && currentScene->GetFocusActor() && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown)
                 {
                     currentScene->SetSceneMode(ESceneMode::ESM_ROTATE);
                 }
@@ -206,7 +206,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'R':
             {
-                if (currentScene && currentScene->GetFocusActor() && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown)
                 {
                     currentScene->SetSceneMode(ESceneMode::ESM_SCALE);
                 }

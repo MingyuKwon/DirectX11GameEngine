@@ -83,7 +83,7 @@ void KMGScene::ColorHoverAxis()
 
 void KMGScene::ChangeAxisTransform()
 {
-    if (focusActor == nullptr)
+    if (focusActor == nullptr || sceneMode == ESceneMode::ESM_SELECT)
     {
         axisActor->SetVisibility(false);
         return;
@@ -205,6 +205,10 @@ const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::get
 
 void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
 {
+    if (axisActor == nullptr) return;
+
+    if (!axisActor->IsVisible()) return;
+
     DirectX::XMVECTOR cameraPosition = currentCamera.GetCameraPosition();
 
     StaticMeshComponent* staicComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);

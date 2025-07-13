@@ -76,7 +76,6 @@ public:
             if (actor.first == actorName)
             {
                 focusActor = actor.second.get();
-                SetSceneMode(ESceneMode::ESM_MOVE);
             }
             
             actor.second->bShowBoundBox = actor.first == actorName;
@@ -85,7 +84,6 @@ public:
         if (L"NONE" == actorName)
         {
             focusActor = nullptr;
-            SetSceneMode(ESceneMode::ESM_SELECT);
         }
 
     }
