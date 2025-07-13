@@ -60,8 +60,18 @@ namespace KMGCommand
 	void AddStaticMeshComponent(const std::wstring& name);
 	void RemoveStaticMeshComponent(const std::wstring& name);
 
+	void MakeVisibleActor(const std::wstring& name, bool bVisible);
+
 	void RemoveActor(const std::wstring& name);
 	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName = DEFAULT_TEXTURE_FILEPATH, const std::wstring& normalMapName = DEFAULT_NORMAL_FILEPATH);
+
+	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
+	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
+
+	void RotateActor(const std::wstring& name, DirectX::XMVECTOR aixsVector, float radian);
+	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bEuler);
+
+	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale);
 
 	void UpdateTexture(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
 	void UpdateNormalMap(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName);
@@ -76,13 +86,6 @@ namespace KMGCommand
 	void UpdateLightComponent_Color(const std::wstring& name, DirectX::XMFLOAT4 color);
 
 
-	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
-	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
-
-	void RotateActor(const std::wstring& name, DirectX::XMVECTOR aixsVector, float radian);
-	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bEuler);
-
-	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale);
 
 	void UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition);
 	void UpdateCameraPosition_R(DirectX::XMVECTOR CameraPosition);
@@ -140,6 +143,19 @@ struct SceneCommand_Add_Remove_Actor : public SceneCommandMessage
 private:
 	std::wstring actorName;
 	bool bAdd = true;
+};
+
+struct SceneCommand_MakeVisible_Actor : public SceneCommandMessage
+{
+	SceneCommand_MakeVisible_Actor(const std::wstring& name, bool bVisible) : actorName(name), bVisible(bVisible) {
+		type =  ECommandMessageType::ERC_UPDATE_ACTOR;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
+	bool bVisible = true;
 };
 
 struct SceneCommand_Add_Remove_StaticMeshComponent : public SceneCommandMessage

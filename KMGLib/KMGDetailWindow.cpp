@@ -107,7 +107,15 @@ void KMGDetailWindow::ShowName()
     float verticalFix = (textSize.y - fontHeight) * 0.5f;
     ImGui::SetCursorScreenPos(ImVec2(pos.x + padding.x, pos.y + padding.y - verticalFix));
 
-    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.9f, 1.0f), actorName.c_str());
+    ImVec4 textColor;
+    if (currenFocusActor && currenFocusActor->IsVisible()) {
+        textColor = ImVec4(1.0f, 1.0f, 0.9f, 1.0f);
+    }
+    else {
+        textColor = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+    }
+
+    ImGui::TextColored(textColor, actorName.c_str());
     VERTICAL_SPACE(10);
 }
 

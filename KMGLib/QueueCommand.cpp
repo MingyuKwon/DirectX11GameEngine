@@ -63,6 +63,15 @@ namespace KMGCommand
 		}
 	}
 
+	void MakeVisibleActor(const std::wstring& name, bool bVisible)
+	{
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_MakeVisible_Actor>(name, bVisible));
+		}
+		
+	}
+
 	void RemoveActor(const std::wstring& name)
 	{
 		if (schedular)
@@ -447,6 +456,19 @@ void SceneCommand_UpdateActorScale::Execute(KMGScene*& scene)
 
 }
 
+void SceneCommand_MakeVisible_Actor::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor)
+	{
+		findActor->SetVisibility(bVisible);
+	}
+}
+
+
 void SceneCommand_Add_Remove_StaticMeshComponent::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
@@ -587,5 +609,4 @@ void SceneCommand_DrawDebug::Execute(KMGScene*& scene)
 	scene->AddDebugMesh(debugMeshName, mesh, time);
 
 }
-
 

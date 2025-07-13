@@ -46,6 +46,24 @@ bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* curr
             strncpy_s(renameBuffer, str.c_str(), sizeof(renameBuffer));
         }
 
+        if (focusActor)
+        {
+            if (focusActor->IsVisible())
+            {
+                if (ImGui::MenuItem("Make InVisible")) {
+                    KMGCommand::MakeVisibleActor(focusActor->GetName(), false);
+                }
+            }
+            else
+            {
+                if (ImGui::MenuItem("Make Visible")) {
+                    KMGCommand::MakeVisibleActor(focusActor->GetName(), true);
+                }
+            }
+        }
+
+        
+
         ImGui::EndPopup();
 
         return true;
@@ -104,11 +122,14 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
         if (ImGui::BeginChild("ActorListRegion", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar))
         {
             KMGActor* focusActor = currentScene->GetFocusActor();
-            std::unordered_set<std::wstring>& actors = currentScene->GetActorNames();
+            const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
 
 
-            for (const std::wstring& name : actors)
+            for (const auto& bucket : actors)
             {
+                const std::wstring& name = bucket.first;
+                KMGActor* actor = bucket.second.get();
+
                 bool isSelected = (focusActor && focusActor->GetName() == name);
 
                 std::string focusActorStrName = KMGUtility::WStringToString(name);
@@ -143,15 +164,28 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
                 }
                 else
                 {
+                    if (actor->IsVisible()) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1)); 
+                    }
+                    else {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1)); 
+                    }
+
+
                     if (ImGui::Selectable(focusActorStrName.c_str(), isSelected)) {
                         currentScene->SetFocusActor(name);
                     }
+
+                    ImGui::PopStyleColor();
+
                 }
 
                 if (ShowContextItem(focusActorStrName.c_str(), currentScene, focusActor))
                 {
                     bItemShowed = true;
                 }
+
+
             }
         }
 
