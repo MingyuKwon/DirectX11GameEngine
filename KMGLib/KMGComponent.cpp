@@ -4,6 +4,14 @@
 
 using namespace DirectX;
 
+StaticMeshComponent::StaticMeshComponent(const StaticMeshComponent& comp) : KMGComponent(EComponentType::ECT_STATICMESH), meshes(comp.meshes), boundingBoxs(comp.boundingBoxs)
+{
+	for (KMGStaticMesh& mesh : meshes)
+	{
+		mesh.bShouldMeshChange = true;
+	}
+}
+
 StaticMeshComponent::~StaticMeshComponent()
 {
 	if (owner)

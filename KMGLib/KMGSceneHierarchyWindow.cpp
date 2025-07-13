@@ -46,6 +46,11 @@ bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* curr
             strncpy_s(renameBuffer, str.c_str(), sizeof(renameBuffer));
         }
 
+        if (ImGui::MenuItem("Copy Actor")) {
+            wstring copyActorName = focusActor->GetName();
+            KMGCommand::CopyActor(copyActorName);
+        }
+
         if (focusActor)
         {
             if (focusActor->IsVisible())
@@ -144,7 +149,7 @@ void KMGSceneHierarchyWindow::DrawHierarchyWindow(
 
                         if (currentScene)
                         {
-                            std::unordered_set<std::wstring>& actorNames = currentScene->GetActorNames();
+                            std::unordered_set<std::wstring> actorNames = currentScene->GetActorNames();
                             if (actorNames.count(w_resultStr) == 0) // 만약 바꾸려는 이름이 이미 씬에 있어선 안된다
                             {
                                 KMGCommand::RenameActor(name, w_resultStr);

@@ -67,6 +67,8 @@ private:
 class StaticMeshComponent : public KMGComponent {
 public:
 	StaticMeshComponent() : KMGComponent(EComponentType::ECT_STATICMESH) {}
+	StaticMeshComponent(const StaticMeshComponent& comp);
+
 	virtual ~StaticMeshComponent();
 
 	std::string meshFileName = "Default Mesh";

@@ -17,6 +17,36 @@ KMGActor::~KMGActor()
 {
 }
 
+void KMGActor::CopyActorToTarget(KMGActor* targetActor)
+{
+    // 자 여기서 기존 액터가 가지던거 싹 다 복사 해야 한다
+
+    // 이름, ActorID말고 싹다 복사하자
+
+    targetActor->bVisible = bVisible;
+    targetActor->transform = transform;
+
+    for (auto& bucket : components)
+    {
+        EComponentType compType = bucket.first;
+        KMGComponent* pComp = bucket.second.get();
+
+        switch (compType)
+        {
+        case EComponentType::ECT_LIGHT:
+            targetActor->components[compType] = std::make_unique<LightComponent>(*dynamic_cast<LightComponent*>(pComp));
+            break;
+        case EComponentType::ECT_STATICMESH:
+            targetActor->components[compType] = std::make_unique<StaticMeshComponent>(*dynamic_cast<StaticMeshComponent*>(pComp));
+            break;
+        default:
+            continue;
+        }
+
+        targetActor->components[compType]->SetOwner(targetActor);
+    }
+}
+
 
 DirectX::XMMATRIX KMGActor::getWorldMatrix()
 {

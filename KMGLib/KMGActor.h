@@ -13,6 +13,8 @@ public:
 
     std::atomic<bool> bShowBoundBox = false;
 
+    void CopyActorToTarget(KMGActor* targetActor);
+
     inline std::wstring GetName()
     {
         return name;

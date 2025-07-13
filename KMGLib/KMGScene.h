@@ -18,6 +18,9 @@ public:
     void ChangeAxisTransform();
 
     KMGActor* CreateActor(std::wstring name);
+    void AddActor(std::unique_ptr<KMGActor>&& actor);
+    void CopyActor(std::wstring name);
+
     void EraseActor(const std::wstring& name);
 
     void Tick(float deltaTime);
@@ -94,7 +97,15 @@ public:
    
     // 이 함수는 무조건 모든 actors 접근이 끝난 후에 렌더링 단계에만 불러야 한다
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& getAllActors();
-    inline std::unordered_set<std::wstring>& GetActorNames() {
+
+    inline std::unordered_set<std::wstring> GetActorNames() {
+        
+        std::unordered_set<std::wstring> actorNames;
+        for (auto& bucket : actors)
+        {
+            actorNames.insert(bucket.first);
+        }
+            
         return actorNames;
     }
 
@@ -146,13 +157,12 @@ public:
     void ColorHoverAxis();
 
 private:
-    int ActorCreateCount = 0;
+    int ActorAddCount = 0;
     ESceneMode sceneMode = ESceneMode::ESM_SELECT;
     EHoverMode hoverMode = EHoverMode::EHM_NONE;
 
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;
-    std::unordered_set<std::wstring> actorNames;
 
     // 여기엔 디버그 용으로 그리는 메시들만 넣어둔다
     std::unordered_map<std::wstring, KMGDebugMesh> debugMeshes;

@@ -72,6 +72,14 @@ namespace KMGCommand
 		
 	}
 
+	void CopyActor(const std::wstring& name)
+	{
+		if (schedular)
+		{
+			schedular->PushCommand(make_unique<SceneCommand_CopyActor>(name));
+		}
+	}
+
 	void RemoveActor(const std::wstring& name)
 	{
 		if (schedular)
@@ -606,3 +614,12 @@ void SceneCommand_DrawDebug::Execute(KMGScene*& scene)
 
 }
 
+void SceneCommand_CopyActor::Execute(KMGScene*& scene)
+{
+	if (!scene) return;
+	KMGActor* findActor = scene->GetActor(actorName);
+
+	if (findActor == nullptr) return;
+
+	scene->CopyActor(actorName);
+}

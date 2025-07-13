@@ -72,14 +72,10 @@ void KMGScene::ColorHoverAxis()
 
             }
         }
-
-
     }
     
     prevHoverMode = hoverMode;
 }
-
-
 
 void KMGScene::ChangeAxisTransform()
 {
@@ -120,19 +116,58 @@ KMGActor* KMGScene::CreateActor(std::wstring name)
     // 이 경우에는 그냥 이름 안주고 만들라고 하는거다
     if (DEFAULT_ACTOR_NAME == name)
     {
-        name += std::to_wstring(ActorCreateCount);
+        name += std::to_wstring(ActorAddCount);
     }
 
-    auto actor = std::make_unique<KMGActor>(ActorCreateCount, name);
+    auto actor = std::make_unique<KMGActor>(ActorAddCount, name);
     KMGActor* ptr = actor.get();
 
-    actors[name] = std::move(actor);
-    actorNames.emplace(name);
-
-    ActorCreateCount++;
+    AddActor(std::move(actor));
 
     return ptr;
 }
+
+void KMGScene::CopyActor(std::wstring name)
+{
+    std::lock_guard<std::mutex> lock(actorMapLock);
+
+    KMGActor* copyTargetActor = actors[name].get();
+
+    name += L"_";
+
+    int i = 0;
+    while (true)
+    {
+        std::wstring newName = name + std::to_wstring(i);
+
+        if (actors.count(newName) == 0)
+        {
+            name = newName;
+            break;
+        }
+
+        i++;
+    }
+
+    auto actor = std::make_unique<KMGActor>(ActorAddCount, name);
+
+    copyTargetActor->CopyActorToTarget(actor.get());
+
+    AddActor(std::move(actor));
+}
+
+void KMGScene::AddActor(std::unique_ptr<KMGActor>&& actor)
+{
+    if (actors.count(actor->GetName()) != 0) return;
+    
+    std::wstring actorName = actor->GetName();
+
+    actors[actorName] = std::move(actor);
+
+    ActorAddCount++;
+
+}
+
 
 void KMGScene::EraseActor(const std::wstring& name)
 {
@@ -145,7 +180,6 @@ void KMGScene::EraseActor(const std::wstring& name)
         focusActor = nullptr;
     }
     actors.erase(name);
-    actorNames.erase(name);
 
 }
 
@@ -188,9 +222,6 @@ void KMGScene::RenameActor(std::wstring beforeName, std::wstring aftername)
 
     actors[aftername] = std::move(actors[beforeName]);
     actors.erase(beforeName);
-
-    actorNames.emplace(aftername);
-    actorNames.erase(beforeName);
 
     actors[aftername]->SetName(aftername);
 

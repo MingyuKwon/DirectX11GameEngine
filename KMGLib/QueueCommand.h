@@ -62,6 +62,7 @@ namespace KMGCommand
 
 	void MakeVisibleActor(const std::wstring& name, bool bVisible);
 
+	void CopyActor(const std::wstring& name);
 	void RemoveActor(const std::wstring& name);
 	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName = DEFAULT_TEXTURE_FILEPATH, const std::wstring& normalMapName = DEFAULT_NORMAL_FILEPATH);
 
@@ -143,6 +144,18 @@ struct SceneCommand_Add_Remove_Actor : public SceneCommandMessage
 private:
 	std::wstring actorName;
 	bool bAdd = true;
+};
+
+struct SceneCommand_CopyActor : public SceneCommandMessage
+{
+	SceneCommand_CopyActor(const std::wstring& name) : actorName(name) {
+		type = ECommandMessageType::ERC_ADD_ACTOR;
+	}
+
+	void Execute(KMGScene*& scene) override;
+
+private:
+	std::wstring actorName;
 };
 
 struct SceneCommand_MakeVisible_Actor : public SceneCommandMessage
