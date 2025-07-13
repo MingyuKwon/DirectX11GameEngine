@@ -28,7 +28,8 @@ void RenderThread(
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer, ID3D11Buffer* pCBChangesEveryFrame, ID3D11Buffer* pCBLightArray,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
-    ID3D11ShaderResourceView* pTextureSRV, ID3D11ShaderResourceView* pNormalMapSRV, ID3D11SamplerState* pSamplerState,
+    ID3D11ShaderResourceView* pTextureSRV, ID3D11ShaderResourceView* pNormalMapSRV, 
+    ID3D11SamplerState* pSamplerState, ID3D11DepthStencilState* pDepthState,
     int drawIndexCount,
     int textureWidth, int textureHeight);
 
@@ -163,6 +164,19 @@ bool KMGRender::CreateDeviceD3D()
     mainWindowHeight.store(desc.Height);
     pBackBuffer->Release();
 
+    ///////////////////////////////
+    // 깊이 버퍼를 킬것인지 끌것인지 정하는 걸 여기서 2개다 생성
+    ///////////////////////////////
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+    depthStencilDesc.DepthEnable = FALSE; 
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    depthStencilDesc.StencilEnable = FALSE;
+
+    HRESULT hr = g_pMainDevice->CreateDepthStencilState(&depthStencilDesc, &pDepthDisableState);
+
+    depthStencilDesc.DepthEnable = TRUE;  // 깊이 체크 켬
+    hr = g_pMainDevice->CreateDepthStencilState(&depthStencilDesc, &pDepthEnableState);
 
     ///////////////////////////////
     // 텍스처를 읽을 방법인 Sample을 하나만 우선 제작함
@@ -175,8 +189,9 @@ bool KMGRender::CreateDeviceD3D()
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD = 0;
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    hr = g_pMainDevice->CreateSamplerState(&sampDesc, &pSamplerState);
 
-    HRESULT hr = g_pMainDevice->CreateSamplerState(&sampDesc, &pSamplerState);
+
 
     CompileVertexShader(L"KMGLib\\VertexShader.hlsli", pVertexShader_Default);
 
@@ -307,6 +322,14 @@ void KMGRender::CreateRenderTarget()
     descDSV.Format = descDepth.Format;
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
+
+
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+    depthStencilDesc.DepthEnable = TRUE;  // 깊이 체크 켬
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    depthStencilDesc.StencilEnable = FALSE;
+
 
     hr = g_pMainDevice->CreateDepthStencilView(depthStencilBuffer, &descDSV, &pSceneDSV);
     
@@ -491,6 +514,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
         
         resourceManager.AddShouldDrawActor(
+            actor->IsVisible(),
             actorID,
             actorMeshes,
             pMainContext,
@@ -553,7 +577,8 @@ void KMGRender::DrawScene(KMGScene* scene)
                 pSceneRTV, pSceneDSV,
                 pCBChangeOnResize, pCBChangeOnPlayer, resource.pCBChangesEveryFrame, pCBLightArray,
                 resource.pVertexBuffer, resource.pIndexBuffer,
-                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState,
+                resource.pTextureSRV, resource.pNormalMapSRV, 
+                pSamplerState, pDepthEnableState,
                 resource.indexCount,
                 sceneWindowWidth, sceneWindowHeight
             ); }
@@ -565,6 +590,8 @@ void KMGRender::DrawScene(KMGScene* scene)
     for (auto& bucket : drawResources)
     {
         DrawResource& resource = bucket.second;
+        if (!resource.bVisible) continue;
+
         wstring resourceName = bucket.first;
 
         ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
@@ -580,7 +607,8 @@ void KMGRender::DrawScene(KMGScene* scene)
                 pSceneRTV, pSceneDSV,
                 pCBChangeOnResize, pCBChangeOnPlayer,resource.pCBChangesEveryFrame, pCBLightArray,
                 resource.pVertexBuffer, resource.pIndexBuffer,
-                resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState, 
+                resource.pTextureSRV, resource.pNormalMapSRV, 
+                pSamplerState, pDepthEnableState,
                 resource.indexCount,
                 sceneWindowWidth, sceneWindowHeight
             );}
@@ -608,7 +636,8 @@ void KMGRender::DrawScene(KMGScene* scene)
                     pSceneRTV, pSceneDSV,
                     pCBChangeOnResize, pCBChangeOnPlayer, resource.pCBChangesEveryFrame, pCBLightArray,
                     resource.pVertexBuffer, resource.pIndexBuffer,
-                    resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState,
+                    resource.pTextureSRV, resource.pNormalMapSRV, 
+                    pSamplerState, pDepthDisableState,
                     resource.indexCount,
                     sceneWindowWidth, sceneWindowHeight
                 ); }

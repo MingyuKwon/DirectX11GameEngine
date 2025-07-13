@@ -14,6 +14,8 @@ public:
 	);
 
 	void AddShouldDrawActor(
+		bool bVisible,
+
 		std::wstring actorName,
 		std::vector<KMGStaticMesh>* actorMeshes,
 		ID3D11DeviceContext* pMainContext,

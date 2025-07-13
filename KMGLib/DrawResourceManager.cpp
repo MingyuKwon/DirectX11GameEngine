@@ -34,6 +34,8 @@ void DrawResourceManager::AddAxisActor(bool bVisible,
 }
 
 void DrawResourceManager::AddShouldDrawActor(
+    bool bVisible,
+
     std::wstring actorName,
     std::vector<KMGStaticMesh>* actorMeshes, 
     ID3D11DeviceContext* pMainContext, 
@@ -82,6 +84,7 @@ void DrawResourceManager::AddShouldDrawActor(
             }
 
             drawActorResources[meshName].bLightEffected = lightColor.x < 0;
+            drawActorResources[meshName].bVisible = bVisible;
 
             drawActorResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
 

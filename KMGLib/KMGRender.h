@@ -72,6 +72,10 @@ private:
 
 	ID3D11SamplerState* pSamplerState = nullptr;
 
+	ID3D11DepthStencilState* pDepthEnableState = nullptr;
+	ID3D11DepthStencilState* pDepthDisableState = nullptr;
+
+
 	DirectX::XMMATRIX currentCameraViewMatrix;
 	DirectX::XMMATRIX currentCameraProjectionMatrix;
 

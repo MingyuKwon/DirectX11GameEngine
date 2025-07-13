@@ -15,7 +15,8 @@ void RenderThread(
     ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV,
     ID3D11Buffer* pCBChangeOnResize, ID3D11Buffer* pCBChangeOnPlayer,ID3D11Buffer* pCBChangesEveryFrame, ID3D11Buffer* pCBLightArray,
     ID3D11Buffer* pVertexBuffer, ID3D11Buffer* pIdexBuffer,
-    ID3D11ShaderResourceView* pTextureSRV, ID3D11ShaderResourceView* pNormalMapSRV, ID3D11SamplerState* pSamplerState,
+    ID3D11ShaderResourceView* pTextureSRV, ID3D11ShaderResourceView* pNormalMapSRV, 
+    ID3D11SamplerState* pSamplerState, ID3D11DepthStencilState* pDepthState,
     int drawIndexCount,
     int textureWidth, int textureHeight);
 
