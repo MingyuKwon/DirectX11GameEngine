@@ -11,7 +11,6 @@ enum class ELoadingType
 	ELT_IMPORT_MESH,
 	ELT_MAKE_GPU_DATA,
 	ELT_MAX,
-
 };
 
 class LoadingManager

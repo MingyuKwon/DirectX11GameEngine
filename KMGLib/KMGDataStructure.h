@@ -186,8 +186,6 @@ struct DrawResource
     bool bLightEffected = true;
 
     std::wstring name;
-    std::wstring textureFilePath;
-    std::wstring normalMapFilePath;
 
     ID3D11Buffer* pVertexBuffer = nullptr;
     ID3D11Buffer* pIndexBuffer = nullptr;

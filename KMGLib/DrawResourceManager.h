@@ -55,8 +55,8 @@ public:
 	void ArrangeActorResource();
 	void ArrangeDebugResource();
 
-	void AddTextureSRVs(std::wstring textureFilePath);
 	ID3D11ShaderResourceView* GetTextureSRV(std::wstring textureFilePath);
+	void AddTextureSRVs(std::wstring textureFilePath);
 
 private:
 	std::unordered_map<std::wstring, DrawResource> drawActorResources;

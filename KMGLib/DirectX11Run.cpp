@@ -35,7 +35,10 @@ void RenderThread(
     pDeferredContext->VSSetShader(pVertexShader, nullptr, 0);
     pDeferredContext->PSSetShader(pPixelShader, nullptr, 0);
 
-    pDeferredContext->OMSetDepthStencilState(pDepthState, 0);
+    if (pDepthState)
+    {
+        pDeferredContext->OMSetDepthStencilState(pDepthState, 0);
+    }
 
   
     D3D11_VIEWPORT viewport = {};
@@ -66,10 +69,20 @@ void RenderThread(
     pDeferredContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
     pDeferredContext->IASetIndexBuffer(pIdexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-    pDeferredContext->PSSetShaderResources(0, 1, &pTextureSRV);
-    pDeferredContext->PSSetShaderResources(1, 1, &pNormalMapSRV);
-    pDeferredContext->PSSetSamplers(0, 1, &pSamplerState);
-    pDeferredContext->PSSetSamplers(0, 1, &pSamplerState);
+    if (pTextureSRV)
+    {
+        pDeferredContext->PSSetShaderResources(0, 1, &pTextureSRV);
+    }
+
+    if (pNormalMapSRV)
+    {
+        pDeferredContext->PSSetShaderResources(1, 1, &pNormalMapSRV);
+    }
+
+    if (pSamplerState)
+    {
+        pDeferredContext->PSSetSamplers(0, 1, &pSamplerState);
+    }
 
     pDeferredContext->DrawIndexed(drawIndexCount, 0, 0);
 

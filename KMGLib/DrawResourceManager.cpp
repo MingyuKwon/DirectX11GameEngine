@@ -9,7 +9,7 @@ DrawResourceManager::~DrawResourceManager()
 {
     for (auto& bucket : textureSRVs)
     {
-        ID3D11ShaderResourceView*& srv = bucket.second;
+        ID3D11ShaderResourceView* srv = bucket.second;
         if (srv)
         {
             srv->Release();
