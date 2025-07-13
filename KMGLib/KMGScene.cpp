@@ -87,12 +87,12 @@ void KMGScene::ChangeAxisTransform()
 
     if (sceneMode == ESceneMode::ESM_MOVE)
     {
-        axisActor->SetRotation(XMVectorSet(0, 0, 0, 0));
+        axisActor->SetRotation_Q(XMVectorSet(0, 0, 0, 0));
 
     }
     else
     {
-        axisActor->SetRotation(focusActor->GetRotation());
+        axisActor->SetRotation_Q(focusActor->GetRotation_Q());
 
     }
 }

@@ -126,6 +126,7 @@ DirectX::XMVECTOR KMGUtility::EulerXYZToQuaternion(DirectX::XMVECTOR euler)
     return XMQuaternionNormalize(q);
 }
 
+
 std::string KMGUtility::WStringToString(std::wstring wstr)
 {
     static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;

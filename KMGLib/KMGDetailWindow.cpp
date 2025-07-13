@@ -125,11 +125,8 @@ void KMGDetailWindow::ShowTransform()
         if (currenFocusActor == nullptr) return;
 
         XMVECTOR positionVec = currenFocusActor->GetPosition();
-        XMVECTOR rotationVec = currenFocusActor->GetRotation();
+        XMVECTOR rotationVec = currenFocusActor->GetRotation_E();
         XMVECTOR scaleVec = currenFocusActor->GetScale();
-
-        rotationVec = KMGUtility::QuaternionToEulerXYZ(currenFocusActor->GetRotation());
-
 
         position[0] = XMVectorGetX(positionVec);
         position[1] = XMVectorGetY(positionVec);
@@ -179,10 +176,7 @@ void KMGDetailWindow::ShowTransform()
             rotation[1] = XMConvertToRadians(rotation[1]);
             rotation[2] = XMConvertToRadians(rotation[2]);
 
-
-            XMVECTOR changedRotation = XMVectorSet(rotation[0], rotation[1], rotation[2], 0);
-            changedRotation = KMGUtility::EulerXYZToQuaternion(changedRotation);
-            KMGCommand::UpdateActorRotation(currenFocusActor->GetName(), changedRotation);
+            KMGCommand::UpdateActorRotation(currenFocusActor->GetName(), XMVectorSet(rotation[0], rotation[1], rotation[2], 0), true);
         }
 
         ImGui::PopStyleColor();

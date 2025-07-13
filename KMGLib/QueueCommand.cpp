@@ -197,13 +197,14 @@ namespace KMGCommand
 		}
 	}
 
-	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation)
+	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bEuler)
 	{
 		if (schedular)
 		{
-			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation));
+			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, bEuler));
 		}
 	}
+
 
 	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale)
 	{
@@ -415,7 +416,16 @@ void SceneCommand_UpdateActorRotation::Execute(KMGScene*& scene)
 		}
 		else
 		{
-			findActor->SetRotation(quatRotation);
+			if (bEuler)
+			{
+				findActor->SetRotation_E(rotation);
+
+			}
+			else
+			{
+				findActor->SetRotation_Q(rotation);
+
+			}
 		}
 	}
 }

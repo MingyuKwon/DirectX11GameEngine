@@ -152,6 +152,9 @@ struct KMGTransform {
 
     DirectX::XMVECTOR position = DirectX::XMVectorSet(0, 0, 0, 1);
     DirectX::XMVECTOR rotation_Quaternion = DirectX::XMQuaternionIdentity();
+    DirectX::XMVECTOR rotation_EulerCache = DirectX::XMVectorSet(0, 0, 0, 0);
+    bool bEulerCacheDirty = true; // ÄõÅÍ´Ï¾ðÀÌ ¹Ù²î¸é true
+
 
     DirectX::XMVECTOR scale = DirectX::XMVectorSet(1, 1, 1, 0);
 };

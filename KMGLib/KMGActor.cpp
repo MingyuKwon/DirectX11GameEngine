@@ -58,14 +58,32 @@ void KMGActor::Translate(float dx, float dy, float dz) {
     }
 }
 
+DirectX::XMVECTOR KMGActor::GetRotation_E()
+{
+    if (transform.bEulerCacheDirty) {
+        transform.rotation_EulerCache = KMGUtility::QuaternionToEulerXYZ(transform.rotation_Quaternion);
+        transform.bEulerCacheDirty = false;
+    }
+    return transform.rotation_EulerCache;
+}
+
+void KMGActor::SetRotation_E(XMVECTOR eulerRadianXYZ)
+{
+    transform.rotation_Quaternion = KMGUtility::EulerXYZToQuaternion(eulerRadianXYZ);
+    transform.rotation_EulerCache = eulerRadianXYZ;
+    transform.bEulerCacheDirty = false;
+}
+
 /// <summary>
 /// 이거 기준이 쿼터니언이다
 /// 내부적으로는 쿼터니언을 계산을 전부 해야 한다
 /// </summary>
 /// <param name="rotation"></param>
-void KMGActor::SetRotation(DirectX::XMVECTOR rotation)
+void KMGActor::SetRotation_Q(DirectX::XMVECTOR rotation)
 {
     transform.rotation_Quaternion = XMQuaternionNormalize(rotation);
+    transform.bEulerCacheDirty = true;
+
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
@@ -118,7 +136,7 @@ void KMGActor::Rotate(DirectX::XMVECTOR worldAxis, float radian) {
     std::cout << "[결과] Forward→ (" << outVec.x << ", " << outVec.y << ", " << outVec.z << ")\n";
 
 
-    SetRotation(resultQuat);
+    SetRotation_Q(resultQuat);
 }
 
 
@@ -155,7 +173,7 @@ bool KMGActor::SetComponent(KMGComponent* addComponent)
     {
         Light& light = lightComp->GetLight();
         SetPosition(transform.position);
-        SetRotation(GetRotation());
+        SetRotation_Q(GetRotation_Q());
 
     }
 

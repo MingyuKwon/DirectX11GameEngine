@@ -80,7 +80,7 @@ namespace KMGCommand
 	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
 
 	void RotateActor(const std::wstring& name, DirectX::XMVECTOR aixsVector, float radian);
-	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation);
+	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bEuler);
 
 	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale);
 
@@ -237,7 +237,7 @@ private:
 
 struct SceneCommand_UpdateActorRotation : public SceneCommandMessage
 {
-	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR quatRotation) : actorName(name), quatRotation(quatRotation){
+	SceneCommand_UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bEuler = false) : actorName(name), rotation(rotation), bEuler(bEuler){
 		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 		bRelative = false;
 	}
@@ -251,12 +251,14 @@ struct SceneCommand_UpdateActorRotation : public SceneCommandMessage
 
 private:
 	std::wstring actorName;
-	DirectX::XMVECTOR quatRotation = DirectX::XMQuaternionIdentity();
+	DirectX::XMVECTOR rotation = DirectX::XMQuaternionIdentity();
 	DirectX::XMVECTOR aixsVector = XMVectorSet(1,0,0,0);
 	float radian = 0;
 
 	// 이게 true이면 현재 값에 행렬을 추가로 곱하고, false이면 그냥 행렬 값을 그대로 대입한다
 	bool bRelative;
+	bool bEuler = false;
+
 };
 
 struct SceneCommand_UpdateActorScale : public SceneCommandMessage
