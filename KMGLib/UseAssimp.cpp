@@ -64,6 +64,17 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     StaticMeshComponent* staticComp = outActor.GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
     if (staticComp)
     {
+        if (DEFAULT_AXISMESH_PATH == filePath)
+        {
+            KMGStaticMesh BallMesh = std::move(allMeshes[0]);
+
+            for (int i = 0; i < 3; i++) {
+                allMeshes[i] = std::move(allMeshes[i + 1]);
+            }
+
+            allMeshes[3] = std::move(BallMesh);
+        }
+
         staticComp->SetMeshData(std::move(allMeshes), filePath);
     }
     

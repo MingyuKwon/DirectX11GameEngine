@@ -46,9 +46,9 @@ void KMGScene::ColorHoverAxis()
             std::vector<KMGStaticMesh>* meshes = staticComp->GetMeshes();
             for (int i = 0; i < 3; i++)
             {
-                (*meshes)[i + 1].bShouldMeshChange = true;
+                (*meshes)[i].bShouldMeshChange = true;
 
-                std::vector<KMGVertex>& axisMesh = (*meshes)[i + 1].vertices;
+                std::vector<KMGVertex>& axisMesh = (*meshes)[i].vertices;
                 for (KMGVertex& vertex : axisMesh)
                 {
                     vertex.Color = axisModes[i] == hoverMode ? hoverAxisColors[i] : axisColors[i];
@@ -71,6 +71,7 @@ void KMGScene::CreateAxis()
 
     LoadModelToActor(DEFAULT_AXISMESH_PATH, *axisActor, nullptr);
     
+
 }
 
 void KMGScene::ChangeAxisTransform()

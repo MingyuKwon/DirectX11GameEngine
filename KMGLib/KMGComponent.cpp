@@ -106,7 +106,7 @@ void StaticMeshComponent::AxisOnly_CheckHoverAxis(DirectX::XMVECTOR rayOrigin, D
 
 	for (int i=0; i<3; i++)
 	{
-		const BoundingBox& box = boundingBoxs[i+1];
+		const BoundingBox& box = boundingBoxs[i];
 
 		float distance;
 		bool result = box.Intersects(rayOrigin, rayDir, distance);
