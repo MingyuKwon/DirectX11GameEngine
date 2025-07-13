@@ -523,7 +523,6 @@ void KMGRender::DrawScene(KMGScene* scene)
                                 accumulateMesh.indices.push_back(index + vertexOffset);
                             }
 
-
                             vertexOffset += mesh.vertices.size();
                         }
 
@@ -532,8 +531,6 @@ void KMGRender::DrawScene(KMGScene* scene)
                     }
                 }
             }
-            
-           
         }
         
         resourceManager.AddShouldDrawActor(

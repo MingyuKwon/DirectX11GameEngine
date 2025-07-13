@@ -239,6 +239,7 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
 
     indexCount = indices.size();
 
+
     ////////////////////////////////////////
     // 주어진 경로에서 텍스처 가져와서 만들고 srv까지 만듦
     ////////////////////////////////////////
@@ -254,18 +255,6 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
 
         if (this->textureFilePath != DEFAULT_TEXTURE_FILEPATH)
         {
-            // 전체 경로 출력용
-            wchar_t fullPath[MAX_PATH];
-            DWORD len = GetFullPathNameW(this->textureFilePath.c_str(), MAX_PATH, fullPath, nullptr);
-            if (len > 0)
-            {
-                std::wcout << L"[Debug] Full Path: " << fullPath << std::endl;
-            }
-            else
-            {
-                std::wcout << L"[Warning] Failed to get full path for: " << this->textureFilePath << std::endl;
-            }
-
             HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->textureFilePath.c_str(), &pTextureSRV);
             if (FAILED(hr))
             {

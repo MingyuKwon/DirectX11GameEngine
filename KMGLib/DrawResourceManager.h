@@ -53,9 +53,15 @@ public:
 	void ArrangeActorResource();
 	void ArrangeDebugResource();
 
+	void AddTextureSRVs(std::wstring textureFilePath);
+	ID3D11ShaderResourceView* GetTextureSRV(std::wstring textureFilePath);
+
 private:
 	std::unordered_map<std::wstring, DrawResource> drawActorResources;
 	std::unordered_map<std::wstring, DrawResource> drawDebugResources;
+
+	std::unordered_map<std::wstring, ID3D11ShaderResourceView*> textureSRVs;
+	std::mutex SRVLock;
 
 	std::unique_ptr<DrawResource> axisResource[4];
 

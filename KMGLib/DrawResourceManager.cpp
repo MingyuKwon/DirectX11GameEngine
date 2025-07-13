@@ -1,5 +1,6 @@
 #include <DrawResourceManager.h>
 #include <LoadingManager.h>
+#include <TextureLoader.h>
 
 using namespace std;
 using namespace DirectX;
@@ -181,4 +182,39 @@ void DrawResourceManager::ArrangeDebugResource()
         int& count = bucket.second;
         --count;
     }
+}
+
+void DrawResourceManager::AddTextureSRVs(std::wstring textureFilePath)
+{
+    std::lock_guard<std::mutex> addSrvLock(SRVLock);
+    if (DEFAULT_TEXTURE_FILEPATH == textureFilePath) return;
+    if (DEFAULT_NORMAL_FILEPATH == textureFilePath) return;
+
+    if (textureSRVs.count(textureFilePath) > 0) return;
+
+    ID3D11ShaderResourceView* srv;
+
+    HRESULT hr = CreateSrvFromTexture(g_pMainDevice, textureFilePath.c_str(), &srv);
+    if (FAILED(hr))
+    {
+        std::wcout << L"textureFilePath : " << textureFilePath << L"  Failed \n";
+        return;
+    }
+
+    std::wcout << L"textureFilePath : " << textureFilePath << L"  Success \n";
+    textureSRVs[textureFilePath] = srv;
+
+}
+
+ID3D11ShaderResourceView* DrawResourceManager::GetTextureSRV(std::wstring textureFilePath)
+{
+    if (DEFAULT_TEXTURE_FILEPATH == textureFilePath) return nullptr;
+    if (DEFAULT_NORMAL_FILEPATH == textureFilePath) return nullptr;
+
+    if (textureSRVs.count(textureFilePath) == 0)
+    {
+        AddTextureSRVs(textureFilePath);
+    }
+
+    return textureSRVs[textureFilePath];
 }
