@@ -4,6 +4,33 @@
 using namespace std;
 using namespace DirectX;
 
+void DrawResourceManager::AddAxisActor(std::vector<KMGStaticMesh>* actorMeshes, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
+{
+    if (actorMeshes)
+    {
+        for (int i = 0; i < actorMeshes->size(); i++)
+        {
+            wstring meshName = L"EDIT_AXIS";
+            KMGStaticMesh& actorMesh = (*actorMeshes)[i];
+
+            if (axisResource[i] == nullptr)
+            {
+                axisResource[i] = std::make_unique<DrawResource>(meshName);
+            }
+
+            if (actorMesh.bShouldMeshChange)
+            {
+                axisResource[i]->UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
+            }
+
+            axisResource[i]->bLightEffected = false;
+            axisResource[i]->UpdateActorCB(pMainContext, worldMatrix);
+
+            actorMesh.bShouldMeshChange = false;
+        }
+    }
+}
+
 void DrawResourceManager::AddShouldDrawActor(
     std::wstring actorName,
     std::vector<KMGStaticMesh>* actorMeshes, 
@@ -20,8 +47,7 @@ void DrawResourceManager::AddShouldDrawActor(
     {
         for (int i = 0; i < actorMeshes->size(); ++i)
         {
-            // -1인 경우에는 드래그용 axis이기 때문에 이거 일일히 보여주는 것은 오바이다
-            if (actorName != L"-1" && (*actorMeshes)[i].bShouldMeshChange) ++shouldUpdateCount;
+            if ((*actorMeshes)[i].bShouldMeshChange) ++shouldUpdateCount;
         }
     }
 
@@ -46,7 +72,6 @@ void DrawResourceManager::AddShouldDrawActor(
 
             if (actorMesh.bShouldMeshChange)
             {
-
                 drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
                 if (loading)
                 {

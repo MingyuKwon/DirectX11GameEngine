@@ -6,6 +6,12 @@ class DrawResourceManager
 public:
 	inline void ClearShouldDrawActor() { shouldDrawActor.clear(); }
 
+	void AddAxisActor(
+		std::vector<KMGStaticMesh>* actorMeshes,
+		ID3D11DeviceContext* pMainContext,
+		DirectX::XMMATRIX worldMatrix
+	);
+
 	void AddShouldDrawActor(
 		std::wstring actorName,
 		std::vector<KMGStaticMesh>* actorMeshes,
@@ -35,12 +41,20 @@ public:
 		return drawDebugResources;
 	}
 
+	inline DrawResource* GetAxisDrawResource(int index)
+	{
+		if (index < 0 || index >= 4 || !axisResource[index]) return nullptr;
+		return axisResource[index].get();
+	}
+
 	void ArrangeActorResource();
 	void ArrangeDebugResource();
 
 private:
 	std::unordered_map<std::wstring, DrawResource> drawActorResources;
 	std::unordered_map<std::wstring, DrawResource> drawDebugResources;
+
+	std::unique_ptr<DrawResource> axisResource[4];
 
 	/// <summary>
 	/// key는 액터 이름, 뒤에 int는 그 액터에 존재하는 메시의 개수

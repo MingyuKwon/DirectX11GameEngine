@@ -513,11 +513,9 @@ void KMGRender::DrawScene(KMGScene* scene)
             actorMeshes = staticComp->GetMeshes();
         }
 
-        resourceManager.AddShouldDrawActor(
-            actorID,
+        resourceManager.AddAxisActor(
             actorMeshes,
             pMainContext,
-            DirectX::XMFLOAT4(1, 1, 1, 1),
             axisActor->getWorldMatrix()
         );
     }
@@ -588,7 +586,34 @@ void KMGRender::DrawScene(KMGScene* scene)
             );}
          );
     }
-    
+
+    for (int i=0; i<4; i++)
+    {
+        DrawResource* axisDrawResource = resourceManager.GetAxisDrawResource(i);
+        if (axisDrawResource)
+        {
+            DrawResource& resource = *axisDrawResource;
+            ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
+
+            renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
+                RenderThread(
+                    DX11CommandLists, dx11CommandMutex,
+                    g_pMainDevice,
+                    resource.bDebug ? D3D10_PRIMITIVE_TOPOLOGY_LINELIST : D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+                    pVertexShader_Default,
+                    pCurrentPixelShader,
+                    pVertexLayout,
+                    pSceneRTV, pSceneDSV,
+                    pCBChangeOnResize, pCBChangeOnPlayer, resource.pCBChangesEveryFrame, pCBLightArray,
+                    resource.pVertexBuffer, resource.pIndexBuffer,
+                    resource.pTextureSRV, resource.pNormalMapSRV, pSamplerState,
+                    resource.indexCount,
+                    sceneWindowWidth, sceneWindowHeight
+                ); }
+            );
+        }
+
+    }
 
 
     for (auto& t : renderSettingThreads)
