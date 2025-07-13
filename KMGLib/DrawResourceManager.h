@@ -7,6 +7,7 @@ public:
 	inline void ClearShouldDrawActor() { shouldDrawActor.clear(); }
 
 	void AddAxisActor(
+		bool bVisible,
 		std::vector<KMGStaticMesh>* actorMeshes,
 		ID3D11DeviceContext* pMainContext,
 		DirectX::XMMATRIX worldMatrix

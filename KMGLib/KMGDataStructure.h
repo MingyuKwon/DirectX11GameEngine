@@ -179,6 +179,8 @@ struct alignas(16) CBChangeOnActor
 //--------------------------------------------------------------------------------------
 struct DrawResource
 {
+    bool bVisible = true;
+
     bool bInitialized = false;
     bool bDebug = false;
     bool bLightEffected = true;

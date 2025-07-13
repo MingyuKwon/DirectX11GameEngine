@@ -4,7 +4,8 @@
 using namespace std;
 using namespace DirectX;
 
-void DrawResourceManager::AddAxisActor(std::vector<KMGStaticMesh>* actorMeshes, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
+void DrawResourceManager::AddAxisActor(bool bVisible,
+    std::vector<KMGStaticMesh>* actorMeshes, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
 {
     if (actorMeshes)
     {
@@ -23,6 +24,7 @@ void DrawResourceManager::AddAxisActor(std::vector<KMGStaticMesh>* actorMeshes, 
                 axisResource[i]->UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
             }
 
+            axisResource[i]->bVisible = bVisible;
             axisResource[i]->bLightEffected = false;
             axisResource[i]->UpdateActorCB(pMainContext, worldMatrix);
 

@@ -503,7 +503,7 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     
     KMGActor* axisActor = scene->GetAxisActor();
-    if (axisActor && axisActor->IsVisible())
+    if (axisActor)
     {
         std::wstring actorID = std::to_wstring(axisActor->GetActorID());
         vector<KMGStaticMesh>* actorMeshes = nullptr;
@@ -514,6 +514,7 @@ void KMGRender::DrawScene(KMGScene* scene)
         }
 
         resourceManager.AddAxisActor(
+            axisActor->IsVisible(),
             actorMeshes,
             pMainContext,
             axisActor->getWorldMatrix()
@@ -568,7 +569,6 @@ void KMGRender::DrawScene(KMGScene* scene)
 
         ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
 
-
         renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
             RenderThread(
                 DX11CommandLists, dx11CommandMutex,
@@ -593,6 +593,8 @@ void KMGRender::DrawScene(KMGScene* scene)
         if (axisDrawResource)
         {
             DrawResource& resource = *axisDrawResource;
+            if (!resource.bVisible) continue;
+
             ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
 
             renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
