@@ -108,19 +108,6 @@ DrawResource::~DrawResource()
         pCBChangesEveryFrame->Release();
         pCBChangesEveryFrame = nullptr;
     }
-
-    if (pTextureSRV)
-    {
-        pTextureSRV->Release();
-        pTextureSRV = nullptr;
-
-    }
-
-    if (pNormalMapSRV)
-    {
-        pNormalMapSRV->Release();
-        pNormalMapSRV = nullptr;
-    }
 }
 
 DrawResource::DrawResource(DrawResource&& resource) noexcept
@@ -154,18 +141,6 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
         {
             pCBChangesEveryFrame->Release();
             pCBChangesEveryFrame = nullptr;
-        }
-
-        if (pTextureSRV)
-        {
-            pTextureSRV->Release();
-            pTextureSRV = nullptr;
-        }
-
-        if (pNormalMapSRV)
-        {
-            pNormalMapSRV->Release();
-            pNormalMapSRV = nullptr;
         }
 
         swap(pVertexBuffer, resource.pVertexBuffer);
