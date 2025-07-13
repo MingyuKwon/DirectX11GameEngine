@@ -5,6 +5,19 @@
 using namespace std;
 using namespace DirectX;
 
+DrawResourceManager::~DrawResourceManager()
+{
+    for (auto& bucket : textureSRVs)
+    {
+        ID3D11ShaderResourceView*& srv = bucket.second;
+        if (srv)
+        {
+            srv->Release();
+            srv = nullptr;
+        }
+    }
+}
+
 void DrawResourceManager::AddAxisActor(bool bVisible,
     std::vector<KMGStaticMesh>* actorMeshes, ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX worldMatrix)
 {
@@ -22,8 +35,11 @@ void DrawResourceManager::AddAxisActor(bool bVisible,
 
             if (actorMesh.bShouldMeshChange)
             {
-                axisResource[i]->UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
+                axisResource[i]->UpdateBuffers(actorMesh.vertices, actorMesh.indices);
             }
+
+            axisResource[i]->pTextureSRV = GetTextureSRV(actorMesh.textureFilePath);
+            axisResource[i]->pNormalMapSRV = GetTextureSRV(actorMesh.normalMapFilePath);
 
             axisResource[i]->bVisible = bVisible;
             axisResource[i]->bLightEffected = false;
@@ -77,12 +93,16 @@ void DrawResourceManager::AddShouldDrawActor(
 
             if (actorMesh.bShouldMeshChange)
             {
-                drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices, actorMesh.textureFilePath, actorMesh.normalMapFilePath);
+                drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices);
                 if (loading)
                 {
                     loading->PlusCurrentCount();
                 }
+
             }
+
+            drawActorResources[meshName].pTextureSRV = GetTextureSRV(actorMesh.textureFilePath);
+            drawActorResources[meshName].pNormalMapSRV = GetTextureSRV(actorMesh.normalMapFilePath);
 
             drawActorResources[meshName].bLightEffected = lightColor.x < 0;
             drawActorResources[meshName].bVisible = bVisible;
@@ -109,7 +129,7 @@ void DrawResourceManager::AddShouldDrawDebug(
     if (shouldDrawDebug.count(meshName) == 0)
     {
         drawDebugResources.emplace(meshName, DrawResource(meshName));
-        drawDebugResources[meshName].UpdateBuffers(debugMesh.vertices, debugMesh.indices, DEFAULT_TEXTURE_FILEPATH, DEFAULT_NORMAL_FILEPATH);
+        drawDebugResources[meshName].UpdateBuffers(debugMesh.vertices, debugMesh.indices);
         drawDebugResources[meshName].bDebug = true;
     }
 
@@ -117,7 +137,7 @@ void DrawResourceManager::AddShouldDrawDebug(
 
     if (debugMesh.bShouldDebugChange)
     {
-        drawDebugResources[meshName].UpdateBuffers(debugMesh.vertices, debugMesh.indices, DEFAULT_TEXTURE_FILEPATH, DEFAULT_NORMAL_FILEPATH);
+        drawDebugResources[meshName].UpdateBuffers(debugMesh.vertices, debugMesh.indices);
     }
 
     drawDebugResources[meshName].UpdateActorCB(pMainContext, worldMatrix);

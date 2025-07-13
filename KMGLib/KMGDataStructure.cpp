@@ -179,7 +179,7 @@ DrawResource& DrawResource::operator=(DrawResource&& resource) noexcept
     return *this;
 }
 
-void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath, std::wstring normalMapFilePath)
+void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices)
 {
     if (!g_pMainDevice) return;
 
@@ -238,65 +238,6 @@ void DrawResource::UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<in
     g_pMainDevice->CreateBuffer(&ibd, &iinitData, &pIndexBuffer);
 
     indexCount = indices.size();
-
-
-    ////////////////////////////////////////
-    // 주어진 경로에서 텍스처 가져와서 만들고 srv까지 만듦
-    ////////////////////////////////////////
-    if (this->textureFilePath != textureFilePath)
-    {
-        this->textureFilePath = textureFilePath;
-
-        if (pTextureSRV)
-        {
-            pTextureSRV->Release();
-            pTextureSRV = nullptr;
-        }
-
-        if (this->textureFilePath != DEFAULT_TEXTURE_FILEPATH)
-        {
-            HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->textureFilePath.c_str(), &pTextureSRV);
-            if (FAILED(hr))
-            {
-                std::wcout << L"this->textureFilePath : " << this->textureFilePath << L"  Failed \n";
-                this->textureFilePath = DEFAULT_TEXTURE_FILEPATH;
-            }
-            else
-            {
-                std::wcout << L"this->textureFilePath : " << this->textureFilePath << L"  Success \n";
-            }
-        }
-    }
-
-    ////////////////////////////////////////
-    // 주어진 경로에서 NormalMap 가져와서 만들고 srv까지 만듦
-    ////////////////////////////////////////
-    if (this->normalMapFilePath != normalMapFilePath)
-    {
-        this->normalMapFilePath = normalMapFilePath;
-
-        if (pNormalMapSRV)
-        {
-            pNormalMapSRV->Release();
-            pNormalMapSRV = nullptr;
-        }
-
-        if (this->normalMapFilePath != DEFAULT_NORMAL_FILEPATH)
-        {
-            HRESULT hr = CreateSrvFromTexture(g_pMainDevice, this->normalMapFilePath.c_str(), &pNormalMapSRV);
-            if (FAILED(hr))
-            {
-                wcout << "this->normalMapFilePath : " << this->normalMapFilePath << "  Failed \n";
-                this->normalMapFilePath = DEFAULT_NORMAL_FILEPATH;
-            }
-            else
-            {
-                wcout << "this->normalMapFilePath : " << this->normalMapFilePath << "  Success \n";
-            }
-        }
-
-    }
-
 }
 
 void DrawResource::UpdateActorCB(ID3D11DeviceContext* pMainContext, XMMATRIX WorldMatrix)

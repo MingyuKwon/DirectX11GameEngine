@@ -208,7 +208,7 @@ struct DrawResource
     DrawResource(DrawResource&&) noexcept;
     DrawResource& operator=(DrawResource&&) noexcept;
 
-    void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices, std::wstring textureFilePath, std::wstring normalMapFilePath);
+    void UpdateBuffers(std::vector<KMGVertex> vertices, std::vector<int> indices);
     void UpdateActorCB(ID3D11DeviceContext* pMainContext, DirectX::XMMATRIX WorldMatrix);
 
 private:

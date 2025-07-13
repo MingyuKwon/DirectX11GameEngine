@@ -4,6 +4,8 @@
 class DrawResourceManager
 {
 public:
+	virtual ~DrawResourceManager();
+
 	inline void ClearShouldDrawActor() { shouldDrawActor.clear(); }
 
 	void AddAxisActor(
