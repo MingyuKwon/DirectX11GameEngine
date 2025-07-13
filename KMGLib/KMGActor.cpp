@@ -72,6 +72,14 @@ void KMGActor::SetRotation_E(XMVECTOR eulerRadianXYZ)
     transform.rotation_Quaternion = KMGUtility::EulerXYZToQuaternion(eulerRadianXYZ);
     transform.rotation_EulerCache = eulerRadianXYZ;
     transform.bEulerCacheDirty = false;
+
+    LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+    if (lightComp)
+    {
+        Light& light = lightComp->GetLight();
+        XMStoreFloat3(&light.direction, -transform.GetForwardVector());
+    }
+
 }
 
 /// <summary>
@@ -89,7 +97,7 @@ void KMGActor::SetRotation_Q(DirectX::XMVECTOR rotation)
     if (lightComp)
     {
         Light& light = lightComp->GetLight();
-        XMStoreFloat3(&light.direction, transform.GetForwardVector());
+        XMStoreFloat3(&light.direction, -transform.GetForwardVector());
     }
 }
 

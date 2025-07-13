@@ -12,6 +12,8 @@ public:
 
     KMGScene();
 
+    void InitializeScene();
+
     void CreateAxis();
     void ChangeAxisTransform();
 

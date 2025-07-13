@@ -10,6 +10,22 @@ KMGScene::KMGScene()
     CreateAxis();
 }
 
+void KMGScene::InitializeScene()
+{
+    KMGCommand::AddActor(L"Directional Light");
+    KMGCommand::TranslateActor(L"Directional Light", XMVectorSet(0, 10, 0, 0));
+    KMGCommand::AddLightComponent(L"Directional Light");
+    KMGCommand::UpdateLightComponent_Type(L"Directional Light", 0);
+
+}
+
+void KMGScene::CreateAxis()
+{
+    // 먼저 AxisActor 만들기
+    axisActor = std::make_unique<KMGActor>(-1, L"System_Axis");
+    LoadModelToActor(DEFAULT_AXISMESH_PATH, *axisActor, nullptr);
+}
+
 void KMGScene::ColorHoverAxis()
 {
     static EHoverMode prevHoverMode = EHoverMode::EHM_MAX;
@@ -63,14 +79,7 @@ void KMGScene::ColorHoverAxis()
     prevHoverMode = hoverMode;
 }
 
-void KMGScene::CreateAxis()
-{
-    // 먼저 AxisActor 만들기
-    axisActor = std::make_unique<KMGActor>(-1, L"System_Axis");
-    LoadModelToActor(DEFAULT_AXISMESH_PATH, *axisActor, nullptr);
-    
 
-}
 
 void KMGScene::ChangeAxisTransform()
 {

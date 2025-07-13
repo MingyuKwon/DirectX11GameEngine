@@ -58,6 +58,8 @@ int main(int, char**)
     schedular = new CommandSchedular();
     KMGCommand::ChangeScene(new KMGScene());
 
+    currentScene->InitializeScene();
+
     KMGCommand::AddActor(L"Actor1");
 
     LARGE_INTEGER frequency;
@@ -211,6 +213,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 break;
 
             }
+
         }
 
         break;

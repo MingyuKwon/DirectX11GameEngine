@@ -62,8 +62,6 @@ bool KMGSceneHierarchyWindow::ShowContextItem(const char* str_id, KMGScene* curr
             }
         }
 
-        
-
         ImGui::EndPopup();
 
         return true;

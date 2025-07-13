@@ -59,6 +59,12 @@ public:
     void SetPosition(float x, float y, float z);
     void SetPosition(DirectX::XMVECTOR position);
 
+    inline DirectX::XMVECTOR GetLocalAxis(DirectX::XMVECTOR defaultAxis) {
+        defaultAxis = DirectX::XMVector3TransformNormal(defaultAxis, getWorldMatrix());
+        defaultAxis = DirectX::XMVector3Normalize(defaultAxis);
+        return defaultAxis;
+    }
+
     inline DirectX::XMVECTOR GetRotation_Q() const { 
         return transform.rotation_Quaternion;
     }
