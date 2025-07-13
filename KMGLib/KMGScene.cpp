@@ -67,8 +67,6 @@ void KMGScene::CreateAxis()
 {
     // 먼저 AxisActor 만들기
     axisActor = std::make_unique<KMGActor>(-1, L"System_Axis");
-    axisActor->SetScale(0.1f, 0.1f, 0.1f);
-
     LoadModelToActor(DEFAULT_AXISMESH_PATH, *axisActor, nullptr);
     
 
@@ -83,18 +81,24 @@ void KMGScene::ChangeAxisTransform()
     }
 
     axisActor->SetVisibility(true);
-
     axisActor->SetPosition(focusActor->GetPosition());
+
+    // 여기서 카메라와 actor의 사이 간격에 따라 scale을 바꾸도록 하자
+    DirectX::XMVECTOR cameraGap = currentCamera.GetCameraPosition() - axisActor->GetPosition();
+    float distance = XMVectorGetX(XMVector3Length(cameraGap));
+
+    distance *= 0.007f;
+
+    axisActor->SetScale(distance, distance, distance);
+
 
     if (sceneMode == ESceneMode::ESM_MOVE)
     {
         axisActor->SetRotation_Q(XMVectorSet(0, 0, 0, 0));
-
     }
     else
     {
         axisActor->SetRotation_Q(focusActor->GetRotation_Q());
-
     }
 }
 
