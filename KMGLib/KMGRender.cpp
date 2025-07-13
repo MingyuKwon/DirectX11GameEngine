@@ -168,14 +168,15 @@ bool KMGRender::CreateDeviceD3D()
     // 깊이 버퍼를 킬것인지 끌것인지 정하는 걸 여기서 2개다 생성
     ///////////////////////////////
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-    depthStencilDesc.DepthEnable = FALSE; 
-    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-    depthStencilDesc.StencilEnable = FALSE;
+    depthStencilDesc.DepthEnable = FALSE;
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
 
     HRESULT hr = g_pMainDevice->CreateDepthStencilState(&depthStencilDesc, &pDepthDisableState);
 
-    depthStencilDesc.DepthEnable = TRUE;  // 깊이 체크 켬
+    depthStencilDesc.DepthEnable = TRUE;
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
     hr = g_pMainDevice->CreateDepthStencilState(&depthStencilDesc, &pDepthEnableState);
 
     ///////////////////////////////
@@ -615,6 +616,16 @@ void KMGRender::DrawScene(KMGScene* scene)
          );
     }
 
+    for (auto& t : renderSettingThreads)
+    {
+        t.join();
+    }
+
+    renderSettingThreads.clear();
+
+    // 모든 씬 렌더링이 끝난 후에, 다시 축을 그림
+    // 축을 그릴 때는 멀티 스레딩을 그리면 depthCheck을 안하기에 깜빡임이 생긴다. 따라서 조절 필요
+
     for (int i=0; i<4; i++)
     {
         DrawResource* axisDrawResource = resourceManager.GetAxisDrawResource(i);
@@ -625,32 +636,25 @@ void KMGRender::DrawScene(KMGScene* scene)
 
             ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
 
-            renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
-                RenderThread(
-                    DX11CommandLists, dx11CommandMutex,
-                    g_pMainDevice,
-                    resource.bDebug ? D3D10_PRIMITIVE_TOPOLOGY_LINELIST : D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-                    pVertexShader_Default,
-                    pCurrentPixelShader,
-                    pVertexLayout,
-                    pSceneRTV, pSceneDSV,
-                    pCBChangeOnResize, pCBChangeOnPlayer, resource.pCBChangesEveryFrame, pCBLightArray,
-                    resource.pVertexBuffer, resource.pIndexBuffer,
-                    resource.pTextureSRV, resource.pNormalMapSRV, 
-                    pSamplerState, pDepthDisableState,
-                    resource.indexCount,
-                    sceneWindowWidth, sceneWindowHeight
-                ); }
+            RenderThread(
+                DX11CommandLists, dx11CommandMutex,
+                g_pMainDevice,
+                resource.bDebug ? D3D10_PRIMITIVE_TOPOLOGY_LINELIST : D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+                pVertexShader_Default,
+                pCurrentPixelShader,
+                pVertexLayout,
+                pSceneRTV, pSceneDSV,
+                pCBChangeOnResize, pCBChangeOnPlayer, resource.pCBChangesEveryFrame, pCBLightArray,
+                resource.pVertexBuffer, resource.pIndexBuffer,
+                resource.pTextureSRV, resource.pNormalMapSRV,
+                pSamplerState, pDepthDisableState,
+                resource.indexCount,
+                sceneWindowWidth, sceneWindowHeight
             );
         }
 
     }
 
-
-    for (auto& t : renderSettingThreads)
-    {
-        t.join();
-    }
 
     int count = 0;
     for (auto cmd : DX11CommandLists) {
