@@ -4,6 +4,7 @@
 class DrawResourceManager
 {
 public:
+	DrawResourceManager();
 	virtual ~DrawResourceManager();
 
 	inline void ClearShouldDrawActor() { shouldDrawActor.clear(); }
@@ -58,12 +59,18 @@ public:
 	ID3D11ShaderResourceView* GetTextureSRV(std::wstring textureFilePath);
 	void AddTextureSRVs(std::wstring textureFilePath);
 
+	void MakeRequestTextures();
+
 private:
 	std::unordered_map<std::wstring, DrawResource> drawActorResources;
 	std::unordered_map<std::wstring, DrawResource> drawDebugResources;
 
 	std::unordered_map<std::wstring, ID3D11ShaderResourceView*> textureSRVs;
 	std::mutex SRVLock;
+
+	std::unordered_set<std::wstring> textureRequest;
+	std::mutex textureRequestLock;
+
 
 	std::unique_ptr<DrawResource> axisResource[4];
 

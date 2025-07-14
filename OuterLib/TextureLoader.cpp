@@ -1,12 +1,27 @@
 #include <TextureLoader.h>  
+#include <comdef.h> // _com_error 사용
 
 using namespace Microsoft::WRL; 
+
+void LogIfFailed(HRESULT hr, const wchar_t* context) {
+    _com_error err(hr);
+    std::wcout << L"[ERROR] " << context << L" failed: " << err.ErrorMessage() << std::endl;
+}
 
 HRESULT CreateSrvFromTexture(
     ID3D11Device* device,
     const wchar_t* filename,
     ID3D11ShaderResourceView** textureView)
 {
+    // 0. 전체 경로 출력
+    wchar_t fullPath[MAX_PATH];
+    DWORD pathLen = GetFullPathNameW(filename, MAX_PATH, fullPath, nullptr);
+    if (pathLen > 0 && pathLen < MAX_PATH) {
+        std::wcout << L"[Texture Load] Full Path: " << fullPath << std::endl;
+    }
+    else {
+        std::wcout << L"[Texture Load] Failed to get full path for: " << filename << std::endl;
+    }
 
     // 1. WIC 팩토리 생성
     ComPtr<IWICImagingFactory> wicFactory;
@@ -15,6 +30,7 @@ HRESULT CreateSrvFromTexture(
         CLSCTX_INPROC_SERVER,
         IID_PPV_ARGS(&wicFactory));
     if (FAILED(hr)) {
+        LogIfFailed(hr, L"CoCreateInstance(IWICImagingFactory)");
         return hr;
     }
 
@@ -24,6 +40,7 @@ HRESULT CreateSrvFromTexture(
         filename, nullptr, GENERIC_READ,
         WICDecodeMetadataCacheOnLoad, &decoder);
     if (FAILED(hr)) {
+        LogIfFailed(hr, L"CreateDecoderFromFilename");
         return hr;
     }
 
@@ -31,6 +48,7 @@ HRESULT CreateSrvFromTexture(
     ComPtr<IWICBitmapFrameDecode> frame;
     hr = decoder->GetFrame(0, &frame);
     if (FAILED(hr)) {
+        LogIfFailed(hr, L"GetFrame(0)");
         return hr;
     }
 
@@ -38,6 +56,7 @@ HRESULT CreateSrvFromTexture(
     ComPtr<IWICFormatConverter> converter;
     hr = wicFactory->CreateFormatConverter(&converter);
     if (FAILED(hr)) {
+        LogIfFailed(hr, L"CreateFormatConverter");
         return hr;
     }
 
@@ -46,6 +65,7 @@ HRESULT CreateSrvFromTexture(
         WICBitmapDitherTypeNone, nullptr, 0.f,
         WICBitmapPaletteTypeCustom);
     if (FAILED(hr)) {
+        LogIfFailed(hr, L"FormatConverter::Initialize");
         return hr;
     }
 
@@ -60,6 +80,7 @@ HRESULT CreateSrvFromTexture(
         static_cast<UINT>(imageData.size()),
         imageData.data());
     if (FAILED(hr)) {
+        LogIfFailed(hr, L"CopyPixels");
         return hr;
     }
 
@@ -81,6 +102,7 @@ HRESULT CreateSrvFromTexture(
     ComPtr<ID3D11Texture2D> texture;
     hr = device->CreateTexture2D(&texDesc, &initData, &texture);
     if (FAILED(hr)) {
+        LogIfFailed(hr, L"CreateTexture2D");
         return hr;
     }
 
@@ -91,6 +113,9 @@ HRESULT CreateSrvFromTexture(
     srvDesc.Texture2D.MipLevels = 1;
 
     hr = device->CreateShaderResourceView(texture.Get(), &srvDesc, textureView);
+    if (FAILED(hr)) {
+        LogIfFailed(hr, L"CreateShaderResourceView");
+    }
 
     return hr;
 }

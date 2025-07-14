@@ -12,7 +12,7 @@
 #define DEFAULT_WINDOW_WIDTH 1920
 #define DEFAULT_WINDOW_HEIGHT 1080
 
-#define DEFAULT_INPUT_FRAME_DURATION 10
+#define DEFAULT_IMPORT_FRAME_DURATION 1
 
 
 #define SCENE_DETAIL_WIDTH_RATIO 0.75
@@ -22,14 +22,13 @@
 #define SCENE_EDIT_CAMERAROTATESPEED 0.003f
 
 #define DEFAULT_TEXTURE_FOLDER L"Resource\\Texture\\"
-#define DEFAULT_TEXTURE_FILEPATH L"NO Texture"
-#define DEFAULT_NORMAL_FILEPATH L"NO normal Map"
 
 #define DEFAULT_MESHFILE "Resource\\TankModel.obj"
 #define DEFAULT_LIGHTMESH "Resource\\TankModel.obj"
 
 #define DEFAULT_ACTOR_NAME L"Default_Actor_"
 
-
 #define DEFAULT_AXISMESH_PATH "D:\\DirectX11GameEngine\\Resource\\XYZ axis.obj"
+#define DEFAULT_TEXTURE_FILEPATH L"D:\\DirectX11GameEngine\\Resource\\Texture\\Default Texture.png"
+#define DEFAULT_NORMAL_FILEPATH L"D:\\DirectX11GameEngine\\Resource\\Texture\\Default NormalMap.jpg"
 

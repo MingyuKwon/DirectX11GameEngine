@@ -15,6 +15,7 @@ extern std::atomic<float> deltaTime;
 
 extern float g_cameraMoveSpeed;
 extern float g_cameraRotateSpeed;
+extern DrawResourceManager resourceManager;
 
 ID3D11Device* g_pMainDevice = nullptr;
 

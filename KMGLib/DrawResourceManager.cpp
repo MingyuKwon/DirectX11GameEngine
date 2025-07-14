@@ -5,6 +5,11 @@
 using namespace std;
 using namespace DirectX;
 
+DrawResourceManager::DrawResourceManager()
+{
+
+}
+
 DrawResourceManager::~DrawResourceManager()
 {
     for (auto& bucket : textureSRVs)
@@ -207,8 +212,6 @@ void DrawResourceManager::ArrangeDebugResource()
 void DrawResourceManager::AddTextureSRVs(std::wstring textureFilePath)
 {
     std::lock_guard<std::mutex> addSrvLock(SRVLock);
-    if (DEFAULT_TEXTURE_FILEPATH == textureFilePath) return;
-    if (DEFAULT_NORMAL_FILEPATH == textureFilePath) return;
 
     if (textureSRVs.count(textureFilePath) > 0) return;
 
@@ -226,14 +229,31 @@ void DrawResourceManager::AddTextureSRVs(std::wstring textureFilePath)
 
 }
 
+void DrawResourceManager::MakeRequestTextures()
+{
+    std::lock_guard<mutex> lock(textureRequestLock);
+
+    for (wstring textureFilePath : textureRequest)
+    {
+        AddTextureSRVs(textureFilePath);
+    }
+
+    textureRequest.clear();
+}
+
 ID3D11ShaderResourceView* DrawResourceManager::GetTextureSRV(std::wstring textureFilePath)
 {
-    if (DEFAULT_TEXTURE_FILEPATH == textureFilePath) return nullptr;
-    if (DEFAULT_NORMAL_FILEPATH == textureFilePath) return nullptr;
+    std::lock_guard<std::mutex> getSrvLock(SRVLock);
 
     if (textureSRVs.count(textureFilePath) == 0)
     {
-        AddTextureSRVs(textureFilePath);
+        // 여기서 리로스 드러워 한테 AddTextureSRVs 함수를 호출해서 만들어 달라고 부탁해야 한다
+        {
+            std::lock_guard<mutex> lock(textureRequestLock);
+            textureRequest.insert(textureFilePath);
+        }
+        
+        return textureSRVs[DEFAULT_NORMAL_FILEPATH];
     }
 
     return textureSRVs[textureFilePath];

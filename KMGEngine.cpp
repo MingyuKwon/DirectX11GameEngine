@@ -33,6 +33,9 @@ HMENU hMenu = nullptr;
 HMENU hFileMenu = nullptr;
 
 KMGRender* renderEngine = nullptr;
+DrawResourceManager resourceManager;
+
+
 CommandSchedular* schedular = nullptr;
 
 KMGScene* currentScene = nullptr;
@@ -64,6 +67,9 @@ int main(int, char**)
 
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
+
+    resourceManager.AddTextureSRVs(DEFAULT_TEXTURE_FILEPATH);
+    resourceManager.AddTextureSRVs(DEFAULT_NORMAL_FILEPATH);
 
     thread resourceThread(ResourceImportLoop);
 
@@ -117,7 +123,11 @@ void ResourceImportLoop()
 {
     while (bRunning) {
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_INPUT_FRAME_DURATION));
+        // 여기서 해야 하는 것은 액터 로딩 
+
+        // 텍스처 로딩
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_IMPORT_FRAME_DURATION));
     }
 }
 
