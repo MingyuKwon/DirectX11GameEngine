@@ -1,6 +1,8 @@
 #include <KMGDataStructure.h>
 #include <TextureLoader.h>
 #include <iostream>
+#include <UseAssimp.h>
+#include <QueueCommand.h>
 
 using namespace std;
 using namespace DirectX;
@@ -229,3 +231,28 @@ void DrawResource::UpdateActorCB(ID3D11DeviceContext* pMainContext, XMMATRIX Wor
 
 }
 
+void MeshLoader::PushMeshRequest(std::wstring actorName, std::string fileName)
+{
+    std::lock_guard<std::mutex> lock(meshRequestLock);
+    meshRequest[actorName] = fileName;
+
+}
+
+void MeshLoader::MakeMeshOnRequest()
+{
+    std::lock_guard<std::mutex> lock(meshRequestLock);
+
+    for (auto& bucket : meshRequest)
+    {
+        std::wstring actorName = bucket.first;
+        std::string fileName = bucket.second;
+
+
+        std::vector<KMGStaticMesh> meshes = LoadModelToActor(fileName);
+
+  
+        KMGCommand::UpdateStaticMesh(actorName, fileName, std::move(meshes));
+    }
+    
+    meshRequest.clear();
+}

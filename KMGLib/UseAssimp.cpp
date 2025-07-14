@@ -31,8 +31,11 @@ std::wstring Utf8ToWstring(const std::string& str)
     return wstrTo;
 }
 
-bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingManager* loadingManager, const std::wstring& textureName, const std::wstring& normalMapName)
+std::vector<KMGStaticMesh> LoadModelToActor(const std::string& filePath, const std::wstring& textureName, const std::wstring& normalMapName)
 {
+    LoadingManager loading(ELoadingType::ELT_IMPORT_MESH);
+    std::vector<KMGStaticMesh> allMeshes;
+
     std::wcout << L"Loading Mesh Start : " << filePath.c_str() <<" " << L"\n";
 
     Assimp::Importer importer;
@@ -46,41 +49,22 @@ bool LoadModelToActor(const std::string& filePath, KMGActor& outActor, LoadingMa
     if (!scene || !scene->mRootNode || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE))
     {
         std::cerr << "Assimp error: " << importer.GetErrorString() << std::endl;
-        return false;
+        return allMeshes;
     }
 
-    std::vector<KMGStaticMesh> allMeshes;
 
-    if (loadingManager)
-    {
-        loadingManager->SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
-    }
+    loading.SetTotalCount(scene->mNumMeshes); // 여기에 메시의 총 개수 세팅
 
     auto lastSlash = filePath.find_last_of("\\/");
     std::string meshFolder = filePath.substr(0, lastSlash);
 
-    Recursive_NodeProcess(scene->mRootNode, scene, allMeshes, loadingManager, meshFolder);
+    Recursive_NodeProcess(scene->mRootNode, scene, allMeshes, &loading, meshFolder);
 
-    StaticMeshComponent* staticComp = outActor.GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
-    if (staticComp)
-    {
-        if (DEFAULT_AXISMESH_PATH == filePath)
-        {
-            KMGStaticMesh BallMesh = std::move(allMeshes[0]);
 
-            for (int i = 0; i < 3; i++) {
-                allMeshes[i] = std::move(allMeshes[i + 1]);
-            }
-
-            allMeshes[3] = std::move(BallMesh);
-        }
-
-        staticComp->SetMeshData(std::move(allMeshes), filePath);
-    }
-    
+    loading.StopLoading();
     std::cout << "Loading Mesh End : \n";
 
-    return true;
+    return allMeshes;
 }
 
 void Recursive_NodeProcess(aiNode* node, const aiScene* scene, std::vector<KMGStaticMesh>& allMeshes, LoadingManager* loadingManager, std::string meshFolder)

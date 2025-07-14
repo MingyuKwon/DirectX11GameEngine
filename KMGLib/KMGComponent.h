@@ -99,5 +99,4 @@ private:
 
 	std::vector<KMGStaticMesh> meshes;
 	std::vector<DirectX::BoundingBox> boundingBoxs;
-
 };

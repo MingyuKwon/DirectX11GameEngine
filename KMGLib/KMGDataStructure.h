@@ -184,6 +184,18 @@ struct alignas(16) CBChangeOnActor
     DirectX::XMMATRIX mWorld;
 };
 
+struct MeshLoader
+{
+    void PushMeshRequest(std::wstring actorName, std::string fileName);
+   
+    void MakeMeshOnRequest();
+
+    // 요청하는 액터 이름, 메시 이름
+    std::unordered_map<std::wstring, std::string> meshRequest;
+    std::mutex meshRequestLock;
+
+};
+
 //--------------------------------------------------------------------------------------
 // 그려야 하는 모델들을 저장하는 구조체
 //--------------------------------------------------------------------------------------

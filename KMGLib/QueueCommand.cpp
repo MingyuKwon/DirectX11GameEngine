@@ -1,6 +1,5 @@
 #include "QueueCommand.h"
 #include "KMGScene.h"
-#include <UseAssimp.h>
 #include <LoadingManager.h>
 #include <KMGDataStructure.h>
 #include <DrawDebug.h>
@@ -88,11 +87,11 @@ namespace KMGCommand
 		}
 	}
 
-	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName, const std::wstring& normalMapName)
+	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, std::vector<KMGStaticMesh>&& allMeshes)
 	{
 		if (schedular)
 		{
-			schedular->PushCommand(make_unique<SceneCommand_UpdateStaticMesh>(name, fileName, textureName, normalMapName));
+			schedular->PushCommand(make_unique<SceneCommand_UpdateStaticMesh>(name, fileName, std::move(allMeshes)));
 		}
 	}
 
@@ -503,18 +502,20 @@ void SceneCommand_UpdateStaticMesh::Execute(KMGScene*& scene)
 {
 	if (!scene) return;
 
-	LoadingManager loading(ELoadingType::ELT_IMPORT_MESH);
 	KMGActor* findActor = scene->GetActor(actorName);
 
 	if (findActor)
 	{
-		LoadModelToActor(fileName, *findActor, &loading, textureName, normalMapName);
-	}
-	else
-	{
-		loading.StopLoading();
-	}
+		// 여기서 바로 LoadModelActor을 하는 것이 아니라, 여기서 액터와 함께 다른 함수를 보내줘서
+		// 그 액터 스레드에서 따로 가져오도록 해야 한다
 
+		StaticMeshComponent* staticComp = findActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+		if (staticComp)
+		{
+			staticComp->SetMeshData(std::move(allMeshes), fileName);
+		}
+	}
+	
 }
 
 void SceneCommand_UpdateTextureNormal::Execute(KMGScene*& scene)

@@ -24,7 +24,22 @@ void KMGScene::CreateAxis()
 {
     // 먼저 AxisActor 만들기
     axisActor = std::make_unique<KMGActor>(-1, L"System_Axis");
-    LoadModelToActor(DEFAULT_AXISMESH_PATH, *axisActor, nullptr);
+    std::vector<KMGStaticMesh> allMeshes = LoadModelToActor(DEFAULT_AXISMESH_PATH);
+    
+    StaticMeshComponent* staticComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+    if (staticComp)
+    {
+        KMGStaticMesh BallMesh = std::move(allMeshes[0]);
+
+        for (int i = 0; i < 3; i++) {
+            allMeshes[i] = std::move(allMeshes[i + 1]);
+        }
+
+        allMeshes[3] = std::move(BallMesh);
+
+        staticComp->SetMeshData(std::move(allMeshes), DEFAULT_AXISMESH_PATH);
+    }
+
 }
 
 void KMGScene::ColorHoverAxis()

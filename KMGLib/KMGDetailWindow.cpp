@@ -19,6 +19,7 @@ using namespace std;
 #define VERTICAL_SPACE(x)  ImGui::Dummy(ImVec2(0, x))
 
 extern std::atomic<bool> bDetailFocused;
+extern MeshLoader meshLoader;
 
 void KMGDetailWindow::DrawDetailWindow(
     KMGActor* focusActor,
@@ -271,7 +272,7 @@ void KMGDetailWindow::ShowStaticMesh()
             wstring fileName = GetMeshFromFileExplorer();
             if (fileName != L"NONE")
             {
-                KMGCommand::UpdateStaticMesh(currenFocusActor->GetName(), KMGUtility::WStringToString(fileName));
+                meshLoader.PushMeshRequest(currenFocusActor->GetName(), KMGUtility::WStringToString(fileName));
             }
 
         }

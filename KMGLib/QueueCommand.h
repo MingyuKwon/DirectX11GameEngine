@@ -64,7 +64,7 @@ namespace KMGCommand
 
 	void CopyActor(const std::wstring& name);
 	void RemoveActor(const std::wstring& name);
-	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName = DEFAULT_TEXTURE_FILEPATH, const std::wstring& normalMapName = DEFAULT_NORMAL_FILEPATH);
+	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, std::vector<KMGStaticMesh>&& allMeshes);
 
 	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
 	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
@@ -186,8 +186,8 @@ private:
 
 struct SceneCommand_UpdateStaticMesh : public SceneCommandMessage
 {
-	SceneCommand_UpdateStaticMesh(const std::wstring& name, const std::string& fileName, const std::wstring& textureName, const std::wstring& normalMapName)
-		: actorName(name), fileName(fileName), textureName(textureName), normalMapName(normalMapName)
+	SceneCommand_UpdateStaticMesh(const std::wstring& name, const std::string& fileName, std::vector<KMGStaticMesh>&& allMeshes)
+		: actorName(name), fileName(fileName), allMeshes(std::move(allMeshes))
 	{
 		type = ECommandMessageType::ERC_UPDATE_ACTOR;
 	}
@@ -197,8 +197,8 @@ struct SceneCommand_UpdateStaticMesh : public SceneCommandMessage
 private:
 	std::wstring actorName;
 	std::string fileName;
-	std::wstring textureName;
-	std::wstring normalMapName;
+	std::vector<KMGStaticMesh> allMeshes;
+
 };
 
 struct SceneCommand_UpdateTextureNormal : public SceneCommandMessage

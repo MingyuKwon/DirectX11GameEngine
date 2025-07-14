@@ -34,7 +34,7 @@ HMENU hFileMenu = nullptr;
 
 KMGRender* renderEngine = nullptr;
 DrawResourceManager resourceManager;
-
+MeshLoader meshLoader;
 
 CommandSchedular* schedular = nullptr;
 
@@ -46,7 +46,8 @@ using namespace DirectX;
 void MoveCameraRealtime();
 void RotateCameraRealtime();
 
-void ResourceImportLoop();
+void TextureImportLoop();
+void MeshImportLoop();
 
 void GlobalTick(float deltaTime);
 
@@ -71,7 +72,8 @@ int main(int, char**)
     resourceManager.AddTextureSRVs(DEFAULT_TEXTURE_FILEPATH);
     resourceManager.AddTextureSRVs(DEFAULT_NORMAL_FILEPATH);
 
-    thread resourceThread(ResourceImportLoop);
+    thread textureImportThread(TextureImportLoop);
+    thread meshImportThread(MeshImportLoop);
 
     MSG msg = {};
 
@@ -110,7 +112,8 @@ int main(int, char**)
         }
     }
 
-    resourceThread.join();
+    textureImportThread.join();
+    meshImportThread.join();
 
     renderEngine->StopRenderEngine();
     delete renderEngine;
@@ -119,15 +122,22 @@ int main(int, char**)
 
 }
 
-void ResourceImportLoop()
+void TextureImportLoop()
+{
+    while (bRunning) {
+        // 텍스처 로딩
+        resourceManager.MakeRequestTextures();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_IMPORT_FRAME_DURATION));
+    }
+}
+
+void MeshImportLoop()
 {
     while (bRunning) {
 
         // 여기서 해야 하는 것은 액터 로딩 
-
-
-        // 텍스처 로딩
-        resourceManager.MakeRequestTextures();
+        meshLoader.MakeMeshOnRequest();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_IMPORT_FRAME_DURATION));
     }
