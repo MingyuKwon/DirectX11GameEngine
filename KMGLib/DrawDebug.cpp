@@ -62,6 +62,16 @@ void DrawDebug::DrawAxes(const char* file, int line, DirectX::XMMATRIX worldMatr
     schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(wstr_name, mesh));
 }
 
+void DrawDebug::DrawGizmo(int halfGridSize, float gridSpacing, float yLevel, XMFLOAT4 lineColor)
+{
+    KMGDebugMesh mesh = MakeDebugGrid(halfGridSize, gridSpacing, yLevel, lineColor);
+
+    string str_name = "DEBUG_GIZMO";
+    std::wstring wstr_name(str_name.begin(), str_name.end());
+
+    schedular->PushCommand(std::make_unique<SceneCommand_DrawDebug>(wstr_name, mesh));
+}
+
 KMGDebugMesh DrawDebug::MakeDebugLine(DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, DirectX::XMFLOAT4 color)
 {
     KMGDebugMesh mesh;
@@ -215,6 +225,39 @@ KMGDebugMesh DrawDebug::MakeDebugAxes(DirectX::XMMATRIX worldMatrix, float axisL
 
     for (auto& v : zMesh.vertices) mesh.vertices.push_back(v);
     for (auto& i : zMesh.indices) mesh.indices.push_back(i + offset);
+
+    return mesh;
+}
+
+KMGDebugMesh DrawDebug::MakeDebugGrid(int halfGridSize, float gridSpacing, float yLevel, XMFLOAT4 lineColor)
+{
+    KMGDebugMesh mesh;
+
+    for (int i = -halfGridSize; i <= halfGridSize; ++i)
+    {
+        float z = i * gridSpacing;
+        XMFLOAT3 start = { -halfGridSize * gridSpacing, yLevel, z };
+        XMFLOAT3 end = { halfGridSize * gridSpacing, yLevel, z };
+
+        KMGDebugMesh line = MakeDebugLine(start, end, lineColor);
+
+        int offset = static_cast<int>(mesh.vertices.size());
+        for (auto& v : line.vertices) mesh.vertices.push_back(v);
+        for (auto& idx : line.indices) mesh.indices.push_back(idx + offset);
+    }
+
+    for (int i = -halfGridSize; i <= halfGridSize; ++i)
+    {
+        float x = i * gridSpacing;
+        XMFLOAT3 start = { x, yLevel, -halfGridSize * gridSpacing };
+        XMFLOAT3 end = { x, yLevel,  halfGridSize * gridSpacing };
+
+        KMGDebugMesh line = MakeDebugLine(start, end, lineColor);
+
+        int offset = static_cast<int>(mesh.vertices.size());
+        for (auto& v : line.vertices) mesh.vertices.push_back(v);
+        for (auto& idx : line.indices) mesh.indices.push_back(idx + offset);
+    }
 
     return mesh;
 }

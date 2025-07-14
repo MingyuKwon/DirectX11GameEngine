@@ -2,6 +2,7 @@
 #include "KMGUtility.h"
 #include "UseAssimp.h"
 #include "QueueCommand.h"
+#include "DrawDebug.h"
 
 using namespace DirectX;
 
@@ -185,20 +186,19 @@ void KMGScene::EraseActor(const std::wstring& name)
 
 void KMGScene::Tick(float deltaTime)
 {
-    std::vector<std::wstring> shouldErase;
+    DrawDebug::DrawGizmo(100, 5, 0, XMFLOAT4(0,0,0,1));
 
-    for (auto& bucket : debugLifeTime)
+    for (auto it = debugLifeTime.begin(); it != debugLifeTime.end();)
     {
-        bucket.second -= deltaTime;
-        if (bucket.second <= 0)
+        it->second -= deltaTime;
+        if (it->second <= 0)
         {
-            shouldErase.emplace_back(bucket.first);
+            it = debugLifeTime.erase(it);
         }
-    }
-
-    for (std::wstring name : shouldErase)
-    {
-        debugLifeTime.erase(name);
+        else
+        {
+            ++it;
+        }
     }
 
     ColorHoverAxis();

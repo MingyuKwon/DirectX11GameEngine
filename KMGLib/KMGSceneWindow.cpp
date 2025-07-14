@@ -112,7 +112,7 @@ void KMGSceneWindow::CheckSceneClick(
         }
         
 
-        if (bSceneFocused && ImGui::IsMouseClicked(0))
+        if (bSceneFocused && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
         {
             KMGCommand::CameraRayTrace_Select(rayDir);
         }
@@ -134,18 +134,20 @@ void KMGSceneWindow::ShowSceneMode(KMGScene* currentScene)
     };
 
     SceneModeEntry modes[] = {
-        { ESceneMode::ESM_SELECT, "SELECT (Q)" },
-        { ESceneMode::ESM_MOVE,   "MOVE (W)"   },
-        { ESceneMode::ESM_ROTATE, "ROTATE (E)" },
-        { ESceneMode::ESM_SCALE,  "SCALE (R)"  }
+        { ESceneMode::ESM_SELECT, "(Q) SELECT" },
+        { ESceneMode::ESM_MOVE,   "(W)   MOVE"   },
+        { ESceneMode::ESM_ROTATE, "(E) ROTATE" },
+        { ESceneMode::ESM_SCALE,  "(R)  SCALE"  }
     };
 
     ESceneMode currentMode = currentScene->GetSceneMode();
 
-    ImGui::SetCursorPos(ImVec2(15, 35)); 
+    ImGui::SetCursorPosY(35); 
 
     for (int i = 0; i < IM_ARRAYSIZE(modes); ++i)
     {
+        ImGui::SetCursorPosX(15);
+
         const auto& entry = modes[i];
 
         if (entry.mode == currentMode)
@@ -162,9 +164,6 @@ void KMGSceneWindow::ShowSceneMode(KMGScene* currentScene)
             ImGui::PopStyleColor(2);
         }
 
-        if (i < IM_ARRAYSIZE(modes) - 1) {
-            ImGui::SameLine();
-        }
     }
 }
 
