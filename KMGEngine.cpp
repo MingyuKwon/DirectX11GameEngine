@@ -125,6 +125,7 @@ void ResourceImportLoop()
 
         // 여기서 해야 하는 것은 액터 로딩 
 
+
         // 텍스처 로딩
         resourceManager.MakeRequestTextures();
 
