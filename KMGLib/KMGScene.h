@@ -156,10 +156,17 @@ public:
 
     void ColorHoverAxis();
 
+    inline void SetShowGizmo(bool bShow)
+    {
+        bShowGizmo = bShow;
+    }
+
 private:
     int ActorAddCount = 0;
     ESceneMode sceneMode = ESceneMode::ESM_SELECT;
     EHoverMode hoverMode = EHoverMode::EHM_NONE;
+
+    bool bShowGizmo = true;
 
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;

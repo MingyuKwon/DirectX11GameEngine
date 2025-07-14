@@ -13,6 +13,8 @@
 using namespace DirectX;
 using namespace std;
 
+#define FIRST_IMGUI_TAB(x)  ImGui::SetCursorPosX(x)
+#define VERTICAL_SPACE(x)  ImGui::Dummy(ImVec2(0, x))
 
 extern std::atomic<bool> bSceneFocused;
 extern std::atomic<float> deltaTime;
@@ -72,7 +74,7 @@ void KMGSceneWindow::DrawSceneWindow(
     );
 
     ShowFPS_CameraSpeed();
-    ShowSceneMode(currentScene);
+    ShowSceneSetting(currentScene);
 
     ImGui::End();
 }
@@ -124,7 +126,7 @@ void KMGSceneWindow::CheckSceneClick(
 }
 
 
-void KMGSceneWindow::ShowSceneMode(KMGScene* currentScene)
+void KMGSceneWindow::ShowSceneSetting(KMGScene* currentScene)
 {
     if (!currentScene) return;
 
@@ -165,6 +167,26 @@ void KMGSceneWindow::ShowSceneMode(KMGScene* currentScene)
         }
 
     }
+
+    VERTICAL_SPACE(5);
+    ImGui::SetCursorPosX(15);
+    
+    static bool enabled = true;
+
+    bool beforeEnable = enabled;
+
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(4, 0));
+    ImGui::Checkbox("Show Gizmo", &enabled);
+    ImGui::PopStyleVar(); 
+    ImGui::PopStyleColor();
+
+    if (beforeEnable != enabled) // 이러면 버튼을 눌러서 변한거다
+    {
+        currentScene->SetShowGizmo(enabled);
+    }
+
+
 }
 
 void KMGSceneWindow::ShowFPS_CameraSpeed()

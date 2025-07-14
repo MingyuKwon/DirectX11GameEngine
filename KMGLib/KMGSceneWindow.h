@@ -17,7 +17,7 @@ public:
 	);
 
 private:
-	void ShowSceneMode(KMGScene* currentScene);
+	void ShowSceneSetting(KMGScene* currentScene);
 	void ShowFPS_CameraSpeed();
 	void CheckSceneClick(
 		KMGScene* currentScene,

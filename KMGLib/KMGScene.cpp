@@ -186,7 +186,10 @@ void KMGScene::EraseActor(const std::wstring& name)
 
 void KMGScene::Tick(float deltaTime)
 {
-    DrawDebug::DrawGizmo(100, 5, 0, XMFLOAT4(0,0,0,1));
+    if (bShowGizmo)
+    {
+        DrawDebug::DrawGizmo(100, 5, 0, XMFLOAT4(0, 0, 0, 1));
+    }
 
     for (auto it = debugLifeTime.begin(); it != debugLifeTime.end();)
     {

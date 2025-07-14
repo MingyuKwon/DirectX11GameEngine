@@ -124,11 +124,6 @@ void GlobalTick(float deltaTime)
     {
         currentScene->Tick(deltaTime);
     }
-
-    DRAW_DEBUG_LINE(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 1, 0), XMFLOAT4(1, 0, 0, 1), 1);
-    DRAW_DEBUG_LINE(XMFLOAT3(0, 0, 0), XMFLOAT3(1, 0, 0), XMFLOAT4(0, 1, 0, 1), 1);
-    DRAW_DEBUG_LINE(XMFLOAT3(0, 0, 0), XMFLOAT3(0, 0, 1), XMFLOAT4(0, 0, 1, 1), 1);
-
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
