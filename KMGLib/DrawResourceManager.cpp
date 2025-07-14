@@ -243,18 +243,26 @@ void DrawResourceManager::MakeRequestTextures()
 
 ID3D11ShaderResourceView* DrawResourceManager::GetTextureSRV(std::wstring textureFilePath)
 {
-    std::lock_guard<std::mutex> getSrvLock(SRVLock);
+    bool shouldRequest = false;
 
-    if (textureSRVs.count(textureFilePath) == 0)
     {
-        // 여기서 리로스 드러워 한테 AddTextureSRVs 함수를 호출해서 만들어 달라고 부탁해야 한다
+        std::lock_guard<std::mutex> getSrvLock(SRVLock);
+
+        if (textureSRVs.count(textureFilePath) == 0)
         {
-            std::lock_guard<mutex> lock(textureRequestLock);
-            textureRequest.insert(textureFilePath);
+            shouldRequest = true;
         }
-        
-        return textureSRVs[DEFAULT_NORMAL_FILEPATH];
+        else
+        {
+            return textureSRVs[textureFilePath];
+        }
     }
 
-    return textureSRVs[textureFilePath];
+    if (shouldRequest)
+    {
+        std::lock_guard<std::mutex> lock(textureRequestLock);
+        textureRequest.insert(textureFilePath);
+    }
+
+    return textureSRVs[DEFAULT_NORMAL_FILEPATH];
 }
