@@ -109,36 +109,36 @@ public:
         return actorNames;
     }
 
-    inline ESceneMode GetSceneMode()
+    inline ESceneEditMode GetSceneEditMode()
     {
-        return sceneMode;
+        return sceneEditMode;
     }
 
-    inline void SetSceneMode(ESceneMode mode)
+    inline void SetSceneEditMode(ESceneEditMode mode)
     {
-        sceneMode = mode;
+        sceneEditMode = mode;
 
-        switch (sceneMode)
+        switch (sceneEditMode)
         {
-        case ESceneMode::ESM_NONE:
+        case ESceneEditMode::ESEM_NONE:
             break;
-        case ESceneMode::ESM_SELECT:
+        case ESceneEditMode::ESEM_SELECT:
             std::cout << "ESM_SELECT\n";
 
             break;
-        case ESceneMode::ESM_MOVE:
+        case ESceneEditMode::ESEM_MOVE:
             std::cout << "ESM_MOVE\n";
 
             break;
-        case ESceneMode::ESM_ROTATE:
+        case ESceneEditMode::ESEM_ROTATE:
             std::cout << "ESM_ROTATE\n";
 
             break;
-        case ESceneMode::ESM_SCALE:
+        case ESceneEditMode::ESEM_SCALE:
             std::cout << "ESM_SCALE\n";
 
             break;
-        case ESceneMode::ESM_MAX:
+        case ESceneEditMode::ESEM_MAX:
 
             break;
         default:
@@ -163,7 +163,10 @@ public:
 
 private:
     int ActorAddCount = 0;
-    ESceneMode sceneMode = ESceneMode::ESM_SELECT;
+
+    ESceneMode sceneMode = ESceneMode::ESM_EDIT;
+
+    ESceneEditMode sceneEditMode = ESceneEditMode::ESEM_SELECT;
     EHoverMode hoverMode = EHoverMode::EHM_NONE;
 
     bool bShowGizmo = true;

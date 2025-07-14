@@ -18,6 +18,8 @@ void RotateCameraRealtime();
 const double targetFrameTime = 1.0 / 120.0; // 기준을 60fps로 맞춤
 std::atomic<float> deltaTime = 0;
 
+std::atomic<bool> bRunning = true;
+
 std::atomic<bool> bSceneFocused = false;
 std::atomic<bool> bHierarchyFocused = false;
 std::atomic<bool> bDetailFocused = false;
@@ -38,15 +40,13 @@ KMGScene* currentScene = nullptr;
 using namespace std;
 using namespace DirectX;
 
+void MoveCameraRealtime();
+void RotateCameraRealtime();
+
+void ResourceImportLoop();
+
 void GlobalTick(float deltaTime);
 
-void ChangeCubeTransform()
-{
-    if (schedular)
-    {
-
-    }
-}
 
 int main(int, char**)
 {
@@ -65,8 +65,9 @@ int main(int, char**)
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
+    thread resourceThread(ResourceImportLoop);
+
     MSG msg = {};
-    bool bRunning = true;
 
     while (bRunning)
     {
@@ -103,11 +104,21 @@ int main(int, char**)
         }
     }
 
+    resourceThread.join();
+
     renderEngine->StopRenderEngine();
     delete renderEngine;
     delete schedular;
     return 0;
 
+}
+
+void ResourceImportLoop()
+{
+    while (bRunning) {
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_INPUT_FRAME_DURATION));
+    }
 }
 
 void GlobalTick(float deltaTime)
@@ -118,8 +129,6 @@ void GlobalTick(float deltaTime)
         RotateCameraRealtime();
     }
 
-    ChangeCubeTransform();
-
     if (currentScene)
     {
         currentScene->Tick(deltaTime);
@@ -128,10 +137,7 @@ void GlobalTick(float deltaTime)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-    {
-
-    }
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {}
 
     bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
 
@@ -177,7 +183,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (currentScene && !isRightMouseDown)
                 {
-                    currentScene->SetSceneMode(ESceneMode::ESM_SELECT);
+                    currentScene->SetSceneEditMode(ESceneEditMode::ESEM_SELECT);
                 }
 
                 break;
@@ -186,7 +192,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (currentScene && !isRightMouseDown)
                 {
-                    currentScene->SetSceneMode(ESceneMode::ESM_MOVE);
+                    currentScene->SetSceneEditMode(ESceneEditMode::ESEM_MOVE);
                 }
 
                 break;
@@ -195,7 +201,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (currentScene && !isRightMouseDown)
                 {
-                    currentScene->SetSceneMode(ESceneMode::ESM_ROTATE);
+                    currentScene->SetSceneEditMode(ESceneEditMode::ESEM_ROTATE);
                 }
                 break;
             }
@@ -203,7 +209,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 if (currentScene && !isRightMouseDown)
                 {
-                    currentScene->SetSceneMode(ESceneMode::ESM_SCALE);
+                    currentScene->SetSceneEditMode(ESceneEditMode::ESEM_SCALE);
                 }
                 break;
 

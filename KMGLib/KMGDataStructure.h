@@ -24,12 +24,22 @@ enum class ESceneMode
 {
     ESM_NONE,
 
-    ESM_SELECT,
-    ESM_MOVE,
-    ESM_ROTATE,
-    ESM_SCALE,
+    ESM_EDIT,
+    ESM_PLAY,
 
     ESM_MAX,
+};
+
+enum class ESceneEditMode
+{
+    ESEM_NONE,
+
+    ESEM_SELECT,
+    ESEM_MOVE,
+    ESEM_ROTATE,
+    ESEM_SCALE,
+
+    ESEM_MAX,
 };
 
 enum class EHoverMode

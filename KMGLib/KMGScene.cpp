@@ -80,7 +80,7 @@ void KMGScene::ColorHoverAxis()
 
 void KMGScene::ChangeAxisTransform()
 {
-    if (focusActor == nullptr || sceneMode == ESceneMode::ESM_SELECT)
+    if (focusActor == nullptr || sceneEditMode == ESceneEditMode::ESEM_SELECT)
     {
         axisActor->SetVisibility(false);
         return;
@@ -98,7 +98,7 @@ void KMGScene::ChangeAxisTransform()
     axisActor->SetScale(scaledDistance, scaledDistance, scaledDistance);
 
 
-    if (sceneMode == ESceneMode::ESM_MOVE)
+    if (sceneEditMode == ESceneEditMode::ESEM_MOVE)
     {
         axisActor->SetRotation_Q(XMVectorSet(0, 0, 0, 0));
     }
@@ -273,22 +273,22 @@ void KMGScene::GrabAxis(DirectX::XMVECTOR rayDir, bool bTrigger)
     DirectX::XMVECTOR rayOrigin = currentCamera.GetCameraPosition();
     DirectX::XMVECTOR focusActorPosition = focusActor->GetPosition();
 
-    switch (sceneMode)
+    switch (sceneEditMode)
     {
-    case ESceneMode::ESM_NONE:
+    case ESceneEditMode::ESEM_NONE:
         break;
-    case ESceneMode::ESM_SELECT:
+    case ESceneEditMode::ESEM_SELECT:
         break;
-    case ESceneMode::ESM_MOVE:
+    case ESceneEditMode::ESEM_MOVE:
         TranslateAxis(rayDir, rayOrigin, focusActorPosition, bInitialized);
         break;
-    case ESceneMode::ESM_ROTATE:
+    case ESceneEditMode::ESEM_ROTATE:
         RotateAxis(rayDir, rayOrigin, focusActorPosition, bInitialized);
         break;
-    case ESceneMode::ESM_SCALE:
+    case ESceneEditMode::ESEM_SCALE:
         ScaleAxis(rayDir, rayOrigin, focusActorPosition, bInitialized);
         break;
-    case ESceneMode::ESM_MAX:
+    case ESceneEditMode::ESEM_MAX:
         break;
     default:
         break;

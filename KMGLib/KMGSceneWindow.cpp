@@ -131,18 +131,18 @@ void KMGSceneWindow::ShowSceneSetting(KMGScene* currentScene)
     if (!currentScene) return;
 
     struct SceneModeEntry {
-        ESceneMode mode;
+        ESceneEditMode mode;
         const char* label;
     };
 
     SceneModeEntry modes[] = {
-        { ESceneMode::ESM_SELECT, "(Q) SELECT" },
-        { ESceneMode::ESM_MOVE,   "(W)   MOVE"   },
-        { ESceneMode::ESM_ROTATE, "(E) ROTATE" },
-        { ESceneMode::ESM_SCALE,  "(R)  SCALE"  }
+        { ESceneEditMode::ESEM_SELECT, "(Q) SELECT" },
+        { ESceneEditMode::ESEM_MOVE,   "(W)   MOVE"   },
+        { ESceneEditMode::ESEM_ROTATE, "(E) ROTATE" },
+        { ESceneEditMode::ESEM_SCALE,  "(R)  SCALE"  }
     };
 
-    ESceneMode currentMode = currentScene->GetSceneMode();
+    ESceneEditMode currentMode = currentScene->GetSceneEditMode();
 
     ImGui::SetCursorPosY(35); 
 
@@ -159,7 +159,7 @@ void KMGSceneWindow::ShowSceneSetting(KMGScene* currentScene)
         }
 
         if (ImGui::Button(entry.label, ImVec2(80, 20))) {
-            currentScene->SetSceneMode(entry.mode);
+            currentScene->SetSceneEditMode(entry.mode);
         }
 
         if (entry.mode == currentMode) {
