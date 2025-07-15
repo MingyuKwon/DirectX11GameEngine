@@ -40,6 +40,8 @@ HRESULT CreateSrvFromTexture(
         filename, nullptr, GENERIC_READ,
         WICDecodeMetadataCacheOnLoad, &decoder);
     if (FAILED(hr)) {
+        std::wcout << L"[ERROR] HRESULT: 0x" << std::hex << hr << std::endl;
+
         LogIfFailed(hr, L"CreateDecoderFromFilename");
         return hr;
     }
