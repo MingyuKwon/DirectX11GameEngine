@@ -18,7 +18,6 @@ public:
 
 	void AddShouldDrawActor(
 		bool bVisible,
-
 		std::wstring actorName,
 		std::vector<KMGStaticMesh>* actorMeshes,
 		ID3D11DeviceContext* pMainContext,
@@ -62,6 +61,8 @@ public:
 	void MakeRequestTextures();
 
 private:
+
+
 	std::unordered_map<std::wstring, DrawResource> drawActorResources;
 	std::unordered_map<std::wstring, DrawResource> drawDebugResources;
 

@@ -532,6 +532,13 @@ void KMGRender::DrawScene(KMGScene* scene)
                     }
                 }
             }
+
+            //여기에 만약 actor가 mergeMesh 모드인 경우에는 액터를 합친 메시로 줘야 한다
+            if (staticComp->GetMergeMode())
+            {
+                actorMeshes = staticComp->GetMergeMeshes();
+            }
+            
         }
         
         resourceManager.AddShouldDrawActor(

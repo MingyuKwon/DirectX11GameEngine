@@ -20,6 +20,61 @@ StaticMeshComponent::~StaticMeshComponent()
 	}
 }
 
+std::vector<KMGStaticMesh>* StaticMeshComponent::GetMergeMeshes()
+{
+	if (meshes.size() == 0) return nullptr;
+
+	UpdateMergeMeshes();
+
+	return &mergeMeshes;
+}
+
+void StaticMeshComponent::UpdateMergeMeshes()
+{
+	if (meshes.size() == 0) return;
+
+	bool bUpdateMergeMesh = mergeMeshes.size() == 0;
+	for (KMGStaticMesh& mesh : meshes)
+	{
+		if (mesh.bShouldMeshChange)
+		{
+			bUpdateMergeMesh = true;
+			break;
+		}
+	}
+
+	if (!bUpdateMergeMesh) return;
+	
+	// texture_normal로 이루어진 이름의 쌍으로 각가의 메시를 합칠 것이다.
+	std::unordered_map<std::wstring, KMGStaticMesh> temp;
+	for (KMGStaticMesh& mesh : meshes)
+	{
+		std::wstring key;
+		key += mesh.textureFilePath;
+		key += DEFAULT_NAME_SEPERATOR;
+		key += mesh.normalMapFilePath;
+
+		KMGStaticMesh& targetMesh = temp[key];
+		targetMesh.textureFilePath = mesh.textureFilePath;
+		targetMesh.normalMapFilePath = mesh.normalMapFilePath;
+
+		int vertexOffset = targetMesh.vertices.size();
+		targetMesh.vertices.insert(targetMesh.vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
+
+		for (int index : mesh.indices)
+		{
+			targetMesh.indices.push_back(index + vertexOffset);
+		}
+	}
+
+	mergeMeshes.clear();
+	for (auto& bucket : temp)
+	{
+		mergeMeshes.push_back(bucket.second);
+	}
+
+}
+
 void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std::string fileName)
 {
 	meshFileName = fileName;

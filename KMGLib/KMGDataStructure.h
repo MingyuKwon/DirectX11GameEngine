@@ -97,7 +97,7 @@ struct alignas(16) Light
     DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f);
     float lightPad_3;
 
-    DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1.0f, 1.0f, 0.7f, 1.0f);
+    DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1.0f, 1.0f, 0.9f, 1.0f);
 
     void setToDefault()
     {

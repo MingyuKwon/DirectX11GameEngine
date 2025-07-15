@@ -73,6 +73,15 @@ public:
 
 	std::string meshFileName = "Default Mesh";
 
+	inline bool GetMergeMode()
+	{
+		return bMergeMode;
+	}
+
+	inline void SetMergeMode(bool mode)
+	{
+		bMergeMode = mode;
+	}
 
 	inline std::vector<KMGStaticMesh>* GetMeshes()
 	{
@@ -80,6 +89,9 @@ public:
 
 		return &meshes;
 	}
+
+	std::vector<KMGStaticMesh>* GetMergeMeshes();
+	void UpdateMergeMeshes();
 
 	inline const std::vector<DirectX::BoundingBox>* GetBoundingBoxs()
 	{
@@ -96,7 +108,10 @@ public:
 	void AxisOnly_CheckHoverAxis(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, EHoverMode& hoverMode) const;
 
 private:
+	bool bMergeMode = false;
 
 	std::vector<KMGStaticMesh> meshes;
+	std::vector<KMGStaticMesh> mergeMeshes;
+
 	std::vector<DirectX::BoundingBox> boundingBoxs;
 };

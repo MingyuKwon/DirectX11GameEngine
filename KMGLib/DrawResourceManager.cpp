@@ -57,7 +57,6 @@ void DrawResourceManager::AddAxisActor(bool bVisible,
 
 void DrawResourceManager::AddShouldDrawActor(
     bool bVisible,
-
     std::wstring actorName,
     std::vector<KMGStaticMesh>* actorMeshes, 
     ID3D11DeviceContext* pMainContext, 
@@ -87,8 +86,7 @@ void DrawResourceManager::AddShouldDrawActor(
     {
         for (int i = 0; i < actorMeshes->size(); i++)
         {
-
-            wstring meshName = actorName + L"___" + to_wstring(i);
+            wstring meshName = actorName + DEFAULT_NAME_SEPERATOR + to_wstring(i);
             KMGStaticMesh& actorMesh = (*actorMeshes)[i];
 
             if (drawActorResources.count(meshName) == 0)
@@ -161,7 +159,7 @@ void DrawResourceManager::ArrangeActorResource()
 
         for (int i=0; i< actorMeshCount; i++)
         {
-            wstring meshName = actorName + L"___" + to_wstring(i);
+            wstring meshName = actorName + DEFAULT_NAME_SEPERATOR + to_wstring(i);
             shouldDrawResourceName.insert(meshName);
         }
     }

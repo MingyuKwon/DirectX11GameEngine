@@ -21,6 +21,8 @@
 #define SCENE_EDIT_CAMERAMOVESPEED 0.1
 #define SCENE_EDIT_CAMERAROTATESPEED 0.003f
 
+#define DEFAULT_NAME_SEPERATOR L"___"
+
 #define DEFAULT_TEXTURE_FOLDER L"Resource\\Texture\\"
 
 #define DEFAULT_MESHFILE "Resource\\TankModel.obj"
