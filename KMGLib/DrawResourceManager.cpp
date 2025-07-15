@@ -96,6 +96,7 @@ void DrawResourceManager::AddShouldDrawActor(
 
             if (actorMesh.bShouldMeshChange)
             {
+                cout << "actorMesh.bShouldMeshChange = true\n";
                 drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices);
                 if (loading)
                 {

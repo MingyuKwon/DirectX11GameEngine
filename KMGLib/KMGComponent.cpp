@@ -20,6 +20,27 @@ StaticMeshComponent::~StaticMeshComponent()
 	}
 }
 
+void StaticMeshComponent::SetMergeMode(bool mode)
+{
+	bMergeMode = mode;
+
+	if (bMergeMode)
+	{
+		for (KMGStaticMesh& mesh : mergeMeshes)
+		{
+			mesh.bShouldMeshChange = true;
+		}
+	}
+	else
+	{
+		for (KMGStaticMesh& mesh : meshes)
+		{
+			mesh.bShouldMeshChange = true;
+
+		}
+	}
+}
+
 std::vector<KMGStaticMesh>* StaticMeshComponent::GetMergeMeshes()
 {
 	if (meshes.size() == 0) return nullptr;
@@ -39,11 +60,12 @@ void StaticMeshComponent::UpdateMergeMeshes()
 		if (mesh.bShouldMeshChange)
 		{
 			bUpdateMergeMesh = true;
-			break;
 		}
+
+		mesh.bShouldMeshChange = false;
 	}
 
-	if (!bUpdateMergeMesh) return;
+	if (!bUpdateMergeMesh && !bMeshUpdated_forMergeMesh) return;
 	
 	// texture_normal로 이루어진 이름의 쌍으로 각가의 메시를 합칠 것이다.
 	std::unordered_map<std::wstring, KMGStaticMesh> temp;
@@ -73,6 +95,7 @@ void StaticMeshComponent::UpdateMergeMeshes()
 		mergeMeshes.push_back(bucket.second);
 	}
 
+	bMeshUpdated_forMergeMesh = false;
 }
 
 void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std::string fileName)
@@ -98,7 +121,9 @@ void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std
 
 		mesh.bShouldMeshChange = true;
 	}
-	
+
+	bMeshUpdated_forMergeMesh = true;
+
 }
 
 void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh, std::string fileName)
@@ -125,6 +150,8 @@ void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh, std::string fileNa
 
 		mesh.bShouldMeshChange = true;
 	}
+
+	bMeshUpdated_forMergeMesh = true;
 }
 
 float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, XMVECTOR& hitPosLocal) const

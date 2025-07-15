@@ -78,10 +78,8 @@ public:
 		return bMergeMode;
 	}
 
-	inline void SetMergeMode(bool mode)
-	{
-		bMergeMode = mode;
-	}
+	void SetMergeMode(bool mode);
+	
 
 	inline std::vector<KMGStaticMesh>* GetMeshes()
 	{
@@ -108,6 +106,9 @@ public:
 	void AxisOnly_CheckHoverAxis(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, EHoverMode& hoverMode) const;
 
 private:
+	// 기본적으로 메시가 업데이트 되면, 일반 메시는 업데이트 되도, 합쳐진 메시는 자동으로 업데이트가 안된다. 
+	// 따라서 따로 bool을 둬서 체크하게 한다
+	bool bMeshUpdated_forMergeMesh = false;
 	bool bMergeMode = false;
 
 	std::vector<KMGStaticMesh> meshes;
