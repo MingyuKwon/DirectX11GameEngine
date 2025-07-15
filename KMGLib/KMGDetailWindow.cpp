@@ -218,7 +218,7 @@ void KMGDetailWindow::ShowStaticMesh()
         VERTICAL_SPACE(10);
         FIRST_IMGUI_TAB(30);
 
-        static bool enabled = false;
+        static bool componentEnabled = false;
 
         StaticMeshComponent* staticComp = nullptr;
         if (currenFocusActor)
@@ -226,13 +226,13 @@ void KMGDetailWindow::ShowStaticMesh()
             staticComp = currenFocusActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
         }
 
-        enabled = staticComp != nullptr;
+        componentEnabled = staticComp != nullptr;
 
-        bool beforeEnable = enabled;
-        ImGui::Checkbox("Enable StaticMesh Component", &enabled);
-        if (beforeEnable != enabled) // 이러면 버튼을 눌러서 변한거다
+        bool beforeComponentEnable = componentEnabled;
+        ImGui::Checkbox("Enable StaticMesh Component", &componentEnabled);
+        if (beforeComponentEnable != componentEnabled) // 이러면 버튼을 눌러서 변한거다
         {
-            if (enabled)
+            if (componentEnabled)
             {
                 // 이거면 static mesh를 추가하라는 것
                 KMGCommand::AddStaticMeshComponent(currenFocusActor->GetName());
@@ -244,12 +244,26 @@ void KMGDetailWindow::ShowStaticMesh()
             }
         }
 
+
         VERTICAL_SPACE(20);
 
-        if (!enabled) return;
+        if (!componentEnabled) return;
 
         staticComp = currenFocusActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
         if (staticComp == nullptr) return;
+
+        FIRST_IMGUI_TAB(30);
+
+        bool bMergeEnable = staticComp->GetMergeMode();
+        bool bBeforeMergeEnable = bMergeEnable;
+        ImGui::Checkbox("Enable Mesh Merge", &bMergeEnable);
+
+        if (bMergeEnable != bBeforeMergeEnable)
+        {
+            staticComp->SetMergeMode(bMergeEnable);
+        }
+
+        VERTICAL_SPACE(20);
 
         std::vector<KMGStaticMesh>* meshes = staticComp->GetMeshes();
 
