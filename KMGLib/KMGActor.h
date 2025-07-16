@@ -114,12 +114,30 @@ public:
     void UpdateTexture(std::wstring beforeTextureName, std::wstring textureName);
     void UpdateNormalMap(std::wstring beforeTextureName, std::wstring textureName);
 
+    inline DirectX::BoundingBox GetAABBBox()
+    {
+        std::lock_guard<std::mutex> lock(AABBLock);
+        return AABBBox;
+    }
+
+    inline void UpdateAABBBox(DirectX::BoundingBox inBox)
+    {
+        std::lock_guard<std::mutex> lock(AABBLock);
+        AABBBox = inBox;
+    }
 
 private:
     std::unordered_map<EComponentType, std::unique_ptr<KMGComponent>> components;
 
     std::wstring name;
     KMGTransform transform;
+
+    std::mutex transformWriteLock;
+    std::mutex transformReadLock;
+
+    DirectX::BoundingBox AABBBox;
+    std::mutex AABBLock;
+
 
     bool bVisible = true;
 

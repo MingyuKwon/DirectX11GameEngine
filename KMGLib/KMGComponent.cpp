@@ -105,6 +105,9 @@ void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std
 	meshes = std::move(inMeshes);
 	boundingBoxs.clear();
 
+	BoundingBox totalBox;
+	bool isFirst = true;
+
 	for (KMGStaticMesh& mesh : meshes)
 	{
 		boundingBoxs.emplace_back();
@@ -113,16 +116,33 @@ void StaticMeshComponent::SetMeshData(std::vector<KMGStaticMesh>&& inMeshes, std
 		if (vertices.empty()) continue;
 
 		BoundingBox::CreateFromPoints(
-			boundingBoxs.back(),                  
-			vertices.size(),                      
-			&vertices[0].Pos,                     
-			sizeof(KMGVertex)                     
+			boundingBoxs.back(),
+			vertices.size(),
+			&vertices[0].Pos,
+			sizeof(KMGVertex)
 		);
+
+		if (isFirst)
+		{
+			totalBox = boundingBoxs.back();
+			isFirst = false;
+		}
+		else
+		{
+			BoundingBox mergedBox;
+			BoundingBox::CreateMerged(mergedBox, totalBox, boundingBoxs.back());
+			totalBox = mergedBox;
+		}
 
 		mesh.bShouldMeshChange = true;
 	}
 
 	bMeshUpdated_forMergeMesh = true;
+
+	if (owner)
+	{
+		owner->UpdateAABBBox(totalBox);
+	}
 
 }
 
