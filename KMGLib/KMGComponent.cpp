@@ -236,7 +236,8 @@ void LightComponent::SetLightColor(DirectX::XMFLOAT4 color)
 	if (owner && owner->HasComponent(EComponentType::ECT_STATICMESH))
 	{
 		std::vector<KMGStaticMesh>* actorMeshes = nullptr;
-		StaticMeshComponent* staticComp = owner->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+		StaticMeshComponent* staticComp 
+			= owner->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
 		actorMeshes = staticComp->GetMeshes();
 		
 		for (auto& mesh : *actorMeshes)

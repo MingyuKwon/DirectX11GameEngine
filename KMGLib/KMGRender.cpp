@@ -530,7 +530,7 @@ void KMGRender::DrawScene(KMGScene* scene)
                         resourceManager.AddShouldDrawDebug(actorID + L"DEBUG_BOUNDBOXS", accumulateMesh, pMainContext, worldMat);
 
                         KMGDebugMesh collideBoxMesh = DrawDebug::MakeDebugBoundingBox(actor->GetAABBBox(), XMFLOAT4(1, 0, 0, 1));
-                        resourceManager.AddShouldDrawDebug(actorID + L"COLLIDEBOX", collideBoxMesh, pMainContext, worldMat);
+                        //resourceManager.AddShouldDrawDebug(actorID + L"COLLIDEBOX", collideBoxMesh, pMainContext, worldMat);
 
                     }
                 }
@@ -541,7 +541,7 @@ void KMGRender::DrawScene(KMGScene* scene)
             {
                 actorMeshes = staticComp->GetMergeMeshes();
             }
-            
+       
         }
         
         resourceManager.AddShouldDrawActor(

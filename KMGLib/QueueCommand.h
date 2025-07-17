@@ -186,7 +186,10 @@ private:
 
 struct SceneCommand_UpdateStaticMesh : public SceneCommandMessage
 {
-	SceneCommand_UpdateStaticMesh(const std::wstring& name, const std::string& fileName, std::vector<KMGStaticMesh>&& allMeshes)
+	SceneCommand_UpdateStaticMesh(
+		const std::wstring& name, 
+		const std::string& fileName, 
+		std::vector<KMGStaticMesh>&& allMeshes)
 		: actorName(name), fileName(fileName), allMeshes(std::move(allMeshes))
 	{
 		type = ECommandMessageType::ERC_UPDATE_ACTOR;
@@ -203,7 +206,11 @@ private:
 
 struct SceneCommand_UpdateTextureNormal : public SceneCommandMessage
 {
-	SceneCommand_UpdateTextureNormal(const std::wstring& name, const std::wstring& beforeTextureName, const std::wstring& textureName, bool bNormal)
+	SceneCommand_UpdateTextureNormal(
+		const std::wstring& name, 
+		const std::wstring& beforeTextureName, 
+		const std::wstring& textureName, 
+		bool bNormal)
 		: actorName(name), beforeTextureName(beforeTextureName), textureName(textureName), bNormal(bNormal)
 	{
 		type = ECommandMessageType::ERC_UPDATE_ACTOR;

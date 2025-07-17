@@ -103,7 +103,8 @@ void KMGActor::SetRotation_E(XMVECTOR eulerRadianXYZ)
     transform.rotation_EulerCache = eulerRadianXYZ;
     transform.bEulerCacheDirty = false;
 
-    LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+    LightComponent* lightComp = 
+        GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
     {
         Light& light = lightComp->GetLight();

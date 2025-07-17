@@ -65,7 +65,9 @@ struct KMGVertex
 
 struct KMGStaticMesh {
 
-    static KMGStaticMesh CreateDefaultSphereMesh(float radius = 1.0f, DirectX::XMFLOAT4 lightColor = DirectX::XMFLOAT4(1,1,0,1));
+    static KMGStaticMesh CreateDefaultSphereMesh(
+        float radius = 1.0f, 
+        DirectX::XMFLOAT4 lightColor = DirectX::XMFLOAT4(1,1,0,1));
 
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;

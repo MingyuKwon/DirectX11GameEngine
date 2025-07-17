@@ -57,13 +57,13 @@ void DrawResourceManager::AddAxisActor(bool bVisible,
 
 void DrawResourceManager::AddShouldDrawActor(
     bool bVisible,
-    std::wstring actorName,
+    std::wstring actorID,
     std::vector<KMGStaticMesh>* actorMeshes, 
     ID3D11DeviceContext* pMainContext, 
     XMFLOAT4 lightColor, 
     DirectX::XMMATRIX worldMatrix)
 {
-    shouldDrawActor[actorName] = (actorMeshes == nullptr) ? 0 : actorMeshes->size();
+    shouldDrawActor[actorID] = (actorMeshes == nullptr) ? 0 : actorMeshes->size();
 
     LoadingManager* loading = nullptr;
     int shouldUpdateCount = 0;
@@ -86,7 +86,7 @@ void DrawResourceManager::AddShouldDrawActor(
     {
         for (int i = 0; i < actorMeshes->size(); i++)
         {
-            wstring meshName = actorName + DEFAULT_NAME_SEPERATOR + to_wstring(i);
+            wstring meshName = actorID + DEFAULT_NAME_SEPERATOR + to_wstring(i);
             KMGStaticMesh& actorMesh = (*actorMeshes)[i];
 
             if (drawActorResources.count(meshName) == 0)
@@ -96,7 +96,6 @@ void DrawResourceManager::AddShouldDrawActor(
 
             if (actorMesh.bShouldMeshChange)
             {
-                cout << "actorMesh.bShouldMeshChange = true\n";
                 drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices);
                 if (loading)
                 {

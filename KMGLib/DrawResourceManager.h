@@ -77,7 +77,6 @@ private:
 
 	/// <summary>
 	/// key는 액터 이름, 뒤에 int는 그 액터에 존재하는 메시의 개수
-	/// 만약 있는데 int가 0이라면 그것은 defualt 메시를 그려야 하는것이다
 	/// </summary>
 	std::unordered_map<std::wstring, int> shouldDrawActor;
 	/// <summary>

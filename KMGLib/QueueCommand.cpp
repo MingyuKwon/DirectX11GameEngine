@@ -506,10 +506,8 @@ void SceneCommand_UpdateStaticMesh::Execute(KMGScene*& scene)
 
 	if (findActor)
 	{
-		// 여기서 바로 LoadModelActor을 하는 것이 아니라, 여기서 액터와 함께 다른 함수를 보내줘서
-		// 그 액터 스레드에서 따로 가져오도록 해야 한다
-
-		StaticMeshComponent* staticComp = findActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+		StaticMeshComponent* staticComp = 
+			findActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
 		if (staticComp)
 		{
 			staticComp->SetMeshData(std::move(allMeshes), fileName);

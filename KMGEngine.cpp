@@ -151,6 +151,8 @@ void GlobalTick(float deltaTime)
         RotateCameraRealtime();
     }
 
+    DRAW_DEBUG_LINE(XMFLOAT3(0,0,0), XMFLOAT3(0, 10, 0), XMFLOAT4(1,0,0,1), 1);
+
     if (currentScene)
     {
         currentScene->Tick(deltaTime);
