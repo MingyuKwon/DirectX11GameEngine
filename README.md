@@ -21,9 +21,9 @@
 
 ## 🛠️ 사용 기술
 
-- **그래픽스 API**: DirectX11  
+- **그래픽스 API**: DirectX11  : https://www.microsoft.com/en-us/download/details.aspx?id=8109
 - **플랫폼 레이어**: Win32 API  
-- **UI 디버깅 도구**: Dear ImGui  
+- **UI 디버깅 도구**: Dear ImGui  : https://github.com/ocornut/imgui
 
 
 ## 📆 개발 기간
@@ -47,3 +47,5 @@
 - **🎨 Resource**  
   텍스처, 메시 등 렌더링에 필요한 리소스 파일이 들어 있는 폴더입니다.  
   씬에 배치할 오브젝트나 UI 요소 등의 시각 자료를 관리합니다.
+
+
