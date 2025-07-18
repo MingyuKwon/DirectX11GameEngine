@@ -2,7 +2,7 @@
 
 **DirectX11**, **Win32 API**, **Dear ImGui**를 활용해 제작한 커스텀 게임 엔진입니다.
 
-![Main Banner](GitHubDetail/Sample Title 1.png)
+![Main Banner](GitHubDetail/SampleTitle1.png)
 
 
 
