@@ -49,7 +49,3 @@
   씬에 배치할 오브젝트나 UI 요소 등의 시각 자료를 관리합니다.
 
 
-## 📖 설명서
-
-- 🔹 [전체 시스템 아키텍처](GitHubDetail/Architecture.md)
-- 🔹 [에디터 사용법](GitHubDetail/Tutorial.md)
