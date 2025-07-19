@@ -51,5 +51,8 @@
 
 ## 📖 설명서
 
+- 🔹 [코드 간단 설명](GitHubDetail/CodeExplain.md)
+
+
 - 🔹 [전체 시스템 아키텍처](GitHubDetail/Architecture.md)
 - 🔹 [에디터 사용법](GitHubDetail/Tutorial.md)

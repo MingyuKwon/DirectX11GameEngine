@@ -2,6 +2,7 @@
 Detail Window는 현재 **선택한 액터(Actor)의 상세 정보**를 확인하고 수정할 수 있는 창입니다.
 
 ![Main Banner1](DetailMain1.png)
+![Main Banner2](DetailMain2.png)
 
 ---
 
@@ -69,4 +70,3 @@ Detail Window는 현재 **선택한 액터(Actor)의 상세 정보**를 확인�
 
 ---
 
-![Main Banner2](DetailMain2.png)
