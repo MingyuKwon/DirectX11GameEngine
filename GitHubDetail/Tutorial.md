@@ -41,7 +41,7 @@
 - `Transform` 정보 (위치, 회전, 스케일) 조회 및 변경
 - 해당 액터가 보유한 **Component**들의 상세 속성 표시 및 수정 가능
 
-🔹 [Detail Window 더 자세히 알아보기](Architecture.md)
+🔹 [Detail Window 더 자세히 알아보기](DetailTutorial.md)
 
 ---
 
