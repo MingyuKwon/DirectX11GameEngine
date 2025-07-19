@@ -15,7 +15,7 @@
 - 선택한 액터는 자동으로 **주목(포커스)** 처리되며  
   → **Detail Window**에서 해당 액터의 세부 정보를 확인 및 수정할 수 있습니다.
 
-🔹 [Scene Window 더 자세히 알아보기](Architecture.md)
+🔹 [Scene Window 더 자세히 알아보기](SceneTutorial.md)
 
 ---
 
