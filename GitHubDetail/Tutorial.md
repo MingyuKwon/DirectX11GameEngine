@@ -1,51 +1,71 @@
-# 🎮 DirectX11GameEngine
+---
+## 🪟 기본 창 소개
 
-**DirectX11**, **Win32 API**, **Dear ImGui**를 활용해 제작한 커스텀 게임 엔진입니다.
+![Main Banner1](Tutorial_Main.png)
 
-![Main Banner1](GitHubDetail/SampleTitle3.png)
-![Main Banner2](GitHubDetail/KMGEngineTitle1.gif)
-![Main Banner3](GitHubDetail/KMGEngineTitle2.gif)
-
+에디터는 총 세 개의 주요 창으로 구성되어 있으며, 각각의 창은 씬 구성 및 액터 조작에 핵심적인 역할을 합니다.
 
 ---
 
-## 📌 프로젝트 소개
+### 1️⃣ Scene Window
 
-이 프로젝트는 로우레벨부터 직접 구현한 게임 엔진으로, 다음과 같은 핵심 시스템을 포함합니다:
+에디팅 중인 **씬(Scene)을 직접 보고 조작할 수 있는 창**입니다.
 
-- 🔧 DirectX11 기반의 커스텀 렌더러
-- 🧱 Win32 API를 이용한 윈도우 및 입력 처리
-- 🖱️ 디버그 및 에디터용 UI 구현 (Dear ImGui 사용)
-- 🧩 향후 확장 가능한 모듈형 구조 설계
+- 액터 선택, 이동, 회전, 배치 등의 편집 기능 제공  
+- 선택한 액터는 자동으로 **주목(포커스)** 처리되며  
+  → **Detail Window**에서 해당 액터의 세부 정보를 확인 및 수정할 수 있습니다.
 
+🔹 [Scene Window 더 자세히 알아보기](Architecture.md)
 
-## 🛠️ 사용 기술
+---
 
-- **그래픽스 API**: DirectX11  : https://www.microsoft.com/en-us/download/details.aspx?id=8109
-- **플랫폼 레이어**: Win32 API  
-- **UI 디버깅 도구**: Dear ImGui  : https://github.com/ocornut/imgui
+### 2️⃣ Hierarchy Window
 
+현재 씬에 배치된 **모든 액터들의 계층 구조를 확인**할 수 있는 창입니다.
 
-## 📆 개발 기간
+- 액터 클릭 시 포커스 처리 가능
+- 다음과 같은 기능 제공:
+  - 액터 이름 변경
+  - 액터 삭제 및 복제
+  - 액터 생성
+  - 액터의 가시성 변경
 
-- **렌더러부터 에디터까지 구현**  
-  ⏰ *2025년 6월 21일 ~ 2025년 7월 15일*
+🔹 [Hierarchy Window 더 자세히 알아보기](Architecture.md)
 
+---
 
-## 📁 폴더 구조 소개
+### 3️⃣ Detail Window
 
-프로젝트는 다음과 같은 주요 폴더로 구성되어 있습니다:
+현재 **주목 중인 액터의 세부 정보**를 조회 및 수정할 수 있는 창입니다.
 
-- **🧠 KMGLib**  
-  직접 구현한 게임 로직 및 엔진 코드가 위치한 폴더입니다.  
-  렌더링, 입력 처리, 물리 처리 등 핵심 시스템을 담당합니다.
+- `Transform` 정보 (위치, 회전, 스케일) 조회 및 변경
+- 해당 액터가 보유한 **Component**들의 상세 속성 표시 및 수정 가능
 
-- **📦 OuterLib**  
-  외부 라이브러리 및 참고 자료에서 가져온 코드가 들어 있는 폴더입니다.  
-  예를 들어, Dear ImGui 소스, 블로그/문서 기반 구현 등이 포함됩니다.
+🔹 [Detail Window 더 자세히 알아보기](Architecture.md)
 
-- **🎨 Resource**  
-  텍스처, 메시 등 렌더링에 필요한 리소스 파일이 들어 있는 폴더입니다.  
-  씬에 배치할 오브젝트나 UI 요소 등의 시각 자료를 관리합니다.
+---
 
+## 📦 메시 로딩 시 주의사항
 
+![MeshLoad_Tutorial](MeshLoad_Tutorial.png)
+
+모델(.fbx 등)을 불러올 때, 기본적으로 **절대 경로 기준**으로 메시와 텍스처 파일을 로드합니다.  
+따라서 단순한 메시나 텍스처 로딩은 문제가 없지만, 메시 내부에 텍스처 경로가 **내장**되어 있는 경우 주의가 필요합니다.
+
+### ✅ 텍스처 경로 매핑 규칙
+
+- 메시 로딩 시, 해당 메시가 참조하는 텍스처는  
+  **반드시 메시 파일과 동일한 폴더 내부의 `Texture/` 서브폴더에 위치**해야 합니다.
+  
+예시 폴더 구조:
+
+MyAssets/
+├── MyModel.obj
+├── MyModel.mtl
+└── Texture/
+  └── MyTexture.png
+
+이 구조를 지키면, 메시 내부의 텍스처 참조 경로가 올바르게 작동하여  
+**텍스처가 자동으로 로딩됩니다.**
+
+---
