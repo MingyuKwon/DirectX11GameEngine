@@ -30,7 +30,7 @@
   - 액터 생성
   - 액터의 가시성 변경
 
-🔹 [Hierarchy Window 더 자세히 알아보기](Architecture.md)
+🔹 [Hierarchy Window 더 자세히 알아보기](HierarchyTutorial.md)
 
 ---
 
