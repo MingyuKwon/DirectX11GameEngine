@@ -3,7 +3,6 @@
 **DirectX11**, **Win32 API**, **Dear ImGui**를 활용해 제작한 커스텀 게임 엔진입니다.
 
 실행 영상 : https://www.youtube.com/watch?v=DAolx41Fdy8
-<img width="567" height="53" alt="image" src="https://github.com/user-attachments/assets/06b6989f-f324-45b7-a65f-c8b8e9180ff7" />
 
 
 ![Main Banner1](GitHubDetail/SampleTitle3.png)
