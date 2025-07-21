@@ -49,6 +49,9 @@ void RotateCameraRealtime();
 void TextureImportLoop();
 void MeshImportLoop();
 
+void PhysicsLoop();
+void ActorPhysicsCalc(KMGActor* targetActor);
+
 void GlobalTick(float deltaTime);
 
 
@@ -74,6 +77,7 @@ int main(int, char**)
 
     thread textureImportThread(TextureImportLoop);
     thread meshImportThread(MeshImportLoop);
+    thread physicsThread(PhysicsLoop);
 
     MSG msg = {};
 
@@ -114,6 +118,7 @@ int main(int, char**)
 
     textureImportThread.join();
     meshImportThread.join();
+    physicsThread.join();
 
     renderEngine->StopRenderEngine();
     delete renderEngine;
@@ -122,12 +127,53 @@ int main(int, char**)
 
 }
 
+
+
+
+void PhysicsLoop()
+{
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+
+    while (bRunning) {
+        LARGE_INTEGER frameStart;
+        QueryPerformanceCounter(&frameStart);
+
+        if (currentScene)
+        {
+            ActorPhysicsCalc(currentScene->GetAxisActor());
+            const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
+            for (auto& bucket : actors)
+            {
+                ActorPhysicsCalc(bucket.second.get());
+            }
+
+        }
+
+        LARGE_INTEGER frameEnd;
+        QueryPerformanceCounter(&frameEnd);
+        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
+
+        double remainingTime = 1 / DEFAULT_PHYSICS_FRAME_COUNT - frameDuration;
+        if (remainingTime > 0.0) {
+            this_thread::sleep_for(chrono::duration<double>(remainingTime));
+        }
+    }
+}
+
+void ActorPhysicsCalc(KMGActor* targetActor)
+{
+    if (targetActor)
+    {
+        targetActor->ExecuteAllKineticCommand();
+    }
+}
+
 void TextureImportLoop()
 {
     while (bRunning) {
         // 텍스처 로딩
         resourceManager.MakeRequestTextures();
-
         std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_IMPORT_FRAME_DURATION));
     }
 }
@@ -142,6 +188,8 @@ void MeshImportLoop()
         std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_IMPORT_FRAME_DURATION));
     }
 }
+
+
 
 void GlobalTick(float deltaTime)
 {

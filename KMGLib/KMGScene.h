@@ -165,15 +165,11 @@ public:
         if (axisActor)
         {
             axisActor->SwapTransformBuffer();
-            std::cout << "axisActor SwapAllActorTransformBuffer\n";
-            axisActor->ExecuteAllKineticCommand();
-
         }
 
         for (auto& bucket : actors)
         {
             bucket.second->SwapTransformBuffer();
-            bucket.second->ExecuteAllKineticCommand();
             
         }
     }
