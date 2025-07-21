@@ -14,7 +14,6 @@ KMGScene::KMGScene()
 void KMGScene::InitializeScene()
 {
     KMGCommand::AddActor(L"Directional Light");
-    KMGCommand::TranslateActor(L"Directional Light", XMVectorSet(0, 10, 0, 0));
     KMGCommand::AddLightComponent(L"Directional Light");
     KMGCommand::UpdateLightComponent_Type(L"Directional Light", 0);
     KMGCommand::UpdateActorRotation(L"Directional Light", XMVectorSet(0, 3,0,0), true);

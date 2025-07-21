@@ -64,10 +64,7 @@ int main(int, char**)
 
     schedular = new CommandSchedular();
     KMGCommand::ChangeScene(new KMGScene());
-
     currentScene->InitializeScene();
-
-    KMGCommand::AddActor(L"Actor1");
 
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -126,8 +123,6 @@ int main(int, char**)
     return 0;
 
 }
-
-
 
 
 void PhysicsLoop()

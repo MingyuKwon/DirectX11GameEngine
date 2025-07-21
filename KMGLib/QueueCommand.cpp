@@ -11,6 +11,7 @@ using namespace DirectX;
 using namespace std;
 
 extern CommandSchedular* schedular;
+extern KMGScene* currentScene;
 
 namespace KMGCommand
 {
@@ -189,17 +190,32 @@ namespace KMGCommand
 
 	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position)
 	{
-		if (schedular)
+		if (currentScene)
 		{
-			schedular->PushCommand(make_unique<SceneCommand_UpdateActorPosition>(name, position, true));
+			float dx = XMVectorGetX(position);
+			float dy = XMVectorGetY(position);
+			float dz = XMVectorGetZ(position);
+
+			KMGActor* findActor = currentScene->GetActor(name);
+
+			if (findActor)
+			{
+				findActor->Translate_Kinematic(dx, dy, dz);
+			}
 		}
 	}
 
 	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position)
 	{
-		if (schedular)
+		if (currentScene)
 		{
-			schedular->PushCommand(make_unique<SceneCommand_UpdateActorPosition>(name, position, false));
+
+			KMGActor* findActor = currentScene->GetActor(name);
+
+			if (findActor)
+			{
+				findActor->SetPosition_Kinematic(position);
+			}
 		}
 	}
 
