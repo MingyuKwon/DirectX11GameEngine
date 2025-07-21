@@ -225,26 +225,56 @@ namespace KMGCommand
 
 		aixsVector = XMVector3Normalize(aixsVector);
 
-		if (schedular)
+		if (currentScene)
 		{
-			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, aixsVector, radian));
+			KMGActor* findActor = currentScene->GetActor(name);
+
+			if (findActor)
+			{
+				findActor->Rotate_Kinematic(aixsVector, radian);
+			}
 		}
 	}
 
 	void UpdateActorRotation(const std::wstring& name, DirectX::XMVECTOR rotation, bool bEuler)
 	{
-		if (schedular)
+		if (currentScene)
 		{
-			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorRotation>(name, rotation, bEuler));
+			KMGActor* findActor = currentScene->GetActor(name);
+
+			if (findActor)
+			{
+				if (bEuler)
+				{
+					findActor->SetRotation_E_Kinematic(rotation);
+
+				}
+				else
+				{
+					findActor->SetRotation_Q_Kinematic(rotation);
+
+				}
+			}
 		}
 	}
 
 
 	void UpdateActorScale(const std::wstring& name, DirectX::XMVECTOR scale)
 	{
-		if (schedular)
+
+		if (currentScene)
 		{
-			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorScale>(name, scale));
+			KMGActor* findActor = currentScene->GetActor(name);
+
+			if (findActor)
+			{
+				float dx = XMVectorGetX(scale);
+				float dy = XMVectorGetY(scale);
+				float dz = XMVectorGetZ(scale);
+
+				findActor->SetScale_Kinematic(dx, dy, dz);
+
+			}
 		}
 	}
 
