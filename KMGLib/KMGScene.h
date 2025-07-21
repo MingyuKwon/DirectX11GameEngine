@@ -161,6 +161,19 @@ public:
         bShowGizmo = bShow;
     }
 
+    inline void SwapAllActorTransformBuffer() {
+        if (axisActor)
+        {
+            axisActor->SwapTransformBuffer();
+        }
+
+        for (auto& bucket : actors)
+        {
+            bucket.second->SwapTransformBuffer();
+        }
+    }
+
+
 private:
     int ActorAddCount = 0;
 

@@ -187,7 +187,6 @@ DirectX::XMVECTOR KMGUtility::QuaternionToClosestEulerXYZ(DirectX::XMVECTOR q, D
 
     if (delta_alt < delta_orig)
     {
-        std::cout << "[ClosestEulerXYZ] Æ¦ º¸Á¤ Àû¿ëµÊ\n";
         return XMVectorSet(alt_rx, alt_ry, alt_rz, 0);
     }
 

@@ -57,7 +57,9 @@ public:
 
     DirectX::XMMATRIX getWorldMatrix();
 
-    inline DirectX::XMVECTOR GetPosition() const { return transform.position; }
+    inline DirectX::XMVECTOR GetPosition() const { 
+       
+        return readTransform.position; }
     void SetPosition(float x, float y, float z);
     void SetPosition(DirectX::XMVECTOR position);
 
@@ -68,7 +70,7 @@ public:
     }
 
     inline DirectX::XMVECTOR GetRotation_Q() const { 
-        return transform.rotation_Quaternion;
+        return readTransform.rotation_Quaternion;
     }
 
     DirectX::XMVECTOR GetRotation_E();
@@ -77,8 +79,13 @@ public:
 
     void SetRotation_Q(DirectX::XMVECTOR rotation);
 
-    inline DirectX::XMVECTOR GetScale() const { return transform.scale; }
-    inline void SetScale(float x, float y, float z) { transform.scale = DirectX::XMVectorSet(x, y, z, 0); }
+    inline DirectX::XMVECTOR GetScale() const { return readTransform.scale; }
+    inline void SetScale(float x, float y, float z) { 
+        {
+            std::lock_guard<std::mutex> lock(transformWriteLock);
+            writeTransform.scale = DirectX::XMVectorSet(x, y, z, 0);
+        }
+    }
 
     void Translate(float dx, float dy, float dz);    // 상대이동
     void Rotate(DirectX::XMVECTOR worldAxis, float radian); // 상대회전
@@ -126,14 +133,19 @@ public:
         AABBBox = inBox;
     }
 
+    inline void SwapTransformBuffer() {
+        std::lock_guard<std::mutex> lock(transformWriteLock);
+        readTransform = writeTransform;
+    }
+
 private:
     std::unordered_map<EComponentType, std::unique_ptr<KMGComponent>> components;
 
     std::wstring name;
-    KMGTransform transform;
+    KMGTransform readTransform;
+    KMGTransform writeTransform;
 
     std::mutex transformWriteLock;
-    std::mutex transformReadLock;
 
     DirectX::BoundingBox AABBBox;
     std::mutex AABBLock;

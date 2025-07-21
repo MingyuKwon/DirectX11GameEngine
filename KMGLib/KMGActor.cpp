@@ -24,7 +24,12 @@ void KMGActor::CopyActorToTarget(KMGActor* targetActor)
     // 이름, ActorID말고 싹다 복사하자
 
     targetActor->bVisible = bVisible;
-    targetActor->transform = transform;
+    targetActor->readTransform = readTransform;
+
+    {
+        std::lock_guard<std::mutex> lock(transformWriteLock);
+        targetActor->writeTransform = writeTransform;
+    }
 
     for (auto& bucket : components)
     {
@@ -50,18 +55,26 @@ void KMGActor::CopyActorToTarget(KMGActor* targetActor)
 
 DirectX::XMMATRIX KMGActor::getWorldMatrix()
 {
-    return transform.GetWorldMatrix();
+    return readTransform.GetWorldMatrix();
 }
 
 void KMGActor::SetPosition(float x, float y, float z)
 {
-    transform.position = DirectX::XMVectorSet(x, y, z, 1);
+    {
+        std::lock_guard<std::mutex> lock(transformWriteLock);
+        writeTransform.position = DirectX::XMVectorSet(x, y, z, 1);
+
+        XMFLOAT3 coutFloat;
+        XMStoreFloat3(&coutFloat, writeTransform.position);
+        std::wcout << name << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " " << " SetPosition\n";
+
+    }
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
     {
         Light& light = lightComp->GetLight();
-        XMStoreFloat3(&light.position, transform.position);
+        XMStoreFloat3(&light.position, readTransform.position);
     }
 }
 
@@ -76,40 +89,50 @@ void KMGActor::SetPosition(DirectX::XMVECTOR position)
 }
 
 void KMGActor::Translate(float dx, float dy, float dz) {
-    XMVECTOR pos = transform.position;
-    XMVECTOR delta = XMVectorSet(dx, dy, dz, 0);
-    transform.position = XMVectorAdd(pos, delta);
+
+    {
+        std::lock_guard<std::mutex> lock(transformWriteLock);
+        XMVECTOR pos = writeTransform.position;
+        XMVECTOR delta = XMVectorSet(dx, dy, dz, 0);
+        writeTransform.position = XMVectorAdd(pos, delta);
+
+        XMFLOAT3 coutFloat;
+        XMStoreFloat3(&coutFloat, writeTransform.position);
+
+    }
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
     {
         Light& light = lightComp->GetLight();
-        XMStoreFloat3(&light.position, transform.position);
+        XMStoreFloat3(&light.position, readTransform.position);
     }
 }
 
 DirectX::XMVECTOR KMGActor::GetRotation_E()
 {
-    if (transform.bEulerCacheDirty) {
-        std::cout << "transform.bEulerCacheDirty\n";
-        transform.rotation_EulerCache = KMGUtility::QuaternionToClosestEulerXYZ(transform.rotation_Quaternion, transform.rotation_EulerCache);
-        transform.bEulerCacheDirty = false;
+    if (readTransform.bEulerCacheDirty) {
+        readTransform.rotation_EulerCache = KMGUtility::QuaternionToClosestEulerXYZ(readTransform.rotation_Quaternion, readTransform.rotation_EulerCache);
+        readTransform.bEulerCacheDirty = false;
     }
-    return transform.rotation_EulerCache;
+    return readTransform.rotation_EulerCache;
 }
 
 void KMGActor::SetRotation_E(XMVECTOR eulerRadianXYZ)
 {
-    transform.rotation_Quaternion = KMGUtility::EulerXYZToQuaternion(eulerRadianXYZ);
-    transform.rotation_EulerCache = eulerRadianXYZ;
-    transform.bEulerCacheDirty = false;
+    {
+        std::lock_guard<std::mutex> lock(transformWriteLock);
+        writeTransform.rotation_Quaternion = KMGUtility::EulerXYZToQuaternion(eulerRadianXYZ);
+        writeTransform.rotation_EulerCache = eulerRadianXYZ;
+        writeTransform.bEulerCacheDirty = false;
+    }
 
     LightComponent* lightComp = 
         GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
     {
         Light& light = lightComp->GetLight();
-        XMStoreFloat3(&light.direction, -transform.GetForwardVector());
+        XMStoreFloat3(&light.direction, -readTransform.GetForwardVector());
     }
 
 }
@@ -121,15 +144,18 @@ void KMGActor::SetRotation_E(XMVECTOR eulerRadianXYZ)
 /// <param name="rotation"></param>
 void KMGActor::SetRotation_Q(DirectX::XMVECTOR rotation)
 {
-    transform.rotation_Quaternion = XMQuaternionNormalize(rotation);
-    transform.bEulerCacheDirty = true;
+    {
+        std::lock_guard<std::mutex> lock(transformWriteLock);
+        writeTransform.rotation_Quaternion = XMQuaternionNormalize(rotation);
+        writeTransform.bEulerCacheDirty = true;
+    }
 
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
     if (lightComp)
     {
         Light& light = lightComp->GetLight();
-        XMStoreFloat3(&light.direction, -transform.GetForwardVector());
+        XMStoreFloat3(&light.direction, -readTransform.GetForwardVector());
     }
 }
 
@@ -141,7 +167,7 @@ void KMGActor::SetRotation_Q(DirectX::XMVECTOR rotation)
 void KMGActor::Rotate(DirectX::XMVECTOR worldAxis, float radian) {
 
     XMMATRIX deltaRotMat = XMMatrixRotationAxis(worldAxis, radian);
-    XMMATRIX currentRotMat = XMMatrixRotationQuaternion(transform.rotation_Quaternion);
+    XMMATRIX currentRotMat = XMMatrixRotationQuaternion(writeTransform.rotation_Quaternion);
 
     // 월드 기준 회전 먼저, 현재 회전 나중
     XMMATRIX resultMat = deltaRotMat * currentRotMat;
@@ -192,7 +218,6 @@ bool KMGActor::SetComponent(KMGComponent* addComponent)
     if (lightComp)
     {
         Light& light = lightComp->GetLight();
-        SetPosition(transform.position);
         SetRotation_Q(GetRotation_Q());
 
     }

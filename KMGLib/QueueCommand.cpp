@@ -183,7 +183,9 @@ namespace KMGCommand
 		}
 	}
 
-
+	//////////////////////////////////////////////////////////////////////
+	/// 이제 이 작업은 스케줄러가 아니라 물리 스레드에서 진행이 되어야 한다
+	//////////////////////////////////////////////////////////////////////
 
 	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position)
 	{
@@ -229,6 +231,13 @@ namespace KMGCommand
 			schedular->PushCommand(std::make_unique<SceneCommand_UpdateActorScale>(name, scale));
 		}
 	}
+
+
+	//////////////////////////////////////////////////////////////////////
+	/// 이제 이 작업은 스케줄러가 아니라 물리 스레드에서 진행이 되어야 한다
+	//////////////////////////////////////////////////////////////////////
+
+
 
 
 	void UpdateCameraPosition_A(DirectX::XMVECTOR CameraPosition)
