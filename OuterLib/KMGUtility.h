@@ -18,7 +18,9 @@ namespace KMGUtility {
 
     DirectX::XMVECTOR QuaternionToEulerXYZ(DirectX::XMVECTOR q);
     DirectX::XMVECTOR EulerXYZToQuaternion(DirectX::XMVECTOR euler);
-
+    DirectX::XMVECTOR QuaternionToClosestEulerXYZ(
+        DirectX::XMVECTOR q,
+        DirectX::XMVECTOR prevEuler);
 
     std::string WStringToString(std::wstring wstr);
     std::wstring StringToWString(const std::string& str);

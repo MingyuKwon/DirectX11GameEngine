@@ -113,10 +113,14 @@ void KMGSceneWindow::CheckSceneClick(
             currentScene->CheckHoverAxis(rayDir);
         }
         
-
+        // 여기서 끄는 중이라면 변하지 않도록 바뀌야 한다
         if (bSceneFocused && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered())
         {
-            KMGCommand::CameraRayTrace_Select(rayDir);
+            if (currentScene->GetHoverMode() == EHoverMode::EHM_NONE)
+            {
+                KMGCommand::CameraRayTrace_Select(rayDir);
+            }
+            
         }
 
     }

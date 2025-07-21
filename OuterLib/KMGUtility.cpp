@@ -85,25 +85,15 @@ DirectX::XMVECTOR KMGUtility::GenerateMoveDeltaVector(
     return result;
 }
 
-DirectX::XMVECTOR KMGUtility::QuaternionToEulerXYZ(DirectX::XMVECTOR q)
+float NormalizeAngle360(float radian)
 {
-    // 쿼터니언 → 회전 행렬
-    XMMATRIX rot = XMMatrixRotationQuaternion(q);
-
-    // 회전 행렬에서 요소 추출
-    float r11 = rot.r[0].m128_f32[0]; // m00
-    float r21 = rot.r[1].m128_f32[0]; // m10
-    float r31 = rot.r[2].m128_f32[0]; // m20
-    float r32 = rot.r[2].m128_f32[1]; // m21
-    float r33 = rot.r[2].m128_f32[2]; // m22
-
-    // 회전 순서: Y (yaw), X (pitch), Z (roll)
-    float yaw = asinf(-r31);               // Y축 회전
-    float pitch = atan2f(r32, r33);          // X축 회전
-    float roll = atan2f(r21, r11);          // Z축 회전
-
-    return XMVectorSet(pitch, yaw, roll, 0.0f); // 출력: X (pitch), Y (yaw), Z (roll)
+    float twoPi = XM_2PI;
+    float result = std::fmod(radian, twoPi);
+    if (result < 0) result += twoPi;
+    return result;
 }
+
+
 
 DirectX::XMVECTOR KMGUtility::EulerXYZToQuaternion(DirectX::XMVECTOR euler)
 {
@@ -125,6 +115,86 @@ DirectX::XMVECTOR KMGUtility::EulerXYZToQuaternion(DirectX::XMVECTOR euler)
     // 정규화하여 반환
     return XMQuaternionNormalize(q);
 }
+
+DirectX::XMVECTOR KMGUtility::QuaternionToEulerXYZ(DirectX::XMVECTOR q)
+{
+    XMMATRIX rot = XMMatrixRotationQuaternion(q);
+
+    float r11 = rot.r[0].m128_f32[0]; // m00
+    float r12 = rot.r[0].m128_f32[1]; // m01
+    float r13 = rot.r[0].m128_f32[2]; // m02
+
+    float r21 = rot.r[1].m128_f32[0]; // m10
+    float r22 = rot.r[1].m128_f32[1]; // m11
+    float r23 = rot.r[1].m128_f32[2]; // m12
+
+    float r31 = rot.r[2].m128_f32[0]; // m20
+    float r32 = rot.r[2].m128_f32[1]; // m21
+    float r33 = rot.r[2].m128_f32[2]; // m22
+
+    float pitch, yaw, roll;
+
+    if (fabsf(r31) < 1.0f - 1e-6f) // 안전한 Gimbal Lock 판별
+    {
+        yaw = atan2f(-r31, sqrtf(r11 * r11 + r21 * r21));
+        pitch = atan2f(r32, r33);
+        roll = atan2f(r21, r11);
+    }
+    else
+    {
+        yaw = (r31 <= -1.0f) ? XM_PIDIV2 : -XM_PIDIV2;
+
+        pitch = atan2f(-r12, r22);
+        roll = 0.0f;
+    }
+
+    yaw = NormalizeAngle360(yaw);
+
+    return XMVectorSet(pitch, yaw, roll, 0.0f);
+}
+
+DirectX::XMVECTOR KMGUtility::QuaternionToClosestEulerXYZ(DirectX::XMVECTOR q, DirectX::XMVECTOR prevEuler)
+{
+    XMVECTOR raw = KMGUtility::QuaternionToEulerXYZ(q);
+    float rx = XMVectorGetX(raw);
+    float ry = XMVectorGetY(raw);
+    float rz = XMVectorGetZ(raw);
+
+    float px = XMVectorGetX(prevEuler);
+    float py = XMVectorGetY(prevEuler);
+    float pz = XMVectorGetZ(prevEuler);
+
+    auto adjustAngle = [](float target, float reference) {
+        float diff = target - reference;
+        while (diff > XM_PI)  diff -= XM_2PI;
+        while (diff < -XM_PI) diff += XM_2PI;
+        return reference + diff;
+        };
+
+    // 원래 방식: 각도 차이 기반 보정
+    float a_rx = adjustAngle(rx, px);
+    float a_ry = adjustAngle(ry, py);
+    float a_rz = adjustAngle(rz, pz);
+
+    // 대안 해: raw 해 + 2PI 보정 (즉, 튄 해와 반대되는 해)
+    float alt_rx = adjustAngle(rx + XM_PI, px);
+    float alt_ry = adjustAngle(ry, py); // yaw는 그대로
+    float alt_rz = adjustAngle(rz + XM_PI, pz);
+
+    // 180 튀는 해가 선택되지 않도록 norm 비교
+    float delta_orig = fabsf(a_rx - px) + fabsf(a_rz - pz);
+    float delta_alt = fabsf(alt_rx - px) + fabsf(alt_rz - pz);
+
+    if (delta_alt < delta_orig)
+    {
+        std::cout << "[ClosestEulerXYZ] 튐 보정 적용됨\n";
+        return XMVectorSet(alt_rx, alt_ry, alt_rz, 0);
+    }
+
+    return XMVectorSet(a_rx, a_ry, a_rz, 0);
+}
+
+
 
 
 std::string KMGUtility::WStringToString(std::wstring wstr)

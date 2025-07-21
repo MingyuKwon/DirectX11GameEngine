@@ -91,7 +91,8 @@ void KMGActor::Translate(float dx, float dy, float dz) {
 DirectX::XMVECTOR KMGActor::GetRotation_E()
 {
     if (transform.bEulerCacheDirty) {
-        transform.rotation_EulerCache = KMGUtility::QuaternionToEulerXYZ(transform.rotation_Quaternion);
+        std::cout << "transform.bEulerCacheDirty\n";
+        transform.rotation_EulerCache = KMGUtility::QuaternionToClosestEulerXYZ(transform.rotation_Quaternion, transform.rotation_EulerCache);
         transform.bEulerCacheDirty = false;
     }
     return transform.rotation_EulerCache;
