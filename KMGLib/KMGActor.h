@@ -60,8 +60,6 @@ public:
     inline DirectX::XMVECTOR GetPosition() const {
         return readTransform.position; }
 
-    void SetPosition(float x, float y, float z);
-    void SetPosition(DirectX::XMVECTOR position);
 
     inline DirectX::XMVECTOR GetLocalAxis(DirectX::XMVECTOR defaultAxis) {
         defaultAxis = DirectX::XMVector3TransformNormal(defaultAxis, getWorldMatrix());
@@ -75,21 +73,8 @@ public:
 
     DirectX::XMVECTOR GetRotation_E();
 
-    void SetRotation_E(XMVECTOR eulerRadianXYZ);
-
-    void SetRotation_Q(DirectX::XMVECTOR rotation);
-
     inline DirectX::XMVECTOR GetScale() const { return readTransform.scale; }
-    inline void SetScale(float x, float y, float z) { 
-        {
-            std::lock_guard<std::mutex> lock(transformWriteLock);
-            writeTransform.scale = DirectX::XMVectorSet(x, y, z, 0);
-        }
-    }
-
-    void Translate(float dx, float dy, float dz);    // 상대이동
-    void Rotate(DirectX::XMVECTOR worldAxis, float radian); // 상대회전
-
+   
     inline bool HasComponent(EComponentType type)
     {
         return components.count(type) != 0;
@@ -134,13 +119,13 @@ public:
     }
 
 
-    void EnQueuePhysicsCommand(std::function<void()>&& command);
-    void ExecuteAllPhysicsCommand();
+    void ExecuteAllKineticCommand();
 
     inline void SwapTransformBuffer() {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         readTransform = writeTransform;
     }
+
 
 private:
     std::unordered_map<EComponentType, std::unique_ptr<KMGComponent>> components;
@@ -154,12 +139,111 @@ private:
     DirectX::BoundingBox AABBBox;
     std::mutex AABBLock;
 
-    std::queue<std::function<void()>> physicsCommandQueue;
-    std::mutex physicsQueueLock;
+    std::queue<std::function<void()>> kineticCommandQueue;
+    std::mutex kineticQueueLock;
 
 
     bool bVisible = true;
 
     int actorID = 0;
 
+
+public:
+    /// <summary>
+    /// Kinematic 등록 함수들
+    /// </summary>
+
+    void Translate_Kinematic(float dx, float dy, float dz)
+    {
+        auto lamd = [dx, dy, dz, this]()
+            {
+                Translate(dx, dy, dz);
+            };
+
+        EnQueueKineticCommand(std::move(lamd));
+
+    }
+
+    void Rotate_Kinematic(DirectX::XMVECTOR worldAxis, float radian) // 상대회전
+    {
+        auto lamd = [worldAxis, radian, this]()
+            {
+                Rotate(worldAxis, radian);
+            };
+
+        EnQueueKineticCommand(std::move(lamd));
+
+    }
+
+    void SetPosition_Kinematic(float x, float y, float z)
+    {
+        auto lamd = [x,y,z, this]()
+            {
+                SetPosition(x,y,z);
+            };
+
+        EnQueueKineticCommand(std::move(lamd));
+    }
+    void SetPosition_Kinematic(DirectX::XMVECTOR position)
+    {
+        auto lamd = [position, this]()
+            {
+                SetPosition(position);
+            };
+
+        EnQueueKineticCommand(std::move(lamd));
+
+    }
+
+    void SetRotation_E_Kinematic(XMVECTOR eulerRadianXYZ)
+    {
+        auto lamd = [eulerRadianXYZ, this]()
+            {
+                SetRotation_E(eulerRadianXYZ);
+            };
+
+        EnQueueKineticCommand(std::move(lamd));
+
+    }
+
+    void SetRotation_Q_Kinematic(DirectX::XMVECTOR rotation){
+        auto lamd = [rotation, this]()
+            {
+                SetRotation_Q(rotation);
+            };
+
+        EnQueueKineticCommand(std::move(lamd));
+
+    }
+
+    void SetScale_Kinematic(float x, float y, float z) {
+        auto lamd = [x,y,z, this]()
+            {
+                SetScale(x,y,z);
+            };
+
+        EnQueueKineticCommand(std::move(lamd));
+
+    }
+
+    /// <summary>
+    /// Kinematic 등록 함수들
+    /// </summary>
+
+private:
+    void EnQueueKineticCommand(std::function<void()>&& command);
+
+    void Translate(float dx, float dy, float dz);    // 상대이동
+    void Rotate(DirectX::XMVECTOR worldAxis, float radian); // 상대회전
+
+    void SetPosition(float x, float y, float z);
+    void SetPosition(DirectX::XMVECTOR position);
+
+    void SetRotation_E(XMVECTOR eulerRadianXYZ);
+
+    void SetRotation_Q(DirectX::XMVECTOR rotation);
+
+    void SetScale(float x, float y, float z);
+    
+    
 };

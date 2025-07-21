@@ -154,6 +154,12 @@ void KMGActor::SetRotation_Q(DirectX::XMVECTOR rotation)
     }
 }
 
+void KMGActor::SetScale(float x, float y, float z)
+{
+    std::lock_guard<std::mutex> lock(transformWriteLock);
+    writeTransform.scale = DirectX::XMVectorSet(x, y, z, 0);
+}
+
 /// <summary>
 /// 이거 기준이 쿼터니언이다
 /// 내부적으로는 쿼터니언을 계산을 전부 해야 한다
@@ -294,20 +300,20 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
     }
 }
 
-void KMGActor::EnQueuePhysicsCommand(std::function<void()>&& command)
+void KMGActor::EnQueueKineticCommand(std::function<void()>&& command)
 {
-    std::lock_guard<std::mutex> lock(physicsQueueLock);
-    physicsCommandQueue.push(std::move(command));
+    std::lock_guard<std::mutex> lock(kineticQueueLock);
+    kineticCommandQueue.push(std::move(command));
 }
 
-void KMGActor::ExecuteAllPhysicsCommand()
+void KMGActor::ExecuteAllKineticCommand()
 {
-    std::lock_guard<std::mutex> lock(physicsQueueLock);
+    std::lock_guard<std::mutex> lock(kineticQueueLock);
 
-    while (!physicsCommandQueue.empty())
+    while (!kineticCommandQueue.empty())
     {
-        physicsCommandQueue.front()();
-        physicsCommandQueue.pop();
+        kineticCommandQueue.front()();
+        kineticCommandQueue.pop();
     }
 
 }

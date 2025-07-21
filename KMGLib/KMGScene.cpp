@@ -102,7 +102,7 @@ void KMGScene::ChangeAxisTransform()
     }
 
     axisActor->SetVisibility(true);
-    axisActor->SetPosition(focusActor->GetPosition());
+    axisActor->SetPosition_Kinematic(focusActor->GetPosition());
 
     // 여기서 카메라와 actor의 사이 간격에 따라 scale을 바꾸도록 하자
 
@@ -110,16 +110,16 @@ void KMGScene::ChangeAxisTransform()
     DirectX::XMVECTOR cameraGap = currentCamera.GetCameraPosition() - axisActor->GetPosition();
     float distance = XMVectorGetX(XMVector3Length(cameraGap));
     float scaledDistance = sqrtf(distance) * 0.02f;
-    axisActor->SetScale(scaledDistance, scaledDistance, scaledDistance);
+    axisActor->SetScale_Kinematic(scaledDistance, scaledDistance, scaledDistance);
 
 
     if (sceneEditMode == ESceneEditMode::ESEM_MOVE)
     {
-        axisActor->SetRotation_Q(XMVectorSet(0, 0, 0, 0));
+        axisActor->SetRotation_Q_Kinematic(XMVectorSet(0, 0, 0, 0));
     }
     else
     {
-        axisActor->SetRotation_Q(focusActor->GetRotation_Q());
+        axisActor->SetRotation_Q_Kinematic(focusActor->GetRotation_Q());
     }
 }
 

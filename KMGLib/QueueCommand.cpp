@@ -413,11 +413,11 @@ void SceneCommand_UpdateActorPosition::Execute(KMGScene*& scene)
 
 		if (bRelative)
 		{
-			findActor->Translate(dx, dy, dz);
+			findActor->Translate_Kinematic(dx, dy, dz);
 		}
 		else
 		{
-			findActor->SetPosition(dx, dy, dz);
+			findActor->SetPosition_Kinematic(dx, dy, dz);
 		}
 		
 	}
@@ -433,18 +433,18 @@ void SceneCommand_UpdateActorRotation::Execute(KMGScene*& scene)
 	{
 		if (bRelative)
 		{
-			findActor->Rotate(aixsVector, radian);
+			findActor->Rotate_Kinematic(aixsVector, radian);
 		}
 		else
 		{
 			if (bEuler)
 			{
-				findActor->SetRotation_E(rotation);
+				findActor->SetRotation_E_Kinematic(rotation);
 
 			}
 			else
 			{
-				findActor->SetRotation_Q(rotation);
+				findActor->SetRotation_Q_Kinematic(rotation);
 
 			}
 		}
@@ -463,7 +463,7 @@ void SceneCommand_UpdateActorScale::Execute(KMGScene*& scene)
 		float dy = XMVectorGetY(scale);
 		float dz = XMVectorGetZ(scale);
 
-		findActor->SetScale(dx, dy, dz);
+		findActor->SetScale_Kinematic(dx, dy, dz);
 	}
 
 }
