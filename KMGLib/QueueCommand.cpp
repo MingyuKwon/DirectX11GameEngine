@@ -209,7 +209,6 @@ namespace KMGCommand
 	{
 		if (currentScene)
 		{
-
 			KMGActor* findActor = currentScene->GetActor(name);
 
 			if (findActor)

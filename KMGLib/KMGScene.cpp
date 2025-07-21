@@ -101,7 +101,6 @@ void KMGScene::ChangeAxisTransform()
     }
 
     axisActor->SetVisibility(true);
-    axisActor->SetPosition_Kinematic(focusActor->GetPosition());
 
     // 여기서 카메라와 actor의 사이 간격에 따라 scale을 바꾸도록 하자
 

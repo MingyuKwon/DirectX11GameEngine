@@ -136,6 +136,8 @@ void PhysicsLoop()
 
         if (currentScene)
         {
+            currentScene->SetAxisActorPosToFocus();
+
             ActorPhysicsCalc(currentScene->GetAxisActor());
             const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
             for (auto& bucket : actors)

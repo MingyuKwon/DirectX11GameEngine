@@ -58,6 +58,14 @@ public:
         return axisActor.get();
     }
 
+    inline void SetAxisActorPosToFocus()
+    {
+        if (axisActor && focusActor)
+        {
+            axisActor->SetPosition_Kinematic(focusActor->GetWriteBufferPosition());
+        }
+    }
+
     inline EHoverMode GetHoverMode() {
         return hoverMode;
     }

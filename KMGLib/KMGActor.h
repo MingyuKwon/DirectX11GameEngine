@@ -60,6 +60,10 @@ public:
     inline DirectX::XMVECTOR GetPosition() const {
         return readTransform.position; }
 
+    inline DirectX::XMVECTOR GetWriteBufferPosition() const {
+        return writeTransform.position;
+    }
+
 
     inline DirectX::XMVECTOR GetLocalAxis(DirectX::XMVECTOR defaultAxis) {
         defaultAxis = DirectX::XMVector3TransformNormal(defaultAxis, getWorldMatrix());
