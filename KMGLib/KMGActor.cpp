@@ -63,11 +63,6 @@ void KMGActor::SetPosition(float x, float y, float z)
     {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         writeTransform.position = DirectX::XMVectorSet(x, y, z, 1);
-
-        XMFLOAT3 coutFloat;
-        XMStoreFloat3(&coutFloat, writeTransform.position);
-        std::wcout << name << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << " " << " SetPosition\n";
-
     }
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
@@ -297,4 +292,22 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
             }
         }
     }
+}
+
+void KMGActor::EnQueuePhysicsCommand(std::function<void()>&& command)
+{
+    std::lock_guard<std::mutex> lock(physicsQueueLock);
+    physicsCommandQueue.push(std::move(command));
+}
+
+void KMGActor::ExecuteAllPhysicsCommand()
+{
+    std::lock_guard<std::mutex> lock(physicsQueueLock);
+
+    while (!physicsCommandQueue.empty())
+    {
+        physicsCommandQueue.front()();
+        physicsCommandQueue.pop();
+    }
+
 }

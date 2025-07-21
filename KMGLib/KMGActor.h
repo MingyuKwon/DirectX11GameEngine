@@ -57,9 +57,9 @@ public:
 
     DirectX::XMMATRIX getWorldMatrix();
 
-    inline DirectX::XMVECTOR GetPosition() const { 
-       
+    inline DirectX::XMVECTOR GetPosition() const {
         return readTransform.position; }
+
     void SetPosition(float x, float y, float z);
     void SetPosition(DirectX::XMVECTOR position);
 
@@ -133,6 +133,10 @@ public:
         AABBBox = inBox;
     }
 
+
+    void EnQueuePhysicsCommand(std::function<void()>&& command);
+    void ExecuteAllPhysicsCommand();
+
     inline void SwapTransformBuffer() {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         readTransform = writeTransform;
@@ -149,6 +153,9 @@ private:
 
     DirectX::BoundingBox AABBBox;
     std::mutex AABBLock;
+
+    std::queue<std::function<void()>> physicsCommandQueue;
+    std::mutex physicsQueueLock;
 
 
     bool bVisible = true;

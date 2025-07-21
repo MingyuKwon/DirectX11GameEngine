@@ -97,7 +97,6 @@ int main(int, char**)
         // 그리기 직전에 들어온 모든 명령 동기적으로 처리
         schedular->ExecuteMessage_InSchedular(currentScene);
 
-
         GlobalTick(deltaTime);
 
         // 마지막으로 그리기

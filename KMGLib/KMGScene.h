@@ -170,6 +170,8 @@ public:
         for (auto& bucket : actors)
         {
             bucket.second->SwapTransformBuffer();
+            bucket.second->ExecuteAllPhysicsCommand();
+            
         }
     }
 
