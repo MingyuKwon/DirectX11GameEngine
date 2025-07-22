@@ -253,6 +253,21 @@ void LightComponent::SetLightColor(DirectX::XMFLOAT4 color)
 	}
 }
 
+RigidBodyComponent::RigidBodyComponent(const RigidBodyComponent& comp) : 
+	KMGComponent(EComponentType::ECT_STATICMESH), 
+	mass(comp.mass),
+	drag(comp.drag),
+	angularDrag(comp.angularDrag),
+	useGravity(comp.useGravity),
+	bKinematic(comp.bKinematic),
+	velocity(comp.velocity),
+	angularVelocity(comp.angularVelocity),
+	forceAccumulator(comp.forceAccumulator),
+	torqueAccumulator(comp.torqueAccumulator)
+{
+
+}
+
 void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gravity)
 {
 	if (deltaTime <= 0.0f) return; 

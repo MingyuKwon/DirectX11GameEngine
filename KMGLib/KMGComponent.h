@@ -44,6 +44,9 @@ public:
 		torqueAccumulator(DirectX::XMVectorZero())
 	{}
 
+	RigidBodyComponent(const RigidBodyComponent& comp);
+
+
 	inline void AddForce(const DirectX::XMVECTOR& force) 
 	{ 
 		forceAccumulator = DirectX::XMVectorAdd(forceAccumulator, force);
@@ -78,6 +81,7 @@ private:
 	float drag;
 	float angularDrag;
 	bool useGravity;
+
 	bool bKinematic;
 
 	DirectX::XMVECTOR velocity;
@@ -85,6 +89,9 @@ private:
 
 	DirectX::XMVECTOR forceAccumulator;
 	DirectX::XMVECTOR torqueAccumulator;
+
+	std::mutex rigidBodyMutex;
+
 };
 
 

@@ -39,11 +39,15 @@ void KMGActor::CopyActorToTarget(KMGActor* targetActor)
         switch (compType)
         {
         case EComponentType::ECT_LIGHT:
-            targetActor->components[compType] = std::make_unique<LightComponent>(*dynamic_cast<LightComponent*>(pComp));
+            targetActor->components[compType] =  std::move(std::make_unique<LightComponent>(*dynamic_cast<LightComponent*>(pComp)));
             break;
         case EComponentType::ECT_STATICMESH:
-            targetActor->components[compType] = std::make_unique<StaticMeshComponent>(*dynamic_cast<StaticMeshComponent*>(pComp));
+            targetActor->components[compType] = std::move(std::make_unique<StaticMeshComponent>(*dynamic_cast<StaticMeshComponent*>(pComp)));
             break;
+        case EComponentType::ECT_RIGIDBODY:
+            targetActor->components[compType] = std::move(std::make_unique<RigidBodyComponent>(*dynamic_cast<RigidBodyComponent*>(pComp)));
+            break;
+
         default:
             continue;
         }
