@@ -52,6 +52,11 @@ public:
 		forceAccumulator = DirectX::XMVectorAdd(forceAccumulator, force);
 	}
 
+	inline void ApplyImpulse(const DirectX::XMVECTOR& impulse)
+	{
+		velocity = DirectX::XMVectorAdd(velocity, XMVectorScale(impulse, 1.0f / mass));
+	}
+
 	void AddTorque(const DirectX::XMVECTOR& torque)
 	{
 		torqueAccumulator = DirectX::XMVectorAdd(torqueAccumulator, torque);

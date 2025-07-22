@@ -24,10 +24,42 @@ void CollisionSystem::DetectAndResolveAll(const std::unordered_map<std::wstring,
 
             if (info.bCollide)
             {
-                std::wcout << "Collide ! : " << actorA->GetName() << " " << actorB->GetName() << "\n";
+                ResolveCollision(rbA, rbB, info);
             }
         }
     }
+}
+
+void CollisionSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* b, const CollisionInfo& info)
+{
+    // 둘다 키네마틱이면 애초에 충돌 자체가 안일어 난다
+    if (a->IsKinematic() && b->IsKinematic()) return;
+
+    XMVECTOR relativeVel = a->GetVelocity();
+    if (!b->IsKinematic())
+        relativeVel = XMVectorSubtract(relativeVel, b->GetVelocity());
+
+    float velAlongNormal = XMVectorGetX(XMVector3Dot(relativeVel, info.normal));
+    if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이라면 더 이상 힘을 줄 필요가 없음
+
+    float restitution = 0.5f; // 탄성
+
+    float invMassA = a->IsKinematic() ? 0.0f : 1.0f / a->GetMass();
+    float invMassB = b->IsKinematic() ? 0.0f : 1.0f / b->GetMass();
+
+    float impulseMag = -(1.0f + restitution) * velAlongNormal;
+    impulseMag /= (invMassA + invMassB);
+
+    XMVECTOR impulse = impulseMag * info.normal * 1;
+
+    float size = XMVectorGetX(XMVector3Length(impulse));
+    std::cout << size << "\n";
+
+    if (!a->IsKinematic())
+        a->ApplyImpulse(impulse); 
+
+    if (!b->IsKinematic())
+        b->ApplyImpulse(-impulse);
 }
 
 CollisionInfo CollisionSystem::CheckOBBCollision(
@@ -123,11 +155,6 @@ CollisionInfo CollisionSystem::CheckOBBCollision(
 
 }
 
-
-void CollisionSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* b, const CollisionInfo& info)
-{
-
-}
 
 OBB CollisionSystem::CreateOBBFromAABB(const BoundingBox& box, const DirectX::XMMATRIX& world)
 {
