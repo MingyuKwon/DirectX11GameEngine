@@ -340,6 +340,21 @@ void KMGDetailWindow::ShowRigidBody()
 
         VERTICAL_SPACE(20);
 
+        if (bKinematic) return;
+
+        FIRST_IMGUI_TAB(30);
+
+        bool bGravity = rigidComp->IsUsingGravity();
+        bool bBeforeGravity = bGravity;
+        ImGui::Checkbox("Is Gravity Enable", &bGravity);
+
+        if (bGravity != bBeforeGravity)
+        {
+            rigidComp->SetUseGravity(bGravity);
+        }
+
+        VERTICAL_SPACE(20);
+
     }
 
 }

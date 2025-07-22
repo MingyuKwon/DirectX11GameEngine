@@ -270,9 +270,15 @@ RigidBodyComponent::RigidBodyComponent(const RigidBodyComponent& comp) :
 
 void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gravity)
 {
+	std::lock_guard<std::mutex> lock(rigidBodyMutex);
+
 	if (deltaTime <= 0.0f) return; 
 	if (bKinematic) return;
 	if (owner == nullptr) return;
 
-	std::cout << "Intergrate\n";
+	if (useGravity)
+	{
+		std::cout << "useGravity\n";
+
+	}
 }

@@ -37,7 +37,7 @@ public:
 	RigidBodyComponent()
 		: KMGComponent(EComponentType::ECT_RIGIDBODY),
 		mass(1.0f), drag(0.1f), angularDrag(0.05f),
-		useGravity(true), bKinematic(true),
+		useGravity(false), bKinematic(true),
 		velocity(DirectX::XMVectorZero()),
 		angularVelocity(DirectX::XMVectorZero()),
 		forceAccumulator(DirectX::XMVectorZero()),
@@ -70,10 +70,19 @@ public:
 	void SetMass(float m) { mass = m; }
 	float GetMass() const { return mass; }
 
-	void SetUseGravity(bool use) { useGravity = use; }
+	void SetUseGravity(bool use) 
+	{ 
+		std::lock_guard<std::mutex> lock(rigidBodyMutex);
+		useGravity = use; 
+	}
+
 	bool IsUsingGravity() const { return useGravity; }
 
-	void SetKinematic(bool value) { bKinematic = value; }
+	void SetKinematic(bool value) 
+	{ 
+		std::lock_guard<std::mutex> lock(rigidBodyMutex);
+		bKinematic = value; 
+	}
 	bool IsKinematic() const { return bKinematic; }
 
 private:
