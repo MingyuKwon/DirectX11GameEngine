@@ -67,8 +67,16 @@ public:
 	DirectX::XMVECTOR GetVelocity() const { return velocity; }
 	void SetVelocity(const DirectX::XMVECTOR& v) { velocity = v; }
 
-	void SetMass(float m) { mass = m; }
-	float GetMass() const { return mass; }
+	void SetMass(float m) 
+	{ 
+		std::lock_guard<std::mutex> lock(rigidBodyMutex);
+		mass = m; 
+	}
+
+	float GetMass() const 
+	{ 
+		return mass; 
+	}
 
 	void SetUseGravity(bool use) 
 	{ 
@@ -82,6 +90,12 @@ public:
 	{ 
 		std::lock_guard<std::mutex> lock(rigidBodyMutex);
 		bKinematic = value; 
+
+		if (bKinematic)
+		{
+			velocity = DirectX::XMVectorZero();
+			angularVelocity = DirectX::XMVectorZero();
+		}
 	}
 	bool IsKinematic() const { return bKinematic; }
 

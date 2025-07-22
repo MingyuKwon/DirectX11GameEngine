@@ -272,27 +272,37 @@ void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gra
 {
 	std::lock_guard<std::mutex> lock(rigidBodyMutex);
 
-	if (deltaTime <= 0.0f) return; 
+	if (deltaTime <= 0.0f) return;
 	if (bKinematic) return;
 	if (owner == nullptr) return;
 
-	DirectX::XMVECTOR acceleration = DirectX::XMVectorZero();
+	XMVECTOR dragForce = DirectX::XMVectorScale(velocity, -drag);
+	AddForce(dragForce);
 
+	XMVECTOR acceleration = DirectX::XMVectorZero();
 	if (useGravity)
 	{
-		std::cout << "useGravity\n";
-		acceleration = gravity; 
+		acceleration = gravity;
 	}
+
+	acceleration = DirectX::XMVectorAdd(
+		acceleration,
+		DirectX::XMVectorScale(forceAccumulator, 1.0f / mass)
+	);
 
 	velocity = DirectX::XMVectorAdd(
 		velocity,
 		DirectX::XMVectorScale(acceleration, deltaTime)
 	);
 
+	XMFLOAT3 coutFLOAT;
+	XMStoreFloat3(&coutFLOAT, velocity);
+	std::cout << coutFLOAT.x << " " << coutFLOAT.y << " " << coutFLOAT.z << " \n";
+
 	DirectX::XMVECTOR pos = owner->writeTransform.position;
 	pos = DirectX::XMVectorAdd(pos, DirectX::XMVectorScale(velocity, deltaTime));
 	owner->SetPosition(pos);
 
-
-
+	ClearForces();
 }
+
