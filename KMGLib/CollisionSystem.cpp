@@ -1,67 +1,143 @@
 #include "CollisionSystem.h"
+#include "KMGUtility.h"
+#include "KMGActor.h"
 
 void CollisionSystem::DetectAndResolveAll(const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors)
 {
+    for (auto itA = actors.begin(); itA != actors.end(); ++itA)
+    {
+        for (auto itB = std::next(itA); itB != actors.end(); ++itB)
+        {
+            KMGActor* actorA = itA->second.get();
+            KMGActor* actorB = itB->second.get();
 
+            RigidBodyComponent* rbA = actorA->GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
+            RigidBodyComponent* rbB = actorB->GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
+
+            if (rbA == nullptr) continue;
+            if (rbB == nullptr) continue;
+
+            CollisionInfo info = CheckOBBCollision(
+                actorA->GetAABBBox(), actorA->getWorldMatrix(),
+                actorB->GetAABBBox(), actorB->getWorldMatrix()
+            );
+
+            if (info.bCollide)
+            {
+                std::wcout << "Collide ! : " << actorA->GetName() << " " << actorB->GetName() << "\n";
+            }
+        }
+    }
 }
 
-CollisionInfo CollisionSystem::CheckAABBCollision(
-    const DirectX::BoundingBox& a, DirectX::XMMATRIX aWorldMat,
-    const DirectX::BoundingBox& b, DirectX::XMMATRIX bWorldMat)
+CollisionInfo CollisionSystem::CheckOBBCollision(
+    const DirectX::BoundingBox& aBox, DirectX::XMMATRIX aWorldMat,
+    const DirectX::BoundingBox& bBox, DirectX::XMMATRIX bWorldMat)
 {
-    BoundingBox worldABox, worldBBox;
-    a.Transform(worldABox, aWorldMat);
-    b.Transform(worldBBox, bWorldMat);
+    OBB a = CreateOBBFromAABB(aBox, aWorldMat);
+    OBB b = CreateOBBFromAABB(bBox, bWorldMat);
 
-    XMVECTOR aCenter = XMLoadFloat3(&worldABox.Center);
-    XMVECTOR bCenter = XMLoadFloat3(&worldBBox.Center);
-    XMVECTOR aExtents = XMLoadFloat3(&worldABox.Extents);
-    XMVECTOR bExtents = XMLoadFloat3(&worldBBox.Extents);
+    CollisionInfo result;
 
-    XMVECTOR delta = XMVectorSubtract(bCenter, aCenter);
-    XMVECTOR overlap = XMVectorSubtract(
-        XMVectorAdd(aExtents, bExtents),
-        XMVectorAbs(delta)
-    );
+    XMVECTOR centerGap = XMVectorSubtract(b.center, a.center);
+    float R[3][3];
+    float AbsR[3][3];
 
-    CollisionInfo info;
-
-    if (XMVectorGetX(overlap) > 0 &&
-        XMVectorGetY(overlap) > 0 &&
-        XMVectorGetZ(overlap) > 0)
+    for (int i = 0; i < 3; ++i)
     {
-        info.bCollide = true;
-
-        // 가장 적게 겹친 축으로 penetration 및 normal 계산
-        float x = XMVectorGetX(overlap);
-        float y = XMVectorGetY(overlap);
-        float z = XMVectorGetZ(overlap);
-
-        if (x < y && x < z)
+        for (int j = 0; j < 3; ++j)
         {
-            info.penetrationDepth = x;
-            info.normal = XMVectorSet((XMVectorGetX(delta) < 0 ? -1.0f : 1.0f), 0, 0, 0);
+            R[i][j] = XMVectorGetX(XMVector3Dot(a.axis[i], b.axis[j]));
+            AbsR[i][j] = std::abs(R[i][j]) + EPSILON; // float 오차 보정
         }
-        else if (y < z)
-        {
-            info.penetrationDepth = y;
-            info.normal = XMVectorSet(0, (XMVectorGetY(delta) < 0 ? -1.0f : 1.0f), 0, 0);
-        }
-        else
-        {
-            info.penetrationDepth = z;
-            info.normal = XMVectorSet(0, 0, (XMVectorGetZ(delta) < 0 ? -1.0f : 1.0f), 0);
-        }
-
-        // 접점 위치 (간단한 버전: 두 중심점 사이 중간 지점)
-        info.contactPoint = XMVectorAdd(aCenter, XMVectorScale(delta, 0.5f));
     }
 
+    float t[3] = {
+        XMVectorGetX(XMVector3Dot(centerGap, a.axis[0])),
+        XMVectorGetX(XMVector3Dot(centerGap, a.axis[1])),
+        XMVectorGetX(XMVector3Dot(centerGap, a.axis[2]))
+    };
+
+    XMFLOAT3 aExtentsF, bExtentsF;
+    XMStoreFloat3(&aExtentsF, a.halfSize);
+    XMStoreFloat3(&bExtentsF, b.halfSize);
+
+    float aExtents[3] = { aExtentsF.x, aExtentsF.y, aExtentsF.z };
+    float bExtents[3] = { bExtentsF.x, bExtentsF.y, bExtentsF.z };
+
+
+    // 15축 검사
+    // A의 로컬 축 기준 (a.axis[0~2])
+    for (int i = 0; i < 3; ++i)
+    {
+        float ra = aExtents[i];
+        float rb = bExtents[0] * AbsR[i][0] + bExtents[1] * AbsR[i][1] + bExtents[2] * AbsR[i][2];
+        float ta = XMVectorGetX(XMVector3Dot(centerGap, a.axis[i]));
+
+        if (std::abs(ta) > ra + rb)
+            return result;
+    }
+
+    // B의 로컬 축 기준 (b.axis[0~2])
+    for (int i = 0; i < 3; ++i)
+    {
+        float ra = aExtents[0] * AbsR[0][i] + aExtents[1] * AbsR[1][i] + aExtents[2] * AbsR[2][i];
+        float rb = bExtents[i];
+        float tb = XMVectorGetX(XMVector3Dot(centerGap, b.axis[i]));
+        if (std::abs(tb) > ra + rb)
+            return result;
+    }
+
+    for (int i = 0; i < 3; ++i) // A의 축
+    {
+        for (int j = 0; j < 3; ++j) // B의 축
+        {
+            // 외적 축: axis = a.axis[i] x b.axis[j]
+            // 이 축은 a.axis[i]와 수직이므로 a.axis[i] 방향은 영향 없음
+            // a의 나머지 두 축만 이 축에 대해 기여함
+
+            float ra =
+                aExtents[(i + 1) % 3] * AbsR[(i + 2) % 3][j] + 
+                aExtents[(i + 2) % 3] * AbsR[(i + 1) % 3][j];  
+
+            float rb =
+                bExtents[(j + 1) % 3] * AbsR[i][(j + 2) % 3] +
+                bExtents[(j + 2) % 3] * AbsR[i][(j + 1) % 3];
+
+            float t_proj =
+                std::abs(
+                    t[(i + 2) % 3] * R[(i + 1) % 3][j] -
+                    t[(i + 1) % 3] * R[(i + 2) % 3][j]
+                );
+
+            if (t_proj > ra + rb)
+            {
+                return result; 
+            }
+        }
+    }
+
+    CollisionInfo info = KMGUtility::BuildOBBCollisionInfo(a, b, R, AbsR, t, centerGap);
     return info;
+
+
 }
 
 
 void CollisionSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* b, const CollisionInfo& info)
 {
 
+}
+
+OBB CollisionSystem::CreateOBBFromAABB(const BoundingBox& box, const DirectX::XMMATRIX& world)
+{
+    OBB obb;
+    obb.center = XMVector3Transform(XMLoadFloat3(&box.Center), world);
+    obb.halfSize = XMLoadFloat3(&box.Extents);
+
+    obb.axis[0] = XMVector3Normalize(XMVector3TransformNormal(XMVectorSet(1, 0, 0, 0), world)); 
+    obb.axis[1] = XMVector3Normalize(XMVector3TransformNormal(XMVectorSet(0, 1, 0, 0), world)); 
+    obb.axis[2] = XMVector3Normalize(XMVector3TransformNormal(XMVectorSet(0, 0, 1, 0), world)); 
+
+    return obb;
 }

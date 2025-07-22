@@ -146,6 +146,26 @@ struct alignas(16) CBLightArray
     }
 };
 
+
+//--------------------------------------------------------------------------------------
+// 충돌을 담당하는 구조체
+//--------------------------------------------------------------------------------------
+
+struct OBB {
+    DirectX::XMVECTOR center;     // 중심 위치 
+    DirectX::XMVECTOR axis[3];    // 로컬 xyz 축의 방향 벡터 
+    DirectX::XMVECTOR halfSize;   // xyz 반 길이 
+};
+
+struct CollisionInfo {
+    bool bCollide = false;
+
+    DirectX::XMVECTOR normal;      // 충돌 방향
+    float penetrationDepth;        // 겹친 정도
+    DirectX::XMVECTOR contactPoint; // 접점 위치 
+};
+
+
 //--------------------------------------------------------------------------------------
 // 액터의 Transform을 저장하는 구조체
 //--------------------------------------------------------------------------------------

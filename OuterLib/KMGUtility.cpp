@@ -230,3 +230,88 @@ std::wstring KMGUtility::OpenFileDialog()
 
     return L"";
 }
+
+
+CollisionInfo KMGUtility::BuildOBBCollisionInfo(
+    const OBB& a, const OBB& b,
+    const float R[3][3],
+    const float AbsR[3][3],
+    const float t[3],
+    const XMVECTOR& centerGap)
+{
+    CollisionInfo info;
+    info.bCollide = true;
+
+    float minOverlap = FLT_MAX;
+    XMVECTOR bestAxis = XMVectorZero();
+
+    XMFLOAT3 aExtF, bExtF;
+    XMStoreFloat3(&aExtF, a.halfSize);
+    XMStoreFloat3(&bExtF, b.halfSize);
+    float aExt[3] = { aExtF.x, aExtF.y, aExtF.z };
+    float bExt[3] = { bExtF.x, bExtF.y, bExtF.z };
+
+    // A의 축
+    for (int i = 0; i < 3; ++i)
+    {
+        float ra = aExt[i];
+        float rb = bExt[0] * AbsR[i][0] + bExt[1] * AbsR[i][1] + bExt[2] * AbsR[i][2];
+        float overlap = (ra + rb) - std::abs(t[i]);
+        if (overlap < minOverlap)
+        {
+            minOverlap = overlap;
+            bestAxis = a.axis[i];
+            if (t[i] < 0) bestAxis = XMVectorNegate(bestAxis);
+        }
+    }
+
+    // B의 축
+    for (int i = 0; i < 3; ++i)
+    {
+        float ra = aExt[0] * AbsR[0][i] + aExt[1] * AbsR[1][i] + aExt[2] * AbsR[2][i];
+        float rb = bExt[i];
+        float tb = XMVectorGetX(XMVector3Dot(centerGap, b.axis[i]));
+        float overlap = (ra + rb) - std::abs(tb);
+        if (overlap < minOverlap)
+        {
+            minOverlap = overlap;
+            bestAxis = b.axis[i];
+            if (tb < 0) bestAxis = XMVectorNegate(bestAxis);
+        }
+    }
+
+    // 교차 축
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            XMVECTOR axis = XMVector3Cross(a.axis[i], b.axis[j]);
+            if (XMVector3Equal(axis, XMVectorZero())) continue; // 병렬이면 스킵
+            axis = XMVector3Normalize(axis);
+
+            float ra =
+                aExt[(i + 1) % 3] * AbsR[(i + 2) % 3][j] +
+                aExt[(i + 2) % 3] * AbsR[(i + 1) % 3][j];
+            float rb =
+                bExt[(j + 1) % 3] * AbsR[i][(j + 2) % 3] +
+                bExt[(j + 2) % 3] * AbsR[i][(j + 1) % 3];
+            float proj = std::abs(
+                t[(i + 2) % 3] * R[(i + 1) % 3][j] -
+                t[(i + 1) % 3] * R[(i + 2) % 3][j]
+            );
+            float overlap = (ra + rb) - proj;
+            if (overlap < minOverlap)
+            {
+                minOverlap = overlap;
+                bestAxis = axis;
+                if (XMVectorGetX(XMVector3Dot(centerGap, axis)) < 0)
+                    bestAxis = XMVectorNegate(bestAxis);
+            }
+        }
+    }
+
+    info.normal = XMVector3Normalize(bestAxis);
+    info.penetrationDepth = minOverlap;
+    info.contactPoint = XMVectorAdd(a.center, XMVectorScale(centerGap, 0.5f));
+    return info;
+}

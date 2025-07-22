@@ -6,6 +6,7 @@
 #include <CommandSchedular.h>
 #include <algorithm>
 #include <DrawDebug.h>
+#include <CollisionSystem.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -130,6 +131,8 @@ void PhysicsLoop()
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
+    static CollisionSystem collisionSystem;
+
     while (bRunning) {
         LARGE_INTEGER frameStart;
         QueryPerformanceCounter(&frameStart);
@@ -147,9 +150,10 @@ void PhysicsLoop()
                 bucket.second->ExecutePhysics(physicsDeltaTime);
             }
 
-        }
+            // 여기서 애들끼리 충돌 계산 해야 한다
+            collisionSystem.DetectAndResolveAll(actors);
 
-        // 여기서 애들끼리 충돌 계산 해야 한다
+        }
 
 
         LARGE_INTEGER frameEnd;

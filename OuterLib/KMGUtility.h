@@ -27,6 +27,15 @@ namespace KMGUtility {
     
     std::wstring OpenFileDialog();
 
+
+    CollisionInfo BuildOBBCollisionInfo(
+        const OBB& a, const OBB& b,
+        const float R[3][3],
+        const float AbsR[3][3],
+        const float t[3],
+        const XMVECTOR& centerGap);
+
+
     inline float WrapAngleRad(float angle)
     {
         const float twoPi = DirectX::XM_2PI;

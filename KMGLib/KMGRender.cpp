@@ -495,49 +495,51 @@ void KMGRender::DrawScene(KMGScene* scene)
             {
                 ActorMeshCount[actorID] = actorMeshes->size();
 
-                if (actor->bShowBoundBox)
-                {
-                    // 이 부분 원래 각각의 박스마다 그리게 하려고 했는데 이러면 드로우 콜이 너무 많아져서
+
+                // 이 부분 원래 각각의 박스마다 그리게 하려고 했는데 이러면 드로우 콜이 너무 많아져서
                     // 그리라고 하기 전에 하나로 합쳤다
 
-                    const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
-                    pBoxs = staticComp->GetBoundingBoxs();
-                    if (pBoxs)
+                const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
+                pBoxs = staticComp->GetBoundingBoxs();
+                if (pBoxs)
+                {
+                    const std::vector<DirectX::BoundingBox>& boxs = *pBoxs;
+
+                    KMGDebugMesh accumulateMesh;
+                    int vertexOffset = 0;
+
+                    for (int i = 0; i < boxs.size(); i++)
                     {
-                        const std::vector<DirectX::BoundingBox>& boxs = *pBoxs;
+                        KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
 
-                        KMGDebugMesh accumulateMesh;
-                        int vertexOffset = 0;
+                        accumulateMesh.vertices.insert(
+                            accumulateMesh.vertices.end(),
+                            mesh.vertices.begin(),
+                            mesh.vertices.end()
+                        );
 
-                        for (int i = 0; i < boxs.size(); i++)
+                        for (int index : mesh.indices)
                         {
-                            KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
-
-                            accumulateMesh.vertices.insert(
-                                accumulateMesh.vertices.end(),
-                                mesh.vertices.begin(),
-                                mesh.vertices.end()
-                            );
-
-                            for (int index : mesh.indices)
-                            {
-                                accumulateMesh.indices.push_back(index + vertexOffset);
-                            }
-
-                            vertexOffset += mesh.vertices.size();
+                            accumulateMesh.indices.push_back(index + vertexOffset);
                         }
 
-                        resourceManager.AddShouldDrawDebug(actorID + L"DEBUG_BOUNDBOXS", accumulateMesh, pMainContext, worldMat);
-
-                        KMGDebugMesh collideBoxMesh = DrawDebug::MakeDebugBoundingBox(actor->GetAABBBox(), XMFLOAT4(1, 0, 0, 1));
-
-                        if (scene->GetShowCollideBox())
-                        {
-                            resourceManager.AddShouldDrawDebug(actorID + L"COLLIDEBOX", collideBoxMesh, pMainContext, worldMat);
-                        }
-
+                        vertexOffset += mesh.vertices.size();
                     }
+
+                    if (actor->bShowBoundBox)
+                    {
+                        resourceManager.AddShouldDrawDebug(actorID + L"DEBUG_BOUNDBOXS", accumulateMesh, pMainContext, worldMat);
+                    }
+
+                    if (scene->GetShowCollideBox())
+                    {
+                        KMGDebugMesh collideBoxMesh = DrawDebug::MakeDebugBoundingBox(actor->GetAABBBox(), XMFLOAT4(1, 0, 0, 1));
+                        resourceManager.AddShouldDrawDebug(actorID + L"COLLIDEBOX", collideBoxMesh, pMainContext, worldMat);
+                    }
+
                 }
+
+                
             }
 
             //여기에 만약 actor가 mergeMesh 모드인 경우에는 액터를 합친 메시로 줘야 한다
