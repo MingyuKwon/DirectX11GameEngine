@@ -355,6 +355,38 @@ void KMGDetailWindow::ShowRigidBody()
 
         VERTICAL_SPACE(20);
 
+        FIRST_IMGUI_TAB(30);
+        float mass = rigidComp->GetMass();
+        ImGui::Text("Mass");
+        ImGui::SameLine(150);
+        if (ImGui::DragFloat("##Mass", &mass, 0.1f, 0.1f, 100.0f))
+        {
+            rigidComp->SetMass(mass);
+        }
+        VERTICAL_SPACE(5);
+
+        FIRST_IMGUI_TAB(30);
+        float drag = rigidComp->GetDrag();
+        ImGui::Text("Drag");
+        ImGui::SameLine(150);
+        if (ImGui::DragFloat("##Drag", &drag, 0.01f, 0.01f, 1.0f))
+        {
+            rigidComp->SetDrag(drag);
+        }
+        VERTICAL_SPACE(5);
+
+        FIRST_IMGUI_TAB(30);
+        float angularDrag = rigidComp->GetAngularDrag();
+        ImGui::Text("AngularDrag");
+        ImGui::SameLine(150);
+        if (ImGui::DragFloat("##AngularDrag", &angularDrag, 0.01f, 0.01f, 1.0f))
+        {
+            rigidComp->SetAngularDrag(angularDrag);
+        }
+        VERTICAL_SPACE(5);
+
+
+
     }
 
 }

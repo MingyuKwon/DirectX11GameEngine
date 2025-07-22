@@ -57,7 +57,7 @@ public:
 		torqueAccumulator = DirectX::XMVectorAdd(torqueAccumulator, torque);
 	}
 
-	void Integrate(float deltaTime, const DirectX::XMVECTOR& gravity = { 0, -9.81f, 0, 0 });
+	void Integrate(float deltaTime, const DirectX::XMVECTOR& gravity = { 0, -DEFAULT_GRAVITY_SCALE, 0, 0 });
 
 	void ClearForces() {
 		forceAccumulator = DirectX::XMVectorZero();
@@ -76,6 +76,28 @@ public:
 	float GetMass() const 
 	{ 
 		return mass; 
+	}
+
+	void SetDrag(float d)
+	{
+		std::lock_guard<std::mutex> lock(rigidBodyMutex);
+		drag = d;
+	}
+
+	float GetDrag() const
+	{
+		return drag;
+	}
+
+	void SetAngularDrag(float d)
+	{
+		std::lock_guard<std::mutex> lock(rigidBodyMutex);
+		angularDrag = d;
+	}
+
+	float GetAngularDrag() const
+	{
+		return angularDrag;
 	}
 
 	void SetUseGravity(bool use) 
@@ -97,15 +119,17 @@ public:
 			angularVelocity = DirectX::XMVectorZero();
 		}
 	}
+
 	bool IsKinematic() const { return bKinematic; }
 
 private:
+	bool useGravity;
+	bool bKinematic;
+
 	float mass;
 	float drag;
 	float angularDrag;
-	bool useGravity;
 
-	bool bKinematic;
 
 	DirectX::XMVECTOR velocity;
 	DirectX::XMVECTOR angularVelocity;
