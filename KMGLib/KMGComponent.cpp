@@ -276,9 +276,23 @@ void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gra
 	if (bKinematic) return;
 	if (owner == nullptr) return;
 
+	DirectX::XMVECTOR acceleration = DirectX::XMVectorZero();
+
 	if (useGravity)
 	{
 		std::cout << "useGravity\n";
-
+		acceleration = gravity; 
 	}
+
+	velocity = DirectX::XMVectorAdd(
+		velocity,
+		DirectX::XMVectorScale(acceleration, deltaTime)
+	);
+
+	DirectX::XMVECTOR pos = owner->writeTransform.position;
+	pos = DirectX::XMVectorAdd(pos, DirectX::XMVectorScale(velocity, deltaTime));
+	owner->SetPosition(pos);
+
+
+
 }
