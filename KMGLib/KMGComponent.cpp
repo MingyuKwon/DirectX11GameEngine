@@ -257,6 +257,7 @@ void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gra
 {
 	if (deltaTime <= 0.0f) return; 
 	if (bKinematic) return;
+	if (owner == nullptr) return;
 
-
+	std::cout << "Intergrate\n";
 }

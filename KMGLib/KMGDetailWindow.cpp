@@ -70,6 +70,9 @@ void KMGDetailWindow::DrawDetailWindow(
         ShowStaticMesh();
         VERTICAL_SPACE(5);
 
+        ShowRigidBody();
+        VERTICAL_SPACE(5);
+
         ShowLight();
 
     }
@@ -305,6 +308,40 @@ void KMGDetailWindow::ShowStaticMesh()
         VERTICAL_SPACE(10);
 
     }
+}
+
+void KMGDetailWindow::ShowRigidBody()
+{
+    if (ImGui::CollapsingHeader("RigidBody", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (currenFocusActor == nullptr) return;
+
+        VERTICAL_SPACE(10);
+        FIRST_IMGUI_TAB(30);
+
+        static bool componentEnabled = false;
+
+        RigidBodyComponent* rigidComp = nullptr;
+        if (currenFocusActor)
+        {
+            rigidComp = currenFocusActor->GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
+        }
+
+        FIRST_IMGUI_TAB(30);
+
+        bool bKinematic = rigidComp->IsKinematic();
+        bool bBeforeKinematic = bKinematic;
+        ImGui::Checkbox("Is Kinematic", &bKinematic);
+
+        if (bKinematic != bBeforeKinematic)
+        {
+            rigidComp->SetKinematic(bKinematic);
+        }
+
+        VERTICAL_SPACE(20);
+
+    }
+
 }
 
 void KMGDetailWindow::ShowTexture_Normal(std::vector<KMGStaticMesh>* meshes)

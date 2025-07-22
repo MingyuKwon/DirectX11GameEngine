@@ -17,6 +17,8 @@ private:
 	void ShowName();
 	void ShowTransform();
 	void ShowStaticMesh();
+	void ShowRigidBody();
+
 	void ShowLight();
 
 
