@@ -295,6 +295,11 @@ void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gra
 		DirectX::XMVectorScale(acceleration, deltaTime)
 	);
 
+	float speed = XMVectorGetX(XMVector3Length(velocity));
+	if (speed < 0.01f) {
+		velocity = XMVectorZero();
+	}
+
 	XMFLOAT3 coutFLOAT;
 	XMStoreFloat3(&coutFLOAT, velocity);
 	std::cout << coutFLOAT.x << " " << coutFLOAT.y << " " << coutFLOAT.z << " \n";
