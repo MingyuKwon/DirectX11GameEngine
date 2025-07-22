@@ -169,6 +169,16 @@ public:
         bShowGizmo = bShow;
     }
 
+    inline void SetShowCollideBox(bool bShow)
+    {
+        bShowCollideBox = bShow;
+    }
+
+    inline bool GetShowCollideBox()const
+    {
+        return bShowCollideBox;
+    }
+
     inline void SwapAllActorTransformBuffer() {
         if (axisActor)
         {
@@ -192,6 +202,7 @@ private:
     EHoverMode hoverMode = EHoverMode::EHM_NONE;
 
     bool bShowGizmo = true;
+    bool bShowCollideBox = false;
 
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;

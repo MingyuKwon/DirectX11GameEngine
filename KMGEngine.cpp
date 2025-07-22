@@ -149,6 +149,9 @@ void PhysicsLoop()
 
         }
 
+        // 여기서 애들끼리 충돌 계산 해야 한다
+
+
         LARGE_INTEGER frameEnd;
         QueryPerformanceCounter(&frameEnd);
         double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
@@ -190,8 +193,6 @@ void GlobalTick(float deltaTime)
         MoveCameraRealtime();
         RotateCameraRealtime();
     }
-
-    DRAW_DEBUG_LINE(XMFLOAT3(0,0,0), XMFLOAT3(0, 10, 0), XMFLOAT4(1,0,0,1), 1);
 
     if (currentScene)
     {

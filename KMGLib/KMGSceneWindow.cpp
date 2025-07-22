@@ -175,21 +175,38 @@ void KMGSceneWindow::ShowSceneSetting(KMGScene* currentScene)
     VERTICAL_SPACE(5);
     ImGui::SetCursorPosX(15);
     
-    static bool enabled = true;
+    static bool gizmoEnabled = true;
 
-    bool beforeEnable = enabled;
+    bool beforeGizmoEnable = gizmoEnabled;
 
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(4, 0));
-    ImGui::Checkbox("Show Gizmo", &enabled);
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(1, 0, 0, 255));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(5, 0));
+    ImGui::Checkbox("Show Gizmo", &gizmoEnabled);
     ImGui::PopStyleVar(); 
     ImGui::PopStyleColor();
 
-    if (beforeEnable != enabled) // 이러면 버튼을 눌러서 변한거다
+    if (beforeGizmoEnable != gizmoEnabled) // 이러면 버튼을 눌러서 변한거다
     {
-        currentScene->SetShowGizmo(enabled);
+        currentScene->SetShowGizmo(gizmoEnabled);
     }
 
+    VERTICAL_SPACE(5);
+    ImGui::SetCursorPosX(15);
+
+    static bool collideBoxShow = false;
+
+    bool beforeCollideBoxShow = collideBoxShow;
+
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(1, 0, 0, 255));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(5, 0));
+    ImGui::Checkbox("Show Collide Box", &collideBoxShow);
+    ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
+
+    if (beforeCollideBoxShow != collideBoxShow) // 이러면 버튼을 눌러서 변한거다
+    {
+        currentScene->SetShowCollideBox(collideBoxShow);
+    }
 
 }
 
