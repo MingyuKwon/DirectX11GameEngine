@@ -20,20 +20,26 @@ float4 PS(PS_INPUT input) : SV_Target
     for (int i = 0; i < lightCount; i++)
     {
         float3 lightDir = lights[i].direction;
-                        
+        float attenuation = 1;
+        
         if (lights[i].type == 0)
         {
             lightDir = -normalize(lights[i].direction);
         }
         else
         {
-            lightDir = normalize(lights[i].position - input.worldPos.xyz);
+            float3 lightVec = lights[i].position - input.worldPos.xyz;
+            float distance = length(lightVec);
+
+            lightDir = normalize(lightVec);
+
+            attenuation = 1.0 / (1 + 0.09 * distance + 0.032 * distance * distance);
         }
         
         float NdotM = saturate(dot(normalWS, lightDir));
         float NdotL = saturate(dot(N, lightDir));
 
-        finalColor += lights[i].color * lights[i].intensity * (NdotL + NdotM);
+        finalColor += lights[i].color * lights[i].intensity * attenuation * (NdotL + NdotM);
     }
     
     return float4(baseColor.rgb * finalColor, baseColor.a);
