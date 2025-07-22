@@ -229,7 +229,9 @@ void KMGDetailWindow::ShowStaticMesh()
         componentEnabled = staticComp != nullptr;
 
         bool beforeComponentEnable = componentEnabled;
-        ImGui::Checkbox("Enable StaticMesh Component", &componentEnabled);
+        //ImGui::Checkbox("Enable StaticMesh Component", &componentEnabled);
+
+
         if (beforeComponentEnable != componentEnabled) // 이러면 버튼을 눌러서 변한거다
         {
             if (componentEnabled)
@@ -245,7 +247,7 @@ void KMGDetailWindow::ShowStaticMesh()
         }
 
 
-        VERTICAL_SPACE(20);
+        //VERTICAL_SPACE(20);
 
         if (!componentEnabled) return;
 

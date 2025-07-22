@@ -12,10 +12,11 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
 void GetDeltaTime();
+float GetPhysicsDeltaTime();
 void MoveCameraRealtime();
 void RotateCameraRealtime();
 
-const double targetFrameTime = 1.0 / 120.0; // 기준을 60fps로 맞춤
+const double targetFrameTime = 1.0 / DEFAULT_MAIN_FRAME_COUNT; // 기준을 60fps로 맞춤
 std::atomic<float> deltaTime = 0;
 
 std::atomic<bool> bRunning = true;
@@ -50,7 +51,7 @@ void TextureImportLoop();
 void MeshImportLoop();
 
 void PhysicsLoop();
-void ActorPhysicsCalc(KMGActor* targetActor);
+void ActorPhysicsCalc(KMGActor* targetActor, float physicsDeltaTime);
 
 void GlobalTick(float deltaTime);
 
@@ -134,15 +135,17 @@ void PhysicsLoop()
         LARGE_INTEGER frameStart;
         QueryPerformanceCounter(&frameStart);
 
+        float physicsDeltaTime = GetPhysicsDeltaTime();
+
         if (currentScene)
         {
             currentScene->SetAxisActorPosToFocus();
 
-            ActorPhysicsCalc(currentScene->GetAxisActor());
+            ActorPhysicsCalc(currentScene->GetAxisActor(), physicsDeltaTime);
             const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
             for (auto& bucket : actors)
             {
-                ActorPhysicsCalc(bucket.second.get());
+                ActorPhysicsCalc(bucket.second.get(), physicsDeltaTime);
             }
 
         }
@@ -158,11 +161,11 @@ void PhysicsLoop()
     }
 }
 
-void ActorPhysicsCalc(KMGActor* targetActor)
+void ActorPhysicsCalc(KMGActor* targetActor, float physicsDeltaTime)
 {
     if (targetActor)
     {
-        targetActor->ExecuteAllKineticCommand();
+        targetActor->ExecutePhysics(physicsDeltaTime);
     }
 }
 
@@ -378,8 +381,26 @@ void GetDeltaTime()
     ULONGLONG elapsedTimeMs = timeCur - prevTime;
     deltaTime.store(elapsedTimeMs / 1000.0f);
 
+
     prevTime = timeCur;
 
+}
+
+float GetPhysicsDeltaTime()
+{
+    static ULONGLONG prevTime = 0;
+    ULONGLONG timeCur = GetTickCount64();
+
+    if (prevTime == 0)
+        prevTime = timeCur;
+
+    ULONGLONG elapsedTimeMs = timeCur - prevTime;
+    float physicsDeltaTime = elapsedTimeMs / 1000.0f;
+
+    prevTime = timeCur;
+
+
+    return physicsDeltaTime;
 }
 
 

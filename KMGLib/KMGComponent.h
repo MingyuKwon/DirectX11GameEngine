@@ -9,6 +9,7 @@ enum class EComponentType
 	ECT_NONE,
 	ECT_LIGHT,
 	ECT_STATICMESH,
+	ECT_RIGIDBODY,
 	ECT_MAX,
 
 };
@@ -31,6 +32,61 @@ protected:
 
 private:
 };
+class RigidBodyComponent : public KMGComponent {
+public:
+	RigidBodyComponent()
+		: KMGComponent(EComponentType::ECT_RIGIDBODY),
+		mass(1.0f), drag(0.1f), angularDrag(0.05f),
+		useGravity(true), bKinematic(true),
+		velocity(DirectX::XMVectorZero()),
+		angularVelocity(DirectX::XMVectorZero()),
+		forceAccumulator(DirectX::XMVectorZero()),
+		torqueAccumulator(DirectX::XMVectorZero())
+	{}
+
+	inline void AddForce(const DirectX::XMVECTOR& force) 
+	{ 
+		forceAccumulator = DirectX::XMVectorAdd(forceAccumulator, force);
+	}
+
+	void AddTorque(const DirectX::XMVECTOR& torque)
+	{
+		torqueAccumulator = DirectX::XMVectorAdd(torqueAccumulator, torque);
+	}
+
+	void Integrate(float deltaTime, const DirectX::XMVECTOR& gravity = { 0, -9.81f, 0, 0 });
+
+	void ClearForces() {
+		forceAccumulator = DirectX::XMVectorZero();
+		torqueAccumulator = DirectX::XMVectorZero();
+	}
+
+	DirectX::XMVECTOR GetVelocity() const { return velocity; }
+	void SetVelocity(const DirectX::XMVECTOR& v) { velocity = v; }
+
+	void SetMass(float m) { mass = m; }
+	float GetMass() const { return mass; }
+
+	void SetUseGravity(bool use) { useGravity = use; }
+	bool IsUsingGravity() const { return useGravity; }
+
+	void SetKinematic(bool value) { bKinematic = value; }
+	bool IsKinematic() const { return bKinematic; }
+
+private:
+	float mass;
+	float drag;
+	float angularDrag;
+	bool useGravity;
+	bool bKinematic;
+
+	DirectX::XMVECTOR velocity;
+	DirectX::XMVECTOR angularVelocity;
+
+	DirectX::XMVECTOR forceAccumulator;
+	DirectX::XMVECTOR torqueAccumulator;
+};
+
 
 class LightComponent : public KMGComponent {
 public:

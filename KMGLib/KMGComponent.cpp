@@ -252,3 +252,11 @@ void LightComponent::SetLightColor(DirectX::XMFLOAT4 color)
 
 	}
 }
+
+void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gravity)
+{
+	if (deltaTime <= 0.0f) return; 
+	if (bKinematic) return;
+
+
+}

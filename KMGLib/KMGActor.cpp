@@ -6,11 +6,11 @@ using namespace DirectX;
 KMGActor::KMGActor(int ID, std::wstring name) : actorID(ID), name(name)
 {
     StaticMeshComponent* staticComponent = new StaticMeshComponent();
-    KMGStaticMesh newDefaultMesh = KMGStaticMesh::CreateDefaultSphereMesh(0.5f, XMFLOAT4(1,0,0,1));
-
-    staticComponent->SetMeshData(std::move(newDefaultMesh));
-
     SetComponent(staticComponent);
+
+    RigidBodyComponent* rigidBodyComponent = new RigidBodyComponent();
+    SetComponent(rigidBodyComponent);
+
 }
 
 KMGActor::~KMGActor()
@@ -215,6 +215,13 @@ bool KMGActor::SetComponent(KMGComponent* addComponent)
 
     }
 
+
+    RigidBodyComponent* rigidBodyComponent = dynamic_cast<RigidBodyComponent*>(addComponent);
+    if (rigidBodyComponent)
+    {
+
+    }
+
     LightComponent* lightComp = dynamic_cast<LightComponent*>(addComponent);
     if (lightComp)
     {
@@ -297,6 +304,17 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
                 }
             }
         }
+    }
+}
+
+void KMGActor::ExecutePhysics(float deltaTime)
+{
+    ExecuteAllKineticCommand();
+
+    RigidBodyComponent* rigidBodyComponent = GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
+    if (rigidBodyComponent)
+    {
+        rigidBodyComponent->Integrate(deltaTime);
     }
 }
 

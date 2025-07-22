@@ -8,6 +8,8 @@
 class KMGActor {
 
 public:
+    friend RigidBodyComponent;
+
     KMGActor(int ID, std::wstring name);
     virtual ~KMGActor();
 
@@ -123,8 +125,8 @@ public:
     }
 
 
-    void ExecuteAllKineticCommand();
-
+    void ExecutePhysics(float deltaTime);
+    
     inline void SwapTransformBuffer() {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         readTransform = writeTransform;
@@ -249,5 +251,6 @@ private:
 
     void SetScale(float x, float y, float z);
     
-    
+    void ExecuteAllKineticCommand();
+
 };
