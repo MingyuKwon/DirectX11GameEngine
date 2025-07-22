@@ -67,6 +67,17 @@ public:
 	DirectX::XMVECTOR GetVelocity() const { return velocity; }
 	void SetVelocity(const DirectX::XMVECTOR& v) { velocity = v; }
 
+	DirectX::XMVECTOR GetAngularVelocity() const { return angularVelocity; }
+	void SetAngularVelocity(const DirectX::XMVECTOR& v) { angularVelocity = v; }
+
+	DirectX::XMVECTOR GetVelocity_Mutex() { 
+		std::lock_guard<std::mutex> lock(rigidBodyMutex);
+		return velocity; }
+
+	DirectX::XMVECTOR GetAngularVelocity_Mutex() { 
+		std::lock_guard<std::mutex> lock(rigidBodyMutex);
+		return angularVelocity; }
+
 	void SetMass(float m) 
 	{ 
 		std::lock_guard<std::mutex> lock(rigidBodyMutex);

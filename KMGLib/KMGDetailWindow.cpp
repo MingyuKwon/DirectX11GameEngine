@@ -338,7 +338,28 @@ void KMGDetailWindow::ShowRigidBody()
             rigidComp->SetKinematic(bKinematic);
         }
 
-        VERTICAL_SPACE(20);
+        VERTICAL_SPACE(15);
+
+
+        XMVECTOR velocity = rigidComp->GetVelocity_Mutex();
+        XMVECTOR angularVelocity = rigidComp->GetAngularVelocity_Mutex();
+
+        XMFLOAT3 vel3, angVel3;
+        XMStoreFloat3(&vel3, velocity);
+        XMStoreFloat3(&angVel3, angularVelocity);
+
+        FIRST_IMGUI_TAB(30);
+        ImGui::Text("Velocity");
+        ImGui::SameLine(180);
+        ImGui::Text("(%.3f, %.3f, %.3f)", vel3.x, vel3.y, vel3.z);
+        VERTICAL_SPACE(5);
+
+        FIRST_IMGUI_TAB(30);
+        ImGui::Text("AngularVelocity");
+        ImGui::SameLine(180);
+        ImGui::Text("(%.3f, %.3f, %.3f)", angVel3.x, angVel3.y, angVel3.z);
+        VERTICAL_SPACE(15);
+
 
         if (bKinematic) return;
 
@@ -384,8 +405,6 @@ void KMGDetailWindow::ShowRigidBody()
             rigidComp->SetAngularDrag(angularDrag);
         }
         VERTICAL_SPACE(5);
-
-
 
     }
 
