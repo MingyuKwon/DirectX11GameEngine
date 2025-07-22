@@ -7,63 +7,6 @@
 using namespace std;
 using namespace DirectX;
 
-KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius, DirectX::XMFLOAT4 lightColor) {
-    KMGStaticMesh mesh;
-    mesh.vertices.clear();
-    mesh.indices.clear();
-
-    radius /= 2;
-
-    const int SEGMENTS = 16;
-    const int RINGS = 8;
-    const float PI = 3.14159265359f;
-
-
-    for (int y = 0; y <= RINGS; ++y) {
-        float v = (float)y / RINGS;
-        float theta = v * PI;  // latitude (0 to pi)
-
-        for (int x = 0; x <= SEGMENTS; ++x) {
-            float u = (float)x / SEGMENTS;
-            float phi = u * 2.0f * PI;  // longitude (0 to 2pi)
-
-            float sinTheta = sinf(theta);
-            float cosTheta = cosf(theta);
-            float sinPhi = sinf(phi);
-            float cosPhi = cosf(phi);
-
-            float px = radius * sinTheta * cosPhi;
-            float py = radius * cosTheta;
-            float pz = radius * sinTheta * sinPhi;
-
-            KMGVertex vertex;
-            vertex.Pos = { px, py, pz };
-            vertex.Normal = { px / radius, py / radius, pz / radius }; // normalize
-            vertex.Tex = { u, 1.0f - v }; // Flip V for DirectX
-            vertex.Color = lightColor;
-
-            mesh.vertices.push_back(vertex);
-        }
-    }
-
-    for (int y = 0; y < RINGS; ++y) {
-        for (int x = 0; x < SEGMENTS; ++x) {
-            int i0 = y * (SEGMENTS + 1) + x;
-            int i1 = i0 + SEGMENTS + 1;
-
-            mesh.indices.push_back(i0);       
-            mesh.indices.push_back(i0 + 1);   
-            mesh.indices.push_back(i1);       
-
-            mesh.indices.push_back(i0 + 1);
-            mesh.indices.push_back(i1 + 1);
-            mesh.indices.push_back(i1);
-        }
-    }
-
-    return mesh;
-}
-
 inline bool operator==(const XMMATRIX& lhs, const XMMATRIX& rhs)
 {
     const float epsilon = 1e-5f;
@@ -255,4 +198,136 @@ void MeshLoader::MakeMeshOnRequest()
     }
     
     meshRequest.clear();
+}
+
+
+
+
+//////////////////////////////////////////////////////////////
+/// 아래 코드들은 직접 만들지 않고 외부에서 가져온 코드입니다
+//////////////////////////////////////////////////////////////
+
+KMGStaticMesh KMGStaticMesh::CreateDefaultSphereMesh(float radius, DirectX::XMFLOAT4 lightColor) {
+    KMGStaticMesh mesh;
+    mesh.vertices.clear();
+    mesh.indices.clear();
+
+    radius /= 2;
+
+    const int SEGMENTS = 16;
+    const int RINGS = 8;
+    const float PI = 3.14159265359f;
+
+
+    for (int y = 0; y <= RINGS; ++y) {
+        float v = (float)y / RINGS;
+        float theta = v * PI;  // latitude (0 to pi)
+
+        for (int x = 0; x <= SEGMENTS; ++x) {
+            float u = (float)x / SEGMENTS;
+            float phi = u * 2.0f * PI;  // longitude (0 to 2pi)
+
+            float sinTheta = sinf(theta);
+            float cosTheta = cosf(theta);
+            float sinPhi = sinf(phi);
+            float cosPhi = cosf(phi);
+
+            float px = radius * sinTheta * cosPhi;
+            float py = radius * cosTheta;
+            float pz = radius * sinTheta * sinPhi;
+
+            KMGVertex vertex;
+            vertex.Pos = { px, py, pz };
+            vertex.Normal = { px / radius, py / radius, pz / radius }; // normalize
+            vertex.Tex = { u, 1.0f - v }; // Flip V for DirectX
+            vertex.Color = lightColor;
+
+            mesh.vertices.push_back(vertex);
+        }
+    }
+
+    for (int y = 0; y < RINGS; ++y) {
+        for (int x = 0; x < SEGMENTS; ++x) {
+            int i0 = y * (SEGMENTS + 1) + x;
+            int i1 = i0 + SEGMENTS + 1;
+
+            mesh.indices.push_back(i0);
+            mesh.indices.push_back(i0 + 1);
+            mesh.indices.push_back(i1);
+
+            mesh.indices.push_back(i0 + 1);
+            mesh.indices.push_back(i1 + 1);
+            mesh.indices.push_back(i1);
+        }
+    }
+
+    return mesh;
+}
+
+KMGStaticMesh KMGStaticMesh::CreateDefaultBoxPlaneMesh(float width, float depth, float thickness, DirectX::XMFLOAT4 color)
+{
+    KMGStaticMesh mesh;
+    mesh.vertices.clear();
+    mesh.indices.clear();
+
+    float hw = width / 2.0f;
+    float hd = depth / 2.0f;
+    float hh = thickness / 2.0f;
+
+    struct Face {
+        XMFLOAT3 normal;
+        XMFLOAT3 v0, v1, v2, v3;
+    };
+
+    std::vector<Face> faces = {
+        // Bottom (-Y)
+        {{0,-1,0}, {-hw,-hh,-hd}, {-hw,-hh, hd}, { hw,-hh, hd}, { hw,-hh,-hd}},
+        // Top (+Y)
+        {{0, 1,0}, {-hw, hh,-hd}, {-hw, hh, hd}, { hw, hh, hd}, { hw, hh,-hd}},
+        // Front (+Z)
+        {{0, 0,1}, {-hw,-hh, hd}, {-hw, hh, hd}, { hw, hh, hd}, { hw,-hh, hd}},
+        // Back (-Z)
+        {{0, 0,-1}, {-hw,-hh,-hd}, {-hw, hh,-hd}, { hw, hh,-hd}, { hw,-hh,-hd}},
+        // Left (-X)
+        {{-1,0,0}, {-hw,-hh,-hd}, {-hw, hh,-hd}, {-hw, hh, hd}, {-hw,-hh, hd}},
+        // Right (+X)
+        {{1, 0,0}, { hw,-hh,-hd}, { hw, hh,-hd}, { hw, hh, hd}, { hw,-hh, hd}},
+    };
+
+    int index = 0;
+    for (const auto& face : faces) {
+        // 각 면마다 4개 정점 추가
+        KMGVertex v[4];
+        for (int i = 0; i < 4; ++i) {
+            v[i].Color = color;
+            v[i].Normal = face.normal;
+            v[i].Tex = {
+                (i == 0 || i == 3) ? 0.0f : 1.0f,
+                (i == 0 || i == 1) ? 0.0f : 1.0f
+            };
+        }
+
+        v[0].Pos = face.v0;
+        v[1].Pos = face.v1;
+        v[2].Pos = face.v2;
+        v[3].Pos = face.v3;
+
+        mesh.vertices.push_back(v[0]);
+        mesh.vertices.push_back(v[1]);
+        mesh.vertices.push_back(v[2]);
+        mesh.vertices.push_back(v[3]);
+
+        // 두 개의 삼각형 인덱스 추가
+        mesh.indices.push_back(index + 0);
+        mesh.indices.push_back(index + 1);
+        mesh.indices.push_back(index + 2);
+
+        mesh.indices.push_back(index + 0);
+        mesh.indices.push_back(index + 2);
+        mesh.indices.push_back(index + 3);
+
+        index += 4;
+    }
+
+    return mesh;
 }

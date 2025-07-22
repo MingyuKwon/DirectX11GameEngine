@@ -70,6 +70,12 @@ struct KMGStaticMesh {
         float radius = 1.0f, 
         DirectX::XMFLOAT4 lightColor = DirectX::XMFLOAT4(1,1,0,1));
 
+    static KMGStaticMesh CreateDefaultBoxPlaneMesh(
+        float width, float depth,
+        float thickness, 
+        DirectX::XMFLOAT4 color);
+
+
     std::vector<KMGVertex> vertices;
     std::vector<int> indices;
     std::wstring textureFilePath = DEFAULT_TEXTURE_FILEPATH;

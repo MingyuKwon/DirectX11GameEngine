@@ -51,7 +51,6 @@ void TextureImportLoop();
 void MeshImportLoop();
 
 void PhysicsLoop();
-void ActorPhysicsCalc(KMGActor* targetActor, float physicsDeltaTime);
 
 void GlobalTick(float deltaTime);
 
@@ -141,11 +140,11 @@ void PhysicsLoop()
         {
             currentScene->SetAxisActorPosToFocus();
 
-            ActorPhysicsCalc(currentScene->GetAxisActor(), physicsDeltaTime);
+            currentScene->GetAxisActor()->ExecutePhysics(physicsDeltaTime);
             const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
             for (auto& bucket : actors)
             {
-                ActorPhysicsCalc(bucket.second.get(), physicsDeltaTime);
+                bucket.second->ExecutePhysics(physicsDeltaTime);
             }
 
         }
@@ -161,13 +160,6 @@ void PhysicsLoop()
     }
 }
 
-void ActorPhysicsCalc(KMGActor* targetActor, float physicsDeltaTime)
-{
-    if (targetActor)
-    {
-        targetActor->ExecutePhysics(physicsDeltaTime);
-    }
-}
 
 void TextureImportLoop()
 {

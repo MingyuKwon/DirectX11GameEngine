@@ -13,10 +13,16 @@ KMGScene::KMGScene()
 
 void KMGScene::InitializeScene()
 {
-    KMGCommand::AddActor(L"Directional Light");
-    KMGCommand::AddLightComponent(L"Directional Light");
-    KMGCommand::UpdateLightComponent_Type(L"Directional Light", 0);
-    KMGCommand::UpdateActorRotation(L"Directional Light", XMVectorSet(0, 3,0,0), true);
+    KMGCommand::AddActor(L"Point Light");
+    KMGCommand::AddLightComponent(L"Point Light");
+    KMGCommand::UpdateLightComponent_Type(L"Point Light", 1);
+    KMGCommand::UpdateActorRotation(L"Point Light", XMVectorSet(0, 3,0,0), true);
+
+    std::vector<KMGStaticMesh> planeMesh;
+    planeMesh.push_back(KMGStaticMesh::CreateDefaultBoxPlaneMesh(15, 15, 0.5, XMFLOAT4(1, 1, 1, 1)));
+
+    KMGCommand::AddActor(L"Plane");
+    KMGCommand::UpdateStaticMesh(L"Plane", "DefaultPlane", std::move(planeMesh));
 }
 
 void KMGScene::CreateAxis()

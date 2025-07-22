@@ -300,10 +300,6 @@ void RigidBodyComponent::Integrate(float deltaTime, const DirectX::XMVECTOR& gra
 		velocity = XMVectorZero();
 	}
 
-	XMFLOAT3 coutFLOAT;
-	XMStoreFloat3(&coutFLOAT, velocity);
-	std::cout << coutFLOAT.x << " " << coutFLOAT.y << " " << coutFLOAT.z << " \n";
-
 	DirectX::XMVECTOR pos = owner->writeTransform.position;
 	pos = DirectX::XMVectorAdd(pos, DirectX::XMVectorScale(velocity, deltaTime));
 	owner->SetPosition(pos);
