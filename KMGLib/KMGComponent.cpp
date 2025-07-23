@@ -310,7 +310,6 @@ void RigidBodyComponent::IntegrateVelocity(float deltaTime, const DirectX::XMVEC
 
 void RigidBodyComponent::PredictPosition(float deltaTime)
 {
-	if (deltaTime <= 0.0f) return;
 	if (owner == nullptr) return;
 
 	predictedPosition = owner->GetWriteBufferPosition() + velocity * deltaTime;

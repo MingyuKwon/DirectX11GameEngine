@@ -12,9 +12,12 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
     for (auto& bucket : actors)
     {
+        std::wcout << bucket.second->GetName() << " ======================= ExecuteAllKineticCommand " << "\n";
         bucket.second->ExecuteAllKineticCommand();
 
         bucket.second->IntegrateVelocity(physicsDeltaTime);
+
+        std::wcout << bucket.second->GetName() << " ======================= PredictPosition " << "\n";
         bucket.second->PredictPosition(physicsDeltaTime);
     }
 
@@ -23,7 +26,6 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
     for (auto& bucket : actors)
     {
         bucket.second->ApplyFinalPosition();
-
     }
 }
 
