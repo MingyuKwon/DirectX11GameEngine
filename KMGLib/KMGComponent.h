@@ -32,6 +32,7 @@ protected:
 
 private:
 };
+
 class RigidBodyComponent : public KMGComponent {
 public:
 	RigidBodyComponent()
