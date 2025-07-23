@@ -172,6 +172,11 @@ void StaticMeshComponent::SetMeshData(KMGStaticMesh&& inMesh, std::string fileNa
 	}
 
 	bMeshUpdated_forMergeMesh = true;
+
+	if (owner)
+	{
+		owner->UpdateAABBBox(boundingBoxs.back());
+	}
 }
 
 float StaticMeshComponent::CheckHitWithRay(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDir, XMVECTOR& hitPosLocal) const

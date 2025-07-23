@@ -42,7 +42,7 @@ void CollisionSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent
     float velAlongNormal = XMVectorGetX(XMVector3Dot(relativeVel, info.normal));
     if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이라면 더 이상 힘을 줄 필요가 없음
 
-    float restitution = 0.5f; // 탄성
+    float restitution = 0.0f; // 탄성
 
     float invMassA = a->IsKinematic() ? 0.0f : 1.0f / a->GetMass();
     float invMassB = b->IsKinematic() ? 0.0f : 1.0f / b->GetMass();
