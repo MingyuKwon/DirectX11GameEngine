@@ -157,8 +157,13 @@ struct OBB {
     DirectX::XMVECTOR halfSize;   // xyz 반 길이 
 };
 
+class RigidBodyComponent;
+
 struct CollisionInfo {
     bool bCollide = false;
+
+    RigidBodyComponent* rbA;
+    RigidBodyComponent* rbB;
 
     DirectX::XMVECTOR normal;      // 충돌 방향
     float penetrationDepth;        // 겹친 정도

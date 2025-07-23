@@ -1,4 +1,4 @@
-#include "CollisionSystem.h"
+#include "PhysicsSystem.h"
 #include "KMGUtility.h"
 #include "KMGActor.h"
 #include "KMGScene.h"
@@ -17,7 +17,7 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
         bucket.second->PredictPosition(physicsDeltaTime);
     }
 
-    //DetectAndResolveAll(actors);
+    DetectAndResolveAll(actors);
 
     for (auto& bucket : actors)
     {
@@ -27,6 +27,8 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
 
 void PhysicsSystem::DetectAndResolveAll(const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors)
 {
+    std::vector<CollisionInfo> collisions;
+
     for (auto itA = actors.begin(); itA != actors.end(); ++itA)
     {
         for (auto itB = std::next(itA); itB != actors.end(); ++itB)
@@ -47,25 +49,34 @@ void PhysicsSystem::DetectAndResolveAll(const std::unordered_map<std::wstring, s
 
             if (info.bCollide)
             {
-                ResolveCollision(rbA, rbB, info);
+                info.rbA = rbA;
+                info.rbB = rbB;
+
+                collisions.push_back(info);
             }
         }
     }
+
+    for (const CollisionInfo& info : collisions)
+    {
+        ResolveCollision(info.rbA, info.rbB, info); 
+    }
+
 }
 
 void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* b, const CollisionInfo& info)
 {
-    // 둘다 키네마틱이면 애초에 충돌 자체가 안일어 난다
     if (a->IsKinematic() && b->IsKinematic()) return;
 
     XMVECTOR relativeVel = a->GetVelocity();
     if (!b->IsKinematic())
-        relativeVel = XMVectorSubtract(relativeVel, b->GetVelocity());
+        relativeVel = relativeVel - b->GetVelocity(); 
 
     float velAlongNormal = XMVectorGetX(XMVector3Dot(relativeVel, info.normal));
-    if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이라면 더 이상 힘을 줄 필요가 없음
+    if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이면 무시
 
-    float restitution = 0.9f; // 탄성
+    // 탄성 계수
+    float restitution = 0.9f;
 
     float invMassA = a->IsKinematic() ? 0.0f : 1.0f / a->GetMass();
     float invMassB = b->IsKinematic() ? 0.0f : 1.0f / b->GetMass();
@@ -73,16 +84,41 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
     float impulseMag = -(1.0f + restitution) * velAlongNormal;
     impulseMag /= (invMassA + invMassB);
 
-    XMVECTOR impulse = impulseMag * info.normal * 1;
+    XMVECTOR impulse = info.normal * impulseMag;
 
-    float size = XMVectorGetX(XMVector3Length(impulse));
-    std::cout << size << "\n";
-
+    // impulse 적용 (속도 변화)
     if (!a->IsKinematic())
-        a->ApplyImpulse(impulse); 
+        a->ApplyImpulse(impulse);
 
     if (!b->IsKinematic())
         b->ApplyImpulse(-impulse);
+
+    // --------------------------
+    // 침투 보정해줘서 특정 액터가 다른 액터를 뚫고 지나갈 수 없도록 해준다
+    // --------------------------
+
+    /*
+        const float percent = 0.8f; // 보정 강도 
+    const float slop = 0.01f;   // 허용 침투 오차
+
+    float penetration = max(info.penetrationDepth - slop, 0.0f);
+
+    XMVECTOR correction = XMVectorScale(info.normal, penetration * percent / (invMassA + invMassB));
+
+    if (!a->IsKinematic())
+    {
+        XMVECTOR corrected = b->GetPredictedPosition() - correction * invMassA;
+        a->SetPredictedPosition(corrected);
+    }
+
+    if (!b->IsKinematic())
+    {
+        XMVECTOR corrected = b->GetPredictedPosition() + correction * invMassB;
+        b->SetPredictedPosition(corrected);
+    }
+    
+    */
+
 }
 
 CollisionInfo PhysicsSystem::CheckOBBCollision(
@@ -94,7 +130,7 @@ CollisionInfo PhysicsSystem::CheckOBBCollision(
 
     CollisionInfo result;
 
-    XMVECTOR centerGap = XMVectorSubtract(b.center, a.center);
+    XMVECTOR centerGap = b.center - a.center;
     float R[3][3];
     float AbsR[3][3];
 

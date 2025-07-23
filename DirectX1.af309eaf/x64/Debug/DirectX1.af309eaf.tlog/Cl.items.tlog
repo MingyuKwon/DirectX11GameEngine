@@ -1,5 +1,5 @@
 D:\DirectX11GameEngine\KMGEngine.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\KMGEngine.obj
-D:\DirectX11GameEngine\KMGLib\CollisionSystem.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\CollisionSystem.obj
+D:\DirectX11GameEngine\KMGLib\PhysicsSystem.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\PhysicsSystem.obj
 D:\DirectX11GameEngine\KMGLib\CommandSchedular.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\CommandSchedular.obj
 D:\DirectX11GameEngine\KMGLib\DirectX11Run.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DirectX11Run.obj
 D:\DirectX11GameEngine\KMGLib\DrawDebug.cpp;D:\DirectX11GameEngine\DirectX1.af309eaf\x64\Debug\DrawDebug.obj

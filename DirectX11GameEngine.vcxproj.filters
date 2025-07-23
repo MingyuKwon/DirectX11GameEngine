@@ -117,7 +117,7 @@
     <ClCompile Include="KMGLib\KMGDetailWindow.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
-    <ClCompile Include="KMGLib\CollisionSystem.cpp">
+    <ClCompile Include="KMGLib\PhysicsSystem.cpp">
       <Filter>소스 파일\KMGLib</Filter>
     </ClCompile>
   </ItemGroup>
@@ -203,7 +203,7 @@
     <ClInclude Include="KMGLib\KMGDetailWindow.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
-    <ClInclude Include="KMGLib\CollisionSystem.h">
+    <ClInclude Include="KMGLib\PhysicsSystem.h">
       <Filter>헤더 파일\KMGLib</Filter>
     </ClInclude>
   </ItemGroup>

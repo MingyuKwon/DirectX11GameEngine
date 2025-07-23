@@ -139,7 +139,7 @@
     <ClCompile Include="ImGuiExample.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="KMGLib\CollisionSystem.cpp" />
+    <ClCompile Include="KMGLib\PhysicsSystem.cpp" />
     <ClCompile Include="KMGLib\CommandSchedular.cpp" />
     <ClCompile Include="KMGLib\DirectX11Run.cpp" />
     <ClCompile Include="KMGLib\DrawDebug.cpp" />
@@ -172,7 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineData.h" />
-    <ClInclude Include="KMGLib\CollisionSystem.h" />
+    <ClInclude Include="KMGLib\PhysicsSystem.h" />
     <ClInclude Include="KMGLib\CommandSchedular.h" />
     <ClInclude Include="KMGLib\DirectX11Run.h" />
     <ClInclude Include="KMGLib\DrawDebug.h" />

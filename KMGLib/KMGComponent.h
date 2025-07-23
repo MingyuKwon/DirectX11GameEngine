@@ -73,6 +73,9 @@ public:
 		torqueAccumulator = DirectX::XMVectorZero();
 	}
 
+	DirectX::XMVECTOR GetPredictedPosition() const { return predictedPosition; }
+	void SetPredictedPosition(const DirectX::XMVECTOR& v) { predictedPosition = v; }
+
 	DirectX::XMVECTOR GetVelocity() const { return velocity; }
 	void SetVelocity(const DirectX::XMVECTOR& v) { velocity = v; }
 
