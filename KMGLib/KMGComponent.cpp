@@ -311,15 +311,13 @@ void RigidBodyComponent::IntegrateVelocity(float deltaTime, const DirectX::XMVEC
 void RigidBodyComponent::PredictPosition(float deltaTime)
 {
 	if (deltaTime <= 0.0f) return;
-	if (bKinematic) return;
 	if (owner == nullptr) return;
 
-	predictedPosition = owner->GetPosition() + velocity * deltaTime;
+	predictedPosition = owner->GetWriteBufferPosition() + velocity * deltaTime;
 
 	//DirectX::XMFLOAT3 coutFloat;
 	//XMStoreFloat3(&coutFloat, predictedPosition);
 	//std::cout << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
-
 }
 
 void RigidBodyComponent::ApplyFinalPosition()

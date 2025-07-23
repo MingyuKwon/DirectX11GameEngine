@@ -13,6 +13,7 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
     for (auto& bucket : actors)
     {
         bucket.second->ExecuteAllKineticCommand();
+
         bucket.second->IntegrateVelocity(physicsDeltaTime);
         bucket.second->PredictPosition(physicsDeltaTime);
     }
@@ -22,6 +23,7 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
     for (auto& bucket : actors)
     {
         bucket.second->ApplyFinalPosition();
+
     }
 }
 
@@ -73,7 +75,16 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
         relativeVel = relativeVel - b->GetVelocity(); 
 
     float velAlongNormal = XMVectorGetX(XMVector3Dot(relativeVel, info.normal));
+
+
     if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이면 무시
+
+    XMFLOAT3 coutFloat;
+    XMStoreFloat3(&coutFloat, info.normal);
+    std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
+    XMStoreFloat3(&coutFloat, relativeVel);
+    std::cout << "relativeVel = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
+
 
     // 탄성 계수
     float restitution = 0.9f;
@@ -97,8 +108,8 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
     // 침투 보정해줘서 특정 액터가 다른 액터를 뚫고 지나갈 수 없도록 해준다
     // --------------------------
 
-    /*
-        const float percent = 0.8f; // 보정 강도 
+    
+    const float percent = 0.8f; // 보정 강도 
     const float slop = 0.01f;   // 허용 침투 오차
 
     float penetration = max(info.penetrationDepth - slop, 0.0f);
@@ -107,7 +118,7 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
 
     if (!a->IsKinematic())
     {
-        XMVECTOR corrected = b->GetPredictedPosition() - correction * invMassA;
+        XMVECTOR corrected = a->GetPredictedPosition() - correction * invMassA;
         a->SetPredictedPosition(corrected);
     }
 
@@ -117,8 +128,6 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
         b->SetPredictedPosition(corrected);
     }
     
-    */
-
 }
 
 CollisionInfo PhysicsSystem::CheckOBBCollision(

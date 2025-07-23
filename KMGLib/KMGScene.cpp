@@ -19,7 +19,7 @@ void KMGScene::InitializeScene()
     KMGCommand::UpdateActorRotation(L"Point Light", XMVectorSet(0, 3,0,0), true);
 
     std::vector<KMGStaticMesh> planeMesh;
-    planeMesh.push_back(KMGStaticMesh::CreateDefaultBoxPlaneMesh(15, 15, 0.5, XMFLOAT4(1, 1, 1, 1)));
+    planeMesh.push_back(KMGStaticMesh::CreateDefaultBoxPlaneMesh(15, 15, 0.1, XMFLOAT4(1, 1, 1, 1)));
 
     KMGCommand::AddActor(L"Plane");
     KMGCommand::UpdateStaticMesh(L"Plane", "DefaultPlane", std::move(planeMesh));
