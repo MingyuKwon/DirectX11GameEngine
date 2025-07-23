@@ -1,8 +1,31 @@
 #include "CollisionSystem.h"
 #include "KMGUtility.h"
 #include "KMGActor.h"
+#include "KMGScene.h"
 
-void CollisionSystem::DetectAndResolveAll(const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors)
+void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
+{
+    if (currentScene == nullptr) return;
+
+    currentScene->GetAxisActor()->ExecuteAllKineticCommand();
+
+    const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
+    for (auto& bucket : actors)
+    {
+        bucket.second->ExecuteAllKineticCommand();
+        bucket.second->IntegrateVelocity(physicsDeltaTime);
+        bucket.second->PredictPosition(physicsDeltaTime);
+    }
+
+    //DetectAndResolveAll(actors);
+
+    for (auto& bucket : actors)
+    {
+        bucket.second->ApplyFinalPosition();
+    }
+}
+
+void PhysicsSystem::DetectAndResolveAll(const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors)
 {
     for (auto itA = actors.begin(); itA != actors.end(); ++itA)
     {
@@ -30,7 +53,7 @@ void CollisionSystem::DetectAndResolveAll(const std::unordered_map<std::wstring,
     }
 }
 
-void CollisionSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* b, const CollisionInfo& info)
+void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* b, const CollisionInfo& info)
 {
     // 둘다 키네마틱이면 애초에 충돌 자체가 안일어 난다
     if (a->IsKinematic() && b->IsKinematic()) return;
@@ -42,7 +65,7 @@ void CollisionSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent
     float velAlongNormal = XMVectorGetX(XMVector3Dot(relativeVel, info.normal));
     if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이라면 더 이상 힘을 줄 필요가 없음
 
-    float restitution = 0.0f; // 탄성
+    float restitution = 0.9f; // 탄성
 
     float invMassA = a->IsKinematic() ? 0.0f : 1.0f / a->GetMass();
     float invMassB = b->IsKinematic() ? 0.0f : 1.0f / b->GetMass();
@@ -62,7 +85,7 @@ void CollisionSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent
         b->ApplyImpulse(-impulse);
 }
 
-CollisionInfo CollisionSystem::CheckOBBCollision(
+CollisionInfo PhysicsSystem::CheckOBBCollision(
     const DirectX::BoundingBox& aBox, DirectX::XMMATRIX aWorldMat,
     const DirectX::BoundingBox& bBox, DirectX::XMMATRIX bWorldMat)
 {
@@ -156,7 +179,7 @@ CollisionInfo CollisionSystem::CheckOBBCollision(
 }
 
 
-OBB CollisionSystem::CreateOBBFromAABB(const BoundingBox& box, const DirectX::XMMATRIX& world)
+OBB PhysicsSystem::CreateOBBFromAABB(const BoundingBox& box, const DirectX::XMMATRIX& world)
 {
     OBB obb;
     obb.center = XMVector3Transform(XMLoadFloat3(&box.Center), world);

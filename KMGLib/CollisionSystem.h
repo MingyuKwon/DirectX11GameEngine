@@ -3,10 +3,12 @@
 #include <KMGComponent.h>
 
 class KMGActor;
+class KMGScene;
 
-
-class CollisionSystem {
+class PhysicsSystem {
 public:
+    void Simulate(KMGScene* currentScene, float physicsDeltaTime);
+
     void DetectAndResolveAll(const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors);
 
 private:

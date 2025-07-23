@@ -125,8 +125,11 @@ public:
     }
 
 
-    void ExecutePhysics(float deltaTime);
-    
+    void IntegrateVelocity(float deltaTime);
+    void PredictPosition(float deltaTime);
+
+    void ApplyFinalPosition();
+
     inline void SwapTransformBuffer() {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         readTransform = writeTransform;
@@ -155,6 +158,8 @@ private:
 
 
 public:
+    void ExecuteAllKineticCommand();
+
     /// <summary>
     /// Kinematic 등록 함수들
     /// </summary>
@@ -251,6 +256,5 @@ private:
 
     void SetScale(float x, float y, float z);
     
-    void ExecuteAllKineticCommand();
 
 };

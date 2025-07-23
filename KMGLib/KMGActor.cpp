@@ -311,15 +311,32 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
     }
 }
 
-void KMGActor::ExecutePhysics(float deltaTime)
+void KMGActor::IntegrateVelocity(float deltaTime)
 {
-    ExecuteAllKineticCommand();
-
     RigidBodyComponent* rigidBodyComponent = GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
     if (rigidBodyComponent)
     {
-        rigidBodyComponent->Integrate(deltaTime);
+        rigidBodyComponent->IntegrateVelocity(deltaTime);
     }
+}
+
+void KMGActor::PredictPosition(float deltaTime)
+{
+    RigidBodyComponent* rigidBodyComponent = GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
+    if (rigidBodyComponent)
+    {
+        rigidBodyComponent->PredictPosition(deltaTime);
+    }
+}
+
+void KMGActor::ApplyFinalPosition()
+{
+    RigidBodyComponent* rigidBodyComponent = GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
+    if (rigidBodyComponent)
+    {
+        rigidBodyComponent->ApplyFinalPosition();
+    }
+
 }
 
 void KMGActor::EnQueueKineticCommand(std::function<void()>&& command)

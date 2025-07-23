@@ -131,7 +131,7 @@ void PhysicsLoop()
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
-    static CollisionSystem collisionSystem;
+    static PhysicsSystem physicsSystem;
 
     while (bRunning) {
         LARGE_INTEGER frameStart;
@@ -143,16 +143,8 @@ void PhysicsLoop()
         {
             currentScene->SetAxisActorPosToFocus();
 
-            currentScene->GetAxisActor()->ExecutePhysics(physicsDeltaTime);
-            const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
-            for (auto& bucket : actors)
-            {
-                bucket.second->ExecutePhysics(physicsDeltaTime);
-            }
-
             // 여기서 애들끼리 충돌 계산 해야 한다
-            collisionSystem.DetectAndResolveAll(actors);
-
+            physicsSystem.Simulate(currentScene, physicsDeltaTime);
         }
 
 

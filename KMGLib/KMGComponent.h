@@ -62,7 +62,11 @@ public:
 		torqueAccumulator = DirectX::XMVectorAdd(torqueAccumulator, torque);
 	}
 
-	void Integrate(float deltaTime, const DirectX::XMVECTOR& gravity = { 0, -DEFAULT_GRAVITY_SCALE, 0, 0 });
+	void IntegrateVelocity(float deltaTime, const DirectX::XMVECTOR& gravity = { 0, -DEFAULT_GRAVITY_SCALE, 0, 0 });
+
+	void PredictPosition(float deltaTime);
+
+	void ApplyFinalPosition();
 
 	void ClearForces() {
 		forceAccumulator = DirectX::XMVectorZero();
@@ -146,6 +150,7 @@ private:
 	float drag;
 	float angularDrag;
 
+	DirectX::XMVECTOR predictedPosition;
 
 	DirectX::XMVECTOR velocity;
 	DirectX::XMVECTOR angularVelocity;
