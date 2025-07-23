@@ -67,12 +67,6 @@ void KMGActor::SetPosition(float x, float y, float z)
     {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         writeTransform.position = DirectX::XMVectorSet(x, y, z, 1);
-
-
-        if (actorID != -1)
-        {
-            std::wcout << name << " SetPosition " << x << " " << y << " " << z << "\n";
-        }
     }
 
     LightComponent* lightComp = GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
@@ -102,11 +96,6 @@ void KMGActor::Translate(float dx, float dy, float dz) {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         pos = writeTransform.position;
         delta = XMVectorSet(dx, dy, dz, 0);
-
-        if (actorID != -1)
-        {
-            std::wcout << name << " Translate " << dx << " " << dy << " " << dz << "\n";
-        }
     }
 
     SetPosition(XMVectorAdd(pos, delta));

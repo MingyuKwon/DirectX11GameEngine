@@ -12,12 +12,10 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
     for (auto& bucket : actors)
     {
-        std::wcout << bucket.second->GetName() << " ======================= ExecuteAllKineticCommand " << "\n";
         bucket.second->ExecuteAllKineticCommand();
 
         bucket.second->IntegrateVelocity(physicsDeltaTime);
 
-        std::wcout << bucket.second->GetName() << " ======================= PredictPosition " << "\n";
         bucket.second->PredictPosition(physicsDeltaTime);
     }
 
@@ -84,11 +82,7 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
     XMFLOAT3 coutFloat;
     XMStoreFloat3(&coutFloat, info.normal);
     std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z;
-
     std::cout << " depth = " << info.penetrationDepth << "\n";
-
-    XMStoreFloat3(&coutFloat, relativeVel);
-    std::cout << "relativeVel = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
 
 
     // 탄성 계수
@@ -109,22 +103,28 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
     if (!b->IsKinematic())
         b->ApplyImpulse(-impulse);
 
-
-
     // --------------------------
     // 침투 보정해줘서 특정 액터가 다른 액터를 뚫고 지나갈 수 없도록 해준다
+    // 그리고 이게 kinetic으로 이동시켜도 겹침을 막게 해주는 1등 공신이다
+    // 이거 좀 보정해 보자
     // --------------------------
 
-    const float percent = 0.8f; // 보정 강도 
+    const float percent = 0.1f; // 보정 강도 
     const float slop = 0.01f;   // 허용 침투 오차
 
     float penetration = max(info.penetrationDepth - slop, 0.0f);
 
     XMVECTOR correction = XMVectorScale(info.normal, penetration * percent / (invMassA + invMassB));
 
+
+
     if (!a->IsKinematic())
     {
         XMVECTOR corrected = a->GetPredictedPosition() + correction * invMassA;
+
+        XMStoreFloat3(&coutFloat, corrected);
+        std::cout << "corrected Position = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
+
         a->SetPredictedPosition(corrected);
     }
 
