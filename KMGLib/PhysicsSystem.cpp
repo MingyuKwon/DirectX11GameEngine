@@ -81,13 +81,16 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
 
     XMFLOAT3 coutFloat;
     XMStoreFloat3(&coutFloat, info.normal);
-    std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
+    std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z;
+
+    std::cout << " depth = " << info.penetrationDepth << "\n";
+
     XMStoreFloat3(&coutFloat, relativeVel);
     std::cout << "relativeVel = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
 
 
     // 탄성 계수
-    float restitution = 0.9f;
+    float restitution = 0.5f;
 
     float invMassA = a->IsKinematic() ? 0.0f : 1.0f / a->GetMass();
     float invMassB = b->IsKinematic() ? 0.0f : 1.0f / b->GetMass();
@@ -104,11 +107,12 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
     if (!b->IsKinematic())
         b->ApplyImpulse(-impulse);
 
+
+
     // --------------------------
     // 침투 보정해줘서 특정 액터가 다른 액터를 뚫고 지나갈 수 없도록 해준다
     // --------------------------
 
-    
     const float percent = 0.8f; // 보정 강도 
     const float slop = 0.01f;   // 허용 침투 오차
 
@@ -118,13 +122,13 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
 
     if (!a->IsKinematic())
     {
-        XMVECTOR corrected = a->GetPredictedPosition() - correction * invMassA;
+        XMVECTOR corrected = a->GetPredictedPosition() + correction * invMassA;
         a->SetPredictedPosition(corrected);
     }
 
     if (!b->IsKinematic())
     {
-        XMVECTOR corrected = b->GetPredictedPosition() + correction * invMassB;
+        XMVECTOR corrected = b->GetPredictedPosition() - correction * invMassB;
         b->SetPredictedPosition(corrected);
     }
     
@@ -139,7 +143,7 @@ CollisionInfo PhysicsSystem::CheckOBBCollision(
 
     CollisionInfo result;
 
-    XMVECTOR centerGap = b.center - a.center;
+    XMVECTOR centerGap = a.center - b.center;
     float R[3][3];
     float AbsR[3][3];
 

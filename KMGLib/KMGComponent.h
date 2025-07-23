@@ -36,7 +36,7 @@ class RigidBodyComponent : public KMGComponent {
 public:
 	RigidBodyComponent()
 		: KMGComponent(EComponentType::ECT_RIGIDBODY),
-		mass(1.0f), drag(0.1f), angularDrag(0.05f),
+		mass(1.0f), drag(0.2f), angularDrag(0.1f),
 		useGravity(false), bKinematic(true),
 		velocity(DirectX::XMVectorZero()),
 		angularVelocity(DirectX::XMVectorZero()),
