@@ -125,7 +125,7 @@ public:
         AABBBox = inBox;
     }
 
-    void AddLocalForceToActor(DirectX::XMVECTOR force);
+    void AddForceToActor(DirectX::XMVECTOR force);
     void IntegrateVelocity(float deltaTime);
     void PredictPosition(float deltaTime);
 

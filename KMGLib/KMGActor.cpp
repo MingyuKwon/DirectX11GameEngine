@@ -29,6 +29,8 @@ void KMGActor::CopyActorToTarget(KMGActor* targetActor)
     {
         std::lock_guard<std::mutex> lock(transformWriteLock);
         targetActor->writeTransform = writeTransform;
+
+        targetActor->AABBBox = AABBBox;
     }
 
     for (auto& bucket : components)
@@ -316,7 +318,7 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
     }
 }
 
-void KMGActor::AddLocalForceToActor(DirectX::XMVECTOR force)
+void KMGActor::AddForceToActor(DirectX::XMVECTOR force)
 {
     auto lamd = [force, this]()
         {
