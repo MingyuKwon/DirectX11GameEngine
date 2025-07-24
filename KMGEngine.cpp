@@ -343,7 +343,7 @@ void MovePhysicsRealtime()
     if (!XMVector3Equal(moveForce, XMVectorZero()))
     {
         moveForce = XMVector3Normalize(moveForce);
-        currentScene->GetFocusActor()->AddLocalForceToActor(moveForce);
+        currentScene->GetFocusActor()->AddForceToActor(moveForce);
     }
 
 }

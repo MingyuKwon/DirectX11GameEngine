@@ -318,8 +318,6 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
 
 void KMGActor::AddLocalForceToActor(DirectX::XMVECTOR force)
 {
-    force = DirectX::XMVector3TransformNormal(force, getWriteWorldMatrix());
-
     auto lamd = [force, this]()
         {
             RigidBodyComponent* rigidBodyComponent = GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
