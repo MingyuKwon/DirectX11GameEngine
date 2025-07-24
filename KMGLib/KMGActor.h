@@ -149,8 +149,9 @@ private:
     DirectX::BoundingBox AABBBox;
     std::mutex AABBLock;
 
-    std::queue<std::function<void()>> kineticCommandQueue;
-    std::mutex kineticQueueLock;
+    std::queue<std::function<void()>> kineticCommandQueue_back;
+    std::queue<std::function<void()>> kineticCommandQueue_front;
+    std::mutex kineticBufferLock;
 
 
     bool bVisible = true;

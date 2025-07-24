@@ -11,7 +11,7 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
 
     currentScene->GetAxisActor()->ExecuteAllKineticCommand();
 
-    std::lock_guard<std::mutex> actorMapLock(currentScene->GetActorMapLock());
+    //std::lock_guard<std::mutex> actorMapLock(currentScene->GetActorMapLock());
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
 
     for (auto& bucket : actors)
@@ -85,8 +85,8 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
 
     XMFLOAT3 coutFloat;
     XMStoreFloat3(&coutFloat, info.normal);
-    //std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z;
-    //std::cout << " depth = " << info.penetrationDepth << "\n";
+    std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z;
+    std::cout << " depth = " << info.penetrationDepth << "\n";
 
 
     // Åº¼º °è¼ö
@@ -119,8 +119,6 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
     float penetration = max(info.penetrationDepth - slop, 0.0f);
 
     XMVECTOR correction = XMVectorScale(info.normal, penetration * percent / (invMassA + invMassB));
-
-
 
     if (!a->IsKinematic())
     {
