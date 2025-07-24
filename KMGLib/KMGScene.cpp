@@ -192,6 +192,7 @@ void KMGScene::AddActor(std::unique_ptr<KMGActor>&& actor)
 void KMGScene::EraseActor(const std::wstring& name)
 {
     std::lock_guard<std::mutex> lock(actorMapLock);
+    std::lock_guard<std::mutex> updateLock(actorMapUpdateLock);
 
     if (actors.count(name) == 0) return;
 
@@ -200,6 +201,29 @@ void KMGScene::EraseActor(const std::wstring& name)
         focusActor = nullptr;
     }
     actors.erase(name);
+
+}
+
+KMGActor* KMGScene::GetActor(const std::wstring& name)
+{
+    std::lock_guard<std::mutex> lock(actorMapUpdateLock);
+
+    if (actors.count(name) != 0) return actors[name].get();
+    return nullptr;
+}
+
+void KMGScene::RenameActor(std::wstring beforeName, std::wstring aftername)
+{
+    std::lock_guard<std::mutex> lock(actorMapLock);
+    std::lock_guard<std::mutex> updateLock(actorMapUpdateLock);
+
+    if (actors.count(beforeName) == 0) return;
+    if (actors.count(aftername) != 0) return;
+
+    actors[aftername] = std::move(actors[beforeName]);
+    actors.erase(beforeName);
+
+    actors[aftername]->SetName(aftername);
 
 }
 
@@ -225,28 +249,6 @@ void KMGScene::Tick(float deltaTime)
 
     ColorHoverAxis();
     ChangeAxisTransform();
-}
-
-KMGActor* KMGScene::GetActor(const std::wstring& name)
-{
-    std::lock_guard<std::mutex> lock(actorMapLock);
-
-    if (actors.count(name) != 0) return actors[name].get();
-    return nullptr;
-}
-
-void KMGScene::RenameActor(std::wstring beforeName, std::wstring aftername)
-{
-    std::lock_guard<std::mutex> lock(actorMapLock);
-
-    if (actors.count(beforeName) == 0) return;
-    if (actors.count(aftername) != 0) return;
-
-    actors[aftername] = std::move(actors[beforeName]);
-    actors.erase(beforeName);
-
-    actors[aftername]->SetName(aftername);
-
 }
 
 const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::getAllActors()

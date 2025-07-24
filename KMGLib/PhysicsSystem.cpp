@@ -11,7 +11,8 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
 
     currentScene->GetAxisActor()->ExecuteAllKineticCommand();
 
-    //std::lock_guard<std::mutex> actorMapLock(currentScene->GetActorMapLock());
+    std::lock_guard<std::mutex> actorMapLock(currentScene->GetActorMapLock());
+
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
 
     for (auto& bucket : actors)
