@@ -116,7 +116,7 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
     // 이거 좀 보정해 보자
     // --------------------------
 
-    const float percent = 0.1f; // 보정 강도 
+    const float percent = 0.2f; // 보정 강도 
     const float slop = 0.01f;   // 허용 침투 오차
 
     float penetration = max(info.penetrationDepth - slop, 0.0f);
