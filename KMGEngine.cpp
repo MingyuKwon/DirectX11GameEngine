@@ -318,20 +318,27 @@ void MovePhysicsRealtime()
     if (!currentScene) return;
     if (currentScene->GetFocusActor() == nullptr) return;
 
+    XMVECTOR cameraForward = currentScene->GetCurrentCamera().GetForwardVector();
+
+    XMVECTOR upVector = XMVectorSet(0.0f, +1, 0.0f, 0.0f);
+    XMVECTOR forwardVector = XMVector3Normalize(XMVectorSet(XMVectorGetX(cameraForward), 0.f, XMVectorGetZ(cameraForward), 0.0f));
+    XMVECTOR rightVector = XMVector3Normalize(XMVector3Cross(upVector, forwardVector));
+
+
     XMVECTOR moveForce = XMVectorZero();
 
     if (GetAsyncKeyState('A') & 0x8000)
-        moveForce = XMVectorAdd(moveForce, XMVectorSet(-1, 0.0f, 0.0f, 0.0f));
+        moveForce = XMVectorAdd(moveForce, -rightVector);
     if (GetAsyncKeyState('D') & 0x8000)
-        moveForce = XMVectorAdd(moveForce, XMVectorSet(+1, 0.0f, 0.0f, 0.0f));
+        moveForce = XMVectorAdd(moveForce, rightVector);
     if (GetAsyncKeyState('W') & 0x8000)
-        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, 0.0f, +1, 0.0f));
+        moveForce = XMVectorAdd(moveForce, forwardVector);
     if (GetAsyncKeyState('S') & 0x8000)
-        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, 0.0f, -1, 0.0f));
+        moveForce = XMVectorAdd(moveForce, -forwardVector);
     if (GetAsyncKeyState('Q') & 0x8000)
-        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, -1, 0.0f, 0.0f));
+        moveForce = XMVectorAdd(moveForce, -upVector);
     if (GetAsyncKeyState('E') & 0x8000)
-        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, +1, 0.0f, 0.0f));
+        moveForce = XMVectorAdd(moveForce, upVector);
 
     if (!XMVector3Equal(moveForce, XMVectorZero()))
     {
