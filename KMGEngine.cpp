@@ -247,7 +247,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'Q':
             {
-                if (currentScene && !isRightMouseDown && !isSpaceDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown && bSceneFocused)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_SELECT);
                 }
@@ -256,7 +256,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'W':
             {
-                if (currentScene && !isRightMouseDown && !isSpaceDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown && bSceneFocused)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_MOVE);
                 }
@@ -265,7 +265,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'E':
             {
-                if (currentScene && !isRightMouseDown && !isSpaceDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown && bSceneFocused)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_ROTATE);
                 }
@@ -273,7 +273,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'R':
             {
-                if (currentScene && !isRightMouseDown && !isSpaceDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown && bSceneFocused)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_SCALE);
                 }

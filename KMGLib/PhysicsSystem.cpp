@@ -11,11 +11,6 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
     if (axisActor)
     {
         axisActor->ExecuteAllKineticCommand();
-
-        XMFLOAT3 coutFloat;
-        XMStoreFloat3(&coutFloat, axisActor->GetPosition());
-        std::cout << "Axis Position" << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
-
     }
 
 
@@ -89,13 +84,12 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
 
     float velAlongNormal = XMVectorGetX(XMVector3Dot(relativeVel, info.normal));
 
-
-    if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이면 무시
-
     XMFLOAT3 coutFloat;
     XMStoreFloat3(&coutFloat, info.normal);
     std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z;
     std::cout << " depth = " << info.penetrationDepth << "\n";
+
+    if (velAlongNormal > 0.0f) return; // 이미 멀어지고 있는 중이면 무시
 
 
     // 탄성 계수

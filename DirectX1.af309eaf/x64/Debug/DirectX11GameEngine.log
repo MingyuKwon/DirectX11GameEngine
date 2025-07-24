@@ -1,4 +1,2 @@
-﻿  KMGScene.cpp
-D:\DirectX11GameEngine\KMGLib\KMGScene.cpp(22,74): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-D:\DirectX11GameEngine\KMGLib\KMGScene.cpp(481,111): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
+﻿  PhysicsSystem.cpp
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe
