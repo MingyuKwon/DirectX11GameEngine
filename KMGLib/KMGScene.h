@@ -103,8 +103,10 @@ public:
 
     void RenameActor(std::wstring beforeName, std::wstring aftername);
    
-    // 이 함수는 무조건 모든 actors 접근이 끝난 후에 렌더링 단계에만 불러야 한다
+    // 이 함수는 내부에 lock이 없다, 이거 호출해서 참조 받아가기 전에 반드시 ActorMapLock을 받아가서 수동으로 잠가라
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& getAllActors();
+
+    std::mutex& GetActorMapLock();
 
     inline std::unordered_set<std::wstring> GetActorNames() {
         
@@ -191,6 +193,7 @@ public:
             
         }
     }
+
 
 
 private:

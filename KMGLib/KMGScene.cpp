@@ -251,9 +251,12 @@ void KMGScene::RenameActor(std::wstring beforeName, std::wstring aftername)
 
 const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& KMGScene::getAllActors()
 {
-    std::lock_guard<std::mutex> lock(actorMapLock);
-
     return actors;
+}
+
+std::mutex& KMGScene::GetActorMapLock()
+{
+    return actorMapLock;
 }
 
 void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
