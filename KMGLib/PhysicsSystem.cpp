@@ -7,9 +7,17 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
 {
     if (currentScene == nullptr) return;
 
-    //std::cout << " Simulate Physcis Thread " << "\n";
+    KMGActor* axisActor = currentScene->GetAxisActor();
+    if (axisActor)
+    {
+        axisActor->ExecuteAllKineticCommand();
 
-    currentScene->GetAxisActor()->ExecuteAllKineticCommand();
+        XMFLOAT3 coutFloat;
+        XMStoreFloat3(&coutFloat, axisActor->GetPosition());
+        std::cout << "Axis Position" << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
+
+    }
+
 
     std::lock_guard<std::mutex> actorMapLock(currentScene->GetActorMapLock());
 

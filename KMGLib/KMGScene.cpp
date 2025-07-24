@@ -103,10 +103,11 @@ void KMGScene::ChangeAxisTransform()
     if (focusActor == nullptr || sceneEditMode == ESceneEditMode::ESEM_SELECT)
     {
         axisActor->SetVisibility(false);
-        return;
     }
-
-    axisActor->SetVisibility(true);
+    else
+    {
+        axisActor->SetVisibility(true);
+    }
 
     // 여기서 카메라와 actor의 사이 간격에 따라 scale을 바꾸도록 하자
 
@@ -123,7 +124,10 @@ void KMGScene::ChangeAxisTransform()
     }
     else
     {
-        axisActor->SetRotation_Q_Kinematic(focusActor->GetRotation_Q());
+        if (focusActor)
+        {
+            axisActor->SetRotation_Q_Kinematic(focusActor->GetRotation_Q());
+        }
     }
 }
 

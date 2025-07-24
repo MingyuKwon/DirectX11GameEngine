@@ -1,16 +1,4 @@
 ﻿  KMGScene.cpp
 D:\DirectX11GameEngine\KMGLib\KMGScene.cpp(22,74): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-D:\DirectX11GameEngine\KMGLib\KMGScene.cpp(477,111): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-  QueueCommand.cpp
-D:\DirectX11GameEngine\KMGLib\QueueCommand.cpp(614,48): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-D:\DirectX11GameEngine\KMGLib\QueueCommand.cpp(614,43): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
-  KMGSceneHierarchyWindow.cpp
-D:\DirectX11GameEngine\KMGLib\KMGSceneHierarchyWindow.cpp(96,24): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGSceneHierarchyWindow.cpp(100,25): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGSceneHierarchyWindow.cpp(101,26): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGSceneHierarchyWindow.cpp(103,54): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGSceneHierarchyWindow.cpp(103,41): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGSceneHierarchyWindow.cpp(104,52): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\DirectX11GameEngine\KMGLib\KMGSceneHierarchyWindow.cpp(104,40): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  코드를 생성하고 있습니다...
+D:\DirectX11GameEngine\KMGLib\KMGScene.cpp(481,111): warning C4305: '인수': 'double'에서 'float'(으)로 잘립니다.
   DirectX11GameEngine.vcxproj -> D:\DirectX11GameEngine\x64\Debug\DirectX11GameEngine.exe
