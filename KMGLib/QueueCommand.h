@@ -66,6 +66,8 @@ namespace KMGCommand
 	void RemoveActor(const std::wstring& name);
 	void UpdateStaticMesh(const std::wstring& name, const std::string& fileName, std::vector<KMGStaticMesh>&& allMeshes);
 
+	void AddLocalForce(const std::wstring& name, DirectX::XMVECTOR force);
+
 	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position);
 	void UpdateActorPosition(const std::wstring& name, DirectX::XMVECTOR position);
 

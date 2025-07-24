@@ -8,12 +8,19 @@
 #include <DrawDebug.h>
 #include <PhysicsSystem.h>
 
+using namespace std;
+using namespace DirectX;
+
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int InitBaseWindow();
 void GetDeltaTime();
 float GetPhysicsDeltaTime();
+
+void MovePhysicsRealtime();
+
 void MoveCameraRealtime();
 void RotateCameraRealtime();
 
@@ -41,12 +48,6 @@ MeshLoader meshLoader;
 CommandSchedular* schedular = nullptr;
 
 KMGScene* currentScene = nullptr;
-
-using namespace std;
-using namespace DirectX;
-
-void MoveCameraRealtime();
-void RotateCameraRealtime();
 
 void TextureImportLoop();
 void MeshImportLoop();
@@ -188,6 +189,8 @@ void GlobalTick(float deltaTime)
     {
         MoveCameraRealtime();
         RotateCameraRealtime();
+
+        MovePhysicsRealtime();
     }
 
     if (currentScene)
@@ -202,6 +205,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {}
 
     bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+    bool isSpaceDown = (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
 
 
     switch (msg)
@@ -243,7 +247,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'Q':
             {
-                if (currentScene && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_SELECT);
                 }
@@ -252,7 +256,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'W':
             {
-                if (currentScene && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_MOVE);
                 }
@@ -261,7 +265,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'E':
             {
-                if (currentScene && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_ROTATE);
                 }
@@ -269,7 +273,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             case 'R':
             {
-                if (currentScene && !isRightMouseDown)
+                if (currentScene && !isRightMouseDown && !isSpaceDown)
                 {
                     currentScene->SetSceneEditMode(ESceneEditMode::ESEM_SCALE);
                 }
@@ -305,6 +309,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 
     return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+
+void MovePhysicsRealtime()
+{
+    if ((GetAsyncKeyState(VK_SPACE) & 0x8000) == 0) return;
+    if (!currentScene) return;
+    if (currentScene->GetFocusActor() == nullptr) return;
+
+    XMVECTOR moveForce = XMVectorZero();
+
+    if (GetAsyncKeyState('A') & 0x8000)
+        moveForce = XMVectorAdd(moveForce, XMVectorSet(-1, 0.0f, 0.0f, 0.0f));
+    if (GetAsyncKeyState('D') & 0x8000)
+        moveForce = XMVectorAdd(moveForce, XMVectorSet(+1, 0.0f, 0.0f, 0.0f));
+    if (GetAsyncKeyState('W') & 0x8000)
+        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, 0.0f, +1, 0.0f));
+    if (GetAsyncKeyState('S') & 0x8000)
+        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, 0.0f, -1, 0.0f));
+    if (GetAsyncKeyState('Q') & 0x8000)
+        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, -1, 0.0f, 0.0f));
+    if (GetAsyncKeyState('E') & 0x8000)
+        moveForce = XMVectorAdd(moveForce, XMVectorSet(0.0f, +1, 0.0f, 0.0f));
+
+    if (!XMVector3Equal(moveForce, XMVectorZero()))
+    {
+        moveForce = XMVector3Normalize(moveForce);
+        currentScene->GetFocusActor()->AddLocalForceToActor(moveForce);
+    }
+
 }
 
 void MoveCameraRealtime()
@@ -391,6 +425,7 @@ float GetPhysicsDeltaTime()
 
     return physicsDeltaTime;
 }
+
 
 
 

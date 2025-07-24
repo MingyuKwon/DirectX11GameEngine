@@ -37,7 +37,7 @@ class RigidBodyComponent : public KMGComponent {
 public:
 	RigidBodyComponent()
 		: KMGComponent(EComponentType::ECT_RIGIDBODY),
-		mass(1.0f), drag(0.2f), angularDrag(0.1f),
+		mass(1.0f), drag(0.4f), angularDrag(0.1f),
 		useGravity(false), bKinematic(true),
 		velocity(DirectX::XMVectorZero()),
 		angularVelocity(DirectX::XMVectorZero()),
@@ -50,16 +50,21 @@ public:
 
 	inline void AddForce(const DirectX::XMVECTOR& force) 
 	{ 
+		if (bKinematic) return;
 		forceAccumulator = DirectX::XMVectorAdd(forceAccumulator, force);
 	}
 
 	inline void ApplyImpulse(const DirectX::XMVECTOR& impulse)
 	{
+		if (bKinematic) return;
+
 		velocity = DirectX::XMVectorAdd(velocity, XMVectorScale(impulse, 1.0f / mass));
 	}
 
 	void AddTorque(const DirectX::XMVECTOR& torque)
 	{
+		if (bKinematic) return;
+
 		torqueAccumulator = DirectX::XMVectorAdd(torqueAccumulator, torque);
 	}
 

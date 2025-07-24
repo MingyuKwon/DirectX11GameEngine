@@ -442,6 +442,9 @@ void KMGRender::RenderScene(KMGScene* scene)
 
 void KMGRender::DrawScene(KMGScene* scene)
 {
+    //std::cout << " Render Thread " << "\n";
+
+
     // 여기선 뷰 포트를 만들어서 적용시켜줘야 한다
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     pMainContext->ClearRenderTargetView(pSceneRTV, Colors::White);
@@ -461,7 +464,6 @@ void KMGRender::DrawScene(KMGScene* scene)
     // 여기서 deferred로 렌더링 준비 작업을 메시의 개수만큼 멀티 스레드로 돌린다
     vector<thread> renderSettingThreads;
 
-    const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
     lightArray.clear();
 
     // 여기에 이름이 기록된 리소스들은 그리지 말고, 마지막에 지워져야함
@@ -469,96 +471,102 @@ void KMGRender::DrawScene(KMGScene* scene)
     unordered_set<wstring> shouldEraseActorName;
     unordered_map<wstring, int> ActorMeshCount;
 
-    for (auto& bucket : actors)
     {
-        KMGActor* actor = bucket.second.get();
-        wstring actorID = to_wstring(actor->GetActorID());
-        XMMATRIX worldMat = actor->getWorldMatrix();
-        
-        XMFLOAT4 lightColor = XMFLOAT4(-1,-1,-1,-1);
-        // 빛 컴포넌트가 있는 지 확인함
-        if (actor->HasComponent(EComponentType::ECT_LIGHT))
-        {
-            LightComponent* lightComp = actor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
-            lightArray.AddLight(lightComp->GetLight());
-            lightColor = lightComp->GetLight().color;
-        }
+        const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
 
-        // 가져올 Mesh가 있는지 확인함
-        vector<KMGStaticMesh>* actorMeshes = nullptr;
-        if (actor->HasComponent(EComponentType::ECT_STATICMESH))
+        for (auto& bucket : actors)
         {
-            StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
-            actorMeshes = staticComp->GetMeshes();
+            KMGActor* actor = bucket.second.get();
+            wstring actorID = to_wstring(actor->GetActorID());
+            XMMATRIX worldMat = actor->getReadWorldMatrix();
 
-            if (actorMeshes)
+            XMFLOAT4 lightColor = XMFLOAT4(-1, -1, -1, -1);
+            // 빛 컴포넌트가 있는 지 확인함
+            if (actor->HasComponent(EComponentType::ECT_LIGHT))
             {
-                ActorMeshCount[actorID] = actorMeshes->size();
+                LightComponent* lightComp = actor->GetComponent<LightComponent>(EComponentType::ECT_LIGHT);
+                lightArray.AddLight(lightComp->GetLight());
+                lightColor = lightComp->GetLight().color;
+            }
 
+            // 가져올 Mesh가 있는지 확인함
+            vector<KMGStaticMesh>* actorMeshes = nullptr;
+            if (actor->HasComponent(EComponentType::ECT_STATICMESH))
+            {
+                StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
+                actorMeshes = staticComp->GetMeshes();
 
-                // 이 부분 원래 각각의 박스마다 그리게 하려고 했는데 이러면 드로우 콜이 너무 많아져서
-                    // 그리라고 하기 전에 하나로 합쳤다
-
-                const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
-                pBoxs = staticComp->GetBoundingBoxs();
-                if (pBoxs)
+                if (actorMeshes)
                 {
-                    const std::vector<DirectX::BoundingBox>& boxs = *pBoxs;
+                    ActorMeshCount[actorID] = actorMeshes->size();
 
-                    KMGDebugMesh accumulateMesh;
-                    int vertexOffset = 0;
 
-                    for (int i = 0; i < boxs.size(); i++)
+                    // 이 부분 원래 각각의 박스마다 그리게 하려고 했는데 이러면 드로우 콜이 너무 많아져서
+                        // 그리라고 하기 전에 하나로 합쳤다
+
+                    const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
+                    pBoxs = staticComp->GetBoundingBoxs();
+                    if (pBoxs)
                     {
-                        KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
+                        const std::vector<DirectX::BoundingBox>& boxs = *pBoxs;
 
-                        accumulateMesh.vertices.insert(
-                            accumulateMesh.vertices.end(),
-                            mesh.vertices.begin(),
-                            mesh.vertices.end()
-                        );
+                        KMGDebugMesh accumulateMesh;
+                        int vertexOffset = 0;
 
-                        for (int index : mesh.indices)
+                        for (int i = 0; i < boxs.size(); i++)
                         {
-                            accumulateMesh.indices.push_back(index + vertexOffset);
+                            KMGDebugMesh mesh = DrawDebug::MakeDebugBoundingBox(boxs[i], XMFLOAT4(0, 0, 0, 1));
+
+                            accumulateMesh.vertices.insert(
+                                accumulateMesh.vertices.end(),
+                                mesh.vertices.begin(),
+                                mesh.vertices.end()
+                            );
+
+                            for (int index : mesh.indices)
+                            {
+                                accumulateMesh.indices.push_back(index + vertexOffset);
+                            }
+
+                            vertexOffset += mesh.vertices.size();
                         }
 
-                        vertexOffset += mesh.vertices.size();
+                        if (actor->bShowBoundBox)
+                        {
+                            resourceManager.AddShouldDrawDebug(actorID + L"DEBUG_BOUNDBOXS", accumulateMesh, pMainContext, worldMat);
+                        }
+
+                        if (scene->GetShowCollideBox())
+                        {
+                            KMGDebugMesh collideBoxMesh = DrawDebug::MakeDebugBoundingBox(actor->GetAABBBox(), XMFLOAT4(1, 0, 0, 1));
+                            resourceManager.AddShouldDrawDebug(actorID + L"COLLIDEBOX", collideBoxMesh, pMainContext, worldMat);
+                        }
+
                     }
 
-                    if (actor->bShowBoundBox)
-                    {
-                        resourceManager.AddShouldDrawDebug(actorID + L"DEBUG_BOUNDBOXS", accumulateMesh, pMainContext, worldMat);
-                    }
-
-                    if (scene->GetShowCollideBox())
-                    {
-                        KMGDebugMesh collideBoxMesh = DrawDebug::MakeDebugBoundingBox(actor->GetAABBBox(), XMFLOAT4(1, 0, 0, 1));
-                        resourceManager.AddShouldDrawDebug(actorID + L"COLLIDEBOX", collideBoxMesh, pMainContext, worldMat);
-                    }
 
                 }
 
-                
+                //여기에 만약 actor가 mergeMesh 모드인 경우에는 액터를 합친 메시로 줘야 한다
+                if (staticComp->GetMergeMode())
+                {
+                    actorMeshes = staticComp->GetMergeMeshes();
+                }
+
             }
 
-            //여기에 만약 actor가 mergeMesh 모드인 경우에는 액터를 합친 메시로 줘야 한다
-            if (staticComp->GetMergeMode())
-            {
-                actorMeshes = staticComp->GetMergeMeshes();
-            }
-       
+            resourceManager.AddShouldDrawActor(
+                actor->IsVisible(),
+                actorID,
+                actorMeshes,
+                pMainContext,
+                lightColor,
+                worldMat
+            );
         }
-        
-        resourceManager.AddShouldDrawActor(
-            actor->IsVisible(),
-            actorID,
-            actorMeshes,
-            pMainContext,
-            lightColor,
-            worldMat
-        );
+
     }
+
 
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
@@ -578,7 +586,7 @@ void KMGRender::DrawScene(KMGScene* scene)
             axisActor->IsVisible(),
             actorMeshes,
             pMainContext,
-            axisActor->getWorldMatrix()
+            axisActor->getReadWorldMatrix()
         );
     }
 

@@ -57,7 +57,8 @@ public:
         return bVisible;
     }
 
-    DirectX::XMMATRIX getWorldMatrix();
+    DirectX::XMMATRIX getReadWorldMatrix();
+    DirectX::XMMATRIX getWriteWorldMatrix();
 
     inline DirectX::XMVECTOR GetPosition() const {
         return readTransform.position; }
@@ -68,7 +69,7 @@ public:
 
 
     inline DirectX::XMVECTOR GetLocalAxis(DirectX::XMVECTOR defaultAxis) {
-        defaultAxis = DirectX::XMVector3TransformNormal(defaultAxis, getWorldMatrix());
+        defaultAxis = DirectX::XMVector3TransformNormal(defaultAxis, getReadWorldMatrix());
         defaultAxis = DirectX::XMVector3Normalize(defaultAxis);
         return defaultAxis;
     }
@@ -124,7 +125,7 @@ public:
         AABBBox = inBox;
     }
 
-
+    void AddLocalForceToActor(DirectX::XMVECTOR force);
     void IntegrateVelocity(float deltaTime);
     void PredictPosition(float deltaTime);
 

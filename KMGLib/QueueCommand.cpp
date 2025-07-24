@@ -187,6 +187,14 @@ namespace KMGCommand
 	//////////////////////////////////////////////////////////////////////
 	/// 이제 이 작업은 스케줄러가 아니라 물리 스레드에서 진행이 되어야 한다
 	//////////////////////////////////////////////////////////////////////
+	void AddLocalForce(const std::wstring& name, DirectX::XMVECTOR force)
+	{
+		if (currentScene)
+		{
+			KMGActor* findActor = currentScene->GetActor(name);
+
+		}
+	}
 
 	void TranslateActor(const std::wstring& name, DirectX::XMVECTOR position)
 	{

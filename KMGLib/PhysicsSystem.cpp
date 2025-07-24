@@ -7,10 +7,11 @@ void PhysicsSystem::Simulate(KMGScene* currentScene, float physicsDeltaTime)
 {
     if (currentScene == nullptr) return;
 
+    //std::cout << " Simulate Physcis Thread " << "\n";
+
     currentScene->GetAxisActor()->ExecuteAllKineticCommand();
 
     std::lock_guard<std::mutex> actorMapLock(currentScene->GetActorMapLock());
-
     const std::unordered_map<std::wstring, std::unique_ptr<KMGActor>>& actors = currentScene->getAllActors();
 
     for (auto& bucket : actors)
@@ -48,8 +49,8 @@ void PhysicsSystem::DetectAndResolveAll(const std::unordered_map<std::wstring, s
             if (rbB == nullptr) continue;
 
             CollisionInfo info = CheckOBBCollision(
-                actorA->GetAABBBox(), actorA->getWorldMatrix(),
-                actorB->GetAABBBox(), actorB->getWorldMatrix()
+                actorA->GetAABBBox(), actorA->getWriteWorldMatrix(),
+                actorB->GetAABBBox(), actorB->getWriteWorldMatrix()
             );
 
             if (info.bCollide)
@@ -84,8 +85,8 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
 
     XMFLOAT3 coutFloat;
     XMStoreFloat3(&coutFloat, info.normal);
-    std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z;
-    std::cout << " depth = " << info.penetrationDepth << "\n";
+    //std::cout << "normal = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z;
+    //std::cout << " depth = " << info.penetrationDepth << "\n";
 
 
     // Åº¼º °è¼ö
@@ -126,8 +127,6 @@ void PhysicsSystem::ResolveCollision(RigidBodyComponent* a, RigidBodyComponent* 
         XMVECTOR corrected = a->GetPredictedPosition() + correction * invMassA;
 
         XMStoreFloat3(&coutFloat, corrected);
-        std::cout << "corrected Position = " << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
-
         a->SetPredictedPosition(corrected);
     }
 

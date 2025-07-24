@@ -270,7 +270,7 @@ void KMGScene::CheckHoverAxis(DirectX::XMVECTOR rayDir)
     StaticMeshComponent* staicComp = axisActor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
     if (staicComp)
     {
-        XMMATRIX invWorld = XMMatrixInverse(nullptr, axisActor->getWorldMatrix());
+        XMMATRIX invWorld = XMMatrixInverse(nullptr, axisActor->getReadWorldMatrix());
 
         XMVECTOR localRayOrigin = XMVector3Transform(cameraPosition, invWorld);
         XMVECTOR localRayDir = XMVector3TransformNormal(rayDir, invWorld);
@@ -376,7 +376,7 @@ void KMGScene::RotateAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin,
     default: return;
     }
 
-    DirectX::XMMATRIX focusWorldMat = focusActor->getWorldMatrix();
+    DirectX::XMMATRIX focusWorldMat = focusActor->getReadWorldMatrix();
     DirectX::XMMATRIX inv_focusWorldMat = XMMatrixInverse(nullptr, focusWorldMat);
 
     cachedWorldAxis = XMVector3TransformNormal(cachedWorldAxis, focusWorldMat);
@@ -443,7 +443,7 @@ void KMGScene::ScaleAxis(DirectX::XMVECTOR rayDir, DirectX::XMVECTOR rayOrigin, 
         return;
     }
 
-    DirectX::XMMATRIX focusWorldMat = focusActor->getWorldMatrix();
+    DirectX::XMMATRIX focusWorldMat = focusActor->getReadWorldMatrix();
     DirectX::XMMATRIX inv_focusWorldMat = XMMatrixInverse(nullptr, focusWorldMat);
 
     aimVec = XMVector3TransformNormal(aimVec, focusWorldMat);

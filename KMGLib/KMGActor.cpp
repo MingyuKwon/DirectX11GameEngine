@@ -57,9 +57,14 @@ void KMGActor::CopyActorToTarget(KMGActor* targetActor)
 }
 
 
-DirectX::XMMATRIX KMGActor::getWorldMatrix()
+DirectX::XMMATRIX KMGActor::getReadWorldMatrix()
 {
     return readTransform.GetWorldMatrix();
+}
+
+DirectX::XMMATRIX KMGActor::getWriteWorldMatrix()
+{
+    return writeTransform.GetWorldMatrix();
 }
 
 void KMGActor::SetPosition(float x, float y, float z)
@@ -241,7 +246,7 @@ float KMGActor::RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDi
 {
     if (HasMesh())
     {
-        XMMATRIX invWorld = XMMatrixInverse(nullptr, getWorldMatrix());
+        XMMATRIX invWorld = XMMatrixInverse(nullptr, getReadWorldMatrix());
 
         XMVECTOR localRayOrigin = XMVector3Transform(rayOrigin, invWorld);
         XMVECTOR localRayDir = XMVector3TransformNormal(rayDir, invWorld);
@@ -254,7 +259,7 @@ float KMGActor::RayTraceHit(DirectX::XMVECTOR rayOrigin, DirectX::XMVECTOR rayDi
             float hit = meshComp->CheckHitWithRay(localRayOrigin, localRayDir, hitPosLocal);
             if (hit >= 0)
             {
-                XMVECTOR hitPosWorld = XMVector3Transform(hitPosLocal, getWorldMatrix());
+                XMVECTOR hitPosWorld = XMVector3Transform(hitPosLocal, getReadWorldMatrix());
 
                 float distance = XMVectorGetX(XMVector3Length(hitPosWorld - rayOrigin));
                 return distance;
@@ -309,6 +314,25 @@ void KMGActor::UpdateNormalMap(std::wstring beforeTextureName, std::wstring text
             }
         }
     }
+}
+
+void KMGActor::AddLocalForceToActor(DirectX::XMVECTOR force)
+{
+    force = DirectX::XMVector3TransformNormal(force, getWriteWorldMatrix());
+
+    auto lamd = [force, this]()
+        {
+            RigidBodyComponent* rigidBodyComponent = GetComponent<RigidBodyComponent>(EComponentType::ECT_RIGIDBODY);
+            if (rigidBodyComponent)
+            {
+                rigidBodyComponent->AddForce(force);
+
+                std::cout << " rigidBodyComponent->AddForce " << "\n";
+
+            }
+        };
+
+    EnQueueKineticCommand(std::move(lamd));
 }
 
 void KMGActor::IntegrateVelocity(float deltaTime)
