@@ -2,12 +2,15 @@
 
 **DirectX11**, **Win32 API**, **Dear ImGui**를 활용해 제작한 커스텀 게임 엔진입니다.
 
-실행 영상 : https://www.youtube.com/watch?v=DAolx41Fdy8
+렌더러 - 에디터 실행 영상 : https://www.youtube.com/watch?v=DAolx41Fdy8
+물리 엔진 실행 영상 : https://www.youtube.com/watch?v=03TvrI5egpk
 
 
 ![Main Banner1](GitHubDetail/SampleTitle3.png)
+렌더러 - 에디터 부분 시연 GIF
 ![Main Banner2](GitHubDetail/KMGEngineTitle1.gif)
-![Main Banner3](GitHubDetail/KMGEngineTitle2.gif)
+물리 엔진 부분 시연 GIF
+![Main Banner3](GitHubDetail/PhysicsGif.gif)
 
 
 ---
@@ -20,7 +23,7 @@
 - 🧱 Win32 API를 이용한 윈도우 및 입력 처리
 - 🖱️ 디버그 및 에디터용 UI 구현 (Dear ImGui 사용)
 - 🧩 향후 확장 가능한 모듈형 구조 설계
-
+- 기본적인 중력, 충돌등이 구현되어 있는 물리 엔진
 
 ## 🛠️ 사용 기술
 
@@ -33,6 +36,8 @@
 
 - **렌더러부터 에디터까지 구현**  
   ⏰ *2025년 6월 21일 ~ 2025년 7월 15일*
+- **물리 엔진 ver 1 구현**  
+  ⏰ *2025년 7월 21일 ~ 2025년 7월 24일*
 
 
 ## 📁 폴더 구조 소개
@@ -55,7 +60,5 @@
 ## 📖 설명서
 
 - 🔹 [코드 간단 설명](GitHubDetail/CodeExplain.md)
-
-
 - 🔹 [전체 시스템 아키텍처](GitHubDetail/Architecture.md)
 - 🔹 [에디터 사용법](GitHubDetail/Tutorial.md)
