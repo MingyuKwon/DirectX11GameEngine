@@ -196,7 +196,7 @@ void KMGScene::AddActor(std::unique_ptr<KMGActor>&& actor)
 void KMGScene::EraseActor(const std::wstring& name)
 {
     std::lock_guard<std::mutex> lock(actorMapLock);
-    std::lock_guard<std::mutex> updateLock(actorMapUpdateLock);
+    std::lock_guard<std::mutex> updateLock(getActorLock);
 
     if (actors.count(name) == 0) return;
 
@@ -210,7 +210,7 @@ void KMGScene::EraseActor(const std::wstring& name)
 
 KMGActor* KMGScene::GetActor(const std::wstring& name)
 {
-    std::lock_guard<std::mutex> lock(actorMapUpdateLock);
+    std::lock_guard<std::mutex> lock(getActorLock);
 
     if (actors.count(name) != 0) return actors[name].get();
     return nullptr;
@@ -219,7 +219,7 @@ KMGActor* KMGScene::GetActor(const std::wstring& name)
 void KMGScene::RenameActor(std::wstring beforeName, std::wstring aftername)
 {
     std::lock_guard<std::mutex> lock(actorMapLock);
-    std::lock_guard<std::mutex> updateLock(actorMapUpdateLock);
+    std::lock_guard<std::mutex> updateLock(getActorLock);
 
     if (actors.count(beforeName) == 0) return;
     if (actors.count(aftername) != 0) return;

@@ -69,4 +69,19 @@ Detail Window는 현재 **선택한 액터(Actor)의 상세 정보**를 확인�
 ![Light Component](LightComp.gif)
 
 ---
+---
+![Main Banner3](DetailMain3.png)
+물리엔진 수치 조작을 할 수 있는 RigidBody Component.
+모든 액터는 자동으로 생성되면서 가지고 있게 됩니다
 
+
+![Light Component](PhysicsDetail1.gif)
+1. kinematic인지 아닌지를 정하는 항목. kinematic을 키게 되면 더 이상 속도나 다른 rigidBody의 값에 의한 액터의 이동이 막히고, 오로지 사용자의 입력만 받아들이게 된다. 또한 kinematic끼리의 충돌 계산은 무시된다
+
+2. 속도와 각속도를 보여주는 항목. (현재 각속도는 사용되지 않음)
+
+![Light Component](PhysicsDetail2.gif)
+3. 중력을 활성화 시키는 항목
+
+![Light Component](PhysicsDetail3.gif)
+4. 질량, 감속도, 각감속도를 설정 할 수 있는 항목(현재 각감속도는 사용되지 않음)

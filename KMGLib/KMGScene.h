@@ -207,7 +207,7 @@ private:
     bool bShowGizmo = true;
     bool bShowCollideBox = false;
 
-    std::mutex actorMapUpdateLock;
+    std::mutex getActorLock;
     std::mutex actorMapLock;
     std::unordered_map<std::wstring, std::unique_ptr<KMGActor>> actors;
 
