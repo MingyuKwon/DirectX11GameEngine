@@ -59,23 +59,33 @@ void GlobalTick(float deltaTime);
 
 int main(int, char**)
 {
+    // 윈도우 창을 생성하는 함수
     InitBaseWindow();
 
+    // 렌더링에 대한 모든 것을 책임지는 객체
     renderEngine = new KMGRender(hMainWnd);
     renderEngine->StartRenderEngine();
 
+    // 여러 스레드에서 오는 명령을 이 스케줄러에 담고, 
+    // 메인 스레드에서 스케줄러 실행으로 동기적 실행을 한다
     schedular = new CommandSchedular();
+
     KMGCommand::ChangeScene(new KMGScene());
     currentScene->InitializeScene();
 
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
+    // 만약 오류가 뜨거나, 없는 경로를 가져오려고 하면 
+    // 디폴트 경로에서 가져온 값을 넘겨준다
     resourceManager.AddTextureSRVs(DEFAULT_TEXTURE_FILEPATH);
     resourceManager.AddTextureSRVs(DEFAULT_NORMAL_FILEPATH);
 
+    // 텍스처 로딩 스레드
     thread textureImportThread(TextureImportLoop);
+    // 메시 로딩 스레드
     thread meshImportThread(MeshImportLoop);
+    // 물리 스레드
     thread physicsThread(PhysicsLoop);
 
     MSG msg = {};
@@ -85,6 +95,7 @@ int main(int, char**)
         LARGE_INTEGER frameStart;
         QueryPerformanceCounter(&frameStart);
 
+        // 윈도우 명령 전부 받기
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
@@ -96,10 +107,11 @@ int main(int, char**)
             DispatchMessage(&msg);
         }
 
+        // 직전 메인 프레임과 현재 메인 프레임 사이의 간격을 구하는 함수
         GetDeltaTime();
         // 그리기 직전에 들어온 모든 명령 동기적으로 처리
         schedular->ExecuteMessage_InSchedular(currentScene);
-
+        // 에디터 카메라의 이동, Scnee의 Tick을 실행
         GlobalTick(deltaTime);
 
         // 마지막으로 그리기
@@ -107,8 +119,10 @@ int main(int, char**)
 
         LARGE_INTEGER frameEnd;
         QueryPerformanceCounter(&frameEnd);
-        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
+        double frameDuration = static_cast<double>(
+            frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
 
+        // 목표 프레임보다 빨랐으면 목표를 맞추기 위해 잠시 쉰다
         double remainingTime = targetFrameTime - frameDuration;
         if (remainingTime > 0.0) {
             this_thread::sleep_for(chrono::duration<double>(remainingTime));
@@ -132,27 +146,30 @@ void PhysicsLoop()
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
+    // 물리를 책임지는 시스템. static 로컬 변수로 하나만 만들었다
     static PhysicsSystem physicsSystem;
 
     while (bRunning) {
         LARGE_INTEGER frameStart;
         QueryPerformanceCounter(&frameStart);
 
+        // 물리 프레임에서는 따로 프레임 사이의 간격을 재야 한다
         float physicsDeltaTime = GetPhysicsDeltaTime();
 
         if (currentScene)
         {
+            // AxisActor은 액터를 바짝 따라가야 하기에 물리 스레드에서 위치를 정해줘야 한다
             currentScene->SetAxisActorPosToFocus();
-
             // 여기서 애들끼리 충돌 계산 해야 한다
             physicsSystem.Simulate(currentScene, physicsDeltaTime);
         }
 
-
         LARGE_INTEGER frameEnd;
         QueryPerformanceCounter(&frameEnd);
-        double frameDuration = static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
+        double frameDuration = 
+            static_cast<double>(frameEnd.QuadPart - frameStart.QuadPart) / frequency.QuadPart;
 
+        // 여기서도 목표 프레임보다 적게 걸렸으면 좀 쉬기
         double remainingTime = 1 / DEFAULT_PHYSICS_FRAME_COUNT - frameDuration;
         if (remainingTime > 0.0) {
             this_thread::sleep_for(chrono::duration<double>(remainingTime));

@@ -64,7 +64,6 @@ void DrawResourceManager::AddShouldDrawActor(
     DirectX::XMMATRIX worldMatrix)
 {
     shouldDrawActor[actorID] = (actorMeshes == nullptr) ? 0 : actorMeshes->size();
-
     LoadingManager* loading = nullptr;
     int shouldUpdateCount = 0;
 
@@ -97,21 +96,14 @@ void DrawResourceManager::AddShouldDrawActor(
             if (actorMesh.bShouldMeshChange)
             {
                 drawActorResources[meshName].UpdateBuffers(actorMesh.vertices, actorMesh.indices);
-                if (loading)
-                {
-                    loading->PlusCurrentCount();
-                }
-
+                if (loading) loading->PlusCurrentCount();
             }
 
             drawActorResources[meshName].pTextureSRV = GetTextureSRV(actorMesh.textureFilePath);
             drawActorResources[meshName].pNormalMapSRV = GetTextureSRV(actorMesh.normalMapFilePath);
-
             drawActorResources[meshName].bLightEffected = lightColor.x < 0;
             drawActorResources[meshName].bVisible = bVisible;
-
             drawActorResources[meshName].UpdateActorCB(pMainContext, worldMatrix);
-
             actorMesh.bShouldMeshChange = false;
         }
     }
@@ -148,10 +140,14 @@ void DrawResourceManager::AddShouldDrawDebug(
     debugMesh.bShouldDebugChange = false;
 }
 
+// 이 함수는 매 프레임마다 외부에서 무엇을 그려야 할지 
+// 전부 알려준 다는 것에 전제하여 만들어져 있음
 void DrawResourceManager::ArrangeActorResource()
 {
     unordered_set<wstring> shouldDrawResourceName;
 
+    // 액터와 액터에 있는 메시의 개수만큼 반복문을 돌아서 그려야 하는
+    // 드로우 리소스에 넣는다
     for (const auto& bucket : shouldDrawActor)
     {
         wstring actorName = bucket.first;
@@ -164,6 +160,8 @@ void DrawResourceManager::ArrangeActorResource()
         }
     }
 
+    // 이번에 그리지 않을 것인데 아직 액터 드로우 리소스에 남아있는 놈은
+    // 지워버린다
     for (auto it = drawActorResources.begin(); it != drawActorResources.end(); )
     {
         if (shouldDrawResourceName.count(it->first) == 0)
@@ -177,6 +175,8 @@ void DrawResourceManager::ArrangeActorResource()
     }
 }
 
+// 이 함수는 매 프레임마다 외부에서 무엇을 그려야 할지 
+// 전부 알려준 다는 것에 전제하여 만들어져 있음
 void DrawResourceManager::ArrangeDebugResource()
 {
     // 여기서 먼저 쭉 둘러보면서 count가 0이면 죽을 차례라는 거다

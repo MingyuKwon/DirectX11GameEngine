@@ -281,47 +281,43 @@ void RigidBodyComponent::IntegrateVelocity(float deltaTime, const DirectX::XMVEC
 	if (bKinematic) return;
 	if (owner == nullptr) return;
 
+	// 마찰 감안하고, 그 방향으로 Force를 준다
 	XMVECTOR dragForce = DirectX::XMVectorScale(velocity, -drag);
 	AddForce(dragForce);
 
 	XMVECTOR acceleration = DirectX::XMVectorZero();
-	if (useGravity)
-	{
-		acceleration = gravity;
-	}
+	if (useGravity) acceleration = gravity;
 
+	// 지금까지 모인 Force를 acceleratoin으로 바꾼다
 	acceleration = DirectX::XMVectorAdd(
 		acceleration,
 		DirectX::XMVectorScale(forceAccumulator, 1.0f / mass)
 	);
 
+	// accelratoin을 기반으로 현재 속도를 구한다
 	velocity = DirectX::XMVectorAdd(
 		velocity,
 		DirectX::XMVectorScale(acceleration, deltaTime)
 	);
 
+	// 속도가 매우 작다면 그냥 0으로 변경
 	float speed = XMVectorGetX(XMVector3Length(velocity));
 	if (speed < 0.01f) {
 		velocity = XMVectorZero();
 	}
 
+	// force 0으로 초기화 -> acceleratoin 0으로 초기화
 	ClearForces();
 }
 
 void RigidBodyComponent::PredictPosition(float deltaTime)
 {
 	if (owner == nullptr) return;
-
 	predictedPosition = owner->GetWriteBufferPosition() + velocity * deltaTime;
-
-	//DirectX::XMFLOAT3 coutFloat;
-	//XMStoreFloat3(&coutFloat, predictedPosition);
-	//std::cout << coutFloat.x << " " << coutFloat.y << " " << coutFloat.z << "\n";
 }
 
 void RigidBodyComponent::ApplyFinalPosition()
 {
 	if (bKinematic) return;
-
 	owner->SetPosition(predictedPosition);
 }

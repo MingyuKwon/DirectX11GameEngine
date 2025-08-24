@@ -404,7 +404,7 @@ int KMGRender::InitD3D_IMGUI()
 }
 
 
-
+// 씬에 대한 정보를 넘겨주며 프레임 단위로 그려달라고 하는 함수
 void KMGRender::RenderScene(KMGScene* scene)
 {
     if (!bRunning) return;
@@ -415,6 +415,7 @@ void KMGRender::RenderScene(KMGScene* scene)
         return;
     }
 
+    // 화면 크기가 변하면 그에 맞게 다시 렌더 타겟을 만들어야 함
     if (resizeRequested.exchange(false))
     {
         CleanupRenderTarget();
@@ -426,6 +427,7 @@ void KMGRender::RenderScene(KMGScene* scene)
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
+    // Scene Window에 화면을 그리는 함수
     DrawScene(scene);
     // 이건 최종적인 UI를 그리는 것이므로 이 전에 그릴 텍스처가 다 준비되어 있어야 한다
     DrawIMGUI_UI(scene);
@@ -436,23 +438,15 @@ void KMGRender::RenderScene(KMGScene* scene)
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     pSwapChain->Present(0, 0);
-
-    
 }
 
 void KMGRender::DrawScene(KMGScene* scene)
 {
-    //std::cout << " Render Thread " << "\n";
-
-
     // 여기선 뷰 포트를 만들어서 적용시켜줘야 한다
     pMainContext->ClearDepthStencilView(pSceneDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     pMainContext->ClearRenderTargetView(pSceneRTV, Colors::White);
 
     resourceManager.ClearShouldDrawActor();
-
-    ////////////////////////////////////////////
-    ///////////////////////////////////////////
     KMGCamera currentCamera = scene->GetCurrentCamera();
 
     CBChangeOnPlayer cbp = {};
@@ -460,9 +454,6 @@ void KMGRender::DrawScene(KMGScene* scene)
     cbp.mView = XMMatrixTranspose(currentCameraViewMatrix);
 
     pMainContext->UpdateSubresource(pCBChangeOnPlayer, 0, nullptr, &cbp, 0, 0);
-
-    // 여기서 deferred로 렌더링 준비 작업을 메시의 개수만큼 멀티 스레드로 돌린다
-    vector<thread> renderSettingThreads;
 
     lightArray.clear();
 
@@ -472,8 +463,8 @@ void KMGRender::DrawScene(KMGScene* scene)
     unordered_map<wstring, int> ActorMeshCount;
 
     {
+        // 액터를 드로우 리소스에게 넘겨주는 코드
         const unordered_map<wstring, unique_ptr<KMGActor>>& actors = scene->getAllActors();
-
         for (auto& bucket : actors)
         {
             KMGActor* actor = bucket.second.get();
@@ -495,15 +486,12 @@ void KMGRender::DrawScene(KMGScene* scene)
             {
                 StaticMeshComponent* staticComp = actor->GetComponent<StaticMeshComponent>(EComponentType::ECT_STATICMESH);
                 actorMeshes = staticComp->GetMeshes();
-
+                // 여기서 충돌 경계 보여주기용 박스를 그리는 코드이다
                 if (actorMeshes)
                 {
                     ActorMeshCount[actorID] = actorMeshes->size();
-
-
                     // 이 부분 원래 각각의 박스마다 그리게 하려고 했는데 이러면 드로우 콜이 너무 많아져서
-                        // 그리라고 하기 전에 하나로 합쳤다
-
+                    // 그리라고 하기 전에 하나로 합쳤다
                     const std::vector<DirectX::BoundingBox>* pBoxs = nullptr;
                     pBoxs = staticComp->GetBoundingBoxs();
                     if (pBoxs)
@@ -543,16 +531,10 @@ void KMGRender::DrawScene(KMGScene* scene)
                         }
 
                     }
-
-
                 }
 
                 //여기에 만약 actor가 mergeMesh 모드인 경우에는 액터를 합친 메시로 줘야 한다
-                if (staticComp->GetMergeMode())
-                {
-                    actorMeshes = staticComp->GetMergeMeshes();
-                }
-
+                if (staticComp->GetMergeMode()) actorMeshes = staticComp->GetMergeMeshes();
             }
 
             resourceManager.AddShouldDrawActor(
@@ -567,10 +549,8 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     }
 
-
     pMainContext->UpdateSubresource(pCBLightArray, 0, nullptr, &lightArray, 0, 0);
 
-    
     KMGActor* axisActor = scene->GetAxisActor();
     if (axisActor)
     {
@@ -604,11 +584,13 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     std::unordered_map<std::wstring, DrawResource>& drawDebugResources = resourceManager.GetDebugResources();
 
+    // 여기서 deferred로 렌더링 준비 작업을 메시의 개수만큼 멀티 스레드로 돌린다
+    vector<thread> renderSettingThreads;
+
     for (auto& bucket : drawDebugResources)
     {
         DrawResource& resource = bucket.second;
         wstring resourceName = bucket.first;
-
         ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
 
         renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
@@ -638,7 +620,6 @@ void KMGRender::DrawScene(KMGScene* scene)
         if (!resource.bVisible) continue;
 
         wstring resourceName = bucket.first;
-
         ID3D11PixelShader* pCurrentPixelShader = SelectPixelShader(resource);
 
         renderSettingThreads.emplace_back([this, pCurrentPixelShader, &resource] {
@@ -669,7 +650,6 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     // 모든 씬 렌더링이 끝난 후에, 다시 축을 그림
     // 축을 그릴 때는 멀티 스레딩을 그리면 depthCheck을 안하기에 깜빡임이 생긴다. 따라서 조절 필요
-
     for (int i=0; i<4; i++)
     {
         DrawResource* axisDrawResource = resourceManager.GetAxisDrawResource(i);
@@ -699,15 +679,12 @@ void KMGRender::DrawScene(KMGScene* scene)
 
     }
 
-
     int count = 0;
     for (auto cmd : DX11CommandLists) {
         count++;
         pMainContext->ExecuteCommandList(cmd, TRUE);
         cmd->Release(); 
     }
-
-    //if(count > 0) cout << "DrawCommand " << count << "\n";
     
     DX11CommandLists.clear();
 }

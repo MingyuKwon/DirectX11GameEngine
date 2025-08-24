@@ -373,7 +373,8 @@ void KMGActor::ExecuteAllKineticCommand()
 {
     {
         // 여기서 백버퍼와 프런트 버퍼를 한번만 바꾸게 한다. 
-        // 이렇게 안하고 그냥 버퍼 한개만 썼더니 한개를 잡겠다고 뮤텍스가 계속 막혀서 fps가 떨어진다
+        // 이렇게 안하고 그냥 버퍼 한개만 썼더니 한개를 잡겠다고 
+        // 뮤텍스가 계속 막혀서 fps가 떨어진다
         std::lock_guard<std::mutex> lock(kineticBufferLock);
         std::swap(kineticCommandQueue_back, kineticCommandQueue_front);
     }
